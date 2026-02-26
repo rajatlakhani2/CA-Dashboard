@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-slate-50">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RLA Dashboard v2.1</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- PWA -->
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="manifest" href="/build/manifest.webmanifest">
+
+    <!-- Scripts & Styles -->
+    <!-- Scripts & Styles -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Zen Mode */
+        body.zen-mode #sidebar {
+            transform: translateX(-100%);
+        }
+
+        body.zen-mode .pl-64 {
+            padding-left: 0 !important;
+        }
+    </style>
+    <script>
+        // Check local storage for Zen Mode
+        if (localStorage.getItem('zen-mode') === 'true') {
+            document.documentElement.classList.add('zen-mode'); // Use documentElement for immediate effect if possible, but body is where class is active
+            window.addEventListener('DOMContentLoaded', () => document.body.classList.add('zen-mode'));
+        }
+
+        // Check for Font Scale
+        const appScale = localStorage.getItem('app_scale');
+        if (appScale) {
+            document.documentElement.style.fontSize = appScale + '%';
+        }
+    </script>
+</head>
+
+<body class="h-full theme-modern">
+    <div class="min-h-full bg-bg-body text-text-main">
+        <!-- Sidebar -->
+        <div class="fixed inset-y-0 left-0 z-50 w-64 bg-sidebar text-white transition-transform duration-300 ease-in-out transform" id="sidebar">
+            <div class="flex items-center justify-center h-16 bg-white/10 shadow-md">
+                <h1 class="text-xl font-bold tracking-wider">RLA DASHBOARD</h1>
+            </div>
+
+            <nav class="mt-5 px-4 space-y-2">
+                <a href="{{ route('dashboard') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('dashboard') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Dashboard
+                </a>
+
+                <a href="{{ route('leaves.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('leaves.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('leaves.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Leaves
+                </a>
+
+                <!-- Client 360 -->
+                <a href="{{ route('clients.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('clients.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('clients.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    Clients
+                </a>
+
+                <a href="{{ route('tasks.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('tasks.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('tasks.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                    Tasks
+                </a>
+
+                <a href="{{ route('service-dues.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('service-dues.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('service-dues.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Reminders
+                </a>
+
+                <a href="{{ route('personal-renewals.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('personal-renewals.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('personal-renewals.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Personal Renewals
+                </a>
+
+                <a href="{{ route('invoices.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('invoices.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('invoices.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Invoices
+                </a>
+
+                <!-- REPORTS DROPDOWN -->
+                <div x-data="{ open: {{ request()->routeIs('reports.*') || request()->routeIs('employees.*') || request()->routeIs('compliance.*') ? 'true' : 'false' }} }">
+                    <button @click="open = !open" class="group w-full flex items-center justify-between px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5 focus:outline-none">
+                        <div class="flex items-center">
+                            <svg class="mr-3 flex-shrink-0 h-5 w-5 text-slate-500 group-hover:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Reports & 360°
+                        </div>
+                        <svg class="w-4 h-4 transition-transform transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <!-- Submenu -->
+                    <div x-show="open" class="space-y-1 pl-12 pr-2" style="display: none;">
+                        <a href="{{ route('employees.index') }}" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md {{ request()->routeIs('employees.*') ? 'text-white' : 'text-slate-400 hover:text-white' }}">
+                            Team 360°
+                        </a>
+                        <a href="{{ route('compliance.index') }}" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md {{ request()->routeIs('compliance.*') ? 'text-white' : 'text-slate-400 hover:text-white' }}">
+                            Compliance 360°
+                        </a>
+                        <a href="{{ route('reports.index') }}?tab=service" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md text-slate-400 hover:text-white">
+                            Service Report
+                        </a>
+                        <a href="{{ route('reports.financial') }}?tab=income" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md text-slate-400 hover:text-white">
+                            Income Wise
+                        </a>
+                        <a href="{{ route('reports.compliance') }}?tab=due_date" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md text-slate-400 hover:text-white">
+                            Due Date Report
+                        </a>
+                    </div>
+                </div>
+
+                <a href="{{ route('smart-documents.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('smart-documents.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('smart-documents.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                    Smart Archive
+                </a>
+
+                <a href="{{ route('activity.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('activity.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('activity.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    The Pulse
+                </a>
+
+                <div class="mt-8 px-2">
+                    <p class="px-2 text-xs font-extrabold text-slate-500 uppercase tracking-widest">
+                        Administration
+                    </p>
+                    <a href="{{ route('recycle-bin.index') }}" class="group flex items-center px-4 py-3 mt-2 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('recycle-bin.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('recycle-bin.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Recycle Bin
+                    </a>
+                    <a href="{{ route('services.index') }}" class="group flex items-center px-4 py-3 mt-2 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('services.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('services.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Service Master
+                    </a>
+                    <a href="{{ route('system.index') }}" class="group flex items-center px-4 py-3 mt-2 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('system.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('system.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V9a2 2 0 012-2h2a2 2 0 012 2v10" />
+                        </svg>
+                        System Health
+                    </a>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="pl-64 flex flex-col min-h-screen">
+            <!-- Header -->
+            <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 sticky top-0 z-40">
+                <div class="px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-800 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-indigo-400">
+                        @yield('header', 'Dashboard')
+                    </h2>
+                    <div class="flex items-center space-x-4">
+                        <!-- Search Trigger -->
+                        <div class="hidden md:flex items-center mr-2" x-data @click="$dispatch('keydown.window.prevent.ctrl.k')">
+                            <div class="relative cursor-text group">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400 group-hover:text-indigo-500 transition-colors" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg leading-5 bg-white/50 backdrop-blur-sm placeholder-gray-500 focus:outline-none focus:bg-white focus:border-indigo-300 transition duration-150 ease-in-out sm:text-xs shadow-sm hover:shadow group-hover:border-indigo-200 text-gray-500 font-medium">
+                                    Quick Search (Ctrl+K)
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Zen Mode Toggle -->
+                        <button onclick="toggleZenMode()" class="p-2 text-gray-400 hover:text-indigo-600 focus:outline-none transition-colors" title="Toggle Zen Mode">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                            </svg>
+                        </button>
+
+                        <!-- PWA Install Button -->
+                        <button id="pwa-install-btn" onclick="installPWA()" class="hidden p-2 text-gray-400 hover:text-indigo-600 focus:outline-none transition-colors" title="Install App">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                        </button>
+
+
+
+                        <!-- Notifications -->
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" class="p-2 text-gray-400 hover:text-indigo-600 focus:outline-none transition-colors relative">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                                @if(auth()->user()->unreadNotifications->count() > 0)
+                                <span class="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+                                @endif
+                            </button>
+
+                            <!-- Dropdown -->
+                            <div x-show="open" @click.away="open = false" style="display: none;" class="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 z-50">
+                                <div class="px-4 py-2 border-b border-gray-100 flex justify-between items-center">
+                                    <h3 class="text-sm font-semibold text-gray-700">Notifications</h3>
+                                    @if(auth()->user()->unreadNotifications->count() > 0)
+                                    <a href="{{ route('notifications.read.all') }}" class="text-xs text-indigo-600 hover:text-indigo-800">Mark all read</a>
+                                    @endif
+                                </div>
+                                <div class="max-h-64 overflow-y-auto">
+                                    @forelse(auth()->user()->unreadNotifications as $notification)
+                                    <a href="{{ route('notifications.read', $notification->id) }}" class="block px-4 py-3 hover:bg-gray-50 transition-colors border-b last:border-0 border-gray-50">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0 pt-0.5">
+                                                <div class="h-8 w-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <div class="ml-3 w-0 flex-1">
+                                                <p class="text-sm font-medium text-gray-900">
+                                                    {{ $notification->data['title'] ?? 'New Notification' }}
+                                                </p>
+                                                <p class="mt-1 text-xs text-gray-500">
+                                                    {{ $notification->data['message'] ?? 'You have a new update.' }}
+                                                </p>
+                                                <p class="mt-1 text-[10px] text-gray-400">
+                                                    {{ $notification->created_at->diffForHumans() }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    @empty
+                                    <div class="px-4 py-6 text-center text-sm text-gray-500">
+                                        No new notifications.
+                                    </div>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+
+                        <a href="{{ route('settings.index') }}" class="flex items-center space-x-2 group">
+                            <span class="text-sm text-gray-600 group-hover:text-indigo-600">Admin User</span>
+                            <div class="h-8 w-8 rounded-full bg-primary-500 flex items-center justify-center text-white font-bold group-hover:ring-2 ring-indigo-500">
+                                A
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="flex-1 py-8 px-4 sm:px-6 lg:px-8 animate-enter">
+                @if(session('success'))
+                <div class="mb-4 bg-green-50 border-l-4 border-green-500 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-green-700">
+                                {{ session('success') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                @if(session('warning'))
+                <div class="mb-4 bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-yellow-700">
+                                {{ session('warning') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                @if($errors->any())
+                <div class="mb-4 bg-red-50 border-l-4 border-red-500 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">There were errors with your submission</h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <ul role="list" class="list-disc pl-5 space-y-1">
+                                    @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                @yield('content')
+            </main>
+        </div>
+    </div>
+    @yield('scripts')
+
+    <script>
+        // PWA Install Logic
+        let deferredPrompt;
+        const installBtn = document.getElementById('pwa-install-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // Show the install button
+            if (installBtn) {
+                installBtn.classList.remove('hidden');
+            }
+            console.log('PWA Install Triggered');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            if (installBtn) {
+                installBtn.classList.add('hidden');
+            }
+            deferredPrompt = null;
+            console.log('PWA Installed');
+        });
+
+        async function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const {
+                    outcome
+                } = await deferredPrompt.userChoice;
+                console.log(`User response to the install prompt: ${outcome}`);
+                deferredPrompt = null;
+                if (outcome === 'accepted' && installBtn) {
+                    installBtn.classList.add('hidden');
+                }
+            }
+        }
+
+        function toggleZenMode() {
+            document.body.classList.toggle('zen-mode');
+            localStorage.setItem('zen-mode', document.body.classList.contains('zen-mode'));
+        }
+    </script>
+
+    @include('partials.search-modal')
+</body>
+
+</html>

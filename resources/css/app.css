@@ -1,0 +1,188 @@
+@import "tailwindcss";
+
+
+@theme {
+    --color-primary-50: var(--c-primary-50);
+    --color-primary-100: var(--c-primary-100);
+    --color-primary-500: var(--c-primary-500);
+    --color-primary-600: var(--c-primary-600);
+    --color-primary-700: var(--c-primary-700);
+    --color-bg-body: var(--c-bg-body);
+    --color-bg-card: var(--c-bg-card);
+    --color-text-main: var(--c-text-main);
+    --color-sidebar: var(--c-sidebar);
+    --color-text-secondary: var(--c-text-secondary);
+    --color-line: var(--c-line);
+    --font-sans: 'Plus Jakarta Sans', sans-serif;
+}
+
+:root {
+    /* Modern Theme (Indigo/Slate) */
+    --c-primary-50: #eef2ff;
+    --c-primary-100: #e0e7ff;
+    --c-primary-500: #6366f1;
+    --c-primary-600: #4f46e5;
+    --c-primary-700: #4338ca;
+    --c-bg-body: #f8fafc;
+    --c-bg-card: #ffffff;
+    --c-text-main: #1e293b;
+    --c-sidebar: #0f172a;
+    --c-text-secondary: #64748b;
+    --c-line: #e2e8f0;
+    --radius-card: 0.75rem;
+}
+
+/* Increase Base Font Size for "Premium" Feel */
+html {
+    font-size: 17px;
+    /* Increase base size further */
+}
+
+body {
+    font-size: 1rem;
+    /* Increase text size */
+}
+
+/* Target specific dashboard elements for readability */
+.grid-stack-item-content h3 {
+    font-size: 1.1rem !important;
+    /* Larger headers */
+}
+
+.grid-stack-item-content p {
+    font-size: 1.05rem !important;
+    /* Larger body text */
+}
+
+.grid-stack-item-content .text-xs {
+    font-size: 0.85rem !important;
+    /* Make small text readable */
+}
+
+.grid-stack-item-content .text-sm {
+    font-size: 0.95rem !important;
+    /* Make medium text readable */
+}
+
+@layer base {
+
+    .theme-executive {
+        /* Executive Theme (Black/Gold/White) */
+        --c-primary-50: #fdfbf7;
+        --c-primary-100: #fbf5e9;
+        --c-primary-500: #1e293b;
+        --c-primary-600: #0f172a;
+        --c-primary-700: #020617;
+        --c-bg-body: #f8fafc;
+        --c-bg-card: #ffffff;
+        --c-text-main: #020617;
+        --c-text-secondary: #475569;
+        --c-sidebar: #020617;
+        --c-line: #e2e8f0;
+        --radius-card: 0px;
+    }
+
+    .theme-dense {
+        /* Dense Theme (Blue/Gray) */
+        --c-primary-50: #eff6ff;
+        --c-primary-100: #dbeafe;
+        --c-primary-500: #3b82f6;
+        --c-primary-600: #2563eb;
+        --c-primary-700: #1d4ed8;
+        --c-bg-body: #f3f4f6;
+        --c-bg-card: #ffffff;
+        --c-text-main: #111827;
+        --c-text-secondary: #6b7280;
+        --c-sidebar: #1f2937;
+        --c-line: #d1d5db;
+        --radius-card: 0.25rem;
+        font-size: 0.9rem;
+        /* Slightly larger than before but still dense */
+    }
+
+    .theme-glass {
+        /* PREMIUM Glassmorphism Theme */
+        --c-primary-50: rgba(255, 255, 255, 0.3);
+        --c-primary-100: rgba(255, 255, 255, 0.5);
+        --c-primary-500: #6366f1;
+        --c-primary-600: #4f46e5;
+        --c-primary-700: #4338ca;
+
+        /* Vibrant Mesh Gradient Background */
+        --c-bg-body: #e0e7ff;
+        /* Fallback */
+
+        /* Glass Card */
+        --c-bg-card: rgba(255, 255, 255, 0.75);
+        /* More opaque for readability */
+        --c-text-main: #1e1b4b;
+        --c-text-secondary: #312e81;
+        --c-sidebar: rgba(15, 23, 42, 0.75);
+        --c-line: rgba(255, 255, 255, 0.6);
+        --radius-card: 1.25rem;
+    }
+
+    /* Apply Animated Gradient for Glass Theme */
+    .theme-glass {
+        background: radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+            radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
+            radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+        background-color: #f3f4f6;
+        /* Base */
+        min-height: 100vh;
+        background-attachment: fixed;
+    }
+
+    .theme-glass .bg-bg-card,
+    .theme-glass .bg-white {
+        background: rgba(255, 255, 255, 0.7) !important;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Reactive Hover Effects for Glass */
+    .theme-glass .bg-bg-card:hover,
+    .theme-glass .bg-white:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        background: rgba(255, 255, 255, 0.85) !important;
+        border-color: rgba(255, 255, 255, 0.8);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+}
+
+@layer utilities {
+    .animate-enter {
+        animation: enter 0.5s ease-out;
+    }
+
+    @keyframes enter {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Smooth Hover Scale */
+    .hover-scale {
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .hover-scale:hover {
+        transform: scale(1.02);
+    }
+
+    /* Premium Shadow */
+    .shadow-premium {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.02);
+    }
+}

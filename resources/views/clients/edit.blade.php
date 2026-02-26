@@ -1,0 +1,407 @@
+@extends('layouts.app')
+
+@section('header')
+<div class="flex items-center gap-4">
+    <a href="{{ route('clients.index') }}" class="text-gray-400 hover:text-gray-500">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+    </a>
+    <span>Edit Client: {{ $client->name }}</span>
+</div>
+@endsection
+
+@section('content')
+<div class="bg-white shadow rounded-lg">
+    <!-- Form Header/Tabs -->
+    <div class="border-b border-line">
+        <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs" id="formTabs">
+            <button type="button" onclick="switchTab('basic')" class="tab-btn border-primary-500 text-primary-600 whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium" id="tab-basic">
+                Basic Info
+            </button>
+            <button type="button" onclick="switchTab('contact')" class="tab-btn border-transparent text-text-secondary hover:border-line hover:text-text-main whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium" id="tab-contact">
+                Contact & Address
+            </button>
+            <button type="button" onclick="switchTab('engagement')" class="tab-btn border-transparent text-text-secondary hover:border-line hover:text-text-main whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium" id="tab-engagement">
+                Engagement & Billing
+            </button>
+            <button type="button" onclick="switchTab('services')" class="tab-btn border-transparent text-text-secondary hover:border-line hover:text-text-main whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium" id="tab-services">
+                Services
+            </button>
+            <button type="button" onclick="switchTab('personal')" class="tab-btn border-transparent text-text-secondary hover:border-line hover:text-text-main whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium" id="tab-personal">
+                Personal Reminders
+            </button>
+        </nav>
+    </div>
+
+    <form action="{{ route('clients.update', $client) }}" method="POST" class="p-6">
+        @csrf
+        @method('PUT')
+
+        <!-- Tab 1: Basic Info -->
+        <div id="panel-basic" class="tab-panel space-y-6">
+            <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                <!-- Name -->
+                <div class="sm:col-span-3">
+                    <label for="name" class="block text-sm font-medium leading-6 text-gray-900">Client Name *</label>
+                    <div class="mt-2">
+                        <input type="text" name="name" id="name" value="{{ old('name', $client->name) }}" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-line placeholder:text-text-secondary focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6">
+                    </div>
+                </div>
+
+                <!-- Entity Type -->
+                <div class="sm:col-span-3">
+                    <label for="entity_type" class="block text-sm font-medium leading-6 text-gray-900">Entity Type</label>
+                    <div class="mt-2">
+                        <select name="entity_type" id="entity_type" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-line focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6">
+                            @foreach(['Individual', 'Proprietorship', 'Partnership', 'LLP', 'Private Limited', 'Public Limited'] as $type)
+                            <option value="{{ $type }}" {{ old('entity_type', $client->entity_type) == $type ? 'selected' : '' }}>{{ $type }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <!-- PAN -->
+                <div class="sm:col-span-3">
+                    <label for="pan" class="block text-sm font-medium leading-6 text-gray-900">PAN Number *</label>
+                    <div class="mt-2">
+                        <input type="text" name="pan" id="pan" value="{{ old('pan', $client->pan) }}" required class="uppercase block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-line placeholder:text-text-secondary focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6">
+                    </div>
+                </div>
+
+                <!-- GSTIN -->
+                <div class="sm:col-span-3">
+                    <label for="gstin" class="block text-sm font-medium leading-6 text-gray-900">GSTIN</label>
+                    <div class="mt-2">
+                        <input type="text" name="gstin" id="gstin" value="{{ old('gstin', $client->gstin) }}" class="uppercase block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-line placeholder:text-text-secondary focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6">
+                    </div>
+                </div>
+
+                <!-- Industry -->
+                <div class="sm:col-span-3">
+                    <label for="industry" class="block text-sm font-medium leading-6 text-gray-900">Industry</label>
+                    <div class="mt-2">
+                        <input type="text" name="industry" id="industry" value="{{ old('industry', $client->industry) }}" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-line placeholder:text-text-secondary focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6">
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="sm:col-span-3">
+                    <label for="status" class="block text-sm font-medium leading-6 text-gray-900">Status *</label>
+                    <div class="mt-2">
+                        <select name="status" id="status" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-line focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6">
+                            @foreach(['Active', 'On-Hold', 'Closed'] as $status)
+                            <option value="{{ $status }}" {{ old('status', $client->status) == $status ? 'selected' : '' }}>{{ $status }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Tags -->
+                <div class="sm:col-span-6">
+                    <label for="tags" class="block text-sm font-medium leading-6 text-gray-900">Tags (comma separated)</label>
+                    <div class="mt-2">
+                        <input type="text" name="tags" id="tags" value="{{ old('tags', is_array($client->tags) ? implode(', ', $client->tags) : $client->tags) }}" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-line placeholder:text-text-secondary focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button type="button" onclick="switchTab('contact')" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">Next: Contact Info</button>
+            </div>
+        </div>
+
+        <!-- Tab 2: Contact Info -->
+        <div id="panel-contact" class="tab-panel hidden space-y-6">
+            <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                <!-- Primary Contact -->
+                <div class="sm:col-span-6">
+                    <h3 class="text-base font-semibold leading-7 text-gray-900">Primary Contact Person</h3>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label for="primary_contact_name" class="block text-sm font-medium leading-6 text-gray-900">Name</label>
+                    <div class="mt-2">
+                        <input type="text" name="primary_contact_name" id="primary_contact_name" value="{{ old('primary_contact_name', $client->primary_contact_name) }}" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-line placeholder:text-text-secondary focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6">
+                    </div>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label for="primary_contact_phone" class="block text-sm font-medium leading-6 text-gray-900">Phone</label>
+                    <div class="mt-2">
+                        <input type="text" name="primary_contact_phone" id="primary_contact_phone" value="{{ old('primary_contact_phone', $client->primary_contact_phone) }}" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-line placeholder:text-text-secondary focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6">
+                    </div>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label for="primary_contact_email" class="block text-sm font-medium leading-6 text-gray-900">Email</label>
+                    <div class="mt-2">
+                        <input type="email" name="primary_contact_email" id="primary_contact_email" value="{{ old('primary_contact_email', $client->primary_contact_email) }}" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-line placeholder:text-text-secondary focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6">
+                    </div>
+                </div>
+
+                <div class="sm:col-span-6 border-t pt-4">
+                    <h3 class="text-base font-semibold leading-7 text-gray-900">Address Details</h3>
+                </div>
+
+                <div class="sm:col-span-3">
+                    <label for="registered_address" class="block text-sm font-medium leading-6 text-gray-900">Registered Address</label>
+                    <div class="mt-2">
+                        <textarea name="registered_address" id="registered_address" rows="3" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-line placeholder:text-text-secondary focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6">{{ old('registered_address', $client->registered_address) }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between">
+                <button type="button" onclick="switchTab('basic')" class="text-sm font-semibold text-gray-900">Back</button>
+                <button type="button" onclick="switchTab('engagement')" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">Next: Engagement</button>
+            </div>
+        </div>
+
+        <!-- Tab 3: Engagement -->
+        <div id="panel-engagement" class="tab-panel hidden space-y-6">
+            <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                <!-- Category -->
+                <div class="sm:col-span-2">
+                    <label for="category" class="block text-sm font-medium leading-6 text-gray-900">Client Category *</label>
+                    <div class="mt-2">
+                        <select name="category" id="category" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-line focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6">
+                            @foreach(['A' => 'Category A (Premium)', 'B' => 'Category B (Standard)', 'C' => 'Category C (Basic)'] as $val => $label)
+                            <option value="{{ $val }}" {{ old('category', $client->category) == $val ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Billing Cycle -->
+                <div class="sm:col-span-2">
+                    <label for="billing_cycle" class="block text-sm font-medium leading-6 text-gray-900">Billing Cycle</label>
+                    <div class="mt-2">
+                        <select name="billing_cycle" id="billing_cycle" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-line focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6">
+                            @foreach(['Monthly', 'Quarterly', 'Annual'] as $cycle)
+                            <option value="{{ $cycle }}" {{ old('billing_cycle', $client->billing_cycle) == $cycle ? 'selected' : '' }}>{{ $cycle }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between border-t pt-6">
+                <button type="button" onclick="switchTab('contact')" class="text-sm font-semibold text-gray-900">Back</button>
+                <button type="button" onclick="switchTab('services')" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">Next: Services</button>
+            </div>
+        </div>
+
+        <!-- Tab 4: Services -->
+        <div id="panel-services" class="tab-panel hidden space-y-6">
+            <div class="border-b border-gray-200 pb-4">
+                <h3 class="text-base font-semibold leading-6 text-gray-900">Opted Services</h3>
+                <p class="mt-2 text-sm text-gray-500">Select the recurring compliance services for this client. The system will auto-generate reminders based on the frequency.</p>
+            </div>
+
+            <fieldset>
+                <div class="space-y-4">
+                    @foreach($services as $service)
+                    @php
+                    $isOpted = $optedServices->has($service->id);
+                    $customDay = $isOpted ? $optedServices[$service->id]->pivot->custom_due_day : '';
+                    @endphp
+                    <div class="relative flex items-center py-2">
+                        <div class="flex h-6 items-center">
+                            <input id="service-{{ $service->id }}" aria-describedby="service-{{ $service->id }}-description" name="services[]" value="{{ $service->id }}" type="checkbox"
+                                {{ $isOpted ? 'checked' : '' }}
+                                class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-600">
+                        </div>
+                        <div class="ml-3 text-sm leading-6 flex-1 flex items-center justify-between">
+                            <div>
+                                <label for="service-{{ $service->id }}" class="font-medium text-gray-900">{{ $service->name }}</label>
+                                <span id="service-{{ $service->id }}-description" class="text-gray-500 mx-2">- {{ $service->description }} (Default: {{ $service->due_day }}th {{ $service->frequency }})</span>
+                            </div>
+                            <!-- Custom Day Input -->
+                            <div class="flex items-center gap-2">
+                                <label for="custom-day-{{ $service->id }}" class="text-xs text-gray-500">Custom Day:</label>
+                                <input type="number" min="1" max="31"
+                                    name="custom_due_days[{{ $service->id }}]"
+                                    id="custom-day-{{ $service->id }}"
+                                    value="{{ $customDay }}"
+                                    class="w-16 rounded-md border-0 py-1 text-gray-900 shadow-sm ring-1 ring-inset ring-line placeholder:text-text-secondary focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-xs sm:leading-6"
+                                    placeholder="Day">
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </fieldset>
+
+            <div class="flex justify-between border-t pt-6">
+                <button type="button" onclick="switchTab('engagement')" class="text-sm font-semibold text-gray-900">Back</button>
+                <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">Update Client</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Tab 5: Personal Reminders (Outside Main Form to avoid nesting forms if we use modals or separate forms) -->
+    <div id="panel-personal" class="tab-panel hidden p-6 space-y-6">
+        <div class="flex justify-between items-center border-b border-gray-200 pb-4">
+            <div>
+                <h3 class="text-base font-semibold leading-6 text-gray-900">Personal Reminders & Documents</h3>
+                <p class="mt-2 text-sm text-gray-500">Manage LIC, Medical, Loans, and other personal renewals for this client.</p>
+            </div>
+            <button onclick="document.getElementById('addRenewalModal').classList.remove('hidden')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow text-sm">
+                + Add Renewal/Doc
+            </button>
+        </div>
+
+        <!-- Renewal List -->
+        <div class="overflow-hidden bg-white shadow sm:rounded-md">
+            <ul role="list" class="divide-y divide-gray-200">
+                @forelse($client->personalRenewals as $renewal)
+                <li class="px-4 py-4 sm:px-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                @if($renewal->document_path)
+                                <a href="{{ asset('storage/' . $renewal->document_path) }}" target="_blank" class="text-indigo-600 hover:text-indigo-900" title="View Document">
+                                    <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+                                    </svg>
+                                </a>
+                                @else
+                                <svg class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                @endif
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-bold text-indigo-600">{{ $renewal->title }}</h4>
+                                <div class="flex items-center text-sm text-gray-500 mt-1">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 mr-2">
+                                        {{ $renewal->category }}
+                                    </span>
+                                    <span>Due: {{ $renewal->due_date->format('d M Y') }}</span>
+                                    <span class="mx-2">•</span>
+                                    <span class="font-medium text-gray-900">₹ {{ number_format($renewal->amount) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <form action="{{ route('personal-renewals.destroy', $renewal) }}" method="POST" onsubmit="return confirm('Delete this renewal?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-900">
+                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </li>
+                @empty
+                <li class="px-4 py-8 text-center text-gray-500 italic">No personal reminders added yet.</li>
+                @endforelse
+            </ul>
+        </div>
+    </div>
+
+    <!-- Add Renewal Modal -->
+    <div id="addRenewalModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="document.getElementById('addRenewalModal').classList.add('hidden')"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <form action="{{ route('personal-renewals.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="client_id" value="{{ $client->id }}">
+
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Add Personal Reminder</h3>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Title (e.g. LIC Policy 123)</label>
+                                <input type="text" name="title" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Category</label>
+                                    <select name="category" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        <option value="LIC">LIC</option>
+                                        <option value="Medical">Medical</option>
+                                        <option value="Loan">Loan</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Amount</label>
+                                    <input type="number" name="amount" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Due Date</label>
+                                    <input type="date" name="due_date" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Frequency</label>
+                                    <select name="frequency" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        <option value="">One-Time</option>
+                                        <option value="Monthly">Monthly</option>
+                                        <option value="Quarterly">Quarterly</option>
+                                        <option value="Half-Yearly">Half-Yearly</option>
+                                        <option value="Yearly">Yearly</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Attachment (PDF/Image)</label>
+                                <input type="file" name="document" accept=".pdf,.jpg,.jpeg,.png" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Notes</label>
+                                <textarea name="notes" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">Save</button>
+                        <button type="button" onclick="document.getElementById('addRenewalModal').classList.add('hidden')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @endsection
+
+    @section('scripts')
+    <script>
+        function switchTab(tabName) {
+            // Hide all panels
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.add('hidden');
+            });
+
+            // Show selected panel
+            document.getElementById('panel-' + tabName).classList.remove('hidden');
+
+            // Reset all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-primary-500', 'text-primary-600', 'border-indigo-500', 'text-indigo-600');
+                btn.classList.add('border-transparent', 'text-text-secondary');
+            });
+
+            // Highlight selected button
+            const activeBtn = document.getElementById('tab-' + tabName);
+            if (activeBtn) {
+                activeBtn.classList.remove('border-transparent', 'text-text-secondary');
+                activeBtn.classList.add('border-primary-500', 'text-primary-600');
+            }
+        }
+    </script>
+    @endsection

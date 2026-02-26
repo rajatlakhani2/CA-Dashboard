@@ -1,0 +1,1197 @@
+﻿
+   FAIL  Tests\Feature\ClientModuleTest
+  ✓ client index page loads                                                                                      1.83s  
+  ✓ can create client                                                                                            0.06s  
+  ✓ duplicate pan validation                                                                                     0.03s  
+  ✓ can create client with tags                                                                                  0.04s  
+  ✓ can download export                                                                                          0.23s  
+  ✓ can import clients                                                                                           0.04s  
+  ✓ import validation failures                                                                                   0.02s  
+  ✓ can download template                                                                                        0.05s  
+  ✓ client filters                                                                                               0.05s  
+  ✓ client service assignment                                                                                    0.05s  
+  ✓ dues generation command                                                                                      0.04s  
+  ⨯ dashboard metrics                                                                                            0.07s  
+  ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\ClientModuleTest > dashboard metrics                                                           
+  Expected: <!DOCTYPE html>\r\n
+<html lang="en" class="h-full bg-slate-50">\r\n
+\r\n
+<head>\r\n
+    <meta charset="utf-8">\r\n
+    <meta name="viewport" content="width=device-width, initial-scale=1">\r\n
+    <title>CA Dashboard v2.1</title>\r\n
+\r\n
+    <!-- Fonts -->\r\n
+    <link rel="preconnect" href="https://fonts.googleapis.com">\r\n
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\r\n
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">\r\n
+\r\n
+    <!-- PWA -->\r\n
+    <meta name="theme-color" content="#4f46e5">\r\n
+    <link rel="manifest" href="/build/manifest.webmanifest">\r\n
+\r\n
+    <!-- Scripts & Styles -->\r\n
+    <!-- Scripts & Styles -->\r\n
+    <link rel="preload" as="style" href="http://localhost/build/assets/app-CE8GXRJZ.css" /><link rel="modulepreload" as="script" href="http://localhost/build/assets/app-ecXZmlRp.js" /><link rel="stylesheet" href="http://localhost/build/assets/app-CE8GXRJZ.css" /><script type="module" src="http://localhost/build/assets/app-ecXZmlRp.js"></script>    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>\r\n
+    <style>\r\n
+        body {\r\n
+            font-family: 'Inter', sans-serif;\r\n
+        }\r\n
+\r\n
+        /* Zen Mode */\r\n
+        body.zen-mode #sidebar {\r\n
+            transform: translateX(-100%);\r\n
+        }\r\n
+\r\n
+        body.zen-mode .pl-64 {\r\n
+            padding-left: 0 !important;\r\n
+        }\r\n
+    </style>\r\n
+    <script>\r\n
+        // Check local storage for Zen Mode\r\n
+        if (localStorage.getItem('zen-mode') === 'true') {\r\n
+            document.documentElement.classList.add('zen-mode'); // Use documentElement for immediate effect if possible, but body is where class is active\r\n
+            window.addEventListener('DOMContentLoaded', () => document.body.classList.add('zen-mode'));\r\n
+        }\r\n
+\r\n
+        // Check for Font Scale\r\n
+        const appScale = localStorage.getItem('app_scale');\r\n
+        if (appScale) {\r\n
+            document.documentElement.style.fontSize = appScale + '%';\r\n
+        }\r\n
+    </script>\r\n
+</head>\r\n
+\r\n
+<body class="h-full theme-modern">\r\n
+    <div class="min-h-full bg-bg-body text-text-main">\r\n
+        <!-- Sidebar -->\r\n
+        <div class="fixed inset-y-0 left-0 z-50 w-64 bg-sidebar text-white transition-transform duration-300 ease-in-out transform" id="sidebar">\r\n
+            <div class="flex items-center justify-center h-16 bg-white/10 shadow-md">\r\n
+                <h1 class="text-xl font-bold tracking-wider">CA DASHBOARD</h1>\r\n
+            </div>\r\n
+\r\n
+            <nav class="mt-5 px-4 space-y-2">\r\n
+                <a href="http://localhost/dashboard" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]">\r\n
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />\r\n
+                    </svg>\r\n
+                    Dashboard\r\n
+                </a>\r\n
+\r\n
+                <a href="http://localhost/leaves" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5">\r\n
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 text-slate-500 group-hover:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />\r\n
+                    </svg>\r\n
+                    Leaves\r\n
+                </a>\r\n
+\r\n
+                <!-- Client 360 -->\r\n
+                <a href="http://localhost/clients" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5">\r\n
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 text-slate-500 group-hover:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />\r\n
+                    </svg>\r\n
+                    Clients\r\n
+                </a>\r\n
+\r\n
+                <a href="http://localhost/tasks" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5">\r\n
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 text-slate-500 group-hover:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />\r\n
+                    </svg>\r\n
+                    Tasks\r\n
+                </a>\r\n
+\r\n
+                <a href="http://localhost/service-dues" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5">\r\n
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 text-slate-500 group-hover:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />\r\n
+                    </svg>\r\n
+                    Reminders\r\n
+                </a>\r\n
+\r\n
+                <a href="http://localhost/personal-renewals" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5">\r\n
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 text-slate-500 group-hover:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />\r\n
+                    </svg>\r\n
+                    Personal Reminders\r\n
+                </a>\r\n
+\r\n
+                <a href="http://localhost/invoices" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5">\r\n
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 text-slate-500 group-hover:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />\r\n
+                    </svg>\r\n
+                    Invoices\r\n
+                </a>\r\n
+\r\n
+                <!-- REPORTS DROPDOWN -->\r\n
+                <div x-data="{ open: false }">\r\n
+                    <button @click="open = !open" class="group w-full flex items-center justify-between px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5 focus:outline-none">\r\n
+                        <div class="flex items-center">\r\n
+                            <svg class="mr-3 flex-shrink-0 h-5 w-5 text-slate-500 group-hover:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />\r\n
+                            </svg>\r\n
+                            Reports & 360°\r\n
+                        </div>\r\n
+                        <svg class="w-4 h-4 transition-transform transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">\r\n
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>\r\n
+                        </svg>\r\n
+                    </button>\r\n
+                    <!-- Submenu -->\r\n
+                    <div x-show="open" class="space-y-1 pl-12 pr-2" style="display: none;">\r\n
+                        <a href="http://localhost/employees" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md text-slate-400 hover:text-white">\r\n
+                            Team 360°\r\n
+                        </a>\r\n
+                        <a href="http://localhost/compliance-360" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md text-slate-400 hover:text-white">\r\n
+                            Compliance 360°\r\n
+                        </a>\r\n
+                        <a href="http://localhost/reports?tab=service" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md text-slate-400 hover:text-white">\r\n
+                            Service Report\r\n
+                        </a>\r\n
+                        <a href="http://localhost/reports/financial?tab=income" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md text-slate-400 hover:text-white">\r\n
+                            Income Wise\r\n
+                        </a>\r\n
+                        <a href="http://localhost/reports/compliance?tab=due_date" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md text-slate-400 hover:text-white">\r\n
+                            Due Date Report\r\n
+                        </a>\r\n
+                    </div>\r\n
+                </div>\r\n
+\r\n
+                <a href="http://localhost/smart-documents" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5">\r\n
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 text-slate-500 group-hover:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />\r\n
+                    </svg>\r\n
+                    Smart Archive\r\n
+                </a>\r\n
+\r\n
+                <a href="http://localhost/activity" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5">\r\n
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 text-slate-500 group-hover:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />\r\n
+                    </svg>\r\n
+                    The Pulse\r\n
+                </a>\r\n
+\r\n
+                <div class="mt-8 px-2">\r\n
+                    <p class="px-2 text-xs font-extrabold text-slate-500 uppercase tracking-widest">\r\n
+                        Administration\r\n
+                    </p>\r\n
+                    <a href="http://localhost/recycle-bin" class="group flex items-center px-4 py-3 mt-2 text-sm font-bold rounded-xl transition-all duration-200 text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5">\r\n
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 text-slate-500 group-hover:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />\r\n
+                        </svg>\r\n
+                        Recycle Bin\r\n
+                    </a>\r\n
+                    <a href="http://localhost/services" class="group flex items-center px-4 py-3 mt-2 text-sm font-bold rounded-xl transition-all duration-200 text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5">\r\n
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 text-slate-500 group-hover:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />\r\n
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />\r\n
+                        </svg>\r\n
+                        Service Master\r\n
+                    </a>\r\n
+                    <a href="http://localhost/system" class="group flex items-center px-4 py-3 mt-2 text-sm font-bold rounded-xl transition-all duration-200 text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5">\r\n
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 text-slate-500 group-hover:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V9a2 2 0 012-2h2a2 2 0 012 2v10" />\r\n
+                        </svg>\r\n
+                        System Health\r\n
+                    </a>\r\n
+                </div>\r\n
+            </nav>\r\n
+        </div>\r\n
+\r\n
+        <!-- Main Content -->\r\n
+        <div class="pl-64 flex flex-col min-h-screen">\r\n
+            <!-- Header -->\r\n
+            <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 sticky top-0 z-40">\r\n
+                <div class="px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">\r\n
+                    <h2 class="text-2xl font-bold text-gray-800 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-indigo-400">\r\n
+                        <div class="flex justify-between items-center w-full">\r\n
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">\r\n
+        Dashboard\r\n
+    </h2>\r\n
+    <!-- Quick Actions (Top Right) -->\r\n
+    <div class="flex space-x-2">\r\n
+        <a href="http://localhost/clients/create" class="flex items-center space-x-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-2 rounded shadow transition">\r\n
+            <svg style="width: 16px; height: 16px;" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">\r\n
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>\r\n
+            </svg>\r\n
+            <span>Client</span>\r\n
+        </a>\r\n
+        <a href="http://localhost/tasks/create" class="flex items-center space-x-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-2 rounded shadow transition">\r\n
+            <svg style="width: 16px; height: 16px;" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">\r\n
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>\r\n
+            </svg>\r\n
+            <span>Task</span>\r\n
+        </a>\r\n
+        <a href="http://localhost/invoices/create" class="flex items-center space-x-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-2 rounded shadow transition">\r\n
+            <svg style="width: 16px; height: 16px;" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">\r\n
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>\r\n
+            </svg>\r\n
+            <span>Invoice</span>\r\n
+        </a>\r\n
+    </div>\r\n
+</div>\r\n
+                    </h2>\r\n
+                    <div class="flex items-center space-x-4">\r\n
+                        <!-- Search Trigger -->\r\n
+                        <div class="hidden md:flex items-center mr-2" x-data @click="$dispatch('keydown.window.prevent.ctrl.k')">\r\n
+                            <div class="relative cursor-text group">\r\n
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">\r\n
+                                    <svg class="h-5 w-5 text-gray-400 group-hover:text-indigo-500 transition-colors" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">\r\n
+                                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />\r\n
+                                    </svg>\r\n
+                                </div>\r\n
+                                <div class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg leading-5 bg-white/50 backdrop-blur-sm placeholder-gray-500 focus:outline-none focus:bg-white focus:border-indigo-300 transition duration-150 ease-in-out sm:text-xs shadow-sm hover:shadow group-hover:border-indigo-200 text-gray-500 font-medium">\r\n
+                                    Quick Search (Ctrl+K)\r\n
+                                </div>\r\n
+                            </div>\r\n
+                        </div>\r\n
+\r\n
+                        <!-- Zen Mode Toggle -->\r\n
+                        <button onclick="toggleZenMode()" class="p-2 text-gray-400 hover:text-indigo-600 focus:outline-none transition-colors" title="Toggle Zen Mode">\r\n
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />\r\n
+                            </svg>\r\n
+                        </button>\r\n
+\r\n
+                        <!-- PWA Install Button -->\r\n
+                        <button id="pwa-install-btn" onclick="installPWA()" class="hidden p-2 text-gray-400 hover:text-indigo-600 focus:outline-none transition-colors" title="Install App">\r\n
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />\r\n
+                            </svg>\r\n
+                        </button>\r\n
+\r\n
+\r\n
+\r\n
+                        <!-- Notifications -->\r\n
+                        <div class="relative" x-data="{ open: false }">\r\n
+                            <button @click="open = !open" class="p-2 text-gray-400 hover:text-indigo-600 focus:outline-none transition-colors relative">\r\n
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />\r\n
+                                </svg>\r\n
+                                                            </button>\r\n
+\r\n
+                            <!-- Dropdown -->\r\n
+                            <div x-show="open" @click.away="open = false" style="display: none;" class="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 z-50">\r\n
+                                <div class="px-4 py-2 border-b border-gray-100 flex justify-between items-center">\r\n
+                                    <h3 class="text-sm font-semibold text-gray-700">Notifications</h3>\r\n
+                                                                    </div>\r\n
+                                <div class="max-h-64 overflow-y-auto">\r\n
+                                                                        <div class="px-4 py-6 text-center text-sm text-gray-500">\r\n
+                                        No new notifications.\r\n
+                                    </div>\r\n
+                                                                    </div>\r\n
+                            </div>\r\n
+                        </div>\r\n
+\r\n
+                        <a href="http://localhost/settings" class="flex items-center space-x-2 group">\r\n
+                            <span class="text-sm text-gray-600 group-hover:text-indigo-600">Admin User</span>\r\n
+                            <div class="h-8 w-8 rounded-full bg-primary-500 flex items-center justify-center text-white font-bold group-hover:ring-2 ring-indigo-500">\r\n
+                                A\r\n
+                            </div>\r\n
+                        </a>\r\n
+                    </div>\r\n
+                </div>\r\n
+            </header>\r\n
+\r\n
+            <!-- Page Content -->\r\n
+            <main class="flex-1 py-8 px-4 sm:px-6 lg:px-8 animate-enter">\r\n
+                \r\n
+                \r\n
+                \r\n
+                <div x-data="{ activeTab: 'overview' }" class="w-full">\r\n
+    <!-- TABS NAVIGATION -->\r\n
+    <div class="mb-6 flex space-x-4 border-b border-gray-200">\r\n
+        <button @click="activeTab = 'overview'" :class="{ 'border-indigo-500 text-indigo-600': activeTab === 'overview', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'overview' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">\r\n
+            Overview\r\n
+        </button>\r\n
+        <button @click="activeTab = 'clients'" :class="{ 'border-indigo-500 text-indigo-600': activeTab === 'clients', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'clients' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">\r\n
+            Clients View\r\n
+        </button>\r\n
+        <button @click="activeTab = 'workload'" :class="{ 'border-indigo-500 text-indigo-600': activeTab === 'workload', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'workload' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">\r\n
+            Workload & Tasks\r\n
+        </button>\r\n
+        <button @click="activeTab = 'financials'" :class="{ 'border-indigo-500 text-indigo-600': activeTab === 'financials', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'financials' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">\r\n
+            Financials (Beta)\r\n
+        </button>\r\n
+    </div>\r\n
+\r\n
+    <!-- 1. OVERVIEW TAB (GridStack) -->\r\n
+    <div x-show="activeTab === 'overview'" x-transition.opacity class="w-full">\r\n
+        <div class="grid-stack transition-opacity duration-500 ease-in-out" style="opacity: 0;">\r\n
+            <!-- Total Clients -->\r\n
+            <div class="grid-stack-item" gs-id="kpi_total_clients" gs-w="3" gs-h="2" gs-x="0" gs-y="0">\r\n
+                <div class="grid-stack-item-content">\r\n
+                    <a href="http://localhost/clients" draggable="false" class="h-full block relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white shadow-lg group">\r\n
+                        <div class="absolute top-0 right-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-white/10 opacity-50 blur-xl transition-all group-hover:bg-white/20"></div>\r\n
+                        <div class="flex items-center justify-between relative z-10 h-full">\r\n
+                            <div>\r\n
+                                <p class="text-xs font-bold uppercase tracking-wider text-blue-100">Total Clients</p>\r\n
+                                <p class="mt-2 text-3xl font-bold">2</p>\r\n
+                            </div>\r\n
+                        </div>\r\n
+                    </a>\r\n
+                </div>\r\n
+            </div>\r\n
+\r\n
+            <!-- New Clients -->\r\n
+            <div class="grid-stack-item" gs-id="kpi_new_clients" gs-w="3" gs-h="2" gs-x="3" gs-y="0">\r\n
+                <div class="grid-stack-item-content">\r\n
+                    <a href="http://localhost/clients" draggable="false" class="h-full block relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 p-6 text-white shadow-lg group">\r\n
+                        <div class="absolute top-0 right-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-white/10 opacity-50 blur-xl transition-all group-hover:bg-white/20"></div>\r\n
+                        <div class="flex items-center justify-between relative z-10 h-full">\r\n
+                            <div>\r\n
+                                <p class="text-xs font-bold uppercase tracking-wider text-emerald-100">New (Month)</p>\r\n
+                                <p class="mt-2 text-3xl font-bold">2</p>\r\n
+                            </div>\r\n
+                        </div>\r\n
+                    </a>\r\n
+                </div>\r\n
+            </div>\r\n
+\r\n
+            <!-- Pending Tasks KPI -->\r\n
+            <div class="grid-stack-item" gs-id="kpi_pending_tasks" gs-w="3" gs-h="2" gs-x="6" gs-y="0">\r\n
+                <div class="grid-stack-item-content">\r\n
+                    <a href="http://localhost/tasks" draggable="false" class="h-full block relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 p-6 text-white shadow-lg group">\r\n
+                        <div class="absolute top-0 right-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-white/10 opacity-50 blur-xl transition-all group-hover:bg-white/20"></div>\r\n
+                        <div class="flex items-center justify-between relative z-10 h-full">\r\n
+                            <div>\r\n
+                                <p class="text-xs font-bold uppercase tracking-wider text-amber-100">My Tasks</p>\r\n
+                                <p class="mt-2 text-3xl font-bold">0</p>\r\n
+                            </div>\r\n
+                        </div>\r\n
+                    </a>\r\n
+                </div>\r\n
+            </div>\r\n
+\r\n
+            <!-- Service Dues KPI -->\r\n
+            <div class="grid-stack-item" gs-id="kpi_service_dues" gs-w="3" gs-h="2" gs-x="9" gs-y="0">\r\n
+                <div class="grid-stack-item-content">\r\n
+                    <a href="http://localhost/service-dues" draggable="false" class="h-full block relative overflow-hidden rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 p-6 text-white shadow-lg group">\r\n
+                        <div class="absolute top-0 right-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-white/10 opacity-50 blur-xl transition-all group-hover:bg-white/20"></div>\r\n
+                        <div class="flex items-center justify-between relative z-10 h-full">\r\n
+                            <div>\r\n
+                                <p class="text-xs font-bold uppercase tracking-wider text-rose-100">Due (Month)</p>\r\n
+                                <p class="mt-2 text-3xl font-bold">1</p>\r\n
+                            </div>\r\n
+                        </div>\r\n
+                    </a>\r\n
+                </div>\r\n
+            </div>\r\n
+\r\n
+            <!-- Calendar (Full Width) -->\r\n
+            <div class="grid-stack-item" gs-id="widget_calendar" gs-w="12" gs-h="6" gs-x="0" gs-y="2">\r\n
+                <div class="grid-stack-item-content bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/20 h-full flex flex-col transition-transform duration-300 hover:shadow-lg">\r\n
+                    <div class="flex justify-between items-center mb-4 drag-handle cursor-move">\r\n
+                        <h3 class="text-lg font-bold text-gray-800 flex items-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-indigo-500">\r\n
+                            <svg class="h-5 w-5 mr-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />\r\n
+                            </svg>\r\n
+                            Schedule & Deadlines\r\n
+                        </h3>\r\n
+                    </div>\r\n
+                    <div id="dashboardCalendar" class="flex-1" style="min-height: 0;"></div>\r\n
+                </div>\r\n
+            </div>\r\n
+\r\n
+            <!-- Upcoming Breakdown (Combined) -->\r\n
+            <div class="grid-stack-item" gs-id="widget_upcoming" gs-w="6" gs-h="4" gs-x="0" gs-y="8">\r\n
+                <div class="grid-stack-item-content bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/20 h-full flex flex-col overflow-y-auto transition-transform duration-300 hover:shadow-lg">\r\n
+                    <div class="drag-handle cursor-move mb-4">\r\n
+                        <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-gray-700 to-gray-500">Upcoming Overview</h3>\r\n
+                    </div>\r\n
+                    <div class="space-y-4">\r\n
+                        <!-- Next 7 Days (Clickable) -->\r\n
+                        <a href="http://localhost/reports/due-date?start_date=2026-02-13&amp;end_date=2026-02-20" class="group block cursor-pointer">\r\n
+                            <div class="bg-red-50 hover:bg-red-100 active:scale-95 transition-all duration-150 p-4 rounded-xl border border-red-100 flex items-center justify-between">\r\n
+                                <div class="flex items-center">\r\n
+                                    <div class="h-8 w-8 rounded-full bg-red-200 text-red-700 flex items-center justify-center mr-3 font-bold shadow-sm">!</div>\r\n
+                                    <span class="text-sm font-bold text-red-700 group-hover:text-red-900">Next 7 Days</span>\r\n
+                                </div>\r\n
+                                <div class="flex items-center">\r\n
+                                    <span class="text-2xl font-bold text-red-800 mr-2">1</span>\r\n
+                                    <svg class="w-4 h-4 text-red-400 group-hover:text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />\r\n
+                                    </svg>\r\n
+                                </div>\r\n
+                            </div>\r\n
+                        </a>\r\n
+\r\n
+                        <!-- 7-15 Days (Clickable) -->\r\n
+                        <a href="http://localhost/reports/due-date?start_date=2026-02-20&amp;end_date=2026-02-28" class="group block cursor-pointer">\r\n
+                            <div class="bg-orange-50 hover:bg-orange-100 active:scale-95 transition-all duration-150 p-4 rounded-xl border border-orange-100 flex items-center justify-between">\r\n
+                                <div class="flex items-center">\r\n
+                                    <div class="h-8 w-8 rounded-full bg-orange-200 text-orange-700 flex items-center justify-center mr-3 font-bold shadow-sm">7</div>\r\n
+                                    <span class="text-sm font-bold text-orange-700 group-hover:text-orange-900">7-15 Days</span>\r\n
+                                </div>\r\n
+                                <div class="flex items-center">\r\n
+                                    <span class="text-2xl font-bold text-orange-800 mr-2">0</span>\r\n
+                                    <svg class="w-4 h-4 text-orange-400 group-hover:text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />\r\n
+                                    </svg>\r\n
+                                </div>\r\n
+                            </div>\r\n
+                        </a>\r\n
+\r\n
+                        <!-- 15-30 Days (Clickable) -->\r\n
+                        <a href="http://localhost/reports/due-date?start_date=2026-02-28&amp;end_date=2026-03-15" class="group block cursor-pointer">\r\n
+                            <div class="bg-yellow-50 hover:bg-yellow-100 active:scale-95 transition-all duration-150 p-4 rounded-xl border border-yellow-100 flex items-center justify-between">\r\n
+                                <div class="flex items-center">\r\n
+                                    <div class="h-8 w-8 rounded-full bg-yellow-200 text-yellow-700 flex items-center justify-center mr-3 font-bold shadow-sm">30</div>\r\n
+                                    <span class="text-sm font-bold text-yellow-700 group-hover:text-yellow-900">15-30 Days</span>\r\n
+                                </div>\r\n
+                                <div class="flex items-center">\r\n
+                                    <span class="text-2xl font-bold text-yellow-800 mr-2">0</span>\r\n
+                                    <svg class="w-4 h-4 text-yellow-400 group-hover:text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />\r\n
+                                    </svg>\r\n
+                                </div>\r\n
+                            </div>\r\n
+                        </a>\r\n
+                    </div>\r\n
+                </div>\r\n
+            </div>\r\n
+\r\n
+            <!-- Pending Tasks List -->\r\n
+            <div class="grid-stack-item" gs-id="widget_pending_list" gs-w="6" gs-h="4" gs-x="6" gs-y="7">\r\n
+                <div class="grid-stack-item-content bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-sm border border-white/20 h-full flex flex-col transition-transform duration-300 hover:shadow-lg">\r\n
+                    <div class="flex justify-between items-center mb-2 border-b border-gray-100 pb-2 drag-handle cursor-move">\r\n
+                        <h3 class="text-sm font-bold text-gray-700 uppercase bg-clip-text text-transparent bg-gradient-to-r from-gray-700 to-gray-500">Pending Tasks</h3>\r\n
+                        <a href="http://localhost/tasks" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:underline">View All</a>\r\n
+                    </div>\r\n
+                    <ul class="space-y-2 overflow-y-auto flex-1 px-1">\r\n
+                                                <li class="text-sm text-gray-400 italic text-center py-4">No pending tasks.</li>\r\n
+                                            </ul>\r\n
+                </div>\r\n
+            </div>\r\n
+        </div>\r\n
+    </div>\r\n
+\r\n
+    <!-- 2. CLIENTS VIEW -->\r\n
+    <div x-show="activeTab === 'clients'" x-transition.opacity class="w-full space-y-6">\r\n
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">\r\n
+            <!-- Client Cards Repeater -->\r\n
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">\r\n
+                <div class="flex items-center">\r\n
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">\r\n
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />\r\n
+                        </svg>\r\n
+                    </div>\r\n
+                    <div>\r\n
+                        <p class="text-sm font-medium text-gray-500">Total Clients</p>\r\n
+                        <p class="text-2xl font-bold text-gray-900">2</p>\r\n
+                    </div>\r\n
+                </div>\r\n
+            </div>\r\n
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">\r\n
+                <div class="flex items-center">\r\n
+                    <div class="p-3 rounded-full bg-emerald-100 text-emerald-600 mr-4">\r\n
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />\r\n
+                        </svg>\r\n
+                    </div>\r\n
+                    <div>\r\n
+                        <p class="text-sm font-medium text-gray-500">New Clients (Month)</p>\r\n
+                        <p class="text-2xl font-bold text-gray-900">2</p>\r\n
+                    </div>\r\n
+                </div>\r\n
+            </div>\r\n
+        </div>\r\n
+\r\n
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">\r\n
+            <!-- High Risk Clients -->\r\n
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">\r\n
+                <div class="px-6 py-4 border-b border-gray-50 bg-gray-50 flex justify-between items-center">\r\n
+                    <h3 class="text-lg font-bold text-gray-800">High Priority / High Risk Clients</h3>\r\n
+                    <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-md font-semibold">Action Required</span>\r\n
+                </div>\r\n
+                <div class="p-6">\r\n
+                                        <p class="text-gray-500 text-sm">No high risk clients identified.</p>\r\n
+                                    </div>\r\n
+            </div>\r\n
+\r\n
+            <!-- Recent Clients -->\r\n
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">\r\n
+                <div class="px-6 py-4 border-b border-gray-50 bg-gray-50">\r\n
+                    <h3 class="text-lg font-bold text-gray-800">Recently Updated Clients</h3>\r\n
+                </div>\r\n
+                <div class="p-6">\r\n
+                    <ul class="divide-y divide-gray-100">\r\n
+                                                <li class="py-3 flex justify-between items-center">\r\n
+                            <div class="flex items-center">\r\n
+                                <div class="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 mr-3 font-bold text-xs">\r\n
+                                    Da\r\n
+                                </div>\r\n
+                                <div>\r\n
+                                    <p class="text-sm font-medium text-gray-800">Dash Client A</p>\r\n
+                                    <p class="text-xs text-gray-500">0 seconds ago</p>\r\n
+                                </div>\r\n
+                            </div>\r\n
+                            <a href="http://localhost/clients/1/edit" class="text-xs border border-gray-200 px-2 py-1 rounded text-gray-600 hover:bg-gray-50">Edit</a>\r\n
+                        </li>\r\n
+                                                <li class="py-3 flex justify-between items-center">\r\n
+                            <div class="flex items-center">\r\n
+                                <div class="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 mr-3 font-bold text-xs">\r\n
+                                    Da\r\n
+                                </div>\r\n
+                                <div>\r\n
+                                    <p class="text-sm font-medium text-gray-800">Dash Client B</p>\r\n
+                                    <p class="text-xs text-gray-500">0 seconds ago</p>\r\n
+                                </div>\r\n
+                            </div>\r\n
+                            <a href="http://localhost/clients/2/edit" class="text-xs border border-gray-200 px-2 py-1 rounded text-gray-600 hover:bg-gray-50">Edit</a>\r\n
+                        </li>\r\n
+                                            </ul>\r\n
+                </div>\r\n
+            </div>\r\n
+        </div>\r\n
+    </div>\r\n
+\r\n
+    <!-- 3. WORKLOAD VIEW -->\r\n
+    <div x-show="activeTab === 'workload'" x-transition.opacity class="w-full space-y-6">\r\n
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">\r\n
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">\r\n
+                <h4 class="text-gray-500 text-sm font-medium uppercase">Pending Tasks</h4>\r\n
+                <p class="text-4xl font-bold text-gray-900 mt-2">0</p>\r\n
+            </div>\r\n
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">\r\n
+                <h4 class="text-gray-500 text-sm font-medium uppercase">Services Due Now</h4>\r\n
+                <p class="text-4xl font-bold text-rose-600 mt-2">1</p>\r\n
+            </div>\r\n
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">\r\n
+                <h4 class="text-gray-500 text-sm font-medium uppercase">Completion Rate</h4>\r\n
+                <div class="flex items-end mt-2">\r\n
+                    <p class="text-4xl font-bold text-emerald-600">\r\n
+                                                0%\r\n
+                    </p>\r\n
+                    <p class="text-gray-400 text-sm ml-2 mb-1">this month</p>\r\n
+                </div>\r\n
+            </div>\r\n
+        </div>\r\n
+\r\n
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">\r\n
+            <!-- Pending Tasks List (Detailed) -->\r\n
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100">\r\n
+                <div class="px-6 py-4 border-b border-gray-50">\r\n
+                    <h3 class="text-lg font-bold text-gray-800">My Task Queue</h3>\r\n
+                </div>\r\n
+                <ul class="divide-y divide-gray-100">\r\n
+                                        <li class="p-6 text-center text-gray-500">No pending tasks.</li>\r\n
+                                    </ul>\r\n
+            </div>\r\n
+\r\n
+            <!-- Service Dues Breakdown (Also Clickable) -->\r\n
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">\r\n
+                <h3 class="text-lg font-bold text-gray-800 mb-4">Upcoming Deadlines Breakdown</h3>\r\n
+                <div class="space-y-4">\r\n
+                    <a href="http://localhost/reports/due-date?start_date=2026-02-13&amp;end_date=2026-02-20" class="flex items-center justify-between p-4 bg-red-50 rounded-xl border border-red-100 hover:bg-red-100 transition-colors">\r\n
+                        <span class="text-red-800 font-medium">Next 7 Days</span>\r\n
+                        <span class="text-2xl font-bold text-red-700">1</span>\r\n
+                    </a>\r\n
+\r\n
+                    <a href="http://localhost/reports/due-date?start_date=2026-02-20&amp;end_date=2026-02-28" class="flex items-center justify-between p-4 bg-orange-50 rounded-xl border border-orange-100 hover:bg-orange-100 transition-colors">\r\n
+                        <span class="text-orange-800 font-medium">7 - 15 Days</span>\r\n
+                        <span class="text-2xl font-bold text-orange-700">0</span>\r\n
+                    </a>\r\n
+\r\n
+                    <a href="http://localhost/reports/due-date?start_date=2026-02-28&amp;end_date=2026-03-15" class="flex items-center justify-between p-4 bg-yellow-50 rounded-xl border border-yellow-100 hover:bg-yellow-100 transition-colors">\r\n
+                        <span class="text-yellow-800 font-medium">15 - 30 Days</span>\r\n
+                        <span class="text-2xl font-bold text-yellow-700">0</span>\r\n
+                    </a>\r\n
+                </div>\r\n
+            </div>\r\n
+        </div>\r\n
+    </div>\r\n
+\r\n
+    <!-- 4. FINANCIALS VIEW (Placeholders) -->\r\n
+    <div x-show="activeTab === 'financials'" x-transition.opacity class="w-full">\r\n
+        <div class="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-8 text-center text-white shadow-xl">\r\n
+            <h3 class="text-2xl font-bold mb-2">Financial Insights</h3>\r\n
+            <p class="text-gray-400">Coming soon. Track invoices, payments, and outstanding dues directly from your dashboard.</p>\r\n
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">\r\n
+                <div class="bg-white/10 backdrop-blur rounded-xl p-6 border border-white/10">\r\n
+                    <p class="text-gray-300 text-sm">Outstanding Fees</p>\r\n
+                    <p class="text-2xl font-bold mt-2">₹ 0</p>\r\n
+                </div>\r\n
+                <div class="bg-white/10 backdrop-blur rounded-xl p-6 border border-white/10">\r\n
+                    <p class="text-gray-300 text-sm">Collections (Month)</p>\r\n
+                    <p class="text-2xl font-bold mt-2">₹ 0</p>\r\n
+                </div>\r\n
+                <div class="bg-white/10 backdrop-blur rounded-xl p-6 border border-white/10">\r\n
+                    <p class="text-gray-300 text-sm">Overdue Invoices</p>\r\n
+                    <p class="text-2xl font-bold mt-2">0</p>\r\n
+                </div>\r\n
+            </div>\r\n
+        </div>\r\n
+    </div>\r\n
+\r\n
+</div>\r\n
+            </main>\r\n
+        </div>\r\n
+    </div>\r\n
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>\r\n
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>\r\n
+<!-- GridStack JS -->\r\n
+<link href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/10.0.1/gridstack.min.css" rel="stylesheet" />\r\n
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/10.0.1/gridstack-all.js"></script>\r\n
+\r\n
+<style>\r\n
+    .grid-stack-item-content {\r\n
+        background: transparent;\r\n
+    }\r\n
+\r\n
+    .grid-stack-item-content>.bg-white {\r\n
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);\r\n
+    }\r\n
+</style>\r\n
+\r\n
+<script>\r\n
+    document.addEventListener('DOMContentLoaded', function() {\r\n
+        // Initialize GridStack\r\n
+        var grid = GridStack.init({\r\n
+            cellHeight: 100,\r\n
+            margin: 10,\r\n
+            handleClass: 'drag-handle', // Restrict dragging to the header handle\r\n
+            alwaysShowResizeHandle: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),\r\n
+            disableOneColumnMode: true,\r\n
+            float: true,\r\n
+            acceptWidgets: true,\r\n
+            dragIn: '.grid-stack-item', // Allow internal dragging\r\n
+            animate: false // Disable animation to prevent "flying" widgets on load\r\n
+        });\r\n
+\r\n
+        // Load saved layout\r\n
+        let savedLayout = localStorage.getItem('dashboard_layout');\r\n
+        if (savedLayout) {\r\n
+            grid.load(JSON.parse(savedLayout));\r\n
+        }\r\n
+\r\n
+        // Show grid after a safety delay to ensure layout is settled\r\n
+        setTimeout(() => {\r\n
+            document.querySelector('.grid-stack').style.opacity = '1';\r\n
+        }, 300);\r\n
+\r\n
+        // Save layout on change\r\n
+        grid.on('change', function(event, items) {\r\n
+            let serializedData = grid.save();\r\n
+            localStorage.setItem('dashboard_layout', JSON.stringify(serializedData));\r\n
+        });\r\n
+\r\n
+        // Handle Resize - Force Calendar/Charts to redraw\r\n
+        grid.on('resizestop', function(event, el) {\r\n
+            setTimeout(() => {\r\n
+                if (window.calendar) {\r\n
+                    window.calendar.updateSize();\r\n
+                }\r\n
+                window.dispatchEvent(new Event('resize'));\r\n
+            }, 50);\r\n
+        });\r\n
+\r\n
+        // 1. FullCalendar Initialization\r\n
+        var calendarEl = document.getElementById('dashboardCalendar');\r\n
+        window.calendar = new FullCalendar.Calendar(calendarEl, {\r\n
+            initialView: 'dayGridMonth',\r\n
+            height: '100%', // Adapt to container\r\n
+            handleWindowResize: true, // Auto-resize on window resize\r\n
+            eventDisplay: 'block',\r\n
+            // --- UPDATED CONFIGURATION FOR CLEANER LOOK ---\r\n
+            dayMaxEvents: 2, // Collapses events into "+X more" popover\r\n
+            editable: true, // Keep Drag & Drop\r\n
+            droppable: true,\r\n
+\r\n
+            headerToolbar: {\r\n
+                left: 'prev,next today',\r\n
+                center: 'title',\r\n
+                right: 'dayGridMonth,listWeek'\r\n
+            },\r\n
+            events: [{"id":"due_1","title":"Dash Client A - GSTR-1 (Monthly)","start":"2026-02-18","backgroundColor":"#8b5cf6","borderColor":"#8b5cf6","textColor":"#ffffff","allDay":true,"extendedProps":{"type":"due","db_id":1,"client_name":"Dash Client A","details":"GSTR-1 (Monthly)"}}],\r\n
+\r\n
+            // Use Standard Colors if possible, but we already set BG colors in controller. \r\n
+            // We just ensure text is white here.\r\n
+            eventTextColor: '#ffffff',\r\n
+\r\n
+            // Custom Event Rendering\r\n
+            eventContent: function(arg) {\r\n
+                let clientName = arg.event.extendedProps.client_name || '';\r\n
+                let details = arg.event.extendedProps.details || arg.event.title;\r\n
+\r\n
+                let contentEl = document.createElement('div');\r\n
+                // Added 'truncate' and fixed width handling for clean look\r\n
+                contentEl.className = 'px-1.5 py-1 text-xs leading-tight overflow-hidden w-full';\r\n
+                contentEl.setAttribute('title', clientName + ': ' + details); // Tooltip\r\n
+\r\n
+                // Force single line or limited lines to avoid "dragging name" look\r\n
+                contentEl.innerHTML = `\r\n
+                    <div class="font-bold truncate">${clientName}</div>\r\n
+                    <div class="truncate opacity-90 text-[10px]">${details}</div>\r\n
+                `;\r\n
+\r\n
+                return {\r\n
+                    domNodes: [contentEl]\r\n
+                };\r\n
+            },\r\n
+\r\n
+            // Handle Event Drop (Date Change)\r\n
+            eventDrop: function(info) {\r\n
+                var newDate = info.event.startStr;\r\n
+                var eventId = info.event.id;\r\n
+                var type = info.event.extendedProps.type;\r\n
+                var dbId = info.event.extendedProps.db_id;\r\n
+\r\n
+                if (!confirm("Reschedule " + type + " to " + newDate + "?")) {\r\n
+                    info.revert();\r\n
+                    return;\r\n
+                }\r\n
+\r\n
+                // AJAX Call to update date (Logic to be implemented in Backend)\r\n
+                fetch('/calendar/update-date', {\r\n
+                        method: 'POST',\r\n
+                        headers: {\r\n
+                            'Content-Type': 'application/json',\r\n
+                            'X-CSRF-TOKEN': 'ImfW1YoKiPEsj04VpyFzRhUMN2zxSyNiG6YYph4W'\r\n
+                        },\r\n
+                        body: JSON.stringify({\r\n
+                            type: type,\r\n
+                            id: dbId,\r\n
+                            new_date: newDate\r\n
+                        })\r\n
+                    })\r\n
+                    .then(response => response.json())\r\n
+                    .then(data => {\r\n
+                        if (data.success) {\r\n
+                            // Success toast or quiet\r\n
+                            console.log('Date updated');\r\n
+                        } else {\r\n
+                            alert('Failed to update date');\r\n
+                            info.revert();\r\n
+                        }\r\n
+                    })\r\n
+                    .catch(error => {\r\n
+                        console.error('Error:', error);\r\n
+                        info.revert();\r\n
+                    });\r\n
+            },\r\n
+\r\n
+            // Handle Event Click (View Details)\r\n
+            eventClick: function(info) {\r\n
+                // Dispatch Alpine event\r\n
+                window.dispatchEvent(new CustomEvent('open-calendar-modal', {\r\n
+                    detail: {\r\n
+                        id: info.event.id,\r\n
+                        title: info.event.extendedProps.details || info.event.title,\r\n
+                        type: info.event.extendedProps.type,\r\n
+                        db_id: info.event.extendedProps.db_id,\r\n
+                        client_name: info.event.extendedProps.client_name,\r\n
+                        start: info.event.startStr\r\n
+                    }\r\n
+                }));\r\n
+            },\r\n
+\r\n
+            // Handle Date Click (Create Task)\r\n
+            dateClick: function(info) {\r\n
+                // Optional: Open quick create modal in future\r\n
+            }\r\n
+        });\r\n
+        window.calendar.render();\r\n
+\r\n
+    });\r\n
+</script>\r\n
+\r\n
+<div\r\n
+    x-data="calendarEventModal()"\r\n
+    x-show="isOpen"\r\n
+    @open-calendar-modal.window="openModal($event.detail)"\r\n
+    @keydown.escape.window="closeModal()"\r\n
+    class="relative z-[60]"\r\n
+    style="display: none;"\r\n
+    aria-labelledby="modal-title"\r\n
+    role="dialog"\r\n
+    aria-modal="true">\r\n
+    <!-- Backdrop -->\r\n
+    <div\r\n
+        x-show="isOpen"\r\n
+        x-transition:enter="ease-out duration-300"\r\n
+        x-transition:enter-start="opacity-0"\r\n
+        x-transition:enter-end="opacity-100"\r\n
+        x-transition:leave="ease-in duration-200"\r\n
+        x-transition:leave-start="opacity-100"\r\n
+        x-transition:leave-end="opacity-0"\r\n
+        class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm"\r\n
+        @click="closeModal()"></div>\r\n
+\r\n
+    <!-- Modal Panel -->\r\n
+    <div class="fixed inset-0 z-10 overflow-y-auto">\r\n
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">\r\n
+            <div\r\n
+                x-show="isOpen"\r\n
+                x-transition:enter="ease-out duration-300"\r\n
+                x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"\r\n
+                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"\r\n
+                x-transition:leave="ease-in duration-200"\r\n
+                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"\r\n
+                x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"\r\n
+                class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100">\r\n
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">\r\n
+                    <div class="sm:flex sm:items-start">\r\n
+                        <div\r\n
+                            class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10"\r\n
+                            :class="event.type === 'task' ? 'bg-amber-100' : 'bg-rose-100'">\r\n
+                            <svg x-show="event.type === 'task'" class="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />\r\n
+                            </svg>\r\n
+                            <svg x-show="event.type !== 'task'" class="h-6 w-6 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />\r\n
+                            </svg>\r\n
+                        </div>\r\n
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">\r\n
+                            <h3 class="text-lg font-semibold leading-6 text-gray-900" id="modal-title" x-text="event.client_name || 'Event Details'"></h3>\r\n
+                            <div class="mt-2 space-y-3">\r\n
+                                <p class="text-sm text-gray-500" x-text="event.title"></p>\r\n
+\r\n
+                                <div class="flex items-center text-xs text-gray-400 bg-gray-50 p-2 rounded-lg">\r\n
+                                    <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />\r\n
+                                    </svg>\r\n
+                                    <span class="font-medium">Due Date:</span>\r\n
+                                    <span class="ml-1" x-text="event.start"></span>\r\n
+                                </div>\r\n
+                            </div>\r\n
+                        </div>\r\n
+                    </div>\r\n
+                </div>\r\n
+                <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 border-t border-gray-100">\r\n
+                    <a\r\n
+                        :href="viewUrl"\r\n
+                        class="inline-flex w-full justify-center rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto transition-colors">\r\n
+                        View Full Details\r\n
+                    </a>\r\n
+                    <button\r\n
+                        type="button"\r\n
+                        class="mt-3 inline-flex w-full justify-center rounded-lg bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition-colors"\r\n
+                        @click="closeModal()">\r\n
+                        Close\r\n
+                    </button>\r\n
+                </div>\r\n
+            </div>\r\n
+        </div>\r\n
+    </div>\r\n
+</div>\r\n
+\r\n
+<script>\r\n
+    function calendarEventModal() {\r\n
+        return {\r\n
+            isOpen: false,\r\n
+            event: {},\r\n
+            get viewUrl() {\r\n
+                if (!this.event.db_id) return '#';\r\n
+                if (this.event.type === 'task') {\r\n
+                    return `/tasks/${this.event.db_id}/edit`;\r\n
+                } else {\r\n
+                    return `/service-dues?highlight=${this.event.db_id}`; // Basic redirect for now\r\n
+                }\r\n
+            },\r\n
+            openModal(data) {\r\n
+                this.event = data;\r\n
+                this.isOpen = true;\r\n
+            },\r\n
+            closeModal() {\r\n
+                this.isOpen = false;\r\n
+                this.event = {};\r\n
+            }\r\n
+        }\r\n
+    }\r\n
+</script>\r\n
+<style>\r\n
+    /* Beautiful Calendar Styling */\r\n
+    .fc {\r\n
+        font-family: 'Inter', sans-serif;\r\n
+    }\r\n
+\r\n
+    /* Ensure widgets handle resize gracefully */\r\n
+    .grid-stack-item-content {\r\n
+        height: 100% !important;\r\n
+        overflow: hidden;\r\n
+        /* Prevent spillover */\r\n
+    }\r\n
+\r\n
+    .fc .fc-toolbar-title {\r\n
+        font-size: 1.25rem;\r\n
+        font-weight: 700;\r\n
+        color: #1f2937;\r\n
+    }\r\n
+\r\n
+    /* Responsive font for smaller widgets */\r\n
+    @media (max-width: 768px) {\r\n
+        .fc .fc-toolbar-title {\r\n
+            font-size: 1rem;\r\n
+        }\r\n
+    }\r\n
+\r\n
+    .fc .fc-button-primary {\r\n
+        background-color: white;\r\n
+        border: 1px solid #e5e7eb;\r\n
+        color: #374151;\r\n
+        font-weight: 500;\r\n
+        padding: 0.5rem 1rem;\r\n
+        border-radius: 0.5rem;\r\n
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);\r\n
+    }\r\n
+\r\n
+    .fc .fc-button-primary:hover {\r\n
+        background-color: #f9fafb;\r\n
+        border-color: #d1d5db;\r\n
+        color: #111827;\r\n
+    }\r\n
+\r\n
+    .fc .fc-button-primary:not(:disabled).fc-button-active,\r\n
+    .fc .fc-button-primary:not(:disabled):active {\r\n
+        background-color: #4f46e5;\r\n
+        border-color: transparent;\r\n
+        color: white;\r\n
+    }\r\n
+\r\n
+    /* Event Styling Override for consistency */\r\n
+    .fc-event {\r\n
+        border: none !important;\r\n
+        border-radius: 4px;\r\n
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);\r\n
+    }\r\n
+\r\n
+    .fc-theme-standard td,\r\n
+    .fc-theme-standard th {\r\n
+        border-color: #f3f4f6;\r\n
+    }\r\n
+\r\n
+    .fc-col-header-cell-cushion {\r\n
+        padding: 8px;\r\n
+        color: #6b7280;\r\n
+        font-size: 0.75rem;\r\n
+        text-transform: uppercase;\r\n
+        letter-spacing: 0.05em;\r\n
+    }\r\n
+\r\n
+    .fc-daygrid-day-number {\r\n
+        color: #4b5563;\r\n
+        font-weight: 500;\r\n
+        padding: 8px;\r\n
+    }\r\n
+\r\n
+    .fc-day-today {\r\n
+        background-color: #fcfaff !important;\r\n
+    }\r\n
+\r\n
+    /* Popover styling for +X more */\r\n
+    .fc-popover {\r\n
+        border-radius: 8px !important;\r\n
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;\r\n
+        border: 1px solid #f3f4f6 !important;\r\n
+        z-index: 50 !important;\r\n
+    }\r\n
+</style>\r\n
+\r\n
+    <script>\r\n
+        // PWA Install Logic\r\n
+        let deferredPrompt;\r\n
+        const installBtn = document.getElementById('pwa-install-btn');\r\n
+\r\n
+        window.addEventListener('beforeinstallprompt', (e) => {\r\n
+            e.preventDefault();\r\n
+            deferredPrompt = e;\r\n
+            // Show the install button\r\n
+            if (installBtn) {\r\n
+                installBtn.classList.remove('hidden');\r\n
+            }\r\n
+            console.log('PWA Install Triggered');\r\n
+        });\r\n
+\r\n
+        window.addEventListener('appinstalled', () => {\r\n
+            if (installBtn) {\r\n
+                installBtn.classList.add('hidden');\r\n
+            }\r\n
+            deferredPrompt = null;\r\n
+            console.log('PWA Installed');\r\n
+        });\r\n
+\r\n
+        async function installPWA() {\r\n
+            if (deferredPrompt) {\r\n
+                deferredPrompt.prompt();\r\n
+                const {\r\n
+                    outcome\r\n
+                } = await deferredPrompt.userChoice;\r\n
+                console.log(`User response to the install prompt: ${outcome}`);\r\n
+                deferredPrompt = null;\r\n
+                if (outcome === 'accepted' && installBtn) {\r\n
+                    installBtn.classList.add('hidden');\r\n
+                }\r\n
+            }\r\n
+        }\r\n
+\r\n
+        function toggleZenMode() {\r\n
+            document.body.classList.toggle('zen-mode');\r\n
+            localStorage.setItem('zen-mode', document.body.classList.contains('zen-mode'));\r\n
+        }\r\n
+    </script>\r\n
+\r\n
+    <div\r\n
+    x-data="searchModal()"\r\n
+    x-init="init()"\r\n
+    @keydown.window.prevent.cmd.k="openModal()"\r\n
+    @keydown.window.prevent.ctrl.k="openModal()"\r\n
+    @keydown.escape="closeModal()"\r\n
+    class="relative z-50"\r\n
+    style="display: none;"\r\n
+    x-show="isOpen"\r\n
+    x-transition:enter="transition ease-out duration-200"\r\n
+    x-transition:enter-start="opacity-0"\r\n
+    x-transition:enter-end="opacity-100"\r\n
+    x-transition:leave="transition ease-in duration-150"\r\n
+    x-transition:leave-start="opacity-100"\r\n
+    x-transition:leave-end="opacity-0">\r\n
+    <!-- Backdrop -->\r\n
+    <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" @click="closeModal()"></div>\r\n
+\r\n
+    <!-- Modal Panel -->\r\n
+    <div class="fixed inset-0 z-10 overflow-y-auto p-4 sm:p-6 md:p-20">\r\n
+        <div\r\n
+            class="mx-auto max-w-2xl transform divide-y divide-gray-100 overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 transition-all"\r\n
+            x-transition:enter="transition ease-out duration-200"\r\n
+            x-transition:enter-start="opacity-0 scale-95"\r\n
+            x-transition:enter-end="opacity-100 scale-100"\r\n
+            x-transition:leave="transition ease-in duration-150"\r\n
+            x-transition:leave-start="opacity-100 scale-100"\r\n
+            x-transition:leave-end="opacity-0 scale-95">\r\n
+            <div class="relative">\r\n
+                <!-- Search Icon -->\r\n
+                <svg class="pointer-events-none absolute top-3.5 left-4 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">\r\n
+                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />\r\n
+                </svg>\r\n
+\r\n
+                <!-- Input -->\r\n
+                <input\r\n
+                    x-ref="searchInput"\r\n
+                    type="text"\r\n
+                    class="h-12 w-full border-0 bg-transparent pl-11 pr-4 text-gray-800 placeholder-gray-400 focus:ring-0 sm:text-sm"\r\n
+                    placeholder="Search clients, tasks, invoices..."\r\n
+                    @input.debounce.300ms="fetchResults()"\r\n
+                    x-model="query">\r\n
+            </div>\r\n
+\r\n
+            <!-- Results List -->\r\n
+            <ul class="max-h-96 scroll-py-3 overflow-y-auto p-3" id="options" role="listbox" x-show="results.length > 0">\r\n
+                <template x-for="(group, category) in groupedResults" :key="category">\r\n
+                    <li>\r\n
+                        <h2 class="bg-gray-50 px-3 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide rounded-lg mb-2" x-text="category"></h2>\r\n
+                        <ul class="text-sm text-gray-700 space-y-1 mb-2">\r\n
+                            <template x-for="item in group" :key="item.url">\r\n
+                                <li\r\n
+                                    class="group flex cursor-pointer select-none items-center rounded-xl p-3 hover:bg-indigo-600 hover:text-white transition-colors duration-150"\r\n
+                                    role="option"\r\n
+                                    tabindex="-1"\r\n
+                                    @click="window.location.href = item.url">\r\n
+                                    <!-- Dynamic Icon based on item.icon -->\r\n
+                                    <div class="flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-gray-100 group-hover:bg-white/20 group-hover:text-white transition-colors">\r\n
+                                        <i :class="'text-gray-500 group-hover:text-white fas fa-' + (item.icon || 'circle')"></i>\r\n
+                                    </div>\r\n
+                                    <div class="ml-4 flex-auto">\r\n
+                                        <p class="font-medium" x-text="item.title"></p>\r\n
+                                        <p class="text-xs text-gray-400 group-hover:text-indigo-200" x-show="item.subtitle" x-text="item.subtitle"></p>\r\n
+                                    </div>\r\n
+                                    <svg class="ml-3 h-5 w-5 flex-none text-gray-400 group-hover:text-white opacity-0 group-hover:opacity-100 transition-opacity" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">\r\n
+                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />\r\n
+                                    </svg>\r\n
+                                </li>\r\n
+                            </template>\r\n
+                        </ul>\r\n
+                    </li>\r\n
+                </template>\r\n
+            </ul>\r\n
+\r\n
+            <!-- Empty State -->\r\n
+            <div class="py-14 px-6 text-center text-sm sm:px-14" x-show="query.length > 1 && results.length === 0 && !loading">\r\n
+                <svg class="mx-auto h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">\r\n
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />\r\n
+                </svg>\r\n
+                <p class="mt-4 font-semibold text-gray-900">No results found</p>\r\n
+                <p class="mt-2 text-gray-500">No clients, tasks, or pages found for this search term.</p>\r\n
+            </div>\r\n
+\r\n
+            <!-- Helper Text -->\r\n
+            <div class="bg-gray-50 px-4 py-3 border-t border-gray-100 flex justify-between items-center text-xs text-gray-500 rounded-b-xl" x-show="!isOpen || query.length === 0">\r\n
+                <span>Press <kbd class="font-sans font-semibold text-gray-900 border border-gray-200 rounded px-1">Esc</kbd> to close</span>\r\n
+            </div>\r\n
+        </div>\r\n
+    </div>\r\n
+</div>\r\n
+\r\n
+<script>\r\n
+    function searchModal() {\r\n
+        return {\r\n
+            isOpen: false,\r\n
+            query: '',\r\n
+            results: [],\r\n
+            loading: false,\r\n
+            get groupedResults() {\r\n
+                return this.results.reduce((groups, item) => {\r\n
+                    const category = item.category;\r\n
+                    if (!groups[category]) {\r\n
+                        groups[category] = [];\r\n
+                    }\r\n
+                    groups[category].push(item);\r\n
+                    return groups;\r\n
+                }, {});\r\n
+            },\r\n
+            openModal() {\r\n
+                this.isOpen = true;\r\n
+                this.$nextTick(() => {\r\n
+                    this.$refs.searchInput.focus();\r\n
+                });\r\n
+            },\r\n
+            closeModal() {\r\n
+                this.isOpen = false;\r\n
+                this.query = '';\r\n
+                this.results = [];\r\n
+            },\r\n
+            init() {\r\n
+                // FontAwesome fallback if not loaded\r\n
+                if (!document.getElementById('fa-cdn')) {\r\n
+                    const link = document.createElement('link');\r\n
+                    link.id = 'fa-cdn';\r\n
+                    link.rel = 'stylesheet';\r\n
+                    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css';\r\n
+                    document.head.appendChild(link);\r\n
+                }\r\n
+            },\r\n
+            fetchResults() {\r\n
+                if (this.query.length < 2) {\r\n
+                    this.results = [];\r\n
+                    return;\r\n
+                }\r\n
+                this.loading = true;\r\n
+                fetch(`http://localhost/search/global?query=${this.query}`)\r\n
+                    .then(response => response.json())\r\n
+                    .then(data => {\r\n
+                        this.results = data;\r\n
+                        this.loading = false;\r\n
+                    });\r\n
+            }\r\n
+        }\r\n
+    }\r\n
+</script></body>\r\n
+\r\n
+</html>
+
+  To contain: Active Clients
+
+  at tests\Feature\ClientModuleTest.php:242
+    238▕ 
+    239▕         // 3. Verify Metrics
+    240▕         $response->assertSee('Total Clients');
+    241▕         $response->assertSee('2'); // Total count
+  ➜ 242▕         $response->assertSee('Active Clients');
+    243▕ 
+    244▕         // 4. Verify Upcoming Dues Table
+    245▕         $response->assertSee('Upcoming Compliance Dues');
+    246▕         $response->assertSee('Dash Client A');
+
+
+  Tests:    1 failed, 11 passed (33 assertions)
+  Duration: 2.83s
+
