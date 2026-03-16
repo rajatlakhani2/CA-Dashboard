@@ -25,9 +25,20 @@ class DashboardController extends Controller
             'upcoming_renewals' => ServiceDue::where('status', 'Pending')
                 ->whereBetween('due_date', [$today, $today->copy()->addDays(30)])
                 ->count(),
-            // Placeholders for Billing (Module not exists)
-            'outstanding_fees' => '₹ 0',
-            'overdue_collections' => '₹ 0',
+            'outstanding_fees' => '₹ ' . number_format(
+                \App\Models\Invoice::whereIn('status', ['Sent', 'Overdue', 'Partially Paid'])->sum('total_amount')
+                    - \App\Models\Payment::whereHas('invoice', fn($q) => $q->whereIn('status', ['Sent', 'Overdue', 'Partially Paid']))->sum('amount'),
+                0
+            ),
+            'overdue_collections' => '₹ ' . number_format(
+                \App\Models\Invoice::where('status', 'Overdue')->sum('total_amount')
+                    - \App\Models\Payment::whereHas('invoice', fn($q) => $q->where('status', 'Overdue'))->sum('amount'),
+                0
+            ),
+            'expiring_dscs' => \App\Models\Dsc::where('status', 'Active')
+                ->where('expiry_date', '<=', $today->copy()->addDays(30))
+                ->where('expiry_date', '>=', $today)
+                ->count(),
         ];
 
         // --- 2. COMPLIANCE & SERVICE DUE SECTION ---

@@ -46,7 +46,8 @@ class Client extends Model
         'currency',
         'invoice_email',
         'status',
-        'tags'
+        'tags',
+        'branch_id',
     ];
 
     protected $casts = [
@@ -94,5 +95,10 @@ class Client extends Model
     public function personalRenewals(): HasMany
     {
         return $this->hasMany(PersonalRenewal::class);
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
     }
 }

@@ -16,6 +16,17 @@
         </span>
     </div>
     <div class="flex space-x-3">
+        <div class="flex rounded-md shadow-sm">
+            <a href="{{ route('ledger.show', $client) }}" class="relative inline-flex items-center rounded-l-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10">
+                Client Ledger
+            </a>
+            <a href="{{ route('onboarding.show', $client) }}" class="relative -ml-px inline-flex items-center bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10">
+                Onboarding
+            </a>
+            <a href="{{ route('dscs.index', ['search' => $client->name]) }}" class="relative -ml-px inline-flex items-center rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10">
+                DSCs
+            </a>
+        </div>
         <a href="{{ route('invoices.create', ['client_id' => $client->id]) }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-md text-sm font-semibold shadow-sm">
             + New Invoice
         </a>
@@ -38,10 +49,10 @@
             <dt class="truncate text-sm font-medium text-gray-500">Collected</dt>
             <dd class="mt-1 text-2xl font-semibold tracking-tight text-green-600">₹ {{ number_format($totalCollected, 2) }}</dd>
         </div>
-        <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
-            <dt class="truncate text-sm font-medium text-gray-500">Outstanding</dt>
+        <a href="{{ route('ledger.show', $client) }}" class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6 hover:bg-gray-50 transition-colors">
+            <dt class="truncate text-sm font-medium text-gray-500">Outstanding (Ledger)</dt>
             <dd class="mt-1 text-2xl font-semibold tracking-tight text-red-600">₹ {{ number_format($totalOutstanding, 2) }}</dd>
-        </div>
+        </a>
         <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
             <dt class="truncate text-sm font-medium text-gray-500">Active Tasks</dt>
             <dd class="mt-1 text-2xl font-semibold tracking-tight text-indigo-600">{{ $activeTasks->count() }}</dd>

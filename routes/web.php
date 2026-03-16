@@ -105,4 +105,45 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/notifications/mark-read/{id}', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('notifications.read');
     Route::get('/notifications/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('notifications.read.all');
+
+    // ===== NEW FEATURES =====
+
+    // Feature 2: Payments & Receipts
+    Route::get('/payments/{payment}/receipt', [\App\Http\Controllers\PaymentController::class, 'downloadReceipt'])->name('payments.receipt');
+    Route::resource('payments', \App\Http\Controllers\PaymentController::class)->except(['edit', 'update']);
+
+    // Feature 4: Expense Management
+    Route::resource('expenses', \App\Http\Controllers\ExpenseController::class);
+
+    // Feature 5: Time Tracking
+    Route::resource('time-entries', \App\Http\Controllers\TimeEntryController::class)->only(['index', 'store', 'destroy']);
+
+    // Feature 7: Email Invoice
+    Route::post('/invoices/{invoice}/send-email', [\App\Http\Controllers\InvoiceController::class, 'sendEmail'])->name('invoices.send-email');
+
+    // Feature 8: DSC Tracker
+    Route::resource('dscs', \App\Http\Controllers\DscController::class);
+
+    // Feature 10: TDS Management
+    Route::resource('tds', \App\Http\Controllers\TdsController::class)->except(['create', 'show', 'edit']);
+
+    // Feature 11: Client Ledger
+    Route::get('/ledger/{client}', [\App\Http\Controllers\LedgerController::class, 'show'])->name('ledger.show');
+    Route::get('/ledger/{client}/soa', [\App\Http\Controllers\LedgerController::class, 'downloadSoa'])->name('ledger.soa');
+
+    // Feature 14: Client Onboarding
+    Route::get('/onboarding/{client}', [\App\Http\Controllers\OnboardingController::class, 'show'])->name('onboarding.show');
+    Route::post('/onboarding/{item}/toggle', [\App\Http\Controllers\OnboardingController::class, 'toggle'])->name('onboarding.toggle');
+    Route::post('/onboarding/{client}/add-item', [\App\Http\Controllers\OnboardingController::class, 'addItem'])->name('onboarding.add-item');
+
+    // Feature 12: Branch Support
+    Route::resource('branches', \App\Http\Controllers\BranchController::class);
+
+    // Feature 6: User Management (RBAC)
+    Route::get('/users', [\App\Http\Controllers\SettingsController::class, 'users'])->name('users.index');
+    Route::patch('/users/{user}/role', [\App\Http\Controllers\SettingsController::class, 'updateRole'])->name('users.update-role');
+
+    // Feature 15: Subscription/Retainer Billing
+    Route::post('/subscriptions/{subscription}/toggle', [\App\Http\Controllers\SubscriptionController::class, 'toggle'])->name('subscriptions.toggle');
+    Route::resource('subscriptions', \App\Http\Controllers\SubscriptionController::class);
 });

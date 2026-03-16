@@ -278,10 +278,18 @@
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 mr-2">
                                         {{ $renewal->category }}
                                     </span>
-                                    <span>Due: {{ $renewal->due_date->format('d M Y') }}</span>
-                                    <span class="mx-2">•</span>
+                                    <span class="mr-2">Due: {{ $renewal->due_date->format('d M Y') }}</span>
+                                    @if($renewal->financial_year)
+                                    <span class="mr-2 text-xs text-gray-400">FY: {{ $renewal->financial_year }}</span>
+                                    @endif
+                                    @if($renewal->version)
+                                    <span class="mr-2 text-xs text-gray-400">v{{ $renewal->version }}</span>
+                                    @endif
                                     <span class="font-medium text-gray-900">₹ {{ number_format($renewal->amount) }}</span>
                                 </div>
+                                @if($renewal->expiry_date)
+                                <p class="text-[10px] text-red-500 font-bold mt-1">EXPIRES: {{ $renewal->expiry_date->format('d M, Y') }}</p>
+                                @endif
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
@@ -341,67 +349,83 @@
 
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
+                                    <label class="block text-sm font-medium text-gray-700">Financial Year</label>
+                                    <input type="text" name="financial_year" placeholder="e.g. 2024-25" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Version / Rev</label>
+                                    <input type="text" name="version" placeholder="e.g. 1.0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
                                     <label class="block text-sm font-medium text-gray-700">Due Date</label>
                                     <input type="date" name="due_date" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Frequency</label>
-                                    <select name="frequency" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                        <option value="">One-Time</option>
-                                        <option value="Monthly">Monthly</option>
-                                        <option value="Quarterly">Quarterly</option>
-                                        <option value="Half-Yearly">Half-Yearly</option>
-                                        <option value="Yearly">Yearly</option>
-                                    </select>
+                                    <label class="block text-sm font-medium text-gray-700">Expiry Date (Optional)</label>
+                                    <input type="date" name="expiry_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                 </div>
                             </div>
-
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Attachment (PDF/Image)</label>
-                                <input type="file" name="document" accept=".pdf,.jpg,.jpeg,.png" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Notes</label>
-                                <textarea name="notes" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></textarea>
+                                <label class="block text-sm font-medium text-gray-700">Frequency</label>
+                                <select name="frequency" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    <option value="">One-Time</option>
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Quarterly">Quarterly</option>
+                                    <option value="Half-Yearly">Half-Yearly</option>
+                                    <option value="Yearly">Yearly</option>
+                                </select>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">Save</button>
-                        <button type="button" onclick="document.getElementById('addRenewalModal').classList.add('hidden')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Cancel</button>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Attachment (PDF/Image)</label>
+                            <input type="file" name="document" accept=".pdf,.jpg,.jpeg,.png" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Notes</label>
+                            <textarea name="notes" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></textarea>
+                        </div>
                     </div>
-                </form>
             </div>
+
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">Save</button>
+                <button type="button" onclick="document.getElementById('addRenewalModal').classList.add('hidden')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Cancel</button>
+            </div>
+            </form>
         </div>
     </div>
+</div>
 
-    @endsection
+@endsection
 
-    @section('scripts')
-    <script>
-        function switchTab(tabName) {
-            // Hide all panels
-            document.querySelectorAll('.tab-panel').forEach(panel => {
-                panel.classList.add('hidden');
-            });
+@section('scripts')
+<script>
+    function switchTab(tabName) {
+        // Hide all panels
+        document.querySelectorAll('.tab-panel').forEach(panel => {
+            panel.classList.add('hidden');
+        });
 
-            // Show selected panel
-            document.getElementById('panel-' + tabName).classList.remove('hidden');
+        // Show selected panel
+        document.getElementById('panel-' + tabName).classList.remove('hidden');
 
-            // Reset all buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('border-primary-500', 'text-primary-600', 'border-indigo-500', 'text-indigo-600');
-                btn.classList.add('border-transparent', 'text-text-secondary');
-            });
+        // Reset all buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('border-primary-500', 'text-primary-600', 'border-indigo-500', 'text-indigo-600');
+            btn.classList.add('border-transparent', 'text-text-secondary');
+        });
 
-            // Highlight selected button
-            const activeBtn = document.getElementById('tab-' + tabName);
-            if (activeBtn) {
-                activeBtn.classList.remove('border-transparent', 'text-text-secondary');
-                activeBtn.classList.add('border-primary-500', 'text-primary-600');
-            }
+        // Highlight selected button
+        const activeBtn = document.getElementById('tab-' + tabName);
+        if (activeBtn) {
+            activeBtn.classList.remove('border-transparent', 'text-text-secondary');
+            activeBtn.classList.add('border-primary-500', 'text-primary-600');
         }
-    </script>
-    @endsection
+    }
+</script>
+@endsection

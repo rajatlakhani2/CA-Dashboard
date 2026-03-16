@@ -21,7 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-
+        'role',
+        'theme',
+        'branch_id',
     ];
 
     /**
@@ -60,5 +62,42 @@ class User extends Authenticatable
     public function leaves()
     {
         return $this->hasMany(Leave::class);
+    }
+
+    public function timeEntries()
+    {
+        return $this->hasMany(TimeEntry::class);
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
+    public function expenses()
+    {
+        return $this->hasMany(Expense::class);
+    }
+
+    // RBAC Helpers
+    public function isPartner(): bool
+    {
+        return $this->role === 'partner';
+    }
+    public function isManager(): bool
+    {
+        return $this->role === 'manager';
+    }
+    public function isStaff(): bool
+    {
+        return $this->role === 'staff';
+    }
+    public function isIntern(): bool
+    {
+        return $this->role === 'intern';
+    }
+    public function hasRole(string ...$roles): bool
+    {
+        return in_array($this->role, $roles);
     }
 }

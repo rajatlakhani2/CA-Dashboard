@@ -5,18 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class InvoiceItem extends Model
+class TdsEntry extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'invoice_id',
-        'description',
-        'hsn_sac_code',
-        'gst_rate',
-        'quantity',
-        'rate',
-        'amount',
+        'tds_rate',
+        'tds_amount',
+        'certificate_received',
+        'certificate_date',
+        'certificate_number',
+        'notes',
+    ];
+
+    protected $casts = [
+        'certificate_date' => 'date',
+        'certificate_received' => 'boolean',
     ];
 
     public function invoice()

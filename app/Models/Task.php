@@ -49,4 +49,14 @@ class Task extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function timeEntries()
+    {
+        return $this->hasMany(TimeEntry::class);
+    }
+
+    public function totalHours(): float
+    {
+        return (float) $this->timeEntries()->sum('hours');
+    }
 }

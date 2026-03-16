@@ -32,6 +32,24 @@
         body.zen-mode .pl-64 {
             padding-left: 0 !important;
         }
+
+        /* Premium Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
     </style>
     <script>
         // Check local storage for Zen Mode
@@ -51,12 +69,12 @@
 <body class="h-full theme-modern">
     <div class="min-h-full bg-bg-body text-text-main">
         <!-- Sidebar -->
-        <div class="fixed inset-y-0 left-0 z-50 w-64 bg-sidebar text-white transition-transform duration-300 ease-in-out transform" id="sidebar">
-            <div class="flex items-center justify-center h-16 bg-white/10 shadow-md">
+        <div class="fixed inset-y-0 left-0 z-50 w-64 bg-sidebar text-white transition-transform duration-300 ease-in-out transform flex flex-col" id="sidebar">
+            <div class="flex-shrink-0 flex items-center justify-center h-16 bg-white/10 shadow-md">
                 <h1 class="text-xl font-bold tracking-wider">RLA DASHBOARD</h1>
             </div>
 
-            <nav class="mt-5 px-4 space-y-2">
+            <nav class="flex-1 mt-5 px-4 space-y-2 overflow-y-auto custom-scrollbar pb-10">
                 <a href="{{ route('dashboard') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
                     <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('dashboard') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -105,6 +123,49 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     Invoices
+                </a>
+
+                <a href="{{ route('payments.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('payments.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('payments.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    Payments
+                </a>
+
+                <a href="{{ route('subscriptions.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('subscriptions.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('subscriptions.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Retainers
+                </a>
+
+                <a href="{{ route('expenses.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('expenses.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('expenses.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    Expenses
+                </a>
+
+                <a href="{{ route('dscs.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('dscs.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('dscs.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                    </svg>
+                    DSC Tracker
+                </a>
+
+                <a href="{{ route('tds.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('tds.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('tds.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.5m.5.5h.5m.5.5h.5m.5.5h.5m-5 5h.5m.5.5h.5m.5.5h.5m.5.5h.5" />
+                    </svg>
+                    TDS Management
+                </a>
+
+                <a href="{{ route('time-entries.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('time-entries.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('time-entries.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Time Tracking
                 </a>
 
                 <!-- REPORTS DROPDOWN -->
