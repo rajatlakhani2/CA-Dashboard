@@ -1,132 +1,189 @@
 @extends('layouts.app')
 
-@section('header')
-<div class="flex justify-between items-center w-full">
-    <div class="flex items-center gap-4">
-        <h2 class="text-xl font-semibold text-gray-800">Service Master Settings</h2>
-    </div>
-    <button onclick="openModal('create')" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded shadow text-sm">
-        + Add New Service
-    </button>
-</div>
-@endsection
+@section('header', 'Service Master Registry')
 
 @section('content')
-<div class="bg-white shadow rounded-lg overflow-hidden">
-    <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-            <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name / Code</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Frequency</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Default Due Date</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-            </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-            @foreach($services as $service)
-            <tr>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900">{{ $service->name }}</div>
-                    <div class="text-xs text-gray-500">{{ $service->code }}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                        {{ $service->frequency }}
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    @if($service->frequency === 'Monthly')
-                    {{ $service->due_day }}th of every month
-                    @elseif($service->frequency === 'Annually')
-                    {{ $service->due_month ? date('F', mktime(0, 0, 0, $service->due_month, 1)) : '-' }} {{ $service->due_day }}
-                    @else
-                    {{ $service->due_day ? $service->due_day : '-' }}
-                    @endif
-                </td>
-                <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
-                    {{ $service->description }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button onclick='openModal("edit", @json($service))' class="text-indigo-600 hover:text-indigo-900 mr-4">Edit</button>
-                    <!-- Delete Form (Optional, be careful with foreign keys) -->
-                    <!-- <form ... -> -->
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+<div class="space-y-6">
+    <!-- Stats Context -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 flex flex-col justify-between">
+            <div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Services</p>
+                <h3 class="text-3xl font-black text-slate-900 leading-none">{{ $services->count() }}</h3>
+            </div>
+            <div class="mt-4 flex -space-x-2">
+                @foreach($services->take(5) as $s)
+                <div class="h-8 w-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-400 uppercase">
+                    {{ substr($s->code, 0, 2) }}
+                </div>
+                @endforeach
+            </div>
+        </div>
+
+        <div class="md:col-span-2 bg-slate-900 rounded-3xl shadow-xl p-8 flex items-center justify-between text-white relative overflow-hidden group">
+            <div class="relative z-10 transition-transform duration-500 group-hover:scale-105">
+                <h4 class="text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] mb-2">Registry Control</h4>
+                <p class="text-2xl font-black leading-tight">Define Your Practice <br><span class="text-indigo-300">Service Catalog</span></p>
+            </div>
+            <button onclick="openModal('create')" class="relative z-10 bg-white text-slate-900 px-8 py-3.5 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-indigo-500 hover:text-white transition-all transform active:scale-95 shadow-xl">
+                Add Service
+            </button>
+            <!-- Decorative gradient -->
+            <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+        </div>
+
+        <div class="bg-indigo-50 rounded-3xl p-6 flex flex-col justify-center">
+            <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Statutory Count</p>
+            <p class="text-3xl font-black text-indigo-600">{{ $services->where('is_statutory', true)->count() }}</p>
+        </div>
+    </div>
+
+    <!-- Service List -->
+    <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+        <div class="px-10 py-8 border-b border-slate-50 flex items-center justify-between">
+            <div>
+                <h3 class="font-black text-slate-900 text-xl tracking-tight">Active Catalog</h3>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Configure compliance frequencies and billing codes</p>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                    <tr>
+                        <th class="px-10 py-6">Service Detail</th>
+                        <th class="px-10 py-6">Frequency</th>
+                        <th class="px-10 py-6">Timeline</th>
+                        <th class="px-10 py-6">Description</th>
+                        <th class="px-10 py-6 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    @foreach($services as $service)
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="px-10 py-7">
+                            <div class="flex items-center space-x-4">
+                                <div class="h-10 w-10 bg-slate-100 rounded-xl flex items-center justify-center text-xs font-black text-slate-400">
+                                    {{ $service->code }}
+                                </div>
+                                <div>
+                                    <div class="text-sm font-black text-slate-900">{{ $service->name }}</div>
+                                    @if($service->is_statutory)
+                                    <span class="text-[8px] font-black text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded border border-orange-100">STATUTORY</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-10 py-7">
+                            <span class="inline-flex px-3 py-1 rounded-lg text-[10px] font-black uppercase bg-indigo-50 text-indigo-700">
+                                {{ $service->frequency }}
+                            </span>
+                        </td>
+                        <td class="px-10 py-7">
+                            <div class="text-[10px] font-black text-slate-900">
+                                @if($service->frequency === 'Monthly')
+                                DAY {{ str_pad($service->due_day, 2, '0', STR_PAD_LEFT) }} <span class="text-slate-400">/ MONTH</span>
+                                @elseif($service->frequency === 'Annually')
+                                {{ strtoupper($service->due_month ? date('M', mktime(0, 0, 0, $service->due_month, 1)) : '-') }} {{ str_pad($service->due_day, 2, '0', STR_PAD_LEFT) }}
+                                @else
+                                {{ $service->due_day ? 'DAY '.str_pad($service->due_day, 2, '0', STR_PAD_LEFT) : 'FLEXIBLE' }}
+                                @endif
+                            </div>
+                        </td>
+                        <td class="px-10 py-7">
+                            <p class="text-[10px] text-slate-400 font-medium max-w-xs truncate">{{ $service->description ?? 'No specific instructions set.' }}</p>
+                        </td>
+                        <td class="px-10 py-7 text-right">
+                            <button onclick='openModal("edit", @json($service))' class="text-slate-400 hover:text-indigo-600 transition-colors">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-<!-- Modal -->
-<div id="serviceModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeModal()"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <form id="serviceForm" method="POST">
+<!-- Premium Modal -->
+<div id="serviceModal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+
+        <div class="relative bg-white rounded-[2.5rem] shadow-2xl w-full max-w-xl overflow-hidden transform transition-all">
+            <div class="absolute top-0 right-0 p-8">
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-900 transition-colors">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form id="serviceForm" method="POST" class="p-10">
                 @csrf
                 <div id="methodField"></div>
 
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="modalTitle">Add Service</h3>
+                <div class="mb-10">
+                    <h3 class="text-2xl font-black text-slate-900 tracking-tight" id="modalTitle">Define Service</h3>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1 text-indigo-500">Registry Entry</p>
+                </div>
 
-                    <div class="space-y-4">
-                        <!-- Name & Code -->
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-                                <input type="text" name="name" id="name" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                            </div>
-                            <div>
-                                <label for="code" class="block text-sm font-medium text-gray-700">Code</label>
-                                <input type="text" name="code" id="code" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                            </div>
-                        </div>
-
-                        <!-- Frequency -->
+                <div class="space-y-6">
+                    <div class="grid grid-cols-2 gap-6">
                         <div>
-                            <label for="frequency" class="block text-sm font-medium text-gray-700">Frequency</label>
-                            <select name="frequency" id="frequency" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                                <option value="Monthly">Monthly</option>
-                                <option value="Quarterly">Quarterly</option>
-                                <option value="Half-Yearly">Half-Yearly</option>
-                                <option value="Annually">Annually</option>
-                                <option value="One-Time">One-Time</option>
-                            </select>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Service Name</label>
+                            <input type="text" name="name" id="name" required class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 py-4 px-6 font-bold text-slate-900">
                         </div>
-
-                        <!-- Due Date -->
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label for="due_day" class="block text-sm font-medium text-gray-700">Due Day</label>
-                                <input type="number" name="due_day" id="due_day" max="31" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="e.g. 20">
-                            </div>
-                            <div>
-                                <label for="due_month" class="block text-sm font-medium text-gray-700">Due Month (for Annual)</label>
-                                <select name="due_month" id="due_month" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                                    <option value="">-- N/A --</option>
-                                    @foreach(range(1, 12) as $m)
-                                    <option value="{{ $m }}">{{ date('F', mktime(0, 0, 0, $m, 1)) }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Description -->
                         <div>
-                            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                            <textarea name="description" id="description" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Code</label>
+                            <input type="text" name="code" id="code" required class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 py-4 px-6 font-bold text-slate-900">
                         </div>
                     </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Billing Frequency</label>
+                        <select name="frequency" id="frequency" class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 py-4 px-6 font-bold text-slate-900 appearance-none">
+                            <option value="Monthly">Monthly</option>
+                            <option value="Quarterly">Quarterly</option>
+                            <option value="Half-Yearly">Half-Yearly</option>
+                            <option value="Annually">Annually</option>
+                            <option value="One-Time">One-Time</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Due Day (1-28)</label>
+                            <input type="number" name="due_day" id="due_day" max="31" class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 py-4 px-6 font-bold text-slate-900">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Target Month</label>
+                            <select name="due_month" id="due_month" class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 py-4 px-6 font-bold text-slate-900 appearance-none">
+                                <option value="">N/A</option>
+                                @foreach(range(1, 12) as $m)
+                                <option value="{{ $m }}">{{ date('F', mktime(0, 0, 0, $m, 1)) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-3 bg-slate-50 p-6 rounded-3xl border border-slate-100 italic">
+                        <input type="checkbox" name="is_statutory" id="is_statutory" class="h-5 w-5 rounded-lg border-slate-200 text-indigo-600 focus:ring-indigo-500">
+                        <label for="is_statutory" class="text-[10px] font-black text-slate-600 uppercase tracking-widest">Mark as Statutory Compliance</label>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Scope / Notes</label>
+                        <textarea name="description" id="description" rows="3" class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 py-4 px-6 font-bold text-slate-900"></textarea>
+                    </div>
                 </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
-                        Save
-                    </button>
-                    <button type="button" onclick="closeModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                        Cancel
-                    </button>
+
+                <div class="mt-10 flex space-x-4">
+                    <button type="submit" class="flex-1 bg-slate-900 text-white rounded-2xl py-4 font-black uppercase text-xs tracking-[0.2em] transition-all hover:bg-indigo-600 shadow-xl active:scale-95">Save Registry Entry</button>
+                    <button type="button" onclick="closeModal()" class="px-8 py-4 text-slate-400 font-black uppercase text-xs tracking-widest hover:text-slate-900 transition-colors">Discard</button>
                 </div>
             </form>
         </div>
@@ -147,26 +204,24 @@
             form.action = `/services/${service.id}`;
             methodField.innerHTML = '<input type="hidden" name="_method" value="PUT">';
 
-            // Fill values
             document.getElementById('name').value = service.name;
             document.getElementById('code').value = service.code;
             document.getElementById('frequency').value = service.frequency;
             document.getElementById('due_day').value = service.due_day;
             document.getElementById('due_month').value = service.due_month || '';
             document.getElementById('description').value = service.description;
+            document.getElementById('is_statutory').checked = !!service.is_statutory;
 
-            // Lock code for edit
             document.getElementById('code').readOnly = true;
-            document.getElementById('code').classList.add('bg-gray-100');
+            document.getElementById('code').classList.add('opacity-50');
         } else {
-            title.innerText = 'Add Service';
+            title.innerText = 'Define Service';
             form.action = "{{ route('services.store') }}";
             methodField.innerHTML = '';
 
-            // Clear values
             form.reset();
             document.getElementById('code').readOnly = false;
-            document.getElementById('code').classList.remove('bg-gray-100');
+            document.getElementById('code').classList.remove('opacity-50');
         }
     }
 
