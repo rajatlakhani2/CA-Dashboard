@@ -34,18 +34,22 @@ class FirmTeamSeeder extends Seeder
         ];
 
         foreach ($accounts as $data) {
+            $email = strtolower($data['email']);
+
             $attributes = [
                 'name' => $data['name'],
                 'role' => $data['role'],
                 'mobile' => $data['mobile'],
-                'password' => 'password',
             ];
 
             if (Schema::hasColumn('users', 'module_access')) {
                 $attributes['module_access'] = \App\Support\ModuleAccess::defaultsForRole($data['role']);
             }
 
-            User::updateOrCreate(['email' => $data['email']], $attributes);
+            $user = User::updateOrCreate(['email' => $email], $attributes);
+
+            // Always reset password (production recoveries often leave a bad hash).
+            $user->forceFill(['password' => 'password'])->save();
         }
     }
 

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
 class EnsureFirmLoginUsers extends Command
@@ -30,6 +31,13 @@ class EnsureFirmLoginUsers extends Command
                 ->map(fn ($user) => [$user->id, $user->name, $user->role, $user->email])
                 ->all()
         );
+
+        $rajat = \App\Models\User::query()->whereRaw('LOWER(email) = ?', ['rajat@rlassociates.in'])->first();
+        if ($rajat && Hash::check('password', $rajat->password)) {
+            $this->info('Password check OK for rajat@rlassociates.in');
+        } else {
+            $this->warn('Password check FAILED — run: php artisan users:reset-password rajat@rlassociates.in');
+        }
 
         $this->info('Firm login accounts ready. Sign in with email + password (default: password). Mobile is required for daily task reminders.');
 

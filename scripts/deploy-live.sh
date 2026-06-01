@@ -45,7 +45,11 @@ else
 fi
 
 echo "==> Laravel setup"
-php artisan key:generate --force
+if ! grep -q '^APP_KEY=base64:' .env 2>/dev/null; then
+  php artisan key:generate --force
+else
+  echo "Keeping existing APP_KEY (vault passwords depend on it)"
+fi
 php artisan migrate:fresh --force
 php artisan users:ensure-firm-logins
 php artisan config:cache
