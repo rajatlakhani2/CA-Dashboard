@@ -1,0 +1,67 @@
+================================================================================
+  RLA Dashboard — full upload to Spidy / cPanel (app.kuhu.org.in)
+================================================================================
+
+BEFORE YOU DELETE THE OLD FOLDER
+--------------------------------
+1. Download a backup of .env from the server (File Manager).
+2. Export MySQL database (phpMyAdmin → Export) if you have live data.
+
+WHAT TO UPLOAD
+--------------
+Upload this entire project folder EXCEPT (do not upload these — saves space):
+  - node_modules/
+  - .git/
+  - .tools/
+  - tests/          (optional — safe to skip)
+  - storage/logs/*  (optional — old logs)
+
+MUST be included:
+  - app/, bootstrap/, config/, database/, public/, resources/, routes/, vendor/
+  - artisan, composer.json, composer.lock
+  - public/build/   (CSS/JS — already built in this package)
+  - scripts/spidy-install.sh
+
+If vendor/ is missing on your PC, run on server after upload:
+  composer install --no-dev --optimize-autoloader
+
+CPANEL SETTINGS
+---------------
+Subdomain: app.kuhu.org.in
+Document root MUST be:  public_html/app.kuhu.org.in/public
+PHP version: 8.2 or 8.3
+
+AFTER UPLOAD — cPanel Terminal
+------------------------------
+cd ~/public_html/app.kuhu.org.in
+bash scripts/spidy-install.sh
+
+Or manually:
+  cp .env.spidy.example .env    (only if .env does not exist — else edit .env by hand)
+  nano .env                     (set DB_* and APP_URL)
+  composer install --no-dev --optimize-autoloader
+  php artisan key:generate --force
+  php artisan app:production-bootstrap
+  chmod -R 775 storage bootstrap/cache
+
+LOGIN
+-----
+  https://app.kuhu.org.in/login
+  rajat@rlassociates.in / password
+  Change passwords in Settings → Users after login.
+
+BROWSER CACHE (if old Workbox errors)
+-------------------------------------
+  https://app.kuhu.org.in/clear-app-cache
+  Then open login in Incognito (Ctrl+Shift+N).
+
+CRON (optional)
+---------------
+  * * * * * cd ~/public_html/app.kuhu.org.in && php artisan schedule:run >> /dev/null 2>&1
+
+SUPPORT
+-------
+  storage/logs/laravel.log — if something fails, read the last lines in Terminal:
+  tail -40 storage/logs/laravel.log
+
+================================================================================
