@@ -20,7 +20,22 @@ cp -f /tmp/CA-Dashboard-master/app/Console/Commands/EnsureFirmLoginUsers.php app
 cp -f /tmp/CA-Dashboard-master/app/Console/Commands/ProductionBootstrap.php app/Console/Commands/
 cp -f /tmp/CA-Dashboard-master/app/Console/Commands/ResetUserPassword.php app/Console/Commands/ 2>/dev/null || true
 cp -f /tmp/CA-Dashboard-master/database/seeders/FirmTeamSeeder.php database/seeders/
+cp -f /tmp/CA-Dashboard-master/app/Services/DashboardMetricsService.php app/Services/
+cp -rf /tmp/CA-Dashboard-master/resources/views/partials/head-assets.blade.php resources/views/partials/ 2>/dev/null || true
+cp -f /tmp/CA-Dashboard-master/resources/views/layouts/app.blade.php resources/views/layouts/
+cp -f /tmp/CA-Dashboard-master/resources/views/auth/login.blade.php resources/views/auth/
+if [ -d /tmp/CA-Dashboard-master/public/build ]; then
+  rm -rf public/build
+  cp -r /tmp/CA-Dashboard-master/public/build public/build
+  echo "==> Installed public/build assets"
+fi
 rm -rf /tmp/CA-Dashboard-master
+
+if [ ! -f public/build/manifest.json ]; then
+  echo "WARN: public/build missing — pages use CSS fallback. For full UI, upload public/build from your PC (npm run build)."
+fi
+
+echo "TIP: In .env use SESSION_DRIVER=file (recommended on cPanel)."
 
 echo "==> Bootstrap app"
 php artisan app:production-bootstrap

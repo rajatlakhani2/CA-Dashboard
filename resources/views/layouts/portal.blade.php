@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Client Portal')</title>
-    @vite(['resources/css/app.css'])
+    @include('partials.head-assets')
 </head>
 <body class="min-h-full font-sans text-slate-800">
     <header class="bg-white border-b border-slate-200">

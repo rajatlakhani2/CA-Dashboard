@@ -22,8 +22,7 @@
     <link rel="apple-touch-icon" href="/favicon.ico">
 
     <!-- Scripts & Styles -->
-    <!-- Scripts & Styles -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('partials.head-assets')
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         /* Zen Mode */

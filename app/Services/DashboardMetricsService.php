@@ -12,6 +12,7 @@ use App\Models\Task;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class DashboardMetricsService
 {
@@ -88,11 +89,7 @@ class DashboardMetricsService
                 Payment::whereBetween('date', [$startOfMonth, $endOfMonth])->sum('amount'),
                 0
             ),
-            'unbilled_items' => ServiceDue::where('status', ServiceDue::STATUS_COMPLETED)
-                    ->where('billing_status', ServiceDue::BILLING_STATUS_UNBILLED)
-                    ->whereNull('invoice_id')
-                    ->count()
-                + ClientWorksheet::where('is_billed', false)->whereNull('invoice_id')->count(),
+            'unbilled_items' => $this->unbilledItemsCount(),
             'expiring_dscs' => Dsc::where('status', Dsc::STATUS_ACTIVE)
                 ->where('expiry_date', '<=', $today->copy()->addDays(30))
                 ->where('expiry_date', '>=', $today)
@@ -197,12 +194,32 @@ class DashboardMetricsService
 
     private function pendingClientApprovals(?User $user): int
     {
-        if (! $user?->isPartner()) {
+        if (! $user?->isPartner() || ! Schema::hasColumn('clients', 'approval_status')) {
             return 0;
         }
 
         return Client::query()
             ->where('approval_status', Client::APPROVAL_PENDING)
             ->count();
+    }
+
+    private function unbilledItemsCount(): int
+    {
+        $count = 0;
+
+        if (Schema::hasTable('service_dues')
+            && Schema::hasColumn('service_dues', 'billing_status')
+            && Schema::hasColumn('service_dues', 'invoice_id')) {
+            $count += ServiceDue::where('status', ServiceDue::STATUS_COMPLETED)
+                ->where('billing_status', ServiceDue::BILLING_STATUS_UNBILLED)
+                ->whereNull('invoice_id')
+                ->count();
+        }
+
+        if (Schema::hasTable('client_worksheets')) {
+            $count += ClientWorksheet::where('is_billed', false)->whereNull('invoice_id')->count();
+        }
+
+        return $count;
     }
 }

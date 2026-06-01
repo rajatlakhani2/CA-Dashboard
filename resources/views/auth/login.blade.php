@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login - RLA Dashboard</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('partials.head-assets')
 </head>
 
 <body class="h-full">
