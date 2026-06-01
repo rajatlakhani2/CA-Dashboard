@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class FirmTeamSeeder extends Seeder
 {
@@ -33,16 +34,18 @@ class FirmTeamSeeder extends Seeder
         ];
 
         foreach ($accounts as $data) {
-            User::updateOrCreate(
-                ['email' => $data['email']],
-                [
-                    'name' => $data['name'],
-                    'role' => $data['role'],
-                    'mobile' => $data['mobile'],
-                    'password' => 'password',
-                    'module_access' => \App\Support\ModuleAccess::defaultsForRole($data['role']),
-                ]
-            );
+            $attributes = [
+                'name' => $data['name'],
+                'role' => $data['role'],
+                'mobile' => $data['mobile'],
+                'password' => 'password',
+            ];
+
+            if (Schema::hasColumn('users', 'module_access')) {
+                $attributes['module_access'] = \App\Support\ModuleAccess::defaultsForRole($data['role']);
+            }
+
+            User::updateOrCreate(['email' => $data['email']], $attributes);
         }
     }
 

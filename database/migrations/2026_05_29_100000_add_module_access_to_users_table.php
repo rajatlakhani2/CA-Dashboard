@@ -14,7 +14,7 @@ return new class extends Migration
 
         if (! Schema::hasColumn('users', 'module_access')) {
             Schema::table('users', function (Blueprint $table) {
-                $table->json('module_access')->nullable()->after('theme');
+                $table->json('module_access')->nullable();
             });
         }
     }
