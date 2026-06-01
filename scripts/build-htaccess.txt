@@ -1,0 +1,4 @@
+# Save as: public/build/.htaccess (blocks old PWA files)
+<FilesMatch "^(sw\.js|workbox-.*\.js|manifest\.webmanifest)$">
+    Require all denied
+</FilesMatch>
