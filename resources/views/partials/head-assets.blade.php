@@ -1,3 +1,10 @@
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function (regs) {
+            regs.forEach(function (r) { r.unregister(); });
+        });
+    }
+</script>
 @php
     $viteReady = file_exists(public_path('build/manifest.json'));
 @endphp
