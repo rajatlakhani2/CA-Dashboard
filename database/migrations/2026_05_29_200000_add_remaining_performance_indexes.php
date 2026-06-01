@@ -2,55 +2,55 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        if (Schema::hasTable('service_dues')) {
-            Schema::table('service_dues', function (Blueprint $table) {
-                $table->index('client_service_id');
-                $table->index('due_date');
-                $table->index('status');
-            });
-        }
-
-        if (Schema::hasTable('client_credentials') && Schema::hasColumn('client_credentials', 'category')) {
-            Schema::table('client_credentials', function (Blueprint $table) {
-                $table->index('category');
-            });
-        }
-
-        if (Schema::hasTable('service_document_requirements')) {
-            Schema::table('service_document_requirements', function (Blueprint $table) {
-                $table->index('service_id');
-            });
-        }
-
-        if (Schema::hasTable('client_service_document_checks')) {
-            Schema::table('client_service_document_checks', function (Blueprint $table) {
-                $table->index('client_service_id');
-            });
-        }
-
-        if (Schema::hasTable('time_entries')) {
-            Schema::table('time_entries', function (Blueprint $table) {
-                $table->index('task_id');
-                $table->index('user_id');
-                $table->index('date');
-            });
-        }
+        $this->safeIndex('service_dues', 'client_service_id');
+        $this->safeIndex('service_dues', 'due_date');
+        $this->safeIndex('service_dues', 'status');
+        $this->safeIndex('client_credentials', 'category');
+        $this->safeIndex('service_document_requirements', 'service_id');
+        $this->safeIndex('client_service_document_checks', 'client_service_id');
+        $this->safeIndex('time_entries', 'task_id');
+        $this->safeIndex('time_entries', 'user_id');
+        $this->safeIndex('time_entries', 'date');
     }
 
     public function down(): void
     {
-        if (Schema::hasTable('service_dues')) {
-            Schema::table('service_dues', function (Blueprint $table) {
-                $table->dropIndex(['client_service_id']);
-                $table->dropIndex(['due_date']);
-                $table->dropIndex(['status']);
-            });
+        // Indexes are optional performance helpers; no down required for production safety.
+    }
+
+    private function safeIndex(string $table, string $column): void
+    {
+        if (! Schema::hasTable($table) || ! Schema::hasColumn($table, $column)) {
+            return;
         }
+
+        $indexName = "{$table}_{$column}_index";
+
+        if ($this->indexExists($table, $indexName)) {
+            return;
+        }
+
+        Schema::table($table, function (Blueprint $blueprint) use ($column) {
+            $blueprint->index($column);
+        });
+    }
+
+    private function indexExists(string $table, string $indexName): bool
+    {
+        $rows = DB::select(
+            'SELECT 1 FROM information_schema.statistics
+             WHERE table_schema = DATABASE() AND table_name = ? AND index_name = ?
+             LIMIT 1',
+            [$table, $indexName]
+        );
+
+        return count($rows) > 0;
     }
 };

@@ -2,157 +2,112 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        // 1. Clients Table Indexes
-        Schema::table('clients', function (Blueprint $table) {
-            $table->index('manager_id');
-            $table->index('branch_id');
-            $table->index('status');
-            $table->index('category');
-        });
+        $this->safeIndex('clients', 'manager_id');
+        $this->safeIndex('clients', 'branch_id');
+        $this->safeIndex('clients', 'status');
+        $this->safeIndex('clients', 'category');
 
-        // 2. Tasks Table Indexes
-        Schema::table('tasks', function (Blueprint $table) {
-            $table->index('client_id');
-            $table->index('assigned_to');
-            $table->index('created_by');
-            $table->index('status');
-            $table->index('due_date');
-            if (Schema::hasColumn('tasks', 'invoice_id')) {
-                $table->index('invoice_id');
-            }
-        });
+        $this->safeIndex('tasks', 'client_id');
+        $this->safeIndex('tasks', 'assigned_to');
+        $this->safeIndex('tasks', 'created_by');
+        $this->safeIndex('tasks', 'status');
+        $this->safeIndex('tasks', 'due_date');
+        $this->safeIndex('tasks', 'invoice_id');
 
-        // 3. Invoices Table Indexes
-        Schema::table('invoices', function (Blueprint $table) {
-            $table->index('client_id');
-            $table->index('branch_id');
-            $table->index('status');
-        });
+        $this->safeIndex('invoices', 'client_id');
+        $this->safeIndex('invoices', 'branch_id');
+        $this->safeIndex('invoices', 'status');
 
-        // 4. Payments Table Indexes
-        Schema::table('payments', function (Blueprint $table) {
-            $table->index('invoice_id');
-            $table->index('status');
-        });
+        $this->safeIndex('payments', 'invoice_id');
+        $this->safeIndex('payments', 'status');
 
-        // 5. Users Table Indexes
-        Schema::table('users', function (Blueprint $table) {
-            $table->index('branch_id');
-            $table->index('role');
-        });
+        $this->safeIndex('users', 'branch_id');
+        $this->safeIndex('users', 'role');
 
-        // 6. Client Credentials Table Indexes
-        if (Schema::hasTable('client_credentials')) {
-            Schema::table('client_credentials', function (Blueprint $table) {
-                $table->index('client_id');
-            });
-        }
-
-        // 7. DSCs Table Indexes
-        if (Schema::hasTable('dscs')) {
-            Schema::table('dscs', function (Blueprint $table) {
-                $table->index('client_id');
-                $table->index('expiry_date');
-            });
-        }
-
-        // 8. TDS Entries Table Indexes
-        if (Schema::hasTable('tds_entries')) {
-            Schema::table('tds_entries', function (Blueprint $table) {
-                $table->index('invoice_id');
-            });
-        }
-
-        // 9. Subscriptions Table Indexes
-        if (Schema::hasTable('subscriptions')) {
-            Schema::table('subscriptions', function (Blueprint $table) {
-                $table->index('client_id');
-                $table->index('status');
-            });
-        }
+        $this->safeIndex('client_credentials', 'client_id');
+        $this->safeIndex('dscs', 'client_id');
+        $this->safeIndex('dscs', 'expiry_date');
+        $this->safeIndex('tds_entries', 'invoice_id');
+        $this->safeIndex('subscriptions', 'client_id');
+        $this->safeIndex('subscriptions', 'status');
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        // 1. Clients Table Indexes
-        Schema::table('clients', function (Blueprint $table) {
-            $table->dropIndex(['manager_id']);
-            $table->dropIndex(['branch_id']);
-            $table->dropIndex(['status']);
-            $table->dropIndex(['category']);
-        });
+        $this->dropIndexIfExists('clients', 'clients_manager_id_index');
+        $this->dropIndexIfExists('clients', 'clients_branch_id_index');
+        $this->dropIndexIfExists('clients', 'clients_status_index');
+        $this->dropIndexIfExists('clients', 'clients_category_index');
 
-        // 2. Tasks Table Indexes
-        Schema::table('tasks', function (Blueprint $table) {
-            $table->dropIndex(['client_id']);
-            $table->dropIndex(['assigned_to']);
-            $table->dropIndex(['created_by']);
-            $table->dropIndex(['status']);
-            $table->dropIndex(['due_date']);
-            if (Schema::hasColumn('tasks', 'invoice_id')) {
-                $table->dropIndex(['invoice_id']);
-            }
-        });
+        $this->dropIndexIfExists('tasks', 'tasks_client_id_index');
+        $this->dropIndexIfExists('tasks', 'tasks_assigned_to_index');
+        $this->dropIndexIfExists('tasks', 'tasks_created_by_index');
+        $this->dropIndexIfExists('tasks', 'tasks_status_index');
+        $this->dropIndexIfExists('tasks', 'tasks_due_date_index');
+        $this->dropIndexIfExists('tasks', 'tasks_invoice_id_index');
 
-        // 3. Invoices Table Indexes
-        Schema::table('invoices', function (Blueprint $table) {
-            $table->dropIndex(['client_id']);
-            $table->dropIndex(['branch_id']);
-            $table->dropIndex(['status']);
-        });
+        $this->dropIndexIfExists('invoices', 'invoices_client_id_index');
+        $this->dropIndexIfExists('invoices', 'invoices_branch_id_index');
+        $this->dropIndexIfExists('invoices', 'invoices_status_index');
 
-        // 4. Payments Table Indexes
-        Schema::table('payments', function (Blueprint $table) {
-            $table->dropIndex(['invoice_id']);
-            $table->dropIndex(['status']);
-        });
+        $this->dropIndexIfExists('payments', 'payments_invoice_id_index');
+        $this->dropIndexIfExists('payments', 'payments_status_index');
 
-        // 5. Users Table Indexes
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropIndex(['branch_id']);
-            $table->dropIndex(['role']);
-        });
+        $this->dropIndexIfExists('users', 'users_branch_id_index');
+        $this->dropIndexIfExists('users', 'users_role_index');
 
-        // 6. Client Credentials Table Indexes
-        if (Schema::hasTable('client_credentials')) {
-            Schema::table('client_credentials', function (Blueprint $table) {
-                $table->dropIndex(['client_id']);
-            });
+        $this->dropIndexIfExists('client_credentials', 'client_credentials_client_id_index');
+        $this->dropIndexIfExists('dscs', 'dscs_client_id_index');
+        $this->dropIndexIfExists('dscs', 'dscs_expiry_date_index');
+        $this->dropIndexIfExists('tds_entries', 'tds_entries_invoice_id_index');
+        $this->dropIndexIfExists('subscriptions', 'subscriptions_client_id_index');
+        $this->dropIndexIfExists('subscriptions', 'subscriptions_status_index');
+    }
+
+    private function safeIndex(string $table, string $column): void
+    {
+        if (! Schema::hasTable($table) || ! Schema::hasColumn($table, $column)) {
+            return;
         }
 
-        // 7. DSCs Table Indexes
-        if (Schema::hasTable('dscs')) {
-            Schema::table('dscs', function (Blueprint $table) {
-                $table->dropIndex(['client_id']);
-                $table->dropIndex(['expiry_date']);
-            });
+        $indexName = "{$table}_{$column}_index";
+
+        if ($this->indexExists($table, $indexName)) {
+            return;
         }
 
-        // 8. TDS Entries Table Indexes
-        if (Schema::hasTable('tds_entries')) {
-            Schema::table('tds_entries', function (Blueprint $table) {
-                $table->dropIndex(['invoice_id']);
-            });
+        Schema::table($table, function (Blueprint $blueprint) use ($column) {
+            $blueprint->index($column);
+        });
+    }
+
+    private function indexExists(string $table, string $indexName): bool
+    {
+        $rows = DB::select(
+            'SELECT 1 FROM information_schema.statistics
+             WHERE table_schema = DATABASE() AND table_name = ? AND index_name = ?
+             LIMIT 1',
+            [$table, $indexName]
+        );
+
+        return count($rows) > 0;
+    }
+
+    private function dropIndexIfExists(string $table, string $indexName): void
+    {
+        if (! Schema::hasTable($table) || ! $this->indexExists($table, $indexName)) {
+            return;
         }
 
-        // 9. Subscriptions Table Indexes
-        if (Schema::hasTable('subscriptions')) {
-            Schema::table('subscriptions', function (Blueprint $table) {
-                $table->dropIndex(['client_id']);
-                $table->dropIndex(['status']);
-            });
-        }
+        Schema::table($table, function (Blueprint $blueprint) use ($indexName) {
+            $blueprint->dropIndex($indexName);
+        });
     }
 };
