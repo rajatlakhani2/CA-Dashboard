@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class FirmTeamSeeder extends Seeder
 {
@@ -40,7 +39,7 @@ class FirmTeamSeeder extends Seeder
                     'name' => $data['name'],
                     'role' => $data['role'],
                     'mobile' => $data['mobile'],
-                    'password' => Hash::make('password'),
+                    'password' => 'password',
                     'module_access' => \App\Support\ModuleAccess::defaultsForRole($data['role']),
                 ]
             );
