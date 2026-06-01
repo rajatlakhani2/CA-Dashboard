@@ -2,6 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 
+Route::view('/clear-app-cache', 'clear-app-cache');
+Route::get('/unregister-pwa', fn () => redirect('/clear-app-cache'));
+
 Route::get('/login', [\App\Http\Controllers\LoginController::class, 'show'])->name('login');
 Route::post('/login', [\App\Http\Controllers\LoginController::class, 'login']);
 

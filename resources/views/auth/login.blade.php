@@ -5,6 +5,19 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login - RLA Dashboard</title>
+    <script>
+        (function () {
+            if (!('serviceWorker' in navigator)) return;
+            navigator.serviceWorker.getRegistrations().then(function (regs) {
+                regs.forEach(function (r) { r.unregister(); });
+            });
+            if ('caches' in window) {
+                caches.keys().then(function (keys) {
+                    keys.forEach(function (k) { caches.delete(k); });
+                });
+            }
+        })();
+    </script>
     @include('partials.head-assets')
 </head>
 
