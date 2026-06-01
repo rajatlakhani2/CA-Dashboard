@@ -10,6 +10,8 @@ class OnboardingController extends Controller
 {
     public function show(Client $client)
     {
+        $this->authorize('view', $client);
+
         $checklist = OnboardingChecklist::where('client_id', $client->id)->get();
 
         // If no checklist exists, create default items

@@ -47,10 +47,32 @@
                 <div class="col-span-1">
                     <label for="status" class="block text-sm font-medium text-text-secondary">Status</label>
                     <select id="status" name="status" required class="mt-1 block w-full rounded-md border-line bg-bg-body text-text-main shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                        @foreach(['Draft', 'Sent', 'Paid', 'Overdue'] as $status)
+                        @foreach(\App\Models\Invoice::selectableStatuses() as $status)
                         <option value="{{ $status }}" {{ $invoice->status == $status ? 'selected' : '' }}>{{ $status }}</option>
                         @endforeach
                     </select>
+                </div>
+                <div class="col-span-1">
+                    <label for="place_of_supply" class="block text-sm font-medium text-text-secondary">Place of Supply</label>
+                    <input type="text" name="place_of_supply" value="{{ $invoice->place_of_supply }}" class="mt-1 block w-full rounded-md border-line bg-bg-body sm:text-sm">
+                </div>
+                <div class="col-span-1">
+                    <label for="reference_number" class="block text-sm font-medium text-text-secondary">PO / Reference</label>
+                    <input type="text" name="reference_number" value="{{ $invoice->reference_number }}" class="mt-1 block w-full rounded-md border-line bg-bg-body sm:text-sm">
+                </div>
+                <div class="col-span-1">
+                    <label for="work_period" class="block text-sm font-medium text-text-secondary">Work Period</label>
+                    <input type="text" name="work_period" value="{{ $invoice->work_period }}" class="mt-1 block w-full rounded-md border-line bg-bg-body sm:text-sm">
+                </div>
+                <div class="col-span-1">
+                    <label for="project_name" class="block text-sm font-medium text-text-secondary">Project</label>
+                    <input type="text" name="project_name" value="{{ $invoice->project_name }}" class="mt-1 block w-full rounded-md border-line bg-bg-body sm:text-sm">
+                </div>
+                <div class="col-span-1 flex items-end pb-2">
+                    <label class="inline-flex items-center gap-2 text-sm">
+                        <input type="checkbox" name="reverse_charge" value="1" {{ $invoice->reverse_charge ? 'checked' : '' }} class="rounded border-gray-300 text-indigo-600">
+                        Reverse charge applicable
+                    </label>
                 </div>
             </div>
 

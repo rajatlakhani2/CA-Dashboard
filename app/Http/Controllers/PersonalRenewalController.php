@@ -19,13 +19,27 @@ class PersonalRenewalController extends Controller
 
         // For Calendar
         $events = $renewals->map(function ($renewal) {
+            $clientName = $renewal->client?->name ?? 'Personal Renewal';
+            $color = $renewal->status === PersonalRenewal::STATUS_PAID ? '#22c55e' : '#ef4444';
+
             return [
+                'id' => 'renewal_' . $renewal->id,
                 'title' => $renewal->title . ' (' . $renewal->amount . ')',
                 'start' => $renewal->due_date->format('Y-m-d'),
-                'className' => $renewal->status === 'Paid' ? 'bg-green-500' : 'bg-red-500',
-                'url' => route('personal-renewals.edit', $renewal->id)
+                'backgroundColor' => $color,
+                'borderColor' => $color,
+                'textColor' => '#ffffff',
+                'editable' => $renewal->status !== PersonalRenewal::STATUS_PAID,
+                'extendedProps' => [
+                    'type' => 'renewal',
+                    'db_id' => $renewal->id,
+                    'status' => $renewal->status,
+                    'client_name' => $clientName,
+                    'details' => $renewal->category . ' • ₹' . number_format($renewal->amount, 2),
+                    'title_text' => $renewal->title,
+                ],
             ];
-        });
+        })->values()->all();
 
         return view('personal-renewals.index', compact('renewals', 'events'));
     }
@@ -49,7 +63,7 @@ class PersonalRenewalController extends Controller
         ]);
 
         $validated['user_id'] = auth()->id();
-        $validated['status'] = 'Pending';
+        $validated['status'] = PersonalRenewal::STATUS_PENDING;
 
         if ($request->hasFile('document')) {
             $path = $request->file('document')->store('personal_renewals', 'public');
@@ -74,7 +88,7 @@ class PersonalRenewalController extends Controller
             'due_date' => 'required|date',
             'amount' => 'required|numeric|min:0',
             'frequency' => 'nullable|string',
-            'status' => 'required|in:Pending,Paid',
+            'status' => 'required|in:' . implode(',', [PersonalRenewal::STATUS_PENDING, PersonalRenewal::STATUS_PAID]),
             'notes' => 'nullable|string',
             'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
@@ -92,7 +106,7 @@ class PersonalRenewalController extends Controller
         $personalRenewal->update($validated);
 
         // Auto-create next renewal if recurring and marked as Paid
-        if ($originalStatus !== 'Paid' && $validated['status'] === 'Paid' && !empty($personalRenewal->frequency)) {
+        if ($originalStatus !== PersonalRenewal::STATUS_PAID && $validated['status'] === PersonalRenewal::STATUS_PAID && !empty($personalRenewal->frequency)) {
             $nextDate = $personalRenewal->due_date->copy();
 
             switch ($personalRenewal->frequency) {
@@ -118,7 +132,7 @@ class PersonalRenewalController extends Controller
                 'amount' => $personalRenewal->amount,
                 'frequency' => $personalRenewal->frequency,
                 'due_date' => $nextDate,
-                'status' => 'Pending',
+                'status' => PersonalRenewal::STATUS_PENDING,
                 'notes' => 'Auto-generated renewal',
                 // Don't carry over document path for new period usually? Or maybe yes? Let's say no for now.
             ]);
@@ -151,7 +165,7 @@ class PersonalRenewalController extends Controller
         );
 
         // Dummy mobile number (User's phone)
-        $mobile = '919876543210';
+        $mobile = auth()->user()->mobile;
 
         $whatsapp->sendMessage($mobile, $message);
 

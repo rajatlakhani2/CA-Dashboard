@@ -6,6 +6,36 @@ Clients
 
 @section('content')
 <div class="space-y-6">
+    @if(isset($pendingClients) && $pendingClients->count() > 0)
+    <div class="rounded-lg border border-amber-300 bg-amber-50 shadow-sm overflow-hidden">
+        <div class="px-4 py-3 border-b border-amber-200 bg-amber-100/80">
+            <h3 class="text-sm font-bold text-amber-900">Pending client approvals ({{ $pendingClients->count() }})</h3>
+            <p class="text-xs text-amber-800 mt-0.5">Submitted by articles — approve to make visible firm-wide.</p>
+        </div>
+        <ul class="divide-y divide-amber-200">
+            @foreach($pendingClients as $pending)
+            <li class="px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <p class="font-semibold text-gray-900">{{ $pending->name }}</p>
+                    <p class="text-xs text-gray-600">
+                        PAN: {{ $pending->pan }}
+                        @if($pending->group_name) · Group: {{ $pending->group_name }} @endif
+                        · Submitted by {{ $pending->createdBy?->name ?? 'Unknown' }}
+                        · {{ $pending->created_at->diffForHumans() }}
+                    </p>
+                </div>
+                <form action="{{ route('clients.approve', $pending) }}" method="POST" onsubmit="return confirm('Approve {{ $pending->name }} for everyone?');">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500">
+                        Approve
+                    </button>
+                </form>
+            </li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
     <!-- Action Bar -->
     <div class="flex flex-col sm:flex-row justify-between gap-4">
         <!-- Search & Filter -->
@@ -35,15 +65,17 @@ Clients
             </select>
         </form>
 
-        <!-- Create Button -->
+        @can('create', App\Models\Client::class)
         <a href="{{ route('clients.create') }}" class="inline-flex items-center justify-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
             <svg class="-ml-0.5 mr-1.5 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v2.5h-2.5a.75.75 0 000 1.5h2.5v2.5a.75.75 0 001.5 0v-2.5h2.5a.75.75 0 000-1.5h-2.5v-2.5z" clip-rule="evenodd" />
             </svg>
             Add Client
         </a>
+        @endcan
     </div>
 
+    @can('export', App\Models\Client::class)
     <!-- Import/Export & Actions -->
     <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3 mb-4 items-center">
         <!-- Download Template -->
@@ -60,7 +92,10 @@ Clients
         </a>
 
         <!-- Import Form -->
-        <form action="{{ route('clients.import') }}" method="POST" enctype="multipart/form-data" class="flex items-center space-x-2">
+        @if(auth()->user()?->isPartner())
+        <a href="{{ route('clients.import.nilesh') }}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium mr-2">Nilesh folder preview</a>
+        @endif
+        <form action="{{ route('clients.import.preview') }}" method="POST" enctype="multipart/form-data" class="flex items-center space-x-2">
             @csrf
             <input type="file" name="file" class="block w-full text-sm text-slate-500
                 file:mr-4 file:py-2 file:px-4
@@ -70,7 +105,7 @@ Clients
                 hover:file:bg-primary-100
             " required>
             <button type="submit" class="inline-flex items-center rounded-md bg-bg-card px-3 py-2 text-sm font-semibold text-text-main shadow-sm ring-1 ring-inset ring-line hover:bg-gray-50">
-                Import
+                Preview import
             </button>
         </form>
 
@@ -82,6 +117,7 @@ Clients
             Delete Selected
         </button>
     </div>
+    @endcan
 
     <form id="bulkDeleteForm" action="{{ route('clients.bulk-destroy') }}" method="POST" class="hidden">
         @csrf
@@ -127,7 +163,7 @@ Clients
                     <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-text-main sm:pl-6">Client Code</th>
                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-text-main">Name</th>
                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-text-main">Category</th>
-                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-text-main">Tags</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-text-main">Client Reference</th>
                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-text-main">Tax IDs</th>
                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-text-main">Status</th>
                     <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
@@ -146,7 +182,12 @@ Clients
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-text-main">
                         <div class="font-medium text-text-main">{{ $client->name }}</div>
-                        <div class="text-gray-500 text-xs">{{ $client->entity_type }}</div>
+                        <div class="text-gray-500 text-xs">
+                            {{ $client->entity_type }}
+                            @if($client->group_name)
+                            • <span class="font-semibold">{{ $client->group_name }}</span>
+                            @endif
+                        </div>
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                         <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium 
@@ -157,12 +198,8 @@ Clients
                         </span>
                     </td>
                     <td class="px-3 py-4 text-sm text-gray-500">
-                        @if($client->tags && is_array($client->tags))
-                        <div class="flex flex-wrap gap-1">
-                            @foreach($client->tags as $tag)
-                            <span class="inline-flex items-center rounded-full bg-primary-50 px-2 py-0.5 text-xs font-medium text-primary-700 ring-1 ring-inset ring-primary-700/10">{{ $tag }}</span>
-                            @endforeach
-                        </div>
+                        @if($client->group_name)
+                        <span class="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-500/10">{{ $client->group_name }}</span>
                         @else
                         <span class="text-gray-400">-</span>
                         @endif
@@ -190,22 +227,14 @@ Clients
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-500">
-                        <div class="flex flex-col items-center justify-center">
-                            <svg class="mx-auto h-12 w-12 text-text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                            <h3 class="mt-2 text-sm font-semibold text-text-main">No clients found</h3>
-                            <p class="mt-1 text-sm text-gray-500">Get started by creating a new client.</p>
-                            <div class="mt-6">
-                                <a href="{{ route('clients.create') }}" class="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
-                                    <svg class="-ml-0.5 mr-1.5 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v2.5h-2.5a.75.75 0 000 1.5h2.5v2.5a.75.75 0 001.5 0v-2.5h2.5a.75.75 0 000-1.5h-2.5v-2.5z" clip-rule="evenodd" />
-                                    </svg>
-                                    Add Client
-                                </a>
-                            </div>
-                        </div>
+                    <td colspan="6" class="p-4">
+                        @include('partials.empty-state', [
+                            'title' => request()->hasAny(['search', 'status', 'category', 'branch_id']) ? 'No clients match filters' : 'No clients yet',
+                            'description' => request()->hasAny(['search', 'status', 'category', 'branch_id']) ? 'Try clearing filters or adjusting your search.' : 'Add your first client to start tracking compliance, billing, and work.',
+                            'icon' => 'users',
+                            'actionLabel' => auth()->user()?->can('create', App\Models\Client::class) ? 'Add client' : null,
+                            'actionUrl' => auth()->user()?->can('create', App\Models\Client::class) ? route('clients.create') : null,
+                        ])
                     </td>
                 </tr>
                 @endforelse
@@ -215,7 +244,7 @@ Clients
 
     <!-- Pagination -->
     <div class="mt-4">
-        {{ $clients->links() }}
+        {!! $clients->links() !!}
     </div>
 </div>
 <script>

@@ -43,19 +43,29 @@ The Pulse (Activity Feed)
                                         {{ class_basename($activity->subject_type) }}
                                         @if(isset($activity->subject->name))
                                         : {{ $activity->subject->name }}
+                                        @elseif(isset($activity->subject->portal_name))
+                                        : {{ $activity->subject->portal_name }}
                                         @elseif(isset($activity->subject->title))
                                         : {{ $activity->subject->title }}
                                         @elseif(isset($activity->subject->invoice_number))
                                         : {{ $activity->subject->invoice_number }}
                                         @endif
+                                        @elseif($activity->properties && $activity->properties->has('portal_name'))
+                                        ClientCredential : {{ $activity->properties['portal_name'] }}
                                         @else
                                         {{ class_basename($activity->subject_type) }} #{{ $activity->subject_id }}
                                         @endif
                                     </span>
                                 </p>
-                                @if($activity->properties && $activity->properties->has('attributes'))
+                                @if($activity->properties && ($activity->properties->has('attributes') || $activity->properties->has('field')))
                                 <div class="mt-2 text-xs text-text-secondary bg-bg-card p-2 rounded border border-line">
-                                    @foreach($activity->properties['attributes'] as $key => $val)
+                                    @if($activity->properties->has('field'))
+                                    <span class="font-medium">field:</span> {{ $activity->properties['field'] }}<br>
+                                    @endif
+                                    @if($activity->properties->has('client_name'))
+                                    <span class="font-medium">client:</span> {{ $activity->properties['client_name'] }}<br>
+                                    @endif
+                                    @foreach($activity->properties->get('attributes', []) as $key => $val)
                                     <span class="font-medium">{{ $key }}:</span> {{ is_array($val) ? json_encode($val) : $val }}<br>
                                     @endforeach
                                 </div>
@@ -73,7 +83,7 @@ The Pulse (Activity Feed)
             @endforelse
         </ul>
         <div class="mt-4">
-            {{ $activities->links() }}
+            {!! $activities->links() !!}
         </div>
     </div>
 </div>

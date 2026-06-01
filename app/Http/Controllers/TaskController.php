@@ -6,12 +6,33 @@ use App\Models\Task;
 use App\Models\Client;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Services\WhatsAppService;
+use Illuminate\Database\Eloquent\Builder;
 
 class TaskController extends Controller
 {
+    public function myDay(Request $request)
+    {
+        $this->authorize('viewAny', Task::class);
+
+        $user = $request->user();
+        $query = Task::with(['client'])->whereNotIn('status', Task::TERMINAL_STATUSES);
+        $this->scopeVisibleTasks($query, $user);
+        $query->where('assigned_to', $user->id);
+
+        $today = now()->startOfDay();
+        $tasksToday = (clone $query)->whereDate('due_date', '<=', $today)->orderBy('due_date')->get();
+        $tasksUpcoming = (clone $query)->whereDate('due_date', '>', $today)->orderBy('due_date')->limit(15)->get();
+
+        return view('tasks.my-day', compact('tasksToday', 'tasksUpcoming', 'user'));
+    }
+
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Task::class);
+
         $query = Task::with(['client', 'assignee']);
+        $this->scopeVisibleTasks($query, $request->user());
 
         // Filters
         if ($request->filled('status')) {
@@ -36,84 +57,138 @@ class TaskController extends Controller
             $tasks = $query->orderBy('due_date', 'asc')->paginate(10);
         }
 
-        $users = User::all();
+        $users = $this->assignableUsers($request->user())->get();
 
         return view('tasks.index', compact('tasks', 'users', 'view'));
     }
 
     public function create(Request $request)
     {
-        $clients = Client::where('status', 'Active')->orderBy('name')->get();
-        $users = User::all();
+        $this->authorize('create', Task::class);
+
+        $clients = Client::where('status', Client::STATUS_ACTIVE)->orderBy('name')->get();
+        $users = $this->assignableUsers($request->user())->get();
         $prefillDueDate = $request->input('due_date');
         return view('tasks.create', compact('clients', 'users', 'prefillDueDate'));
     }
 
-    public function store(Request $request)
+    public function store(\App\Http\Requests\StoreTaskRequest $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'client_id' => 'nullable|exists:clients,id',
-            'assigned_to' => 'nullable|exists:users,id',
-            'priority' => 'nullable|in:High,Medium,Normal,Low',
-            'due_date' => 'nullable|date',
-            'description' => 'nullable|string',
-        ]);
+        $this->authorize('create', Task::class);
 
-        // $validated['created_by'] = auth()->id() ?? 1; // Default to ID 1 if no auth (e.g. cli)
-        $validated['status'] = 'Pending';
+        $validated = $request->validated();
+
+        $this->authorize('assign', [Task::class, $validated['assigned_to'] ?? null]);
+
+        $validated['status'] = Task::STATUS_PENDING;
 
 
-        Task::create(array_merge($validated, [
-            'created_by' => $request->input('created_by', auth()->id() ?? 1)
+        $task = Task::create(array_merge($validated, [
+            'created_by' => $request->user()->id,
         ]));
+
+        if ($task->assigned_to) {
+            $assignee = User::find($task->assigned_to);
+            if ($assignee && !empty($assignee->mobile)) {
+                $clientName = $task->client ? $task->client->name : 'Internal';
+                $dueDate = $task->due_date ? $task->due_date->format('d M Y') : 'No Date';
+                $message = "🔔 *New Task Assigned*\n\nHello {$assignee->name},\nA new task has been assigned to you:\n\n*Task:* {$task->title}\n*Client:* {$clientName}\n*Due Date:* {$dueDate}\n\nPlease check your CA Dashboard for details.";
+
+                $whatsAppService = app(WhatsAppService::class);
+                $whatsAppService->sendMessage($assignee->mobile, $message);
+            }
+        }
 
         return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
     }
 
     public function edit(Task $task)
     {
-        $clients = Client::where('status', 'Active')->orderBy('name')->get();
-        $users = User::all();
+        $this->authorize('update', $task);
+
+        $clients = Client::where('status', Client::STATUS_ACTIVE)->orderBy('name')->get();
+        $users = $this->assignableUsers(request()->user())->get();
         return view('tasks.edit', compact('task', 'clients', 'users'));
     }
 
-    public function update(Request $request, Task $task)
+    public function update(\App\Http\Requests\UpdateTaskRequest $request, Task $task)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'client_id' => 'nullable|exists:clients,id',
-            'assigned_to' => 'nullable|exists:users,id',
-            'priority' => 'required|in:High,Medium,Normal,Low',
-            'status' => 'required|in:Pending,In Progress,On Hold,Completed',
-            'due_date' => 'nullable|date',
-            'description' => 'nullable|string',
-        ]);
+        $this->authorize('update', $task);
+
+        $validated = $request->validated();
+
+        $this->authorize('assign', [Task::class, $validated['assigned_to'] ?? null]);
+
+        $originalAssignee = $task->assigned_to;
 
         $task->update($validated);
+
+        if ($task->assigned_to && $task->assigned_to != $originalAssignee) {
+            $assignee = User::find($task->assigned_to);
+            if ($assignee && !empty($assignee->mobile)) {
+                $clientName = $task->client ? $task->client->name : 'Internal';
+                $dueDate = $task->due_date ? \Carbon\Carbon::parse($task->due_date)->format('d M Y') : 'No Date';
+                $message = "🔔 *New Task Assigned*\n\nHello {$assignee->name},\nA task has been reassigned to you:\n\n*Task:* {$task->title}\n*Client:* {$clientName}\n*Due Date:* {$dueDate}\n\nPlease check your CA Dashboard for details.";
+
+                $whatsAppService = app(WhatsAppService::class);
+                $whatsAppService->sendMessage($assignee->mobile, $message);
+            }
+        }
 
         return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
     }
 
-    public function updateStatus(Request $request, Task $task)
+    public function updateStatus(\App\Http\Requests\UpdateTaskStatusRequest $request, Task $task)
     {
-        $request->validate([
-            'status' => 'required|in:Pending,In Progress,On Hold,Completed',
-        ]);
+        $this->authorize('updateStatus', $task);
 
-        $task->update(['status' => $request->status]);
+        $task->update(['status' => $request->validated('status')]);
 
         return response()->json(['success' => true, 'message' => 'Task status updated.']);
     }
 
     public function destroy(Task $task)
     {
+        $this->authorize('delete', $task);
+
         $task->delete();
         return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');
     }
+
     public function markFoc(Task $task)
     {
+        $this->authorize('markFoc', $task);
+
         $task->update(['is_billed' => true]);
         return redirect()->back()->with('success', 'Task marked as Free of Cost.');
+    }
+
+    private function scopeVisibleTasks(Builder $query, User $user): void
+    {
+        if ($user->hasRole('partner', 'manager')) {
+            return;
+        }
+
+        if ($user->isArticle()) {
+            $query->where('assigned_to', $user->id);
+
+            return;
+        }
+
+        $query->where(function (Builder $query) use ($user) {
+            $query->where('assigned_to', $user->id)
+                ->orWhere('created_by', $user->id);
+        });
+    }
+
+    private function assignableUsers(User $user): Builder
+    {
+        $query = User::query()->orderBy('name');
+
+        if (! $user->managesFirmModules()) {
+            $query->whereKey($user->id);
+        }
+
+        return $query;
     }
 }

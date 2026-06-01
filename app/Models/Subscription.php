@@ -6,6 +6,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class Subscription extends Model
 {
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_PAUSED = 'paused';
+    public const STATUS_CANCELLED = 'cancelled';
+
+    public const STATUSES = [
+        self::STATUS_ACTIVE,
+        self::STATUS_PAUSED,
+        self::STATUS_CANCELLED,
+    ];
+
+    public const FREQUENCY_MONTHLY = 'monthly';
+    public const FREQUENCY_QUARTERLY = 'quarterly';
+    public const FREQUENCY_SEMI_ANNUALLY = 'semi-annually';
+    public const FREQUENCY_ANNUALLY = 'annually';
+
     protected $fillable = [
         'client_id',
         'service_id',
@@ -44,16 +59,16 @@ class Subscription extends Model
         $nextDate = clone $lastDate;
 
         switch ($this->frequency) {
-            case 'monthly':
+            case self::FREQUENCY_MONTHLY:
                 $nextDate->addMonth();
                 break;
-            case 'quarterly':
+            case self::FREQUENCY_QUARTERLY:
                 $nextDate->addMonths(3);
                 break;
-            case 'semi-annually':
+            case self::FREQUENCY_SEMI_ANNUALLY:
                 $nextDate->addMonths(6);
                 break;
-            case 'annually':
+            case self::FREQUENCY_ANNUALLY:
                 $nextDate->addYear();
                 break;
         }

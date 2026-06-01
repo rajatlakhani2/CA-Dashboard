@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\ClientService;
+use App\Models\Client;
 use App\Models\ServiceDue;
 use Carbon\Carbon;
 
@@ -14,7 +15,7 @@ class ServiceDueGenerator
     public function generateAll()
     {
         $activeServices = ClientService::with(['client', 'service'])
-            ->where('status', 'Active')
+            ->where('status', ClientService::STATUS_ACTIVE)
             ->get();
 
         $generatedCount = 0;
@@ -38,7 +39,7 @@ class ServiceDueGenerator
     public function generateForClientService(ClientService $clientService)
     {
         // Avoid generating for inactive or closed clients
-        if ($clientService->client->status !== 'Active') {
+        if ($clientService->client->status !== Client::STATUS_ACTIVE) {
             return false;
         }
 
@@ -56,7 +57,7 @@ class ServiceDueGenerator
             ServiceDue::create([
                 'client_service_id' => $clientService->id,
                 'due_date' => $nextDueDate,
-                'status' => 'Pending',
+                'status' => ServiceDue::STATUS_PENDING,
             ]);
             return true;
         }

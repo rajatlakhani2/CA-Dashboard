@@ -72,7 +72,7 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($clientRevenue as $item)
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $item->client->name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $item->client?->name ?? 'Unknown client' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">₹ {{ number_format($item->total, 2) }}</td>
                     </tr>
                     @endforeach

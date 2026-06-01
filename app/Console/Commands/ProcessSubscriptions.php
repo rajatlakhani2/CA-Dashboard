@@ -32,7 +32,7 @@ class ProcessSubscriptions extends Command
     public function handle()
     {
         $today = Carbon::today();
-        $subscriptions = Subscription::where('status', 'active')
+        $subscriptions = Subscription::where('status', Subscription::STATUS_ACTIVE)
             ->where(function ($query) use ($today) {
                 $query->whereNull('next_billing_date')
                     ->orWhere('next_billing_date', '<=', $today);
@@ -85,7 +85,7 @@ class ProcessSubscriptions extends Command
                 'invoice_number' => $invoiceNumber,
                 'date' => $billingDate,
                 'due_date' => $billingDate->copy()->addDays(7), // Default 7 days
-                'status' => 'Draft',
+                'status' => Invoice::STATUS_DRAFT,
                 'subtotal' => $subscription->amount,
                 'tax' => $taxAmount,
                 'cgst' => $cgst,

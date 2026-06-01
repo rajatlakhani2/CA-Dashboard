@@ -8,6 +8,9 @@ class PersonalRenewal extends Model
 {
     use \Illuminate\Database\Eloquent\Factories\HasFactory;
 
+    public const STATUS_PENDING = 'Pending';
+    public const STATUS_PAID = 'Paid';
+
     protected $fillable = [
         'title',
         'category',
@@ -23,6 +26,7 @@ class PersonalRenewal extends Model
 
     protected $casts = [
         'due_date' => 'date',
+        'expiry_date' => 'date',
     ];
 
     public function user()

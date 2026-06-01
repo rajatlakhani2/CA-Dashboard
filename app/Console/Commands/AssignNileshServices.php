@@ -43,7 +43,7 @@ class AssignNileshServices extends Command
                     ClientService::create([
                         'client_id' => $client->id,
                         'service_id' => $sId,
-                        'status' => 'Active',
+                        'status' => ClientService::STATUS_ACTIVE,
                         'custom_due_day' => null // Use service default
                     ]);
                 }

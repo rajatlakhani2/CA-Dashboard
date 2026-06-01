@@ -171,7 +171,7 @@
                     </div>
 
                     <div class="flex items-center space-x-3 bg-slate-50 p-6 rounded-3xl border border-slate-100 italic">
-                        <input type="checkbox" name="is_statutory" id="is_statutory" class="h-5 w-5 rounded-lg border-slate-200 text-indigo-600 focus:ring-indigo-500">
+                        <input type="checkbox" name="is_statutory" id="is_statutory" value="1" class="h-5 w-5 rounded-lg border-slate-200 text-indigo-600 focus:ring-indigo-500">
                         <label for="is_statutory" class="text-[10px] font-black text-slate-600 uppercase tracking-widest">Mark as Statutory Compliance</label>
                     </div>
 
@@ -229,4 +229,66 @@
         document.getElementById('serviceModal').classList.add('hidden');
     }
 </script>
+
+<div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-8 mt-8">
+    <h3 class="font-black text-slate-900 text-xl">Required documents per service</h3>
+    <p class="text-sm text-slate-500 mt-1">Checklist items tracked on client work tab and compliance schedule (missing-doc badges).</p>
+    <div class="mt-6 space-y-8">
+        @foreach($services as $service)
+        <div class="border border-slate-100 rounded-2xl p-5">
+            <h4 class="font-bold text-slate-800">{{ $service->name }}
+                <span class="text-xs text-slate-400">({{ $service->documentRequirements->count() }} docs)</span>
+            </h4>
+            @if($service->documentRequirements->isNotEmpty())
+            <ul class="mt-3 text-sm space-y-1">
+                @foreach($service->documentRequirements as $req)
+                <li class="flex justify-between items-center py-1 border-b border-slate-50">
+                    <span>{{ $req->name }}</span>
+                    <form action="{{ route('document-requirements.destroy', $req) }}" method="POST" onsubmit="return confirm('Remove this document requirement?')">@csrf @method('DELETE')
+                        <button class="text-red-500 text-xs font-bold">Remove</button>
+                    </form>
+                </li>
+                @endforeach
+            </ul>
+            @endif
+            <form action="{{ route('services.document-requirements.store', $service) }}" method="POST" class="mt-4 flex gap-2 text-sm">
+                @csrf
+                <input type="text" name="name" required placeholder="e.g. Form 16, Bank statement" class="flex-1 rounded-lg border-slate-200">
+                <button type="submit" class="bg-emerald-600 text-white rounded-lg font-bold text-xs uppercase tracking-wider px-4 py-2">Add doc</button>
+            </form>
+        </div>
+        @endforeach
+    </div>
+</div>
+
+<div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-8 mt-8">
+    <h3 class="font-black text-slate-900 text-xl">Task checklist templates</h3>
+    <p class="text-sm text-slate-500 mt-1">Reusable tasks spawned per service (e.g. ITR filing steps).</p>
+    <div class="mt-6 space-y-8">
+        @foreach($services as $service)
+        <div class="border border-slate-100 rounded-2xl p-5">
+            <h4 class="font-bold text-slate-800">{{ $service->name }} <span class="text-xs text-slate-400">({{ $service->taskTemplates->count() }} steps)</span></h4>
+            @if($service->taskTemplates->isNotEmpty())
+            <ul class="mt-3 text-sm space-y-1">
+                @foreach($service->taskTemplates as $tpl)
+                <li class="flex justify-between items-center py-1 border-b border-slate-50">
+                    <span>{{ $tpl->title }} — due +{{ $tpl->due_days_offset }}d · {{ $tpl->priority }}</span>
+                    <form action="{{ route('task-templates.destroy', $tpl) }}" method="POST" onsubmit="return confirm('Remove?')">@csrf @method('DELETE')
+                        <button class="text-red-500 text-xs font-bold">Remove</button>
+                    </form>
+                </li>
+                @endforeach
+            </ul>
+            @endif
+            <form action="{{ route('services.task-templates.store', $service) }}" method="POST" class="mt-4 grid grid-cols-1 md:grid-cols-4 gap-2 text-sm">
+                @csrf
+                <input type="text" name="title" required placeholder="Task title" class="rounded-lg border-slate-200">
+                <input type="number" name="due_days_offset" value="7" min="0" class="rounded-lg border-slate-200" title="Days from today">
+                <select name="priority" class="rounded-lg border-slate-200"><option>High</option><option selected>Medium</option><option>Normal</option><option>Low</option></select>
+                <button type="submit" class="bg-indigo-600 text-white rounded-lg font-bold text-xs uppercase tracking-wider py-2">Add step</button>
+            </form>
+        </div>
+        @endforeach
+    </div>
+</div>
 @endsection

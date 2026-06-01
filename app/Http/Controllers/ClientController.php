@@ -7,7 +7,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ClientsExport;
-use App\Imports\ClientsImport;
+use App\Models\ServiceDue;
+use App\Models\Task;
+use App\Models\User;
+use App\Mail\ClientPendingApprovalMail;
+use Illuminate\Support\Facades\Mail;
 
 class ClientController extends Controller
 {
@@ -16,12 +20,19 @@ class ClientController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Client::query();
+        $this->authorize('viewAny', Client::class);
+
+        $query = Client::query()->visibleTo(auth()->user());
+
+        if (auth()->user()?->isPartner()) {
+            $query->where('approval_status', Client::APPROVAL_APPROVED);
+        }
 
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('group_name', 'like', "%{$search}%")
                     ->orWhere('pan', 'like', "%{$search}%")
                     ->orWhere('client_code', 'like', "%{$search}%")
                     ->orWhere('gstin', 'like', "%{$search}%");
@@ -46,9 +57,18 @@ class ClientController extends Controller
         }
 
         $clients = $query->latest()->paginate(10);
-        $managers = \App\Models\User::all(); // Fetch all users as managers for now
+        $managers = \App\Models\User::all();
 
-        return view('clients.index', compact('clients', 'managers'));
+        $pendingClients = collect();
+        if (auth()->user()?->isPartner()) {
+            $pendingClients = Client::query()
+                ->where('approval_status', Client::APPROVAL_PENDING)
+                ->with('createdBy')
+                ->latest()
+                ->get();
+        }
+
+        return view('clients.index', compact('clients', 'managers', 'pendingClients'));
     }
 
     /**
@@ -56,6 +76,8 @@ class ClientController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', Client::class);
+
         $services = \App\Models\Service::all();
         return view('clients.create', compact('services'));
     }
@@ -63,27 +85,11 @@ class ClientController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(\App\Http\Requests\StoreClientRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'entity_type' => 'nullable|string',
-            'industry' => 'nullable|string',
-            'pan' => 'required|string|unique:clients,pan',
-            'gstin' => 'nullable|string|unique:clients,gstin',
-            'cin' => 'nullable|string',
-            'tan' => 'nullable|string',
-            'primary_contact_name' => 'nullable|string',
-            'primary_contact_phone' => 'nullable|string',
-            'primary_contact_email' => 'nullable|email',
-            'category' => 'required|in:A,B,C',
-            'status' => 'required|in:Active,On-Hold,Closed',
-            'tags' => 'nullable|string',
-            'billing_cycle' => 'nullable|string',
-            'registered_address' => 'nullable|string',
-            'services' => 'array',
-            'custom_due_days' => 'array',
-        ]);
+        $this->authorize('create', Client::class);
+
+        $validated = $request->validated();
 
         if ($request->has('tags') && $request->tags) {
             $validated['tags'] = array_map('trim', explode(',', $request->tags));
@@ -91,13 +97,39 @@ class ClientController extends Controller
             $validated['tags'] = []; // Ensure empty array if no tags
         }
 
-        // Auto-generate Client Code (e.g., CL-0001)
+        // Auto-generate Client Code
         $lastClient = Client::latest('id')->first();
         $nextId = $lastClient ? $lastClient->id + 1 : 1;
-        $clientCode = 'CL-' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+        
+        $prefix = 'CL';
+        if (!empty($validated['group_name'])) {
+            $words = explode(' ', trim($validated['group_name']));
+            $prefix = strtoupper(substr($words[0], 0, 6));
+        }
+        
+        $clientCode = $prefix . '-' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
 
+        $user = auth()->user();
         $client = new Client($validated);
         $client->client_code = $clientCode;
+        $client->created_by_user_id = $user->id;
+
+        if ($user->isArticle()) {
+            $client->approval_status = Client::APPROVAL_PENDING;
+        } else {
+            $client->approval_status = Client::APPROVAL_APPROVED;
+            $client->approved_at = now();
+            $client->approved_by_user_id = $user->isPartner() ? $user->id : null;
+        }
+
+        if ($user->isAssociate()) {
+            $client->manager_id = $user->id;
+        }
+
+        if ($user->isManager() && $user->branch_id) {
+            $client->branch_id = $user->branch_id;
+        }
+
         $client->save();
 
         // Sync Services with Custom Due Days
@@ -114,7 +146,47 @@ class ClientController extends Controller
             $client->optedServices()->sync($syncData);
         }
 
+        if ($user->isArticle()) {
+            $this->notifyPartnersOfPendingClient($client);
+
+            return redirect()
+                ->route('tasks.index')
+                ->with('success', 'Client submitted successfully. Rajat will review and approve it before it appears for everyone.');
+        }
+
         return redirect()->route('clients.index')->with('success', 'Client created successfully.');
+    }
+
+    public function approve(Client $client)
+    {
+        $this->authorize('approve', $client);
+
+        $client->update([
+            'approval_status' => Client::APPROVAL_APPROVED,
+            'approved_at' => now(),
+            'approved_by_user_id' => auth()->id(),
+        ]);
+
+        return redirect()
+            ->route('clients.index')
+            ->with('success', $client->name . ' is now approved and visible across the firm.');
+    }
+
+    private function notifyPartnersOfPendingClient(Client $client): void
+    {
+        $client->loadMissing('createdBy');
+
+        User::query()
+            ->where('role', 'partner')
+            ->whereNotNull('email')
+            ->pluck('email')
+            ->each(function (string $email) use ($client) {
+                try {
+                    Mail::to($email)->send(new ClientPendingApprovalMail($client));
+                } catch (\Throwable $e) {
+                    report($e);
+                }
+            });
     }
 
     /**
@@ -122,25 +194,60 @@ class ClientController extends Controller
      */
     public function show(Client $client)
     {
-        $client->load(['manager', 'optedServices', 'invoices' => function ($q) {
-            $q->latest()->take(5);
-        }, 'tasks' => function ($q) {
-            $q->latest()->take(5);
-        }]);
+        $this->authorize('view', $client);
+
+        $client->load([
+            'manager',
+            'optedServices.taskTemplates' => fn ($q) => $q->where('is_active', true)->orderBy('sort_order'),
+            'invoices' => fn ($q) => $q->latest()->take(5),
+            'tasks' => fn ($q) => $q->latest()->take(5),
+        ]);
 
         // Financial Stats
         $totalBilled = $client->invoices()->sum('total_amount');
-        $totalCollected = $client->invoices()->where('status', 'Paid')->sum('total_amount');
-        $totalOutstanding = $client->invoices()->where('status', 'Overdue')->sum('total_amount');
+        $totalCollected = (float) \App\Models\Payment::whereHas('invoice', function ($q) use ($client) {
+            $q->where('client_id', $client->id);
+        })->sum('amount');
+        $totalOutstanding = max(0, (float) $totalBilled - $totalCollected);
 
         // Compliance Stats
         $serviceDues = \App\Models\ServiceDue::whereHas('clientService', function ($q) use ($client) {
             $q->where('client_id', $client->id);
-        })->whereIn('status', ['Pending', 'Overdue'])->orderBy('due_date')->get();
+        })->whereIn('status', [ServiceDue::STATUS_PENDING, ServiceDue::STATUS_OVERDUE])->orderBy('due_date')->get();
 
-        $activeTasks = $client->tasks()->whereIn('status', ['Pending', 'In Progress'])->get();
+        $activeTasks = $client->tasks()->whereIn('status', [Task::STATUS_PENDING, Task::STATUS_IN_PROGRESS])->get();
 
-        return view('clients.show', compact('client', 'totalBilled', 'totalCollected', 'totalOutstanding', 'serviceDues', 'activeTasks'));
+        $unbilledWorksheets = $client->worksheets()->where('is_billed', false)->latest()->get();
+
+        $nextDue = $serviceDues->first();
+        $lastInvoice = $client->invoices->first();
+
+        $documentChecklists = app(\App\Services\ServiceDocumentChecklistService::class)
+            ->summariesForClient($client->id);
+
+        $timeline = app(\App\Services\Intelligence\ClientTimelineBuilder::class)->build($client);
+        $complianceRisks = \App\Models\ComplianceRiskScore::query()
+            ->where('client_id', $client->id)
+            ->whereIn('level', [\App\Models\ComplianceRiskScore::LEVEL_HIGH, \App\Models\ComplianceRiskScore::LEVEL_MEDIUM])
+            ->with('service')
+            ->orderByDesc('score')
+            ->limit(5)
+            ->get();
+
+        return view('clients.show', compact(
+            'client',
+            'totalBilled',
+            'totalCollected',
+            'totalOutstanding',
+            'serviceDues',
+            'activeTasks',
+            'unbilledWorksheets',
+            'nextDue',
+            'lastInvoice',
+            'timeline',
+            'complianceRisks',
+            'documentChecklists',
+        ));
     }
 
     /**
@@ -148,6 +255,8 @@ class ClientController extends Controller
      */
     public function edit(Client $client)
     {
+        $this->authorize('update', $client);
+
         $services = \App\Models\Service::all();
         $optedServices = $client->optedServices()->get()->keyBy('id');
         return view('clients.edit', compact('client', 'services', 'optedServices'));
@@ -156,25 +265,11 @@ class ClientController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Client $client)
+    public function update(\App\Http\Requests\UpdateClientRequest $request, Client $client)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'pan' => 'required|string|unique:clients,pan,' . $client->id,
-            'gstin' => 'nullable|string|unique:clients,gstin,' . $client->id,
-            'category' => 'required|in:A,B,C',
-            'status' => 'required|in:Active,On-Hold,Closed',
-            'tags' => 'nullable|string',
-            'entity_type' => 'nullable|string',
-            'industry' => 'nullable|string',
-            'billing_cycle' => 'nullable|string',
-            'primary_contact_name' => 'nullable|string',
-            'primary_contact_phone' => 'nullable|string',
-            'primary_contact_email' => 'nullable|email',
-            'registered_address' => 'nullable|string',
-            'services' => 'array',
-            'custom_due_days' => 'array',
-        ]);
+        $this->authorize('update', $client);
+
+        $validated = $request->validated();
 
         if ($request->has('tags')) {
             $validated['tags'] = $request->tags ? array_map('trim', explode(',', $request->tags)) : [];
@@ -201,47 +296,49 @@ class ClientController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Client $client)
+    public function destroy(Client $client, \App\Services\SensitiveActionLogger $audit)
     {
+        $this->authorize('delete', $client);
+
+        $audit->clientDeleted($client);
         $client->delete();
+
         return redirect()->route('clients.index')->with('success', 'Client deleted successfully.');
     }
 
     public function export()
     {
-        return Excel::download(new ClientsExport, 'clients.xlsx');
+        $this->authorize('export', Client::class);
+
+        return Excel::download(new ClientsExport(auth()->user()), 'clients.xlsx');
     }
 
     public function downloadTemplate()
     {
+        $this->authorize('import', Client::class);
+
         return Excel::download(new \App\Exports\ClientTemplateExport, 'client_import_template.xlsx');
     }
 
     public function import(Request $request)
     {
-        $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv',
-        ]);
+        return redirect()
+            ->route('clients.index')
+            ->with('warning', 'Use Preview import on the clients list — review rows before confirming.');
+    }
+    public function bulkDestroy(\App\Http\Requests\BulkDeleteClientsRequest $request, \App\Services\SensitiveActionLogger $audit)
+    {
+        $this->authorize('bulkDelete', Client::class);
 
-        $import = new ClientsImport;
-        Excel::import($import, $request->file('file'));
+        $ids = $request->validated('selected_clients');
+        $clients = Client::whereIn('id', $ids)->get();
 
-        $failures = $import->failures();
-
-        if ($failures->count() > 0) {
-            return redirect()->route('clients.index')->with('warning', 'Some clients were imported, but ' . $failures->count() . ' rows failed validation. Check logs for details.');
+        foreach ($clients as $client) {
+            $this->authorize('delete', $client);
+            $client->delete();
         }
 
-        return redirect()->route('clients.index')->with('success', 'Clients imported successfully.');
-    }
-    public function bulkDestroy(Request $request)
-    {
-        $request->validate([
-            'selected_clients' => 'required|array',
-            'selected_clients.*' => 'exists:clients,id',
-        ]);
-
-        Client::whereIn('id', $request->selected_clients)->delete();
+        $audit->clientsBulkDeleted($ids);
 
         return redirect()->route('clients.index')->with('success', 'Selected clients deleted successfully.');
     }

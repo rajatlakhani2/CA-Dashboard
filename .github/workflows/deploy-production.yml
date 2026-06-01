@@ -1,0 +1,84 @@
+# Deploy to app.kuhu.org.in when pushing to master.
+# Required GitHub repo secrets (Settings → Secrets → Actions):
+#   SSH_HOST          e.g. s3508.stableserver.net or server IP
+#   SSH_USER          e.g. kuhuorgi
+#   SSH_KEY           private key (full PEM) with access to the account
+#   DEPLOY_PATH       e.g. /home/kuhuorgi/public_html/app.kuhu.org.in
+
+name: Deploy Production
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.repository == 'rajatlakhani2/CA-Dashboard'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, curl, zip, pdo_mysql, bcmath, intl
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Build frontend
+        run: npm ci && npm run build
+
+      - name: Package release
+        run: |
+          tar -czf release.tar.gz \
+            --exclude='.git' \
+            --exclude='.env' \
+            --exclude='.env.*' \
+            --exclude='node_modules' \
+            --exclude='tests' \
+            --exclude='.tools' \
+            --exclude='*.zip' \
+            .
+
+      - name: Upload to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: release.tar.gz
+          target: ${{ secrets.DEPLOY_PATH }}
+
+      - name: Extract and optimize on server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            cd "${{ secrets.DEPLOY_PATH }}"
+            tar -xzf release.tar.gz
+            rm -f release.tar.gz
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            chmod -R 775 storage bootstrap/cache

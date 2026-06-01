@@ -2,740 +2,696 @@
 
 @section('header')
 <div class="flex justify-between items-center w-full">
-    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-        Dashboard
-    </h2>
-    <!-- Quick Actions (Top Right) -->
+    <div>
+        <h2 class="font-bold text-lg text-gray-900 tracking-wide">Command Centre</h2>
+        <p class="text-xs text-gray-500 mt-0.5">{{ now()->format('l, d F Y') }}</p>
+    </div>
     <div class="flex space-x-2">
-        <a href="{{ route('clients.create') }}" class="flex items-center space-x-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-2 rounded shadow transition">
-            <svg style="width: 16px; height: 16px;" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
+        @can('create', App\Models\Client::class)
+        <a href="{{ route('clients.create') }}" class="flex items-center space-x-1 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 text-xs px-3 py-2 rounded-lg shadow-sm transition">
+            <svg style="width:14px;height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span>Client</span>
         </a>
-        <a href="{{ route('tasks.create') }}" class="flex items-center space-x-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-2 rounded shadow transition">
-            <svg style="width: 16px; height: 16px;" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
+        @endcan
+        <a href="{{ route('tasks.create') }}" class="flex items-center space-x-1 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 text-xs px-3 py-2 rounded-lg shadow-sm transition">
+            <svg style="width:14px;height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span>Task</span>
         </a>
-        <a href="{{ route('invoices.create') }}" class="flex items-center space-x-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-2 rounded shadow transition">
-            <svg style="width: 16px; height: 16px;" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
+        @can('create', App\Models\Invoice::class)
+        <a href="{{ route('invoices.create') }}" class="flex items-center space-x-1 bg-indigo-600 hover:bg-indigo-700 border border-transparent text-white text-xs px-3 py-2 rounded-lg shadow-sm transition">
+            <svg style="width:14px;height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span>Invoice</span>
         </a>
+        @endcan
     </div>
 </div>
 @endsection
 
+@push('head_styles')
+<style>
+    /* ===== LIGHT THEME DASHBOARD OVERRIDE ===== */
+    body { background: #f8fafc !important; }
+    .min-h-full.bg-bg-body { background: transparent !important; }
+    main.flex-1 { background: transparent !important; }
+
+    #glass-bg { display: none; }
+
+    header.bg-white\/80 {
+        background: rgba(255,255,255,0.95) !important;
+        border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+        backdrop-filter: blur(10px) !important;
+    }
+    header h2 { color: #111827 !important; background: none !important; -webkit-text-fill-color: #111827 !important; }
+
+    .glass-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        transition: all 0.3s ease;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .glass-card:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: #d1d5db; }
+
+    .kpi-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: block;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: #d1d5db; }
+    .kpi-card .kpi-label { color: #6b7280; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; }
+    .kpi-card .kpi-value { color: #111827; font-size:2.5rem; font-weight:800; line-height:1; margin: 0.5rem 0 0.25rem; }
+    .kpi-card .kpi-sub { color: #9ca3af; font-size:0.75rem; }
+
+    .kpi-blue { border-top: 3px solid #3b82f6 !important; }
+    .kpi-violet { border-top: 3px solid #8b5cf6 !important; }
+    .kpi-amber { border-top: 3px solid #f59e0b !important; }
+    .kpi-rose { border-top: 3px solid #ef4444 !important; }
+    .kpi-emerald { border-top: 3px solid #10b981 !important; }
+
+    .glass-tabs { border-bottom: 1px solid #e5e7eb; }
+    .glass-tab { color: #6b7280; border-bottom: 2px solid transparent; padding: 0.75rem 0.5rem; font-size:0.875rem; font-weight:600; cursor:pointer; transition: all 0.2s; white-space:nowrap; }
+    .glass-tab.active { color: #4f46e5; border-bottom-color: #4f46e5; }
+    .glass-tab:hover:not(.active) { color: #374151; border-bottom-color: #d1d5db; }
+
+    .glass-section-title { color: #4b5563; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:1rem; }
+    .glass-list-item { padding: 0.75rem 0; border-bottom: 1px solid #f3f4f6; }
+    .glass-list-item:last-child { border-bottom: none; }
+
+    #dashboardCalendar .fc { color: #374151; }
+    .fc-theme-standard td, .fc-theme-standard th { border-color: #e5e7eb !important; }
+    .fc .fc-toolbar-title { color: #111827 !important; font-size: 1.1rem; font-weight: 700; }
+    .fc .fc-col-header-cell-cushion { color: #4b5563 !important; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; }
+    .fc .fc-daygrid-day-number { color: #6b7280 !important; font-size:0.8rem; }
+    .fc-day-today .fc-daygrid-day-number { color: #4f46e5 !important; font-weight:800; }
+    .fc-day-today { background: #eef2ff !important; }
+    .fc .fc-button-primary { background: #ffffff !important; border: 1px solid #d1d5db !important; color: #374151 !important; border-radius:8px !important; font-size:0.75rem !important; padding: 0.35rem 0.75rem !important; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .fc .fc-button-primary:hover { background: #f9fafb !important; color: #111827 !important; }
+    .fc .fc-button-primary:not(:disabled).fc-button-active { background: #eef2ff !important; border-color: #c7d2fe !important; color: #4f46e5 !important; }
+    .fc-event { border-radius: 6px !important; border: none !important; font-size:0.7rem !important; margin-top: 2px !important; }
+    .fc-popover { background: #ffffff !important; border: 1px solid #e5e7eb !important; border-radius:12px !important; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+    .fc-popover-header { background: #f9fafb !important; color: #111827 !important; border-radius:12px 12px 0 0 !important; border-bottom: 1px solid #e5e7eb; }
+    .fc-popover-body { background: transparent !important; }
+
+    .deadline-pill { border-radius:12px; padding:1rem 1.25rem; display:flex; justify-content:space-between; align-items:center; transition:all 0.2s; text-decoration:none; background: #ffffff; border: 1px solid #e5e7eb; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .deadline-pill:hover { transform:translateX(4px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius:10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+</style>
+@endpush
+
 @section('content')
-<div x-data="{ activeTab: 'overview' }" class="w-full">
-    <!-- DEVOTIONAL HEADER -->
-    <div class="mb-6">
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 justify-items-center">
-            <!-- 1. Jay Minalbhavni Maa -->
-            <div class="flex flex-col items-center group cursor-pointer transition-transform hover:scale-105">
-                <div class="h-20 w-20 rounded-full bg-gradient-to-br from-red-100 to-orange-100 border-2 border-orange-200 flex items-center justify-center shadow-sm overflow-hidden mb-2">
-                    <!-- Placeholder Image / Icon -->
-                    <span class="text-2xl">🕉️</span>
-                    <!-- <img src="path/to/image.jpg" alt="Minalbhavni Maa" class="h-full w-full object-cover"> -->
-                </div>
-                <!-- <p class="text-xs font-bold text-gray-700 text-center uppercase tracking-wide"></p> -->
-            </div>
+@php
+    $canManageFirm = auth()->user()?->managesFirmModules();
+    $deadline7Url = $canManageFirm
+        ? route('reports.due-date', ['start_date' => now()->format('Y-m-d'), 'end_date' => now()->addDays(7)->format('Y-m-d')])
+        : route('service-dues.index');
+    $deadline15Url = $canManageFirm
+        ? route('reports.due-date', ['start_date' => now()->addDays(7)->format('Y-m-d'), 'end_date' => now()->addDays(15)->format('Y-m-d')])
+        : route('service-dues.index');
+    $deadline30Url = $canManageFirm
+        ? route('reports.due-date', ['start_date' => now()->addDays(15)->format('Y-m-d'), 'end_date' => now()->addDays(30)->format('Y-m-d')])
+        : route('service-dues.index');
+@endphp
+{{-- Gradient background layer --}}
+<div id="glass-bg"></div>
 
-            <!-- 2. Jay Tuljabhavni Maa -->
-            <div class="flex flex-col items-center group cursor-pointer transition-transform hover:scale-105">
-                <div class="h-20 w-20 rounded-full bg-gradient-to-br from-orange-100 to-amber-100 border-2 border-orange-200 flex items-center justify-center shadow-sm overflow-hidden mb-2">
-                    <span class="text-2xl">🕉️</span>
-                </div>
-                <!-- <p class="text-xs font-bold text-gray-700 text-center uppercase tracking-wide"></p> -->
-            </div>
+<div x-data="{ activeTab: 'overview' }" class="w-full space-y-6">
 
-            <!-- 3. Jay Suprura Dada -->
-            <div class="flex flex-col items-center group cursor-pointer transition-transform hover:scale-105">
-                <div class="h-20 w-20 rounded-full bg-gradient-to-br from-amber-100 to-yellow-100 border-2 border-amber-200 flex items-center justify-center shadow-sm overflow-hidden mb-2">
+    @if(($pendingClientApprovals ?? 0) > 0)
+    <div class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 flex flex-wrap items-center justify-between gap-3 shadow-sm">
+        <div>
+            <p class="text-sm font-bold text-amber-900">{{ $pendingClientApprovals }} client{{ $pendingClientApprovals === 1 ? '' : 's' }} awaiting approval</p>
+            <p class="text-xs text-amber-800">Article submissions need your review on the Clients page.</p>
+        </div>
+        <a href="{{ route('clients.index') }}" class="inline-flex items-center rounded-md bg-amber-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-amber-500">
+            Review now
+        </a>
+    </div>
+    @endif
+
+    {{-- ===== WELCOME HERO ===== --}}
+    <div class="glass-card p-6 flex items-center justify-between">
+        <div>
+            <div class="flex items-center gap-3 mb-1">
+                <div class="flex gap-2">
+                    <span class="text-2xl">🕉️</span>
                     <span class="text-2xl">🙏</span>
-                </div>
-                <!-- <p class="text-xs font-bold text-gray-700 text-center uppercase tracking-wide"></p> -->
-            </div>
-
-            <!-- 4. Jay Saviraseth -->
-            <div class="flex flex-col items-center group cursor-pointer transition-transform hover:scale-105">
-                <div class="h-20 w-20 rounded-full bg-gradient-to-br from-yellow-100 to-lime-100 border-2 border-yellow-200 flex items-center justify-center shadow-sm overflow-hidden mb-2">
                     <span class="text-2xl">✨</span>
-                </div>
-                <!-- <p class="text-xs font-bold text-gray-700 text-center uppercase tracking-wide"></p> -->
-            </div>
-
-            <!-- 5. Jay Kuber -->
-            <div class="flex flex-col items-center group cursor-pointer transition-transform hover:scale-105">
-                <div class="h-20 w-20 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 border-2 border-emerald-200 flex items-center justify-center shadow-sm overflow-hidden mb-2">
                     <span class="text-2xl">💰</span>
                 </div>
-                <!-- <p class="text-xs font-bold text-gray-700 text-center uppercase tracking-wide"></p> -->
             </div>
+            <h1 class="text-2xl font-bold text-gray-900 mt-2">
+                Welcome back, <span class="text-violet-300">{{ auth()->user()->name }}</span>
+            </h1>
+            <p class="text-gray-500 text-sm mt-1 italic">"{{ $positiveThought }}"</p>
+        </div>
+        <div class="hidden md:flex flex-col items-end text-right">
+            <div class="text-gray-400 text-xs uppercase tracking-widest">Today</div>
+            <div class="text-gray-900 text-xl font-bold">{{ now()->format('d M Y') }}</div>
+            <div class="text-violet-300/70 text-sm">{{ now()->format('l') }}</div>
         </div>
     </div>
 
-    <!-- TABS NAVIGATION -->
-    <div class="mb-6 flex space-x-4 border-b border-gray-200">
-        <button @click="activeTab = 'overview'" :class="{ 'border-indigo-500 text-indigo-600': activeTab === 'overview', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'overview' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
-            Overview
-        </button>
-        <button @click="activeTab = 'clients'" :class="{ 'border-indigo-500 text-indigo-600': activeTab === 'clients', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'clients' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
-            Clients View
-        </button>
-        <button @click="activeTab = 'workload'" :class="{ 'border-indigo-500 text-indigo-600': activeTab === 'workload', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'workload' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
-            Workload & Tasks
-        </button>
-        <button @click="activeTab = 'financials'" :class="{ 'border-indigo-500 text-indigo-600': activeTab === 'financials', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'financials' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
-            Financials (Beta)
-        </button>
+    {{-- ===== KPI TILES ===== --}}
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <a href="{{ route('clients.index') }}" class="kpi-card kpi-blue">
+            <div class="flex items-center justify-between mb-3">
+                <p class="kpi-label">Total Clients</p>
+                <div class="h-9 w-9 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                    <svg class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+            </div>
+            <p class="kpi-value">{{ $summary['total_clients'] }}</p>
+            <p class="kpi-sub">+{{ $summary['new_clients_this_month'] }} this month</p>
+        </a>
+
+        <a href="{{ route('tasks.index') }}" class="kpi-card kpi-amber">
+            <div class="flex items-center justify-between mb-3">
+                <p class="kpi-label">My Tasks</p>
+                <div class="h-9 w-9 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                    <svg class="h-5 w-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                </div>
+            </div>
+            <p class="kpi-value">{{ \App\Models\Task::where('assigned_to', auth()->id())->whereNotIn('status', ['Completed','Done','Closed'])->count() }}</p>
+            <p class="kpi-sub">Pending action</p>
+        </a>
+
+        <a href="{{ route('service-dues.index') }}" class="kpi-card kpi-rose">
+            <div class="flex items-center justify-between mb-3">
+                <p class="kpi-label">Due This Month</p>
+                <div class="h-9 w-9 rounded-xl bg-rose-500/20 flex items-center justify-center">
+                    <svg class="h-5 w-5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+            </div>
+            <p class="kpi-value">{{ $summary['services_due_month'] }}</p>
+            <p class="kpi-sub">Service deadlines</p>
+        </a>
+
+        @if(auth()->user()?->hasRole('partner', 'manager'))
+        <a href="{{ route('invoices.index') }}" class="kpi-card kpi-emerald">
+            <div class="flex items-center justify-between mb-3">
+                <p class="kpi-label">Outstanding</p>
+                <div class="h-9 w-9 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                    <svg class="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+            </div>
+            <p class="kpi-value text-2xl">{{ $summary['outstanding_fees'] }}</p>
+            <p class="kpi-sub">Fees receivable</p>
+        </a>
+
+        <a href="{{ route('billing.index') }}" class="kpi-card kpi-violet">
+            <div class="flex items-center justify-between mb-3">
+                <p class="kpi-label">Unbilled Work</p>
+                <div class="h-9 w-9 rounded-xl bg-violet-500/20 flex items-center justify-center">
+                    <svg class="h-5 w-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                </div>
+            </div>
+            <p class="kpi-value">{{ $summary['unbilled_items'] }}</p>
+            <p class="kpi-sub">Ready to invoice</p>
+        </a>
+        @endif
     </div>
 
-    <!-- 1. OVERVIEW TAB (GridStack) -->
-    <div x-show="activeTab === 'overview'" x-transition.opacity class="w-full">
-        <div class="grid-stack transition-opacity duration-500 ease-in-out" style="opacity: 0;">
-            <!-- Total Clients -->
-            <div class="grid-stack-item" gs-id="kpi_total_clients" gs-w="3" gs-h="2" gs-x="0" gs-y="0">
-                <div class="grid-stack-item-content">
-                    <a href="{{ route('clients.index') }}" draggable="false" class="h-full block relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white shadow-lg group">
-                        <div class="absolute top-0 right-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-white/10 opacity-50 blur-xl transition-all group-hover:bg-white/20"></div>
-                        <div class="flex items-center justify-between relative z-10 h-full">
-                            <div>
-                                <p class="text-xs font-bold uppercase tracking-wider text-blue-100">Total Clients</p>
-                                <p class="mt-2 text-3xl font-bold">{{ $summary['total_clients'] }}</p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-            <!-- New Clients -->
-            <div class="grid-stack-item" gs-id="kpi_new_clients" gs-w="3" gs-h="2" gs-x="3" gs-y="0">
-                <div class="grid-stack-item-content">
-                    <a href="{{ route('clients.index') }}" draggable="false" class="h-full block relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 p-6 text-white shadow-lg group">
-                        <div class="absolute top-0 right-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-white/10 opacity-50 blur-xl transition-all group-hover:bg-white/20"></div>
-                        <div class="flex items-center justify-between relative z-10 h-full">
-                            <div>
-                                <p class="text-xs font-bold uppercase tracking-wider text-emerald-100">New (Month)</p>
-                                <p class="mt-2 text-3xl font-bold">{{ $summary['new_clients_this_month'] }}</p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Pending Tasks KPI -->
-            <div class="grid-stack-item" gs-id="kpi_pending_tasks" gs-w="3" gs-h="2" gs-x="6" gs-y="0">
-                <div class="grid-stack-item-content">
-                    <a href="{{ route('tasks.index') }}" draggable="false" class="h-full block relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 p-6 text-white shadow-lg group">
-                        <div class="absolute top-0 right-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-white/10 opacity-50 blur-xl transition-all group-hover:bg-white/20"></div>
-                        <div class="flex items-center justify-between relative z-10 h-full">
-                            <div>
-                                <p class="text-xs font-bold uppercase tracking-wider text-amber-100">My Tasks</p>
-                                <p class="mt-2 text-3xl font-bold">{{ \App\Models\Task::where('assigned_to', auth()->id())->whereNotIn('status', ['Completed', 'Done', 'Closed'])->count() }}</p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Service Dues KPI -->
-            <div class="grid-stack-item" gs-id="kpi_service_dues" gs-w="3" gs-h="2" gs-x="9" gs-y="0">
-                <div class="grid-stack-item-content">
-                    <a href="{{ route('service-dues.index') }}" draggable="false" class="h-full block relative overflow-hidden rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 p-6 text-white shadow-lg group">
-                        <div class="absolute top-0 right-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-white/10 opacity-50 blur-xl transition-all group-hover:bg-white/20"></div>
-                        <div class="flex items-center justify-between relative z-10 h-full">
-                            <div>
-                                <p class="text-xs font-bold uppercase tracking-wider text-rose-100">Due (Month)</p>
-                                <p class="mt-2 text-3xl font-bold">{{ $summary['services_due_month'] }}</p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Calendar (Full Width) -->
-            <div class="grid-stack-item" gs-id="widget_calendar" gs-w="12" gs-h="6" gs-x="0" gs-y="2">
-                <div class="grid-stack-item-content bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/20 h-full flex flex-col transition-transform duration-300 hover:shadow-lg">
-                    <div class="flex justify-between items-center mb-4 drag-handle cursor-move">
-                        <h3 class="text-lg font-bold text-gray-800 flex items-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-indigo-500">
-                            <svg class="h-5 w-5 mr-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            Schedule & Deadlines
-                        </h3>
-                    </div>
-                    <div id="dashboardCalendar" class="flex-1" style="min-height: 0;"></div>
-                </div>
-            </div>
-
-            <!-- Upcoming Breakdown (Combined) -->
-            <div class="grid-stack-item" gs-id="widget_upcoming" gs-w="6" gs-h="4" gs-x="0" gs-y="8">
-                <div class="grid-stack-item-content bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-white/20 h-full flex flex-col overflow-y-auto transition-transform duration-300 hover:shadow-lg">
-                    <div class="drag-handle cursor-move mb-4">
-                        <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-gray-700 to-gray-500">Upcoming Overview</h3>
-                    </div>
-                    <div class="space-y-4">
-                        <!-- Next 7 Days (Clickable) -->
-                        <a href="{{ route('reports.due-date', ['start_date' => \Carbon\Carbon::now()->format('Y-m-d'), 'end_date' => \Carbon\Carbon::now()->addDays(7)->format('Y-m-d')]) }}" class="group block cursor-pointer">
-                            <div class="bg-red-50 hover:bg-red-100 active:scale-95 transition-all duration-150 p-4 rounded-xl border border-red-100 flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <div class="h-8 w-8 rounded-full bg-red-200 text-red-700 flex items-center justify-center mr-3 font-bold shadow-sm">!</div>
-                                    <span class="text-sm font-bold text-red-700 group-hover:text-red-900">Next 7 Days</span>
-                                </div>
-                                <div class="flex items-center">
-                                    <span class="text-2xl font-bold text-red-800 mr-2">{{ $upcomingCounts['7_days'] }}</span>
-                                    <svg class="w-4 h-4 text-red-400 group-hover:text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </a>
-
-                        <!-- 7-15 Days (Clickable) -->
-                        <a href="{{ route('reports.due-date', ['start_date' => \Carbon\Carbon::now()->addDays(7)->format('Y-m-d'), 'end_date' => \Carbon\Carbon::now()->addDays(15)->format('Y-m-d')]) }}" class="group block cursor-pointer">
-                            <div class="bg-orange-50 hover:bg-orange-100 active:scale-95 transition-all duration-150 p-4 rounded-xl border border-orange-100 flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <div class="h-8 w-8 rounded-full bg-orange-200 text-orange-700 flex items-center justify-center mr-3 font-bold shadow-sm">7</div>
-                                    <span class="text-sm font-bold text-orange-700 group-hover:text-orange-900">7-15 Days</span>
-                                </div>
-                                <div class="flex items-center">
-                                    <span class="text-2xl font-bold text-orange-800 mr-2">{{ $upcomingCounts['15_days'] - $upcomingCounts['7_days'] }}</span>
-                                    <svg class="w-4 h-4 text-orange-400 group-hover:text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </a>
-
-                        <!-- 15-30 Days (Clickable) -->
-                        <a href="{{ route('reports.due-date', ['start_date' => \Carbon\Carbon::now()->addDays(15)->format('Y-m-d'), 'end_date' => \Carbon\Carbon::now()->addDays(30)->format('Y-m-d')]) }}" class="group block cursor-pointer">
-                            <div class="bg-yellow-50 hover:bg-yellow-100 active:scale-95 transition-all duration-150 p-4 rounded-xl border border-yellow-100 flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <div class="h-8 w-8 rounded-full bg-yellow-200 text-yellow-700 flex items-center justify-center mr-3 font-bold shadow-sm">30</div>
-                                    <span class="text-sm font-bold text-yellow-700 group-hover:text-yellow-900">15-30 Days</span>
-                                </div>
-                                <div class="flex items-center">
-                                    <span class="text-2xl font-bold text-yellow-800 mr-2">{{ $upcomingCounts['30_days'] - $upcomingCounts['15_days'] }}</span>
-                                    <svg class="w-4 h-4 text-yellow-400 group-hover:text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Pending Tasks List -->
-            <div class="grid-stack-item" gs-id="widget_pending_list" gs-w="6" gs-h="4" gs-x="6" gs-y="7">
-                <div class="grid-stack-item-content bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-sm border border-white/20 h-full flex flex-col transition-transform duration-300 hover:shadow-lg">
-                    <div class="flex justify-between items-center mb-2 border-b border-gray-100 pb-2 drag-handle cursor-move">
-                        <h3 class="text-sm font-bold text-gray-700 uppercase bg-clip-text text-transparent bg-gradient-to-r from-gray-700 to-gray-500">Pending Tasks</h3>
-                        <a href="{{ route('tasks.index') }}" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:underline">View All</a>
-                    </div>
-                    <ul class="space-y-2 overflow-y-auto flex-1 px-1">
-                        @forelse($myPendingTasks as $task)
-                        <li class="border-b border-gray-50 last:border-0 pb-2 last:pb-0 hover:bg-white/50 p-2 rounded-lg transition-colors group/item">
-                            <div class="flex flex-col">
-                                <!-- Client Name (Bold, Top) with WhatsApp -->
-                                <div class="flex justify-between items-center">
-                                    <div class="font-bold text-xs text-gray-800 truncate" title="{{ $task->client->name ?? 'Internal Task' }}">
-                                        {{ $task->client->name ?? 'Internal Task' }}
-                                    </div>
-                                    @if(isset($task->client->primary_contact_phone) && $task->client->primary_contact_phone)
-                                    @php
-                                    $phone = preg_replace('/[^0-9]/', '', $task->client->primary_contact_phone);
-                                    // Add country code if missing (assuming India +91 for now if 10 digits)
-                                    if(strlen($phone) == 10) $phone = '91' . $phone;
-
-                                    $msg = "Hi " . ($task->client->name ?? 'Client') . ", a gentle reminder regarding '" . $task->title . "' which is due on " . $task->due_date->format('d M') . ". Please share the details.";
-                                    $waLink = "https://wa.me/" . $phone . "?text=" . urlencode($msg);
-                                    @endphp
-                                    <a href="{{ $waLink }}" target="_blank" class="text-green-500 hover:text-green-600 hover:bg-green-50 p-1 rounded-full transition-colors" title="Send WhatsApp Reminder">
-                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                            <path d="M12.031 2C6.502 2 2 6.516 2 12.067c0 1.83.487 3.633 1.414 5.23L2.007 22l4.897-1.28c1.55.845 3.302 1.29 5.127 1.29h.005c5.53 0 10.031-4.515 10.031-10.067C22.063 6.52 17.561 2 12.031 2zM12.054 20.25c-1.636 0-3.236-.437-4.636-1.27l-.333-.197-3.46 .906.924-3.373-.217-.345a8.271 8.271 0 01-1.238-4.382c0-4.568 3.715-8.283 8.286-8.283 4.57 0 8.283 3.715 8.283 8.283 0 4.568-3.693 8.283-8.264 8.283zm4.538-6.195c-.248-.124-1.47-.726-1.697-.808-.228-.083-.395-.125-.56.124-.166.248-.642.808-.787.973-.146.166-.29.187-.538.062-.248-.124-1.047-.386-1.996-1.232-.733-.654-1.228-1.462-1.372-1.71-.143-.248-.016-.382.108-.506.113-.112.248-.29.373-.435.124-.145.166-.248.248-.413.083-.166.042-.31-.02-.435-.062-.124-.56-1.348-.767-1.846-.201-.486-.406-.42-.56-.428-.145-.008-.31-.008-.475-.008-.166 0-.435.062-.662.31-.228.248-.87 0.85-0.87 2.072 0 1.223.89 2.404 1.014 2.57.124.165 1.752 2.677 4.246 3.753 1.493.645 2.06.7 2.82.684.85-.018 1.62-.65 1.848-1.277.228-.627.228-1.164.16-1.277-.068-.112-.248-.176-.496-.3z" />
-                                        </svg>
-                                    </a>
-                                    @endif
-                                </div>
-                                <div class="flex justify-between items-center mt-1">
-                                    <!-- Task Title (Normal, Detail) -->
-                                    <a href="{{ route('tasks.edit', $task) }}" class="text-sm text-gray-600 hover:text-indigo-600 truncate block flex-1 mr-2 font-medium">
-                                        {{ $task->title }}
-                                    </a>
-                                    <!-- Due Date Pill -->
-                                    <span class="text-xs px-2 py-0.5 rounded-full font-bold {{ $task->due_date->isPast() ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600' }} whitespace-nowrap shadow-sm">
-                                        {{ $task->due_date->format('d M') }}
-                                    </span>
-                                </div>
-                            </div>
-                        </li>
-                        @empty
-                        <li class="text-sm text-gray-400 italic text-center py-4">No pending tasks.</li>
-                        @endforelse
-                    </ul>
-                </div>
-            </div>
-        </div>
+    {{-- ===== TAB NAVIGATION ===== --}}
+    <div class="glass-tabs flex space-x-6">
+        <button @click="activeTab = 'overview'" :class="activeTab === 'overview' ? 'active' : ''" class="glass-tab">
+            📊 Overview
+        </button>
+        <button @click="activeTab = 'calendar'; setTimeout(() => { window.dispatchEvent(new Event('resize')); if(window.calendar) { window.calendar.updateSize(); window.calendar.render(); } }, 350)" :class="activeTab === 'calendar' ? 'active' : ''" class="glass-tab">
+            📅 Schedule
+        </button>
+        <button @click="activeTab = 'workload'" :class="activeTab === 'workload' ? 'active' : ''" class="glass-tab">
+            ⚡ Workload
+        </button>
+        @if($canManageFirm)
+        <button @click="activeTab = 'financials'" :class="activeTab === 'financials' ? 'active' : ''" class="glass-tab">
+            💰 Financials
+        </button>
+        @endif
     </div>
 
-    <!-- 2. CLIENTS VIEW -->
-    <div x-show="activeTab === 'clients'" x-transition.opacity class="w-full space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Client Cards Repeater -->
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-sm font-medium text-gray-500">Total Clients</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ $summary['total_clients'] }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-emerald-100 text-emerald-600 mr-4">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-sm font-medium text-gray-500">New Clients (Month)</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ $summary['new_clients_this_month'] }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+    {{-- ===== OVERVIEW TAB ===== --}}
+    <div x-show="activeTab === 'overview'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- High Risk Clients -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-50 bg-gray-50 flex justify-between items-center">
-                    <h3 class="text-lg font-bold text-gray-800">High Priority / High Risk Clients</h3>
-                    <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-md font-semibold">Action Required</span>
+            {{-- Pending Tasks --}}
+            <div class="lg:col-span-2 glass-card p-6 h-full">
+                <div class="flex justify-between items-center mb-4">
+                    <p class="glass-section-title mb-0">🎯 Today's Priority Queue</p>
+                    <a href="{{ route('tasks.index') }}" class="text-violet-400 text-xs font-semibold hover:text-violet-300 transition">View All →</a>
                 </div>
-                <div class="p-6">
-                    @if($highRiskClients->count() > 0)
-                    <ul class="divide-y divide-gray-100">
-                        @foreach($highRiskClients as $client)
-                        <li class="py-3 flex justify-between items-center">
-                            <span class="font-medium text-gray-800">{{ $client->name }}</span>
-                            <a href="{{ route('clients.show', $client) }}" class="text-sm text-indigo-600 hover:underline">View</a>
-                        </li>
-                        @endforeach
-                    </ul>
-                    @else
-                    <p class="text-gray-500 text-sm">No high risk clients identified.</p>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Recent Clients -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-50 bg-gray-50">
-                    <h3 class="text-lg font-bold text-gray-800">Recently Updated Clients</h3>
-                </div>
-                <div class="p-6">
-                    <ul class="divide-y divide-gray-100">
-                        @foreach($recentClients as $client)
-                        <li class="py-3 flex justify-between items-center">
-                            <div class="flex items-center">
-                                <div class="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 mr-3 font-bold text-xs">
-                                    {{ substr($client->name, 0, 2) }}
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-800">{{ $client->name }}</p>
-                                    <p class="text-xs text-gray-500">{{ $client->updated_at->diffForHumans() }}</p>
+                <ul class="space-y-1">
+                    @forelse($myPendingTasks->take(8) as $task)
+                    <li class="glass-list-item">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3 flex-1 min-w-0">
+                                <div class="h-2 w-2 rounded-full flex-shrink-0 {{ $task->due_date->isPast() ? 'bg-rose-400' : 'bg-violet-400' }}"></div>
+                                <div class="min-w-0">
+                                    <div class="text-gray-900 text-sm font-semibold truncate">{{ $task->client?->name ?? 'Internal Task' }}</div>
+                                    <a href="{{ route('tasks.edit', $task) }}" class="text-gray-500 text-xs hover:text-violet-300 truncate block transition">{{ $task->title }}</a>
                                 </div>
                             </div>
-                            <a href="{{ route('clients.edit', $client) }}" class="text-xs border border-gray-200 px-2 py-1 rounded text-gray-600 hover:bg-gray-50">Edit</a>
-                        </li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 3. WORKLOAD VIEW -->
-    <div x-show="activeTab === 'workload'" x-transition.opacity class="w-full space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                <h4 class="text-gray-500 text-sm font-medium uppercase">Pending Tasks</h4>
-                <p class="text-4xl font-bold text-gray-900 mt-2">{{ \App\Models\Task::where('assigned_to', auth()->id())->whereNotIn('status', ['Completed', 'Done', 'Closed'])->count() }}</p>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                <h4 class="text-gray-500 text-sm font-medium uppercase">Services Due Now</h4>
-                <p class="text-4xl font-bold text-rose-600 mt-2">{{ $summary['services_due_month'] }}</p>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                <h4 class="text-gray-500 text-sm font-medium uppercase">Completion Rate</h4>
-                <div class="flex items-end mt-2">
-                    <p class="text-4xl font-bold text-emerald-600">
-                        @php
-                        $total = $complianceStats['Pending'] + $complianceStats['Completed'] + $complianceStats['Overdue'];
-                        $rate = $total > 0 ? round(($complianceStats['Completed'] / $total) * 100) : 0;
-                        @endphp
-                        {{ $rate }}%
-                    </p>
-                    <p class="text-gray-400 text-sm ml-2 mb-1">this month</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Pending Tasks List (Detailed) -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-                <div class="px-6 py-4 border-b border-gray-50">
-                    <h3 class="text-lg font-bold text-gray-800">My Task Queue</h3>
-                </div>
-                <ul class="divide-y divide-gray-100">
-                    @forelse($myPendingTasks as $task)
-                    <li class="p-4 hover:bg-gray-50 transition-colors">
-                        <div class="flex justify-between items-start">
-                            <div class="flex-1 mr-2">
-                                <div class="flex justify-between items-center mb-1">
-                                    <p class="font-bold text-gray-800">{{ $task->title }}</p>
-                                    @if(isset($task->client->primary_contact_phone) && $task->client->primary_contact_phone)
-                                    @php
-                                    $phone = preg_replace('/[^0-9]/', '', $task->client->primary_contact_phone);
-                                    if(strlen($phone) == 10) $phone = '91' . $phone;
-                                    $msg = "Hi " . ($task->client->name ?? 'Client') . ", a gentle reminder regarding '" . $task->title . "' which is due on " . $task->due_date->format('d M') . ". Please share the details.";
-                                    $waLink = "https://wa.me/" . $phone . "?text=" . urlencode($msg);
-                                    @endphp
-                                    <a href="{{ $waLink }}" target="_blank" class="text-green-500 hover:text-green-600 hover:bg-green-50 p-1 rounded-full transition-colors" title="Send WhatsApp Reminder">
-                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                            <path d="M12.031 2C6.502 2 2 6.516 2 12.067c0 1.83.487 3.633 1.414 5.23L2.007 22l4.897-1.28c1.55.845 3.302 1.29 5.127 1.29h.005c5.53 0 10.031-4.515 10.031-10.067C22.063 6.52 17.561 2 12.031 2zM12.054 20.25c-1.636 0-3.236-.437-4.636-1.27l-.333-.197-3.46 .906.924-3.373-.217-.345a8.271 8.271 0 01-1.238-4.382c0-4.568 3.715-8.283 8.286-8.283 4.57 0 8.283 3.715 8.283 8.283 0 4.568-3.693 8.283-8.264 8.283zm4.538-6.195c-.248-.124-1.47-.726-1.697-.808-.228-.083-.395-.125-.56.124-.166.248-.642.808-.787.973-.146.166-.29.187-.538.062-.248-.124-1.047-.386-1.996-1.232-.733-.654-1.228-1.462-1.372-1.71-.143-.248-.016-.382.108-.506.113-.112.248-.29.373-.435.124-.145.166-.248.248-.413.083-.166.042-.31-.02-.435-.062-.124-.56-1.348-.767-1.846-.201-.486-.406-.42-.56-.428-.145-.008-.31-.008-.475-.008-.166 0-.435.062-.662.31-.228.248-.87 0.85-0.87 2.072 0 1.223.89 2.404 1.014 2.57.124.165 1.752 2.677 4.246 3.753 1.493.645 2.06.7 2.82.684.85-.018 1.62-.65 1.848-1.277.228-.627.228-1.164.16-1.277-.068-.112-.248-.176-.496-.3z" />
-                                        </svg>
-                                    </a>
-                                    @endif
-                                </div>
-                                <p class="text-xs text-indigo-600 font-medium">{{ $task->client->name ?? 'Internal' }}</p>
+                            <div class="flex items-center gap-2 ml-3 flex-shrink-0">
+                                @if(isset($task->client->primary_contact_phone) && $task->client->primary_contact_phone)
+                                @php
+                                $phone = preg_replace('/[^0-9]/', '', $task->client->primary_contact_phone);
+                                if(strlen($phone) == 10) $phone = '91' . $phone;
+                                $msg = "Hi " . ($task->client?->name ?? 'Client') . ", a gentle reminder regarding '" . $task->title . "' which is due on " . $task->due_date->format('d M') . ".";
+                                $waLink = "https://wa.me/" . $phone . "?text=" . urlencode($msg);
+                                @endphp
+                                <a href="{{ $waLink }}" target="_blank" class="text-green-400/70 hover:text-green-400 transition">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 2C6.502 2 2 6.516 2 12.067c0 1.83.487 3.633 1.414 5.23L2.007 22l4.897-1.28c1.55.845 3.302 1.29 5.127 1.29h.005c5.53 0 10.031-4.515 10.031-10.067C22.063 6.52 17.561 2 12.031 2z"/></svg>
+                                </a>
+                                @endif
+                                <span class="text-xs px-2 py-0.5 rounded-full font-semibold {{ $task->due_date->isPast() ? 'bg-rose-500/20 text-rose-300' : 'bg-gray-50 text-gray-500' }}">
+                                    {{ $task->due_date->format('d M') }}
+                                </span>
                             </div>
-                            <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full whitespace-nowrap">
-                                {{ $task->due_date->format('M d') }}
-                            </span>
                         </div>
                     </li>
                     @empty
-                    <li class="p-6 text-center text-gray-500">No pending tasks.</li>
+                    <li class="py-8 text-center">
+                        <div class="text-4xl mb-2">✅</div>
+                        <p class="text-gray-400 text-sm">All caught up! No pending tasks.</p>
+                    </li>
                     @endforelse
                 </ul>
             </div>
 
-            <!-- Service Dues Breakdown (Also Clickable) -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <h3 class="text-lg font-bold text-gray-800 mb-4">Upcoming Deadlines Breakdown</h3>
-                <div class="space-y-4">
-                    <a href="{{ route('reports.due-date', ['start_date' => \Carbon\Carbon::now()->format('Y-m-d'), 'end_date' => \Carbon\Carbon::now()->addDays(7)->format('Y-m-d')]) }}" class="flex items-center justify-between p-4 bg-red-50 rounded-xl border border-red-100 hover:bg-red-100 transition-colors">
-                        <span class="text-red-800 font-medium">Next 7 Days</span>
-                        <span class="text-2xl font-bold text-red-700">{{ $upcomingCounts['7_days'] }}</span>
+            {{-- Upcoming Deadlines --}}
+            @php
+                $upcomingOverview = $alerts->take(4);
+            @endphp
+            <div class="glass-card p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <p class="glass-section-title mb-0">Upcoming Overview</p>
+                    @if($canManageFirm)
+                    <a href="{{ route('reports.due-date') }}" class="text-violet-400 text-xs font-semibold hover:text-violet-300 transition">Open Report →</a>
+                    @else
+                    <a href="{{ route('service-dues.index') }}" class="text-violet-400 text-xs font-semibold hover:text-violet-300 transition">View Reminders →</a>
+                    @endif
+                </div>
+                <div class="space-y-3 mb-6">
+                    @forelse($upcomingOverview as $alert)
+                    <div class="rounded-xl border border-gray-200 bg-white px-4 py-3">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold text-gray-900 truncate">{{ $alert->clientService?->client?->name ?? 'Internal' }}</p>
+                                <p class="text-xs text-gray-500 truncate">{{ $alert->clientService?->service?->name ?? 'Service Due' }}</p>
+                            </div>
+                            <span class="text-xs font-semibold text-gray-500 whitespace-nowrap">{{ \Carbon\Carbon::parse($alert->due_date)->format('Y-m-d') }}</span>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="rounded-xl border border-dashed border-gray-200 px-4 py-6 text-center text-sm text-gray-400">
+                        No urgent dues right now.
+                    </div>
+                    @endforelse
+                </div>
+                <p class="glass-section-title">⏰ Upcoming Deadlines</p>
+                <div class="space-y-3">
+                    <a href="{{ $deadline7Url }}"
+                       class="deadline-pill bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20">
+                        <div>
+                            <div class="text-rose-300 font-bold text-sm">Next 7 Days</div>
+                            <div class="text-gray-400 text-xs mt-0.5">Critical window</div>
+                        </div>
+                        <div class="text-rose-300 text-3xl font-black">{{ $upcomingCounts['7_days'] }}</div>
                     </a>
 
-                    <a href="{{ route('reports.due-date', ['start_date' => \Carbon\Carbon::now()->addDays(7)->format('Y-m-d'), 'end_date' => \Carbon\Carbon::now()->addDays(15)->format('Y-m-d')]) }}" class="flex items-center justify-between p-4 bg-orange-50 rounded-xl border border-orange-100 hover:bg-orange-100 transition-colors">
-                        <span class="text-orange-800 font-medium">7 - 15 Days</span>
-                        <span class="text-2xl font-bold text-orange-700">{{ $upcomingCounts['15_days'] - $upcomingCounts['7_days'] }}</span>
+                    <a href="{{ $deadline15Url }}"
+                       class="deadline-pill bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20">
+                        <div>
+                            <div class="text-amber-300 font-bold text-sm">7 – 15 Days</div>
+                            <div class="text-gray-400 text-xs mt-0.5">Plan ahead</div>
+                        </div>
+                        <div class="text-amber-300 text-3xl font-black">{{ $upcomingCounts['15_days'] - $upcomingCounts['7_days'] }}</div>
                     </a>
 
-                    <a href="{{ route('reports.due-date', ['start_date' => \Carbon\Carbon::now()->addDays(15)->format('Y-m-d'), 'end_date' => \Carbon\Carbon::now()->addDays(30)->format('Y-m-d')]) }}" class="flex items-center justify-between p-4 bg-yellow-50 rounded-xl border border-yellow-100 hover:bg-yellow-100 transition-colors">
-                        <span class="text-yellow-800 font-medium">15 - 30 Days</span>
-                        <span class="text-2xl font-bold text-yellow-700">{{ $upcomingCounts['30_days'] - $upcomingCounts['15_days'] }}</span>
+                    <a href="{{ $deadline30Url }}"
+                       class="deadline-pill bg-yellow-500/10 border border-yellow-500/20 hover:bg-yellow-500/20">
+                        <div>
+                            <div class="text-yellow-300 font-bold text-sm">15 – 30 Days</div>
+                            <div class="text-gray-400 text-xs mt-0.5">On the horizon</div>
+                        </div>
+                        <div class="text-yellow-300 text-3xl font-black">{{ $upcomingCounts['30_days'] - $upcomingCounts['15_days'] }}</div>
                     </a>
+                </div>
+
+                {{-- High Risk Clients --}}
+                @if($highRiskClients->count() > 0)
+                <div class="mt-5">
+                    <p class="glass-section-title">🔴 High Risk Clients</p>
+                    <ul class="space-y-2">
+                        @foreach($highRiskClients->take(4) as $client)
+                        <li class="flex justify-between items-center">
+                            <span class="text-gray-700 text-sm font-medium truncate">{{ $client->name }}</span>
+                            <a href="{{ route('clients.show', $client) }}" class="text-violet-400 text-xs hover:text-violet-300 ml-2 flex-shrink-0">View →</a>
+                        </li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    {{-- ===== SCHEDULE / CALENDAR TAB ===== --}}
+    <div x-show="activeTab === 'calendar'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" style="display:none;">
+        <div class="glass-card p-6" style="min-height: 600px;">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <p class="glass-section-title mb-0">📅 Schedule & Deadlines</p>
+                    <p class="mt-1 text-xs text-gray-500">Drag tasks and pending dues to reschedule them. The calendar opens on the nearest live month when the current month is empty.</p>
+                </div>
+                <div class="flex gap-3 text-xs text-gray-500 flex-wrap justify-end">
+                    <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full bg-blue-400"></span> Tasks</span>
+                    <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full bg-violet-400"></span> Dues</span>
+                    <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> Done</span>
+                    <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full bg-rose-400"></span> Overdue</span>
+                </div>
+            </div>
+            @include('dashboard.partials.calendar-filters')
+            <div id="dashboardCalendar" style="min-height: 550px;"></div>
+        </div>
+    </div>
+
+    {{-- ===== WORKLOAD TAB ===== --}}
+    <div x-show="activeTab === 'workload'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" style="display:none;">
+        <div class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="glass-card p-6">
+                    <p class="glass-section-title">Pending Tasks</p>
+                    <p class="text-4xl font-black text-gray-900">{{ \App\Models\Task::where('assigned_to', auth()->id())->whereNotIn('status',['Completed','Done','Closed'])->count() }}</p>
+                    <p class="text-gray-500 text-xs mt-1">assigned to me</p>
+                </div>
+                <div class="glass-card p-6">
+                    <p class="glass-section-title">Services Due Now</p>
+                    <p class="text-4xl font-black text-rose-300">{{ $summary['services_due_month'] }}</p>
+                    <p class="text-gray-500 text-xs mt-1">this month</p>
+                </div>
+                <div class="glass-card p-6">
+                    <p class="glass-section-title">Completion Rate</p>
+                    @php
+                        $total = $complianceStats['Pending'] + $complianceStats['Completed'] + $complianceStats['Overdue'];
+                        $rate = $total > 0 ? round(($complianceStats['Completed'] / $total) * 100) : 0;
+                    @endphp
+                    <p class="text-4xl font-black text-emerald-300">{{ $rate }}%</p>
+                    <p class="text-gray-500 text-xs mt-1">this month</p>
+                    <div class="mt-3 h-1.5 bg-gray-50 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-1000" style="width: {{ $rate }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {{-- Task Queue --}}
+                <div class="glass-card p-6">
+                    <p class="glass-section-title">My Task Queue</p>
+                    <ul>
+                        @forelse($myPendingTasks as $task)
+                        <li class="glass-list-item">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-gray-900 font-semibold text-sm">{{ $task->title }}</p>
+                                    <p class="text-violet-300/70 text-xs mt-0.5">{{ $task->client?->name ?? 'Internal' }}</p>
+                                </div>
+                                <span class="text-gray-400 text-xs">{{ $task->due_date->format('M d') }}</span>
+                            </div>
+                        </li>
+                        @empty
+                        <li class="py-6 text-center text-gray-400 text-sm">No pending tasks.</li>
+                        @endforelse
+                    </ul>
+                </div>
+
+                {{-- Deadline breakdown --}}
+                <div class="glass-card p-6">
+                    <p class="glass-section-title">Upcoming Deadlines Breakdown</p>
+                    <div class="space-y-3">
+                        <a href="{{ $deadline7Url }}" class="deadline-pill bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20">
+                            <span class="text-rose-300 font-semibold text-sm">Next 7 Days</span>
+                            <span class="text-rose-300 text-2xl font-black">{{ $upcomingCounts['7_days'] }}</span>
+                        </a>
+                        <a href="{{ $deadline15Url }}" class="deadline-pill bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20">
+                            <span class="text-amber-300 font-semibold text-sm">7 – 15 Days</span>
+                            <span class="text-amber-300 text-2xl font-black">{{ $upcomingCounts['15_days'] - $upcomingCounts['7_days'] }}</span>
+                        </a>
+                        <a href="{{ $deadline30Url }}" class="deadline-pill bg-yellow-500/10 border border-yellow-500/20 hover:bg-yellow-500/20">
+                            <span class="text-yellow-300 font-semibold text-sm">15 – 30 Days</span>
+                            <span class="text-yellow-300 text-2xl font-black">{{ $upcomingCounts['30_days'] - $upcomingCounts['15_days'] }}</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 4. FINANCIALS VIEW (Placeholders) -->
-    <div x-show="activeTab === 'financials'" x-transition.opacity class="w-full">
-        <div class="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-8 text-center text-white shadow-xl">
-            <h3 class="text-2xl font-bold mb-2">Financial Insights</h3>
-            <p class="text-gray-400">Coming soon. Track invoices, payments, and outstanding dues directly from your dashboard.</p>
-            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-                <div class="bg-white/10 backdrop-blur rounded-xl p-6 border border-white/10">
-                    <p class="text-gray-300 text-sm">Outstanding Fees</p>
-                    <p class="text-2xl font-bold mt-2">₹ 0</p>
+    @if($canManageFirm)
+    {{-- ===== FINANCIALS TAB ===== --}}
+    <div x-show="activeTab === 'financials'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" style="display:none;">
+        <div class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="glass-card p-6 kpi-emerald">
+                    <p class="glass-section-title">Outstanding Fees</p>
+                    <p class="text-3xl font-black text-emerald-300">{{ $summary['outstanding_fees'] }}</p>
+                    <p class="text-gray-400 text-xs mt-1">Across all open invoices</p>
                 </div>
-                <div class="bg-white/10 backdrop-blur rounded-xl p-6 border border-white/10">
-                    <p class="text-gray-300 text-sm">Collections (Month)</p>
-                    <p class="text-2xl font-bold mt-2">₹ 0</p>
+                <div class="glass-card p-6 kpi-violet">
+                    <p class="glass-section-title">Overdue Collections</p>
+                    <p class="text-3xl font-black text-violet-300">{{ $summary['overdue_collections'] }}</p>
+                    <p class="text-gray-400 text-xs mt-1">Overdue invoices only</p>
                 </div>
-                <div class="bg-white/10 backdrop-blur rounded-xl p-6 border border-white/10">
-                    <p class="text-gray-300 text-sm">Overdue Invoices</p>
-                    <p class="text-2xl font-bold mt-2">0</p>
+                <div class="glass-card p-6 kpi-blue">
+                    <p class="glass-section-title">Collected This Month</p>
+                    <p class="text-3xl font-black text-blue-300">{{ $summary['collections_this_month'] }}</p>
+                    <p class="text-gray-400 text-xs mt-1">Since 1st {{ now()->format('M') }}</p>
+                </div>
+            </div>
+
+            {{-- Recent Clients --}}
+            <div class="glass-card p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <p class="glass-section-title mb-0">Recently Updated Clients</p>
+                    <a href="{{ route('clients.index') }}" class="text-violet-400 text-xs hover:text-violet-300">View All →</a>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    @foreach($recentClients as $client)
+                    <a href="{{ route('clients.edit', $client) }}" class="flex items-center gap-3 p-3 rounded-xl bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 transition">
+                        <div class="h-9 w-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-violet-300 font-bold text-sm flex-shrink-0">
+                            {{ substr($client->name, 0, 2) }}
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-gray-900 text-sm font-semibold truncate">{{ $client->name }}</p>
+                            <p class="text-gray-400 text-xs">{{ $client->updated_at->diffForHumans() }}</p>
+                        </div>
+                    </a>
+                    @endforeach
                 </div>
             </div>
         </div>
     </div>
+    @endif
 
     @include('partials.welcome-modal')
 </div>
 @endsection
 
 @section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
-<!-- GridStack JS -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/10.0.1/gridstack.min.css" rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/10.0.1/gridstack-all.js"></script>
-
-<style>
-    .grid-stack-item-content {
-        background: transparent;
-    }
-
-    .grid-stack-item-content>.bg-white {
-        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    }
-</style>
-
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize GridStack
-        var grid = GridStack.init({
-            cellHeight: 100,
-            margin: 10,
-            handleClass: 'drag-handle', // Restrict dragging to the header handle
-            alwaysShowResizeHandle: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
-            disableOneColumnMode: true,
-            float: true,
-            acceptWidgets: true,
-            dragIn: '.grid-stack-item', // Allow internal dragging
-            animate: false // Disable animation to prevent "flying" widgets on load
-        });
+function calendarFilterBar() {
+    var initial = @json($calendarFilters->toQueryArray());
+    return {
+        showTasks: initial.show_tasks !== '0',
+        showDues: initial.show_dues !== '0',
+        dueStatus: initial.due_status || 'active',
+        serviceId: initial.service_id ? String(initial.service_id) : '',
+        assignedTo: initial.assigned_to ? String(initial.assigned_to) : '',
+        branchId: initial.branch_id ? String(initial.branch_id) : '',
+        category: initial.category || '',
+        queryParams() {
+            var p = new URLSearchParams();
+            p.set('show_tasks', this.showTasks ? '1' : '0');
+            p.set('show_dues', this.showDues ? '1' : '0');
+            p.set('due_status', this.dueStatus);
+            if (this.serviceId) p.set('service_id', this.serviceId);
+            if (this.assignedTo) p.set('assigned_to', this.assignedTo);
+            if (this.branchId) p.set('branch_id', this.branchId);
+            if (this.category) p.set('category', this.category);
+            return p.toString();
+        },
+        apply() {
+            if (!window.calendar) return;
+            fetch('{{ route('calendar.events') }}?' + this.queryParams(), {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                window.calendar.removeAllEvents();
+                window.calendar.addEventSource(data.events || []);
+            });
+        },
+        reset() {
+            this.showTasks = true;
+            this.showDues = true;
+            this.dueStatus = 'active';
+            this.serviceId = '';
+            this.assignedTo = '';
+            this.branchId = '';
+            this.category = '';
+            this.apply();
+        }
+    };
+}
 
-        // Load saved layout
-        let savedLayout = localStorage.getItem('dashboard_layout');
-        if (savedLayout) {
-            grid.load(JSON.parse(savedLayout));
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('dashboardCalendar');
+    if(!calendarEl) return;
+    var events = @json($calendarEvents);
+
+    function getInitialCalendarDate(calendarEvents) {
+        if (!calendarEvents.length) {
+            return undefined;
         }
 
-        // Show grid after a safety delay to ensure layout is settled
-        setTimeout(() => {
-            document.querySelector('.grid-stack').style.opacity = '1';
-        }, 300);
+        var today = new Date();
+        var todayMonth = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
 
-        // Save layout on change
-        grid.on('change', function(event, items) {
-            let serializedData = grid.save();
-            localStorage.setItem('dashboard_layout', JSON.stringify(serializedData));
+        if (calendarEvents.some(function(event) {
+            return (event.start || '').slice(0, 7) === todayMonth;
+        })) {
+            return undefined;
+        }
+
+        var candidates = calendarEvents.slice().sort(function(a, b) {
+            var aDiff = Math.abs(new Date(a.start + 'T00:00:00') - today);
+            var bDiff = Math.abs(new Date(b.start + 'T00:00:00') - today);
+            return aDiff - bDiff;
         });
 
-        // Handle Resize - Force Calendar/Charts to redraw
-        grid.on('resizestop', function(event, el) {
-            setTimeout(() => {
-                if (window.calendar) {
-                    window.calendar.updateSize();
-                }
-                window.dispatchEvent(new Event('resize'));
-            }, 50);
-        });
+        return candidates[0] ? candidates[0].start : undefined;
+    }
 
-        // 1. FullCalendar Initialization
-        var calendarEl = document.getElementById('dashboardCalendar');
-        window.calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            height: '100%', // Adapt to container
-            handleWindowResize: true, // Auto-resize on window resize
-            eventDisplay: 'block',
-            // --- UPDATED CONFIGURATION FOR CLEANER LOOK ---
-            dayMaxEvents: 2, // Collapses events into "+X more" popover
-            editable: true, // Keep Drag & Drop
-            droppable: true,
-
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,listWeek'
-            },
-            events: @json($calendarEvents),
-
-            // Use Standard Colors if possible, but we already set BG colors in controller. 
-            // We just ensure text is white here.
-            eventTextColor: '#ffffff',
-
-            // Custom Event Rendering
-            eventContent: function(arg) {
-                let clientName = arg.event.extendedProps.client_name || '';
-                let details = arg.event.extendedProps.details || arg.event.title;
-
-                let contentEl = document.createElement('div');
-                // Added 'truncate' and fixed width handling for clean look
-                contentEl.className = 'px-1.5 py-1 text-xs leading-tight overflow-hidden w-full';
-                contentEl.setAttribute('title', clientName + ': ' + details); // Tooltip
-
-                // Force single line or limited lines to avoid "dragging name" look
-                contentEl.innerHTML = `
-                    <div class="font-bold truncate">${clientName}</div>
-                    <div class="truncate opacity-90 text-[10px]">${details}</div>
-                `;
-
-                return {
-                    domNodes: [contentEl]
-                };
-            },
-
-            // Handle Event Drop (Date Change)
-            eventDrop: function(info) {
-                var newDate = info.event.startStr;
-                var eventId = info.event.id;
-                var type = info.event.extendedProps.type;
-                var dbId = info.event.extendedProps.db_id;
-
-                if (!confirm("Reschedule " + type + " to " + newDate + "?")) {
-                    info.revert();
-                    return;
-                }
-
-                // AJAX Call to update date (Logic to be implemented in Backend)
-                fetch('/calendar/update-date', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            type: type,
-                            id: dbId,
-                            new_date: newDate
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Success toast or quiet
-                            console.log('Date updated');
-                        } else {
-                            alert('Failed to update date');
-                            info.revert();
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        info.revert();
-                    });
-            },
-
-            // Handle Event Click (View Details)
-            eventClick: function(info) {
-                // Dispatch Alpine event
-                window.dispatchEvent(new CustomEvent('open-calendar-modal', {
-                    detail: {
-                        id: info.event.id,
-                        title: info.event.extendedProps.details || info.event.title,
-                        type: info.event.extendedProps.type,
-                        db_id: info.event.extendedProps.db_id,
-                        client_name: info.event.extendedProps.client_name,
-                        start: info.event.startStr
-                    }
-                }));
-            },
-
-            // Handle Date Click (Create Task)
-            dateClick: function(info) {
-                // Optional: Open quick create modal in future
+    window.calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        initialDate: getInitialCalendarDate(events),
+        height: 'auto',
+        handleWindowResize: true,
+        eventDisplay: 'block',
+        dayMaxEvents: 3,
+        editable: true,
+        eventStartEditable: true,
+        eventDurationEditable: false,
+        eventDragMinDistance: 4,
+        longPressDelay: 0,
+        eventLongPressDelay: 0,
+        droppable: true,
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,listWeek'
+        },
+        events: events,
+        eventTextColor: '#ffffff',
+        eventContent: function(arg) {
+            if (arg.view.type === 'listWeek') {
+                 // Fast fallback: let standard rendering apply for list view
+                 return null;
             }
-        });
-        window.calendar.render();
-
+            let clientName = arg.event.extendedProps.client_name || '';
+            let details = arg.event.extendedProps.details || arg.event.title;
+            let el = document.createElement('div');
+            el.className = 'px-1.5 py-0.5 text-xs leading-tight overflow-hidden w-full';
+            el.setAttribute('title', clientName + ': ' + details);
+            el.innerHTML = `<div class="font-bold truncate">${clientName}</div><div class="truncate opacity-75 text-[10px]">${details}</div>`;
+            return { domNodes: [el] };
+        },
+        eventDrop: function(info) {
+            var newDate = info.event.startStr;
+            var type = info.event.extendedProps.type;
+            var dbId = info.event.extendedProps.db_id;
+            if (!confirm("Reschedule to " + newDate + "?")) { info.revert(); return; }
+            fetch('/calendar/update-date', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+                body: JSON.stringify({type: type, id: dbId, new_date: newDate})
+            }).then(r => r.json()).then(data => {
+                if (!data.success) { alert('Failed to update date'); info.revert(); }
+            }).catch(() => { info.revert(); });
+        },
+        eventClick: function(info) {
+            window.dispatchEvent(new CustomEvent('open-calendar-modal', {
+                detail: {
+                    id: info.event.id,
+                    title: info.event.extendedProps.details || info.event.title,
+                    type: info.event.extendedProps.type,
+                    db_id: info.event.extendedProps.db_id,
+                    client_name: info.event.extendedProps.client_name,
+                    start: info.event.startStr
+                }
+            }));
+        },
+        eventDidMount: function(info) {
+            if (info.event.extendedProps.type !== 'done') {
+                info.el.style.cursor = 'move';
+            }
+        },
+        dateClick: function(info) {
+            document.getElementById('selectedDateText').innerText = info.dateStr;
+            document.getElementById('btnAddTask').href = "{{ route('tasks.create') }}?due_date=" + info.dateStr;
+            document.getElementById('dateClickModal').classList.remove('hidden');
+        }
     });
+    window.calendar.render();
+});
 </script>
 
 @include('partials.calendar-event-modal')
 
-<style>
-    /* Beautiful Calendar Styling */
-    .fc {
-        font-family: 'Inter', sans-serif;
-    }
+<!-- Date Click Action Modal -->
+<div id="dateClickModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-gray-900/50 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 transform transition-all">
+        <h3 class="text-lg font-bold text-gray-900 mb-2">Add to Schedule</h3>
+        <p class="text-sm text-gray-500 mb-6">What would you like to add on <span id="selectedDateText" class="font-semibold text-violet-600"></span>?</p>
+        
+        <div class="space-y-3">
+            <a id="btnAddTask" href="#" class="flex items-center gap-3 w-full p-3 rounded-xl border border-gray-200 hover:border-violet-300 hover:bg-violet-50 transition">
+                <div class="h-10 w-10 rounded-lg bg-violet-100 flex items-center justify-center text-violet-600 text-lg">📋</div>
+                <div class="text-left">
+                    <div class="text-sm font-bold text-gray-900">Add Task</div>
+                    <div class="text-xs text-gray-500">Assign work or deadline</div>
+                </div>
+            </a>
+            
+            <a href="{{ route('clients.create') }}" class="flex items-center gap-3 w-full p-3 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition">
+                <div class="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 text-lg">🏢</div>
+                <div class="text-left">
+                    <div class="text-sm font-bold text-gray-900">Add Client</div>
+                    <div class="text-xs text-gray-500">Register new client</div>
+                </div>
+            </a>
+            
+            <a href="{{ route('expenses.create') }}" class="flex items-center gap-3 w-full p-3 rounded-xl border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50 transition">
+                <div class="h-10 w-10 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 text-lg">💸</div>
+                <div class="text-left">
+                    <div class="text-sm font-bold text-gray-900">Add Expense</div>
+                    <div class="text-xs text-gray-500">Record a payment out</div>
+                </div>
+            </a>
+        </div>
+        
+        <button type="button" onclick="document.getElementById('dateClickModal').classList.add('hidden')" class="mt-6 w-full py-2.5 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition">Cancel</button>
+    </div>
+</div>
 
-    /* Ensure widgets handle resize gracefully */
-    .grid-stack-item-content {
-        height: 100% !important;
-        overflow: hidden;
-        /* Prevent spillover */
-    }
-
-    .fc .fc-toolbar-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #1f2937;
-    }
-
-    /* Responsive font for smaller widgets */
-    @media (max-width: 768px) {
-        .fc .fc-toolbar-title {
-            font-size: 1rem;
-        }
-    }
-
-    .fc .fc-button-primary {
-        background-color: white;
-        border: 1px solid #e5e7eb;
-        color: #374151;
-        font-weight: 500;
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    }
-
-    .fc .fc-button-primary:hover {
-        background-color: #f9fafb;
-        border-color: #d1d5db;
-        color: #111827;
-    }
-
-    .fc .fc-button-primary:not(:disabled).fc-button-active,
-    .fc .fc-button-primary:not(:disabled):active {
-        background-color: #4f46e5;
-        border-color: transparent;
-        color: white;
-    }
-
-    /* Event Styling Override for consistency */
-    .fc-event {
-        border: none !important;
-        border-radius: 4px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
-
-    .fc-theme-standard td,
-    .fc-theme-standard th {
-        border-color: #f3f4f6;
-    }
-
-    .fc-col-header-cell-cushion {
-        padding: 8px;
-        color: #6b7280;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .fc-daygrid-day-number {
-        color: #4b5563;
-        font-weight: 500;
-        padding: 8px;
-    }
-
-    .fc-day-today {
-        background-color: #fcfaff !important;
-    }
-
-    /* Popover styling for +X more */
-    .fc-popover {
-        border-radius: 8px !important;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
-        border: 1px solid #f3f4f6 !important;
-        z-index: 50 !important;
-    }
-</style>
 @endsection

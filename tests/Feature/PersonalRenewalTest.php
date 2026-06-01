@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class PersonalRenewalTest extends TestCase
@@ -24,7 +25,7 @@ class PersonalRenewalTest extends TestCase
         Storage::fake('public');
     }
 
-    /** @test */
+    #[Test]
     public function it_can_create_renewal_for_client_with_document()
     {
         $client = Client::factory()->create();
@@ -55,7 +56,7 @@ class PersonalRenewalTest extends TestCase
         Storage::disk('public')->assertExists($renewal->document_path);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_delete_renewal_and_file()
     {
         $client = Client::factory()->create();
@@ -80,5 +81,54 @@ class PersonalRenewalTest extends TestCase
 
         $this->assertDatabaseMissing('personal_renewals', ['id' => $renewal->id]);
         Storage::disk('public')->assertMissing($path);
+    }
+
+    #[Test]
+    public function it_can_reschedule_own_renewal_from_calendar()
+    {
+        $renewal = PersonalRenewal::create([
+            'user_id' => $this->user->id,
+            'title' => 'Calendar Renewal',
+            'category' => 'LIC',
+            'amount' => 1000,
+            'due_date' => '2025-01-01',
+            'status' => 'Pending',
+        ]);
+
+        $response = $this->postJson(route('calendar.update'), [
+            'type' => 'renewal',
+            'id' => $renewal->id,
+            'new_date' => '2025-01-15',
+        ]);
+
+        $response->assertOk()->assertJson(['success' => true]);
+
+        $this->assertDatabaseHas('personal_renewals', [
+            'id' => $renewal->id,
+            'due_date' => '2025-01-15 00:00:00',
+        ]);
+    }
+
+    #[Test]
+    public function it_passes_plain_calendar_events_to_the_renewals_view()
+    {
+        $renewal = PersonalRenewal::create([
+            'user_id' => $this->user->id,
+            'title' => 'Array Renewal',
+            'category' => 'LIC',
+            'amount' => 1500,
+            'due_date' => '2025-03-01',
+            'status' => 'Pending',
+        ]);
+
+        $response = $this->get(route('personal-renewals.index'));
+
+        $response->assertOk();
+
+        $events = $response->viewData('events');
+
+        $this->assertIsArray($events);
+        $this->assertSame('renewal_' . $renewal->id, $events[0]['id']);
+        $this->assertSame($renewal->id, $events[0]['extendedProps']['db_id']);
     }
 }

@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>RLA Dashboard v2.1</title>
 
     <!-- Fonts -->
@@ -11,19 +12,20 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- PWA -->
+    <!-- PWA / mobile install hints -->
     <meta name="theme-color" content="#4f46e5">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="RLA Dashboard">
     <link rel="manifest" href="/build/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/favicon.ico">
 
     <!-- Scripts & Styles -->
     <!-- Scripts & Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-
         /* Zen Mode */
         body.zen-mode #sidebar {
             transform: translateX(-100%);
@@ -51,6 +53,7 @@
             background: rgba(255, 255, 255, 0.2);
         }
     </style>
+    @stack('head_styles')
     <script>
         // Check local storage for Zen Mode
         if (localStorage.getItem('zen-mode') === 'true') {
@@ -66,190 +69,375 @@
     </script>
 </head>
 
-<body class="h-full theme-modern">
-    <div class="min-h-full bg-bg-body text-text-main">
+<body class="h-full theme-{{ auth()->user()?->theme ?? 'modern' }}">
+    <div class="min-h-full bg-bg-body text-text-main" x-data>
+        <div id="sidebar-overlay" class="fixed inset-0 z-40 bg-slate-900/50 lg:hidden" onclick="closeMobileSidebar()" aria-hidden="true"></div>
+
         <!-- Sidebar -->
-        <div class="fixed inset-y-0 left-0 z-50 w-64 bg-sidebar text-white transition-transform duration-300 ease-in-out transform flex flex-col" id="sidebar">
+        <div class="fixed inset-y-0 left-0 z-50 w-64 bg-sidebar text-white transition-transform duration-300 ease-in-out transform flex flex-col lg:translate-x-0" id="sidebar">
             <div class="flex-shrink-0 flex items-center justify-center h-16 bg-white/10 shadow-md">
                 <h1 class="text-xl font-bold tracking-wider">RLA DASHBOARD</h1>
             </div>
 
-            <nav class="flex-1 mt-5 px-4 space-y-2 overflow-y-auto custom-scrollbar pb-10">
-                <a href="{{ route('dashboard') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
-                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('dashboard') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                    Dashboard
-                </a>
+            <nav class="flex-1 mt-5 px-4 space-y-6 overflow-y-auto custom-scrollbar pb-10">
+                @php
+                    $user = auth()->user();
+                    $canManageFirm = $user?->managesFirmModules();
+                    $isPartner = $user?->isPartner();
+                    $isArticle = $user?->isArticle();
+                    $mod = fn (string $key) => $user?->canAccessModule($key) ?? false;
+                    $showFinance = $mod('billing') || $user?->canViewPortfolioInvoices() || $mod('payments') || $mod('expenses') || $mod('subscriptions');
+                @endphp
 
-                <a href="{{ route('leaves.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('leaves.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
-                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('leaves.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    Leaves
-                </a>
+                @if($isArticle)
+                <!-- Article / Clerk Custom Menu -->
+                <div class="space-y-1">
+                    <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
+                        My Work
+                    </p>
+                    @if($mod('tasks'))
+                    <a href="{{ route('tasks.my-day') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('tasks.my-day') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        My Day
+                    </a>
+                    <a href="{{ route('tasks.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('tasks.index') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('tasks.index') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+                        My Tasks
+                    </a>
+                    @endif
+                    @can('create', App\Models\Client::class)
+                    <a href="{{ route('clients.create') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('clients.create') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('clients.create') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Submit Client
+                    </a>
+                    @endcan
+                </div>
+                @else
+                
+                @if($mod('dashboard') || $isPartner)
+                <!-- 1. CORE DASHBOARD -->
+                <div class="space-y-1">
+                    @if($mod('dashboard'))
+                    <a href="{{ route('dashboard') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('dashboard') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        Dashboard
+                    </a>
+                    @endif
+                    @if($isPartner)
+                    <a href="{{ route('partner.dashboard') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('partner.dashboard') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('partner.dashboard') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Partner Overview
+                    </a>
+                    @endif
+                </div>
+                @endif
 
-                <!-- Client 360 -->
-                <a href="{{ route('clients.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('clients.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
-                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('clients.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    Clients
-                </a>
+                @if($mod('clients') || $mod('credentials') || $mod('smart_documents'))
+                <!-- 2. CLIENT 360 -->
+                <div class="pt-4 border-t border-white/5 space-y-1">
+                    <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
+                        Client 360
+                    </p>
+                    @if($mod('clients'))
+                    <a href="{{ route('clients.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('clients.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('clients.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Clients
+                    </a>
+                    @endif
+                    @if($mod('credentials'))
+                    <a href="{{ route('credentials.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('credentials.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('credentials.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        Passwords
+                    </a>
+                    @endif
+                    @if($canManageFirm)
+                    <a href="{{ route('document-ingestions.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('document-ingestions.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        Doc review
+                    </a>
+                    @endif
+                    @if($mod('smart_documents'))
+                    <a href="{{ route('smart-documents.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('smart-documents.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('smart-documents.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                        </svg>
+                        Smart Archive
+                    </a>
+                    @endif
+                </div>
+                @endif
 
-                <a href="{{ route('tasks.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('tasks.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
-                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('tasks.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                    </svg>
-                    Tasks
-                </a>
+                @if($mod('tasks') || $mod('staff'))
+                <!-- 3. WORK MANAGEMENT -->
+                <div class="pt-4 border-t border-white/5 space-y-1">
+                    <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
+                        Work Management
+                    </p>
+                    @if($mod('tasks'))
+                    <a href="{{ route('tasks.my-day') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('tasks.my-day') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        My Day
+                    </a>
+                    <a href="{{ route('tasks.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('tasks.index') || request()->routeIs('tasks.create') || request()->routeIs('tasks.edit') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('tasks.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+                        Tasks
+                    </a>
+                    @endif
+                    @if($mod('staff'))
+                    <a href="{{ route('staff.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('staff.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('staff.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Staff Directory
+                    </a>
+                    @endif
+                    @if($canManageFirm && $mod('tasks'))
+                    <a href="{{ route('workload.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('workload.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('workload.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 0v10" />
+                        </svg>
+                        Workload Planner
+                    </a>
+                    @endif
+                    @if($mod('tasks'))
+                    <a href="{{ route('time-entries.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('time-entries.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('time-entries.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Time Tracking
+                    </a>
+                    @endif
+                    @if($mod('staff') && $canManageFirm)
+                    <a href="{{ route('leaves.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('leaves.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('leaves.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Leaves
+                    </a>
+                    @endif
+                </div>
+                @endif
 
-                <a href="{{ route('service-dues.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('service-dues.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
-                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('service-dues.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Reminders
-                </a>
+                @if($mod('service_dues') || $mod('personal_renewals') || $mod('dsc') || $mod('tds'))
+                <!-- 4. COMPLIANCE -->
+                <div class="pt-4 border-t border-white/5 space-y-1">
+                    <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
+                        Compliance
+                    </p>
+                    @if($mod('service_dues'))
+                    <a href="{{ route('service-dues.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('service-dues.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('service-dues.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Reminders
+                    </a>
+                    @endif
+                    @if($mod('personal_renewals'))
+                    <a href="{{ route('personal-renewals.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('personal-renewals.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('personal-renewals.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Personal Renewals
+                    </a>
+                    @endif
+                    @if($mod('dsc'))
+                    <a href="{{ route('dscs.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('dscs.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('dscs.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                        </svg>
+                        DSC Tracker
+                    </a>
+                    @endif
+                    @if($mod('tds'))
+                    <a href="{{ route('tds.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('tds.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('tds.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.5m.5.5h.5m.5.5h.5m.5.5h.5m-5 5h.5m.5.5h.5m.5.5h.5m.5.5h.5" />
+                        </svg>
+                        TDS Management
+                    </a>
+                    @endif
+                </div>
+                @endif
 
-                <a href="{{ route('personal-renewals.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('personal-renewals.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
-                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('personal-renewals.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    Personal Renewals
-                </a>
+                <!-- 5. FINANCE & BILLING -->
+                @if($showFinance)
+                <div class="pt-4 border-t border-white/5 space-y-1">
+                    <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
+                        Finance & Billing
+                    </p>
+                    @if($mod('billing'))
+                    <a href="{{ route('billing.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('billing.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('billing.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                        Billing Queue
+                    </a>
+                    @endif
+                    @if($mod('invoices') || auth()->user()?->canViewPortfolioInvoices())
+                    <a href="{{ route('invoices.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('invoices.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('invoices.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        {{ auth()->user()?->isAssociate() ? 'My Client Invoices' : 'Invoices' }}
+                    </a>
+                    @endif
+                    @if($mod('payments') && $canManageFirm)
+                    <a href="{{ route('collections.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('collections.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                        Collections
+                    </a>
+                    @endif
+                    @if($mod('payments'))
+                    <a href="{{ route('payments.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('payments.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('payments.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Payments
+                    </a>
+                    @endif
+                    @if($mod('expenses'))
+                    <a href="{{ route('expenses.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('expenses.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('expenses.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        Expenses
+                    </a>
+                    @endif
+                    @if($mod('subscriptions'))
+                    <a href="{{ route('subscriptions.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('subscriptions.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('subscriptions.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Subscriptions
+                    </a>
+                    @endif
+                </div>
+                @endif
 
-                <a href="{{ route('invoices.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('invoices.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
-                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('invoices.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    Invoices
-                </a>
-
-                <a href="{{ route('payments.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('payments.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
-                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('payments.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    Payments
-                </a>
-
-                <a href="{{ route('subscriptions.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('subscriptions.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
-                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('subscriptions.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    Retainers
-                </a>
-
-                <a href="{{ route('expenses.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('expenses.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
-                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('expenses.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    Expenses
-                </a>
-
-                <a href="{{ route('dscs.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('dscs.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
-                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('dscs.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                    </svg>
-                    DSC Tracker
-                </a>
-
-                <a href="{{ route('tds.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('tds.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
-                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('tds.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.5m.5.5h.5m.5.5h.5m.5.5h.5m-5 5h.5m.5.5h.5m.5.5h.5m.5.5h.5" />
-                    </svg>
-                    TDS Management
-                </a>
-
-                <a href="{{ route('time-entries.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('time-entries.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
-                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('time-entries.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Time Tracking
-                </a>
-
-                <!-- REPORTS DROPDOWN -->
-                <div x-data="{ open: {{ request()->routeIs('reports.*') || request()->routeIs('employees.*') || request()->routeIs('compliance.*') ? 'true' : 'false' }} }">
-                    <button @click="open = !open" class="group w-full flex items-center justify-between px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5 focus:outline-none">
+                <!-- 6. REPORTS & 360° -->
+                @if($mod('reports') || $mod('compliance'))
+                <div class="pt-4 border-t border-white/5" x-data="{ open: {{ request()->routeIs('reports.*') || request()->routeIs('compliance.index') ? 'true' : 'false' }} }">
+                    <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
+                        Analytics
+                    </p>
+                    <button @click="open = !open" class="group w-full flex items-center justify-between px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('reports.*') || request()->routeIs('compliance.index') ? 'text-white bg-white/5' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1' }} focus:outline-none">
                         <div class="flex items-center">
-                            <svg class="mr-3 flex-shrink-0 h-5 w-5 text-slate-500 group-hover:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('reports.*') || request()->routeIs('compliance.index') ? 'text-indigo-400' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                             Reports & 360°
                         </div>
-                        <svg class="w-4 h-4 transition-transform transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 transition-transform transform duration-200" :class="{ 'rotate-180 text-white': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
                     <!-- Submenu -->
-                    <div x-show="open" class="space-y-1 pl-12 pr-2" style="display: none;">
-                        <a href="{{ route('employees.index') }}" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md {{ request()->routeIs('employees.*') ? 'text-white' : 'text-slate-400 hover:text-white' }}">
-                            Team 360°
-                        </a>
-                        <a href="{{ route('compliance.index') }}" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md {{ request()->routeIs('compliance.*') ? 'text-white' : 'text-slate-400 hover:text-white' }}">
+                    <div x-show="open" 
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="transform opacity-0 scale-95"
+                         x-transition:enter-end="transform opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-75"
+                         x-transition:leave-start="transform opacity-100 scale-100"
+                         x-transition:leave-end="transform opacity-0 scale-95"
+                         class="space-y-1 pl-12 pr-2 mt-1" 
+                         style="display: none;">
+                        <a href="{{ route('compliance.index') }}" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md transition-all duration-150 {{ request()->routeIs('compliance.index') ? 'text-white font-bold bg-indigo-500/20' : 'text-slate-400 hover:text-white hover:pl-3' }}">
                             Compliance 360°
                         </a>
-                        <a href="{{ route('reports.index') }}?tab=service" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md text-slate-400 hover:text-white">
+                        <a href="{{ route('reports.index') }}?tab=service" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md transition-all duration-150 {{ request()->routeIs('reports.index') && request()->get('tab') == 'service' ? 'text-white font-bold bg-indigo-500/20' : 'text-slate-400 hover:text-white hover:pl-3' }}">
                             Service Report
                         </a>
-                        <a href="{{ route('reports.financial') }}?tab=income" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md text-slate-400 hover:text-white">
+                        <a href="{{ route('reports.financial') }}?tab=income" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md transition-all duration-150 {{ request()->routeIs('reports.financial') || (request()->routeIs('reports.*') && request()->get('tab') == 'income') ? 'text-white font-bold bg-indigo-500/20' : 'text-slate-400 hover:text-white hover:pl-3' }}">
                             Income Wise
                         </a>
-                        <a href="{{ route('reports.compliance') }}?tab=due_date" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md text-slate-400 hover:text-white">
+                        <a href="{{ route('reports.compliance') }}?tab=due_date" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md transition-all duration-150 {{ request()->routeIs('reports.compliance') || (request()->routeIs('reports.*') && request()->get('tab') == 'due_date') ? 'text-white font-bold bg-indigo-500/20' : 'text-slate-400 hover:text-white hover:pl-3' }}">
                             Due Date Report
                         </a>
+                        @if($canManageFirm)
+                        <a href="{{ route('reports.staff-productivity') }}" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md transition-all duration-150 {{ request()->routeIs('reports.staff-productivity') ? 'text-white font-bold bg-indigo-500/20' : 'text-slate-400 hover:text-white hover:pl-3' }}">
+                            Staff Productivity
+                        </a>
+                        <a href="{{ route('reports.client-profitability') }}" class="group flex items-center px-2 py-2 text-xs font-semibold rounded-md transition-all duration-150 {{ request()->routeIs('reports.client-profitability') ? 'text-white font-bold bg-indigo-500/20' : 'text-slate-400 hover:text-white hover:pl-3' }}">
+                            Client Profitability
+                        </a>
+                        @endif
                     </div>
                 </div>
+                @endif
 
-                <a href="{{ route('smart-documents.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('smart-documents.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
-                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('smart-documents.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                    </svg>
-                    Smart Archive
-                </a>
-
-                <a href="{{ route('activity.index') }}" class="group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('activity.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
-                    <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('activity.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                    The Pulse
-                </a>
-
-                <div class="mt-8 px-2">
-                    <p class="px-2 text-xs font-extrabold text-slate-500 uppercase tracking-widest">
+                <!-- 7. ADMINISTRATION / OPERATIONS -->
+                @if($mod('activity') || $canManageFirm || $mod('system'))
+                <div class="pt-4 border-t border-white/5 space-y-1">
+                    <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
                         Administration
                     </p>
-                    <a href="{{ route('recycle-bin.index') }}" class="group flex items-center px-4 py-3 mt-2 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('recycle-bin.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                    @if($mod('activity'))
+                    <a href="{{ route('activity.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('activity.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('activity.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        The Pulse
+                    </a>
+                    @endif
+                    @if($canManageFirm)
+                    <a href="{{ route('recycle-bin.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('recycle-bin.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
                         <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('recycle-bin.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                         Recycle Bin
                     </a>
-                    <a href="{{ route('services.index') }}" class="group flex items-center px-4 py-3 mt-2 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('services.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                    @endif
+                    @if($mod('service_dues') && $canManageFirm)
+                    <a href="{{ route('services.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('services.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
                         <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('services.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                         Service Master
                     </a>
-                    <a href="{{ route('system.index') }}" class="group flex items-center px-4 py-3 mt-2 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('system.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:pl-5' }}">
+                    @endif
+                    @if($mod('system') && $isPartner)
+                    <a href="{{ route('system.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('system.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
                         <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('system.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V9a2 2 0 012-2h2a2 2 0 012 2v10" />
                         </svg>
                         System Health
                     </a>
+                    @endif
                 </div>
+                @endif
+                @endif
             </nav>
         </div>
 
         <!-- Main Content -->
-        <div class="pl-64 flex flex-col min-h-screen">
+        <div class="main-shell pl-64 flex flex-col min-h-screen">
             <!-- Header -->
             <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 sticky top-0 z-40">
-                <div class="px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-                    <h2 class="text-2xl font-bold text-gray-800 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-indigo-400">
-                        @yield('header', 'Dashboard')
-                    </h2>
+                <div class="px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center gap-3">
+                    <div class="flex items-center gap-3 min-w-0 flex-1">
+                        <button type="button" onclick="openMobileSidebar()" class="lg:hidden flex-shrink-0 p-2 -ml-1 rounded-lg text-slate-600 hover:bg-slate-100 focus:outline-none" aria-label="Open menu">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                        </button>
+                        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-indigo-400 truncate min-w-0">
+                            @yield('header', 'Dashboard')
+                        </h2>
+                    </div>
                     <div class="flex items-center space-x-4">
                         <!-- Search Trigger -->
                         <div class="hidden md:flex items-center mr-2" x-data @click="$dispatch('keydown.window.prevent.ctrl.k')">
@@ -333,18 +521,36 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('settings.index') }}" class="flex items-center space-x-2 group">
-                            <span class="text-sm text-gray-600 group-hover:text-indigo-600">Admin User</span>
-                            <div class="h-8 w-8 rounded-full bg-primary-500 flex items-center justify-center text-white font-bold group-hover:ring-2 ring-indigo-500">
-                                A
+                        <div class="relative" x-data="{ profileOpen: false }">
+                            <button type="button" @click="profileOpen = !profileOpen" class="flex items-center space-x-2 group rounded-lg px-2 py-1 hover:bg-gray-50 focus:outline-none">
+                                <span class="text-sm font-medium text-gray-700 group-hover:text-indigo-600 max-w-[140px] truncate">{{ $user?->name }}</span>
+                                <div class="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-bold group-hover:ring-2 ring-indigo-400">
+                                    {{ strtoupper(substr($user?->name ?? 'U', 0, 1)) }}
+                                </div>
+                            </button>
+                            <div x-show="profileOpen" @click.away="profileOpen = false" style="display: none;"
+                                class="origin-top-right absolute right-0 mt-2 w-52 rounded-lg shadow-lg py-1 bg-white ring-1 ring-black/5 z-50">
+                                <div class="px-4 py-2 border-b border-gray-100">
+                                    <p class="text-sm font-semibold text-gray-900 truncate">{{ $user?->name }}</p>
+                                    <p class="text-xs text-gray-500 capitalize">{{ $user?->role }}</p>
+                                </div>
+                                @if($mod('settings'))
+                                <a href="{{ route('settings.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Profile &amp; settings</a>
+                                @endif
+                                <form method="POST" action="{{ route('logout') }}" class="border-t border-gray-100">
+                                    @csrf
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium">
+                                        Sign out
+                                    </button>
+                                </form>
                             </div>
-                        </a>
+                        </div>
                     </div>
                 </div>
             </header>
 
             <!-- Page Content -->
-            <main class="flex-1 py-8 px-4 sm:px-6 lg:px-8 animate-enter">
+            <main class="main-content-pad flex-1 py-8 px-4 sm:px-6 lg:px-8 animate-enter">
                 @if(session('success'))
                 <div class="mb-4 bg-green-50 border-l-4 border-green-500 p-4">
                     <div class="flex">
@@ -405,6 +611,7 @@
             </main>
         </div>
     </div>
+    @stack('scripts')
     @yield('scripts')
 
     <script>
@@ -450,7 +657,30 @@
         }
     </script>
 
+    @include('partials.mobile-bottom-nav')
     @include('partials.search-modal')
+
+    <script>
+        function openMobileSidebar() {
+            document.getElementById('sidebar')?.classList.add('mobile-open');
+            document.getElementById('sidebar-overlay')?.classList.add('visible');
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closeMobileSidebar() {
+            document.getElementById('sidebar')?.classList.remove('mobile-open');
+            document.getElementById('sidebar-overlay')?.classList.remove('visible');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        document.querySelectorAll('#sidebar a').forEach((link) => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 1024) {
+                    closeMobileSidebar();
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

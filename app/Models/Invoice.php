@@ -12,6 +12,42 @@ class Invoice extends Model
 {
     use HasFactory, LogsActivity, SoftDeletes;
 
+    public const STATUS_DRAFT = 'Draft';
+    public const STATUS_PAID = 'Paid';
+    public const STATUS_OVERDUE = 'Overdue';
+    public const STATUS_PARTIALLY_PAID = 'Partially Paid';
+    public const STATUS_CANCELLED = 'Cancelled';
+
+    public const STATUSES = [
+        self::STATUS_DRAFT,
+        self::STATUS_PAID,
+        self::STATUS_OVERDUE,
+        self::STATUS_PARTIALLY_PAID,
+        self::STATUS_CANCELLED,
+    ];
+
+    public const OPEN_STATUSES = [
+        self::STATUS_DRAFT,
+        self::STATUS_OVERDUE,
+        self::STATUS_PARTIALLY_PAID,
+    ];
+
+    public const PAYABLE_STATUSES = [
+        self::STATUS_DRAFT,
+        self::STATUS_OVERDUE,
+        self::STATUS_PARTIALLY_PAID,
+    ];
+
+    public static function selectableStatuses(): array
+    {
+        return [
+            self::STATUS_DRAFT,
+            self::STATUS_PAID,
+            self::STATUS_OVERDUE,
+            self::STATUS_PARTIALLY_PAID,
+        ];
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -23,6 +59,9 @@ class Invoice extends Model
     protected $fillable = [
         'client_id',
         'invoice_number',
+        'reference_number',
+        'work_period',
+        'project_name',
         'date',
         'due_date',
         'status',
@@ -36,6 +75,7 @@ class Invoice extends Model
         'reverse_charge',
         'financial_year',
         'notes',
+        'payment_url',
         'branch_id',
     ];
 

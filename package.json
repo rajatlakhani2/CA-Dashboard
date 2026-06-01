@@ -5,7 +5,9 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "start": "concurrently \"php artisan serve\" \"npm run dev\""
+        "start": "concurrently \"php artisan serve\" \"npm run dev\"",
+        "test:browser": "node browser-live-qa.cjs",
+        "test:production": "node production-smoke.cjs"
     },
     "devDependencies": {
         "@tailwindcss/postcss": "^4.1.18",

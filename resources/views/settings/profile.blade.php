@@ -32,6 +32,11 @@
                     </div>
 
                     <div class="col-span-6 sm:col-span-4">
+                        <label for="mobile" class="block text-sm font-medium text-gray-700">Mobile Number (For WhatsApp Reminders)</label>
+                        <input type="text" name="mobile" id="mobile" value="{{ old('mobile', $user->mobile) }}" required placeholder="e.g. 919876543210 (required for daily task reminders)" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+
+                    <div class="col-span-6 sm:col-span-4">
                         <label for="theme" class="block text-sm font-medium text-gray-700">Dashboard Theme</label>
                         <select id="theme" name="theme" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                             <option value="modern" {{ $user->theme == 'modern' ? 'selected' : '' }}>Modern</option>
@@ -88,6 +93,7 @@
                     </div>
                 </div>
 
+                @can('updateFirm', \App\Models\Setting::class)
                 <div class="border-t border-gray-200 pt-6">
                     <div>
                         <h3 class="text-lg font-medium leading-6 text-gray-900">Company Details</h3>
@@ -96,21 +102,154 @@
 
                     <div class="grid grid-cols-6 gap-6 mt-6">
                         <div class="col-span-6 sm:col-span-4">
-                            <label for="company_name" class="block text-sm font-medium text-gray-700">Company Name</label>
-                            <input type="text" name="company_name" id="company_name" value="{{ old('company_name', $company_name) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <label for="company_name" class="block text-sm font-medium text-gray-700">Firm / Business Name</label>
+                            <input type="text" name="company_name" id="company_name" value="{{ old('company_name', $company_name) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
                         </div>
-
-                        <div class="col-span-6">
-                            <label for="company_address" class="block text-sm font-medium text-gray-700">Address</label>
-                            <textarea name="company_address" id="company_address" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">{{ old('company_address', $company_address) }}</textarea>
-                        </div>
-
                         <div class="col-span-6 sm:col-span-4">
-                            <label for="company_email" class="block text-sm font-medium text-gray-700">Billing Email</label>
-                            <input type="email" name="company_email" id="company_email" value="{{ old('company_email', $company_email) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <label for="company_tagline" class="block text-sm font-medium text-gray-700">Tagline</label>
+                            <input type="text" name="company_tagline" id="company_tagline" value="{{ old('company_tagline', $company_tagline ?? '') }}" placeholder="Chartered Accountants" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                        <div class="col-span-6 sm:col-span-4">
+                            <label for="company_logo_path" class="block text-sm font-medium text-gray-700">Logo path (under public/)</label>
+                            <input type="text" name="company_logo_path" id="company_logo_path" value="{{ old('company_logo_path', $company_logo_path ?? '') }}" placeholder="images/logo.png" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                        <div class="col-span-6">
+                            <label for="company_address" class="block text-sm font-medium text-gray-700">Office Address</label>
+                            <textarea name="company_address" id="company_address" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">{{ old('company_address', $company_address) }}</textarea>
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                            <label for="company_phone" class="block text-sm font-medium text-gray-700">Contact Number</label>
+                            <input type="text" name="company_phone" id="company_phone" value="{{ old('company_phone', $company_phone ?? '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                            <label for="company_email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" name="company_email" id="company_email" value="{{ old('company_email', $company_email) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                            <label for="company_website" class="block text-sm font-medium text-gray-700">Website</label>
+                            <input type="text" name="company_website" id="company_website" value="{{ old('company_website', $company_website ?? '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                            <label for="firm_gstin" class="block text-sm font-medium text-gray-700">GSTIN</label>
+                            <input type="text" name="firm_gstin" id="firm_gstin" value="{{ old('firm_gstin', $firm_gstin ?? '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                            <label for="firm_pan" class="block text-sm font-medium text-gray-700">PAN</label>
+                            <input type="text" name="firm_pan" id="firm_pan" value="{{ old('firm_pan', $firm_pan ?? '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                            <label for="firm_state_name" class="block text-sm font-medium text-gray-700">State</label>
+                            <input type="text" name="firm_state_name" id="firm_state_name" value="{{ old('firm_state_name', $firm_state_name ?? 'Gujarat') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                        <div class="col-span-6 sm:col-span-2">
+                            <label for="firm_state_code" class="block text-sm font-medium text-gray-700">State Code</label>
+                            <input type="text" name="firm_state_code" id="firm_state_code" value="{{ old('firm_state_code', $firm_state_code ?? '24') }}" maxlength="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                        <div class="col-span-6 sm:col-span-2">
+                            <label for="default_sac_code" class="block text-sm font-medium text-gray-700">Default SAC (CA services)</label>
+                            <input type="text" name="default_sac_code" id="default_sac_code" value="{{ old('default_sac_code', $default_sac_code ?? '998221') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                        <div class="col-span-6 sm:col-span-2">
+                            <label for="default_gst_rate" class="block text-sm font-medium text-gray-700">Default GST %</label>
+                            <input type="number" name="default_gst_rate" id="default_gst_rate" value="{{ old('default_gst_rate', $default_gst_rate ?? '18') }}" step="0.01" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
                         </div>
                     </div>
                 </div>
+
+                <div class="border-t border-gray-200 pt-6">
+                    <div>
+                        <h3 class="text-lg font-medium leading-6 text-gray-900">Bank Details (on invoice PDF)</h3>
+                        <p class="mt-1 text-sm text-gray-500">Shown on invoices for payment collection.</p>
+                    </div>
+                    <div class="grid grid-cols-6 gap-6 mt-6">
+                        <div class="col-span-6 sm:col-span-3">
+                            <label for="bank_name" class="block text-sm font-medium text-gray-700">Bank Name</label>
+                            <input type="text" name="bank_name" id="bank_name" value="{{ old('bank_name', $bank_name ?? '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                            <label for="bank_account_name" class="block text-sm font-medium text-gray-700">Account Name</label>
+                            <input type="text" name="bank_account_name" id="bank_account_name" value="{{ old('bank_account_name', $bank_account_name ?? '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                            <label for="bank_account_number" class="block text-sm font-medium text-gray-700">Account Number</label>
+                            <input type="text" name="bank_account_number" id="bank_account_number" value="{{ old('bank_account_number', $bank_account_number ?? '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                            <label for="bank_ifsc" class="block text-sm font-medium text-gray-700">IFSC</label>
+                            <input type="text" name="bank_ifsc" id="bank_ifsc" value="{{ old('bank_ifsc', $bank_ifsc ?? '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                        <div class="col-span-6 sm:col-span-4">
+                            <label for="bank_upi" class="block text-sm font-medium text-gray-700">UPI ID (optional)</label>
+                            <input type="text" name="bank_upi" id="bank_upi" value="{{ old('bank_upi', $bank_upi ?? '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 pt-6">
+                    <div>
+                        <h3 class="text-lg font-medium leading-6 text-gray-900">Invoice PDF Format</h3>
+                        <p class="mt-1 text-sm text-gray-500">Controls the downloaded invoice PDF layout and wording.</p>
+                    </div>
+                    <div class="grid grid-cols-6 gap-6 mt-6">
+                        <div class="col-span-6 sm:col-span-4">
+                            <label for="invoice_title" class="block text-sm font-medium text-gray-700">Invoice heading</label>
+                            <input type="text" name="invoice_title" id="invoice_title" value="{{ old('invoice_title', $invoice_title ?? 'TAX INVOICE') }}" placeholder="TAX INVOICE / GST TAX INVOICE" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                        <div class="col-span-6 sm:col-span-4">
+                            <label for="invoice_number_prefix" class="block text-sm font-medium text-gray-700">Suggested number prefix</label>
+                            <input type="text" name="invoice_number_prefix" id="invoice_number_prefix" value="{{ old('invoice_number_prefix', $invoice_number_prefix ?? 'RLA/25-26/') }}" placeholder="RLA/25-26/ or INV/2025-26/" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            <p class="mt-1 text-xs text-gray-500">Reference only — enter full numbers when creating invoices.</p>
+                        </div>
+                        <div class="col-span-6 sm:col-span-2">
+                            <label for="invoice_payment_days" class="block text-sm font-medium text-gray-700">Payment due (days)</label>
+                            <input type="text" name="invoice_payment_days" id="invoice_payment_days" value="{{ old('invoice_payment_days', $invoice_payment_days ?? '15') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                        <div class="col-span-6 sm:col-span-2">
+                            <label for="invoice_jurisdiction" class="block text-sm font-medium text-gray-700">Jurisdiction</label>
+                            <input type="text" name="invoice_jurisdiction" id="invoice_jurisdiction" value="{{ old('invoice_jurisdiction', $invoice_jurisdiction ?? 'Ahmedabad') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                        <div class="col-span-6 sm:col-span-4">
+                            <label for="invoice_signatory_name" class="block text-sm font-medium text-gray-700">Authorized signatory name (on PDF)</label>
+                            <input type="text" name="invoice_signatory_name" id="invoice_signatory_name" value="{{ old('invoice_signatory_name', $invoice_signatory_name ?? '') }}" placeholder="e.g. Rajat Lakhani" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            <p class="mt-1 text-xs text-gray-500">Printed above the signature line. Leave blank for a blank signature space.</p>
+                        </div>
+                        <div class="col-span-6 sm:col-span-4">
+                            <label for="invoice_show_gst_breakup" class="block text-sm font-medium text-gray-700">Show GST columns on PDF</label>
+                            <select name="invoice_show_gst_breakup" id="invoice_show_gst_breakup" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                                <option value="1" {{ ($invoice_show_gst_breakup ?? '1') == '1' ? 'selected' : '' }}>Yes</option>
+                                <option value="0" {{ ($invoice_show_gst_breakup ?? '1') == '0' ? 'selected' : '' }}>No — subtotal + tax only</option>
+                            </select>
+                        </div>
+                        <div class="col-span-6">
+                            <label for="invoice_footer" class="block text-sm font-medium text-gray-700">Footer note</label>
+                            <textarea name="invoice_footer" id="invoice_footer" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">{{ old('invoice_footer', $invoice_footer ?? '') }}</textarea>
+                        </div>
+                        <div class="col-span-6">
+                            <label for="invoice_terms" class="block text-sm font-medium text-gray-700">Terms & conditions</label>
+                            <textarea name="invoice_terms" id="invoice_terms" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">{{ old('invoice_terms', $invoice_terms ?? '') }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 pt-6">
+                    <div>
+                        <h3 class="text-lg font-medium leading-6 text-gray-900">WhatsApp Reminder Settings</h3>
+                        <p class="mt-1 text-sm text-gray-500">Configure when the daily pending task reminders are sent to the team.</p>
+                    </div>
+
+                    <div class="grid grid-cols-6 gap-6 mt-6">
+                        <div class="col-span-6 sm:col-span-3">
+                            <label for="reminder_time_1" class="block text-sm font-medium text-gray-700">Morning Reminder Time</label>
+                            <input type="time" name="reminder_time_1" id="reminder_time_1" value="{{ old('reminder_time_1', $reminder_time_1 ?? '10:00') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+
+                        <div class="col-span-6 sm:col-span-3">
+                            <label for="reminder_time_2" class="block text-sm font-medium text-gray-700">Evening Reminder Time</label>
+                            <input type="time" name="reminder_time_2" id="reminder_time_2" value="{{ old('reminder_time_2', $reminder_time_2 ?? '18:00') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                    </div>
+                </div>
+                @endcan
 
                 <div class="border-t border-gray-200 pt-6">
                     <div>

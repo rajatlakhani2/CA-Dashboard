@@ -21,7 +21,7 @@
 
             <div class="flex flex-col items-end">
                 <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Current Outstanding</p>
-                <p class="text-4xl font-black text-white">₹{{ number_format($outstandingBalance, 2) }}</p>
+                <p class="text-4xl font-black text-white">₹{{ number_format($totalOutstanding, 2) }}</p>
                 <a href="{{ route('ledger.soa', $client) }}" class="mt-6 inline-flex items-center px-8 py-3 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-500 hover:text-white transition-all shadow-xl shadow-indigo-500/10 group">
                     <svg class="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -45,7 +45,7 @@
                     </div>
                     <div class="w-full bg-slate-50 h-1 rounded-full overflow-hidden">
                         @php
-                        $p = $outstandingBalance > 0 ? ($amount / $outstandingBalance) * 100 : 0;
+                        $p = $totalOutstanding > 0 ? ($amount / $totalOutstanding) * 100 : 0;
                         @endphp
                         <div class="h-full rounded-full transition-all duration-1000 {{ 
                             $label == '0-30 Days' ? 'bg-indigo-400' : 

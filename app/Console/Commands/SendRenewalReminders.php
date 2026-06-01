@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\PersonalRenewal;
 use Illuminate\Console\Command;
 
 class SendRenewalReminders extends Command
@@ -18,8 +19,8 @@ class SendRenewalReminders extends Command
     {
         $targetDate = now()->addDays(3)->toDateString();
 
-        $renewals = \App\Models\PersonalRenewal::whereDate('due_date', $targetDate)
-            ->where('status', 'Pending')
+        $renewals = PersonalRenewal::whereDate('due_date', $targetDate)
+            ->where('status', PersonalRenewal::STATUS_PENDING)
             ->with('user')
             ->get();
 

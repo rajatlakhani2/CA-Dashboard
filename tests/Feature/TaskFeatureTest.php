@@ -18,7 +18,7 @@ class TaskFeatureTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
+        $this->user = User::factory()->create(['role' => 'staff']);
         $this->actingAs($this->user);
     }
 

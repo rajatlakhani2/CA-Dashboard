@@ -11,7 +11,8 @@
 <body class="h-full">
     <div class="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div class="sm:mx-auto sm:w-full sm:max-w-md">
-            <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-slate-900">Sign in to your account</h2>
+            <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-slate-900">Sign in to RLA Dashboard</h2>
+            <p class="mt-2 text-center text-sm text-slate-500">Use your email and password</p>
         </div>
 
         <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -22,55 +23,43 @@
                     <div>
                         <label for="email" class="block text-sm font-medium leading-6 text-slate-900">Email address</label>
                         <div class="mt-2">
-                            <input id="email" name="email" type="email" autocomplete="email" required class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                            <input id="email" name="email" type="email" autocomplete="email" required
+                                value="{{ old('email') }}"
+                                class="block w-full rounded-md border-0 py-2 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm">
                         </div>
                     </div>
 
                     <div>
                         <label for="password" class="block text-sm font-medium leading-6 text-slate-900">Password</label>
                         <div class="mt-2">
-                            <input id="password" name="password" type="password" autocomplete="current-password" required class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                            <input id="password" name="password" type="password" autocomplete="current-password" required
+                                class="block w-full rounded-md border-0 py-2 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm">
                         </div>
+                    </div>
+
+                    <div class="flex items-center">
+                        <input id="remember" name="remember" type="checkbox" value="1"
+                            class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600">
+                        <label for="remember" class="ml-2 block text-sm text-slate-600">Remember me</label>
                     </div>
 
                     @if ($errors->any())
                     <div class="rounded-md bg-red-50 p-4">
-                        <div class="flex">
-                            <div class="ml-3">
-                                <h3 class="text-sm font-medium text-red-800">Login Failed</h3>
-                                <div class="mt-2 text-sm text-red-700">
-                                    <ul role="list" class="list-disc pl-5 space-y-1">
-                                        @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+                        <ul class="text-sm text-red-700 list-disc pl-5 space-y-1">
+                            @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
                     </div>
                     @endif
 
                     <div>
-                        <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign in</button>
+                        <button type="submit"
+                            class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
+                            Sign in
+                        </button>
                     </div>
                 </form>
-
-                <div class="mt-6">
-                    <div class="relative">
-                        <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-gray-300"></div>
-                        </div>
-                        <div class="relative flex justify-center text-sm">
-                            <span class="bg-white px-2 text-gray-500">Development Access</span>
-                        </div>
-                    </div>
-
-                    <div class="mt-6">
-                        <a href="{{ route('login.bypass') }}" class="flex w-full justify-center rounded-md bg-green-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">
-                            Quick Login (No Password)
-                        </a>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

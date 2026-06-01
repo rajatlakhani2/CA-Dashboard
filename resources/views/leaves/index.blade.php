@@ -79,7 +79,7 @@
         </table>
     </div>
     <div class="mt-4">
-        {{ $leaves->links() }}
+        {!! $leaves->links() !!}
     </div>
 </div>
 @endsection

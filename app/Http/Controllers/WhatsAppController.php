@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\WhatsAppService;
 use App\Models\Client;
+use App\Models\Setting;
 
 class WhatsAppController extends Controller
 {
@@ -18,8 +19,48 @@ class WhatsAppController extends Controller
     public function index()
     {
         $templates = $this->whatsapp->getTemplates();
-        $clients = Client::where('status', 'Active')->limit(50)->get(); // For testing
-        return view('notifications.whatsapp', compact('templates', 'clients'));
+        $clients = Client::where('status', Client::STATUS_ACTIVE)->limit(50)->get(); // For testing
+        
+        try {
+            $time1 = Setting::get('reminder_time_1', '10:00');
+            $time2 = Setting::get('reminder_time_2', '18:00');
+            $daysAhead = Setting::get('reminder_days_ahead', '7');
+        } catch (\Exception $e) {
+            $time1 = '10:00';
+            $time2 = '18:00';
+            $daysAhead = '7';
+        }
+
+        $webhookUrl = url('/webhooks/whatsapp');
+        $inboundEnabled = (bool) config('whatsapp.inbound_enabled');
+
+        return view('notifications.whatsapp', compact(
+            'templates',
+            'clients',
+            'time1',
+            'time2',
+            'daysAhead',
+            'webhookUrl',
+            'inboundEnabled',
+        ));
+    }
+
+    public function saveSettings(Request $request)
+    {
+        $request->validate([
+            'reminder_time_1' => 'required',
+            'reminder_time_2' => 'required',
+            'reminder_days_ahead' => 'required|integer|min:1|max:365',
+        ]);
+
+        try {
+            Setting::set('reminder_time_1', $request->reminder_time_1);
+            Setting::set('reminder_time_2', $request->reminder_time_2);
+            Setting::set('reminder_days_ahead', $request->reminder_days_ahead);
+            return back()->with('success', 'Notification settings saved successfully!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to save settings. Make sure settings table exists.');
+        }
     }
 
     public function sendTest(Request $request)
@@ -60,6 +101,10 @@ class WhatsAppController extends Controller
 
         $result = $this->whatsapp->sendMessage($mobile, $message);
 
-        return back()->with('success', "Message sent to {$client->name} ({$mobile}) [Simulated]");
+        if ($result['success']) {
+            return back()->with('success', "Message successfully sent to {$client->name} ({$mobile})");
+        } else {
+            return back()->with('error', "Failed to send: " . $result['message']);
+        }
     }
 }

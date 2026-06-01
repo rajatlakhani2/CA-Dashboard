@@ -38,7 +38,7 @@ class SendDailyNotifications extends Command
 
         $dues = ServiceDue::with(['clientService.client', 'clientService.service'])
             ->whereBetween('due_date', [$startDate, $endDate])
-            ->where('status', '!=', 'Completed')
+            ->where('status', '!=', ServiceDue::STATUS_COMPLETED)
             ->orderBy('due_date', 'asc')
             ->get();
 

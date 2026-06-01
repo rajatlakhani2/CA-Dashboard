@@ -12,6 +12,9 @@ export default defineConfig({
         tailwindcss(),
         VitePWA({
             registerType: 'autoUpdate',
+            workbox: {
+                navigateFallbackDenylist: [/^\/.*$/],
+            },
             manifest: {
                 name: 'CA Dashboard',
                 short_name: 'CA Dash',
@@ -38,6 +41,12 @@ export default defineConfig({
         }),
     ],
     server: {
+        host: '127.0.0.1',
+        port: 5173,
+        strictPort: true,
+        hmr: {
+            host: '127.0.0.1',
+        },
         watch: {
             ignored: ['**/storage/framework/views/**'],
         },

@@ -3,18 +3,29 @@
 namespace App\Exports;
 
 use App\Models\Client;
+use App\Models\User;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
 class ClientsExport implements FromCollection, WithHeadings, WithMapping
 {
+    public function __construct(private ?User $user = null)
+    {
+    }
+
     /**
      * @return \Illuminate\Support\Collection
      */
     public function collection()
     {
-        return Client::all();
+        $query = Client::query();
+
+        if ($this->user) {
+            $query->visibleTo($this->user);
+        }
+
+        return $query->get();
     }
 
     public function headings(): array

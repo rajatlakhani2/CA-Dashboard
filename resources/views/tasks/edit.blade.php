@@ -9,6 +9,7 @@
     </a>
     <span>Edit Task</span>
 
+    @can('delete', $task)
     <div class="ml-auto">
         <form action="{{ route('tasks.destroy', $task) }}" method="POST" onsubmit="return confirm('Delete this task?');">
             @csrf
@@ -16,6 +17,7 @@
             <button type="submit" class="text-red-600 hover:text-red-800 text-sm">Delete Task</button>
         </form>
     </div>
+    @endcan
 </div>
 @endsection
 

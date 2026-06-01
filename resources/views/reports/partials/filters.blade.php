@@ -33,7 +33,17 @@
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Client</label>
                 <select name="client_id" class="w-full rounded-xl border-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm font-medium bg-white/50">
                     <option value="">All Clients</option>
-                    @foreach(\App\Models\Client::orderBy('name')->get() as $client)
+                    @php
+                    $clientQuery = \App\Models\Client::query();
+                    $currentUser = auth()->user();
+                    if ($currentUser?->isManager() && $currentUser->branch_id) {
+                        $clientQuery->where(function ($query) use ($currentUser) {
+                            $query->whereNull('branch_id')
+                                ->orWhere('branch_id', $currentUser->branch_id);
+                        });
+                    }
+                    @endphp
+                    @foreach($clientQuery->orderBy('name')->get() as $client)
                     <option value="{{ $client->id }}" {{ request('client_id') == $client->id ? 'selected' : '' }}>{{ $client->name }}</option>
                     @endforeach
                 </select>

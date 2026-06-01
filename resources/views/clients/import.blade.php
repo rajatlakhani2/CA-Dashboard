@@ -40,7 +40,7 @@
                 </div>
             </div>
 
-            <form action="{{ route('clients.import') }}" method="POST" enctype="multipart/form-data" class="space-y-10">
+            <form action="{{ route('clients.import.preview') }}" method="POST" enctype="multipart/form-data" class="space-y-10">
                 @csrf
                 <div class="relative h-64 border-4 border-dashed border-slate-100 rounded-[2.5rem] bg-slate-50 hover:bg-white hover:border-indigo-400 transition-all group flex flex-col items-center justify-center cursor-pointer">
                     <input type="file" name="file" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">

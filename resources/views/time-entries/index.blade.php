@@ -95,7 +95,7 @@
                 </table>
             </div>
             <div class="px-8 py-4 bg-slate-50/30">
-                {{ $timeEntries->links() }}
+                {!! $timeEntries->links() !!}
             </div>
         </div>
 
@@ -110,7 +110,7 @@
                     <select name="task_id" required class="w-full bg-white/5 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:bg-white/10 transition-all py-3 px-4 font-bold text-white shadow-sm">
                         <option value="" class="text-slate-900">-- Select Task --</option>
                         @foreach($tasks as $task)
-                        <option value="{{ $task->id }}" class="text-slate-900">{{ $task->title }} ({{ $task->client->name }})</option>
+                        <option value="{{ $task->id }}" class="text-slate-900">{{ $task->title }} ({{ $task->client?->name ?? 'No Client' }})</option>
                         @endforeach
                     </select>
                 </div>

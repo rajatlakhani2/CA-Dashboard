@@ -91,7 +91,7 @@
             </table>
         </div>
         <div class="px-10 py-6 border-t border-slate-50 bg-slate-50/30">
-            {{ $subscriptions->links() }}
+            {!! $subscriptions->links() !!}
         </div>
     </div>
 </div>

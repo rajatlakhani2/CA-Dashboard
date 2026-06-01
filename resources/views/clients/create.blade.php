@@ -2,16 +2,25 @@
 
 @section('header')
 <div class="flex items-center gap-4">
-    <a href="{{ route('clients.index') }}" class="text-text-secondary hover:text-text-main">
+    <a href="{{ auth()->user()?->isArticle() ? route('tasks.index') : route('clients.index') }}" class="text-text-secondary hover:text-text-main">
         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
         </svg>
     </a>
-    <span>Add New Client</span>
+    <span>{{ auth()->user()?->isArticle() ? 'Submit New Client' : 'Add New Client' }}</span>
 </div>
 @endsection
 
 @section('content')
+@if(auth()->user()?->isArticle())
+<div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+    This client will be sent to <strong>Rajat</strong> for approval. You will not see it in the client list until it is approved.
+</div>
+@elseif(auth()->user()?->isAssociate())
+<div class="mb-4 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-900">
+    New clients you add are assigned to <strong>your portfolio</strong> and appear in your client list immediately.
+</div>
+@endif
 <div class="bg-bg-card shadow rounded-lg">
     <!-- Form Header/Tabs -->
     <div class="border-b border-line">
@@ -42,6 +51,14 @@
                     <label for="name" class="block text-sm font-medium leading-6 text-text-main">Client Name *</label>
                     <div class="mt-2">
                         <input type="text" name="name" id="name" required class="block w-full rounded-md border-0 py-1.5 text-text-main shadow-sm ring-1 ring-inset ring-line placeholder:text-text-secondary focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6">
+                    </div>
+                </div>
+
+                <!-- Group Name / Reference -->
+                <div class="sm:col-span-3">
+                    <label for="group_name" class="block text-sm font-medium leading-6 text-text-main">Group Name / Reference</label>
+                    <div class="mt-2">
+                        <input type="text" name="group_name" id="group_name" placeholder="e.g. Nilesh Bhai, Boarda" class="block w-full rounded-md border-0 py-1.5 text-text-main shadow-sm ring-1 ring-inset ring-line placeholder:text-text-secondary focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6">
                     </div>
                 </div>
 
@@ -105,7 +122,8 @@
                 </div>
             </div>
 
-            <div class="flex justify-end">
+            <div class="flex justify-end gap-3 border-t pt-6">
+                <a href="{{ route('clients.index') }}" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Close</a>
                 <button type="button" onclick="switchTab('contact')" class="rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">Next: Contact Info</button>
             </div>
         </div>
@@ -151,9 +169,12 @@
                 </div>
             </div>
 
-            <div class="flex justify-between">
+            <div class="flex justify-between items-center border-t pt-6">
                 <button type="button" onclick="switchTab('basic')" class="text-sm font-semibold text-text-main">Back</button>
-                <button type="button" onclick="switchTab('engagement')" class="rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">Next: Engagement</button>
+                <div class="flex gap-3">
+                    <a href="{{ route('clients.index') }}" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Close</a>
+                    <button type="button" onclick="switchTab('engagement')" class="rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">Next: Engagement</button>
+                </div>
             </div>
         </div>
 
@@ -185,9 +206,12 @@
                 </div>
             </div>
 
-            <div class="flex justify-between border-t pt-6">
+            <div class="flex justify-between items-center border-t pt-6">
                 <button type="button" onclick="switchTab('contact')" class="text-sm font-semibold text-text-main">Back</button>
-                <button type="button" onclick="switchTab('services')" class="rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">Next: Services</button>
+                <div class="flex gap-3">
+                    <a href="{{ route('clients.index') }}" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Close</a>
+                    <button type="button" onclick="switchTab('services')" class="rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">Next: Services</button>
+                </div>
             </div>
         </div>
 
@@ -226,9 +250,12 @@
                 </div>
             </fieldset>
 
-            <div class="flex justify-between border-t pt-6">
+            <div class="flex justify-between items-center border-t pt-6">
                 <button type="button" onclick="switchTab('engagement')" class="text-sm font-semibold text-text-main">Back</button>
-                <button type="submit" class="rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">Create Client</button>
+                <div class="flex gap-3">
+                    <a href="{{ route('clients.index') }}" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Close</a>
+                    <button type="submit" class="rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">Create Client</button>
+                </div>
             </div>
         </div>
     </form>

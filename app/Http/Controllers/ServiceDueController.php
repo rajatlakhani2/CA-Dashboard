@@ -13,7 +13,10 @@ class ServiceDueController extends Controller
      */
     public function index(Request $request)
     {
-        $query = ServiceDue::with(['clientService.client', 'clientService.service']);
+        $query = ServiceDue::with(['clientService.client', 'clientService.service'])
+            ->whereHas('clientService', function ($q) {
+                $q->whereHas('client')->whereHas('service');
+            });
 
         // Filter by Status
         if ($request->filled('status')) {
@@ -45,7 +48,8 @@ class ServiceDueController extends Controller
         }
 
         $dues = $query->orderBy('due_date', 'asc')->paginate(20);
-        $clients = \App\Models\Client::orderBy('name')->get(); // For filter dropdown
+        app(\App\Services\ServiceDocumentChecklistService::class)->attachToDues($dues->getCollection());
+        $clients = \App\Models\Client::orderBy('name')->get();
 
         return view('service-dues.index', compact('dues', 'clients'));
     }
@@ -56,12 +60,16 @@ class ServiceDueController extends Controller
     public function markComplete(Request $request, ServiceDue $serviceDue)
     {
         $validated = $request->validate([
-            'billing_status' => 'nullable|in:Pending,Unbilled,Non-Billable',
+            'billing_status' => 'nullable|in:' . implode(',', [
+                ServiceDue::BILLING_STATUS_PENDING,
+                ServiceDue::BILLING_STATUS_UNBILLED,
+                ServiceDue::BILLING_STATUS_NON_BILLABLE,
+            ]),
             'billing_amount' => 'nullable|numeric|min:0',
         ]);
 
         $updateData = [
-            'status' => 'Completed',
+            'status' => ServiceDue::STATUS_COMPLETED,
             'completed_at' => Carbon::now(),
             'completed_by' => auth()->id(),
         ];
@@ -90,5 +98,28 @@ class ServiceDueController extends Controller
     {
         $count = $generator->generateAll();
         return redirect()->back()->with('success', "Service dues generated successfully. ($count new dues created)");
+    }
+
+    public function sendWhatsApp(ServiceDue $alert, \App\Services\WhatsAppService $whatsAppService)
+    {
+        $alert->load(['clientService.client', 'clientService.service']);
+        $client = $alert->clientService->client ?? null;
+
+        if (!$client || empty($client->mobile_number)) {
+            return back()->with('error', 'Client does not have a valid mobile number.');
+        }
+
+        $serviceName = $alert->clientService->service->name ?? 'Service';
+        $dueDate = $alert->due_date ? \Carbon\Carbon::parse($alert->due_date)->format('d M Y') : 'Soon';
+        
+        $message = "🔔 *Service Due Reminder*\n\nDear {$client->name},\nThis is a gentle reminder regarding your pending service: *{$serviceName}*. The deadline for this is {$dueDate}.\n\nPlease ensure necessary actions or documents are provided on time.";
+
+        $result = $whatsAppService->sendMessage($client->mobile_number, $message);
+
+        if ($result['success']) {
+            return back()->with('success', "WhatsApp reminder sent to {$client->name} successfully.");
+        } else {
+            return back()->with('error', "Failed to send WhatsApp: " . $result['message']);
+        }
     }
 }

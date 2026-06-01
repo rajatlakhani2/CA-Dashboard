@@ -37,7 +37,7 @@ class SendUpcomingDuesNotifications extends Command
 
         // Fetch upcoming pending dues
         $dues = ServiceDue::with(['clientService.client', 'clientService.service'])
-            ->where('status', 'Pending')
+            ->where('status', ServiceDue::STATUS_PENDING)
             ->whereBetween('due_date', [$today, $nextWeek])
             ->orderBy('due_date', 'asc')
             ->get();

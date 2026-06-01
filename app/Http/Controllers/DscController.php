@@ -11,7 +11,10 @@ class DscController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Dsc::with('client');
+        $this->authorize('viewAny', Dsc::class);
+
+        $query = Dsc::with('client')->whereHas('client');
+        $this->scopeDscsToUser($query);
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -21,29 +24,36 @@ class DscController extends Controller
         }
 
         // Auto-mark expired
-        Dsc::where('status', 'Active')
+        $expiredQuery = Dsc::where('status', Dsc::STATUS_ACTIVE)
             ->where('expiry_date', '<', Carbon::today())
-            ->update(['status' => 'Expired']);
+            ->whereHas('client');
+        $this->scopeDscsToUser($expiredQuery);
+        $expiredQuery->update(['status' => Dsc::STATUS_EXPIRED]);
 
         $dscs = $query->orderBy('expiry_date')->paginate(20);
-        $expiringSoonCount = Dsc::where('status', 'Active')
+        $expiringSoonQuery = Dsc::where('status', Dsc::STATUS_ACTIVE)
             ->where('expiry_date', '<=', Carbon::now()->addDays(30))
-            ->where('expiry_date', '>=', Carbon::today())
-            ->count();
+            ->where('expiry_date', '>=', Carbon::today());
+        $this->scopeDscsToUser($expiringSoonQuery);
+        $expiringSoonCount = $expiringSoonQuery->count();
 
-        $clients = Client::orderBy('name')->get();
+        $clients = $this->clientOptionsQuery()->orderBy('name')->get();
 
         return view('dscs.index', compact('dscs', 'expiringSoonCount', 'clients'));
     }
 
     public function create()
     {
-        $clients = Client::orderBy('name')->get();
+        $this->authorize('create', Dsc::class);
+
+        $clients = $this->clientOptionsQuery()->orderBy('name')->get();
         return view('dscs.create', compact('clients'));
     }
 
     public function store(Request $request)
     {
+        $this->authorize('create', Dsc::class);
+
         $request->validate([
             'client_id' => 'required|exists:clients,id',
             'holder_name' => 'required|string|max:255',
@@ -54,18 +64,24 @@ class DscController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        $this->authorize('createForClient', [Dsc::class, Client::findOrFail($request->client_id)]);
+
         Dsc::create($request->all());
         return redirect()->route('dscs.index')->with('success', 'DSC added successfully.');
     }
 
     public function edit(Dsc $dsc)
     {
-        $clients = Client::orderBy('name')->get();
+        $this->authorize('update', $dsc);
+
+        $clients = $this->clientOptionsQuery()->orderBy('name')->get();
         return view('dscs.edit', compact('dsc', 'clients'));
     }
 
     public function update(Request $request, Dsc $dsc)
     {
+        $this->authorize('update', $dsc);
+
         $request->validate([
             'client_id' => 'required|exists:clients,id',
             'holder_name' => 'required|string|max:255',
@@ -73,13 +89,46 @@ class DscController extends Controller
             'expiry_date' => 'required|date',
         ]);
 
+        $this->authorize('createForClient', [Dsc::class, Client::findOrFail($request->client_id)]);
+
         $dsc->update($request->all());
         return redirect()->route('dscs.index')->with('success', 'DSC updated.');
     }
 
     public function destroy(Dsc $dsc)
     {
+        $this->authorize('delete', $dsc);
+
         $dsc->delete();
         return redirect()->route('dscs.index')->with('success', 'DSC deleted.');
+    }
+
+    private function scopeDscsToUser($query): void
+    {
+        $user = auth()->user();
+
+        if (! $user?->isManager() || ! $user->branch_id) {
+            return;
+        }
+
+        $query->whereHas('client', function ($q) use ($user) {
+            $q->whereNull('branch_id')
+                ->orWhere('branch_id', $user->branch_id);
+        });
+    }
+
+    private function clientOptionsQuery()
+    {
+        $query = Client::query();
+        $user = auth()->user();
+
+        if ($user?->isManager() && $user->branch_id) {
+            $query->where(function ($q) use ($user) {
+                $q->whereNull('branch_id')
+                    ->orWhere('branch_id', $user->branch_id);
+            });
+        }
+
+        return $query;
     }
 }

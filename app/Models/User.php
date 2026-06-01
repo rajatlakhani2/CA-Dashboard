@@ -20,10 +20,12 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'mobile',
         'password',
         'role',
         'theme',
         'branch_id',
+        'module_access',
     ];
 
     /**
@@ -46,7 +48,27 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'module_access' => 'array',
         ];
+    }
+
+    public function resolvedModuleAccess(): array
+    {
+        $stored = is_array($this->module_access) ? $this->module_access : [];
+
+        return array_merge(
+            \App\Support\ModuleAccess::defaultsForRole((string) $this->role),
+            $stored
+        );
+    }
+
+    public function canAccessModule(string $module): bool
+    {
+        if ($this->isPartner()) {
+            return true;
+        }
+
+        return (bool) ($this->resolvedModuleAccess()[$module] ?? false);
     }
 
     public function tasks()
@@ -82,22 +104,51 @@ class User extends Authenticatable
     // RBAC Helpers
     public function isPartner(): bool
     {
-        return $this->role === 'partner';
+        return strtolower((string) $this->role) === 'partner';
     }
     public function isManager(): bool
     {
-        return $this->role === 'manager';
+        return strtolower((string) $this->role) === 'manager';
     }
     public function isStaff(): bool
     {
-        return $this->role === 'staff';
+        return strtolower((string) $this->role) === 'staff';
     }
     public function isIntern(): bool
     {
-        return $this->role === 'intern';
+        return strtolower((string) $this->role) === 'intern';
     }
+
+    public function isAssociate(): bool
+    {
+        return strtolower((string) $this->role) === 'associate';
+    }
+
+    public function isArticle(): bool
+    {
+        return strtolower((string) $this->role) === 'article';
+    }
+
+    /** Staff roles that land on My Day after login (not partner dashboard). */
+    public function prefersMyDayHome(): bool
+    {
+        return $this->isArticle() || $this->isStaff() || $this->isIntern();
+    }
+
+    public function managesFirmModules(): bool
+    {
+        return $this->hasRole('partner', 'manager');
+    }
+
+    public function canViewPortfolioInvoices(): bool
+    {
+        return $this->managesFirmModules() || $this->isAssociate();
+    }
+
     public function hasRole(string ...$roles): bool
     {
-        return in_array($this->role, $roles);
+        $normalizedRoles = array_map('strtolower', $roles);
+
+        return in_array(strtolower((string) $this->role), $normalizedRoles, true);
     }
 }

@@ -14,6 +14,9 @@
         @if(isset($prefillDues))
         <input type="hidden" name="linked_service_dues" value="{{ implode(',', $prefillDues) }}">
         @endif
+        @if(isset($prefillWorksheets))
+        <input type="hidden" name="linked_worksheets" value="{{ implode(',', $prefillWorksheets) }}">
+        @endif
         @if(isset($linkedTask))
         <input type="hidden" name="linked_task" value="{{ $linkedTask }}">
         @endif
@@ -47,6 +50,28 @@
                 <div class="col-span-1">
                     <label for="due_date" class="block text-sm font-medium text-text-secondary">Due Date</label>
                     <input type="date" name="due_date" id="due_date" value="{{ date('Y-m-d', strtotime('+7 days')) }}" required class="mt-1 block w-full rounded-md border-line bg-bg-body text-text-main shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <div class="col-span-1">
+                    <label for="place_of_supply" class="block text-sm font-medium text-text-secondary">Place of Supply</label>
+                    <input type="text" name="place_of_supply" id="place_of_supply" value="{{ $firmStateCode ?? '' }}" placeholder="e.g. Gujarat" class="mt-1 block w-full rounded-md border-line bg-bg-body text-text-main shadow-sm sm:text-sm">
+                </div>
+                <div class="col-span-1">
+                    <label for="reference_number" class="block text-sm font-medium text-text-secondary">PO / Reference No.</label>
+                    <input type="text" name="reference_number" id="reference_number" class="mt-1 block w-full rounded-md border-line bg-bg-body text-text-main shadow-sm sm:text-sm">
+                </div>
+                <div class="col-span-1">
+                    <label for="work_period" class="block text-sm font-medium text-text-secondary">Work Period</label>
+                    <input type="text" name="work_period" id="work_period" placeholder="e.g. Apr 2026" class="mt-1 block w-full rounded-md border-line bg-bg-body text-text-main shadow-sm sm:text-sm">
+                </div>
+                <div class="col-span-1">
+                    <label for="project_name" class="block text-sm font-medium text-text-secondary">Project Name</label>
+                    <input type="text" name="project_name" id="project_name" class="mt-1 block w-full rounded-md border-line bg-bg-body text-text-main shadow-sm sm:text-sm">
+                </div>
+                <div class="col-span-1 flex items-end pb-2">
+                    <label class="inline-flex items-center gap-2 text-sm">
+                        <input type="checkbox" name="reverse_charge" value="1" class="rounded border-gray-300 text-indigo-600">
+                        Reverse charge applicable
+                    </label>
                 </div>
             </div>
 

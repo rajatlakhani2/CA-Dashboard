@@ -10,8 +10,9 @@ class SmartDocumentController extends Controller
 {
     public function index()
     {
-        // List all clients for the dropdown selection
-        $clients = Client::orderBy('name')
+        $clients = Client::query()
+            ->visibleTo(auth()->user())
+            ->orderBy('name')
             ->select('id', 'name', 'client_code')
             ->get();
 
@@ -20,6 +21,8 @@ class SmartDocumentController extends Controller
 
     public function show(Client $client)
     {
+        $this->authorize('view', $client);
+
         $client->load('documents');
         return view('smart-documents.show', compact('client'));
     }

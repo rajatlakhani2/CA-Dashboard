@@ -8,6 +8,7 @@ use App\Models\Service;
 use App\Services\ServiceDueGenerator;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ServiceDueGeneratorTest extends TestCase
@@ -30,28 +31,28 @@ class ServiceDueGeneratorTest extends TestCase
         parent::tearDown();
     }
 
-    /** @test */
+    #[Test]
     public function it_calculates_monthly_due_date_correctly()
     {
         // 2025-01-01 -> Due Day 10 -> 2025-01-10 (This month)
         $this->assertDueDate('Monthly', 10, Carbon::create(2025, 1, 10));
     }
 
-    /** @test */
+    #[Test]
     public function it_calculates_quarterly_due_date_correctly()
     {
         // 2025-01-01 -> Due Day 10 -> 2025-01-10 (This quarter)
         $this->assertDueDate('Quarterly', 10, Carbon::create(2025, 1, 10));
     }
 
-    /** @test */
+    #[Test]
     public function it_calculates_half_yearly_due_date_correctly()
     {
         // 2025-01-01 -> Due Day 10 -> 2025-01-10 (This half)
         $this->assertDueDate('Half-Yearly', 10, Carbon::create(2025, 1, 10));
     }
 
-    /** @test */
+    #[Test]
     public function it_calculates_annually_due_date_correctly()
     {
         // 2025-01-01 -> Due Day 10 -> 2025-01-10 is FUTURE, but Annual logic with no month defaults to addYear()?
@@ -62,7 +63,7 @@ class ServiceDueGeneratorTest extends TestCase
         $this->assertDueDate('Annually', 10, Carbon::create(2026, 1, 10));
     }
 
-    /** @test */
+    #[Test]
     public function it_does_not_duplicate_dues()
     {
         $client = Client::factory()->create(['status' => 'Active']);

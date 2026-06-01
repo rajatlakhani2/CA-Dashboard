@@ -8,6 +8,8 @@ use App\Models\InvoiceItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+use App\Support\InvoicePdfData;
+use App\Support\InvoicePaymentLinkBuilder;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class InvoiceController extends Controller
@@ -17,15 +19,21 @@ class InvoiceController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Invoice::with('client');
+        $this->authorize('viewAny', Invoice::class);
+
+        $query = Invoice::with('client')->whereHas('client');
+        $this->scopeInvoicesToUser($query);
 
         // Tab Logic
-        $tab = $request->get('tab', 'raised'); // Default to 'raised' (Unpaid)
+        $tab = $request->get('tab', 'raised');
+        if (auth()->user()?->isAssociate() && $tab === 'unbilled') {
+            $tab = 'raised';
+        }
 
         if ($tab === 'received') {
-            $query->where('status', 'Paid');
+            $query->where('status', Invoice::STATUS_PAID);
         } elseif ($tab === 'raised') {
-            $query->where('status', '!=', 'Paid');
+            $query->where('status', '!=', Invoice::STATUS_PAID);
         }
 
         // Additional optional filters
@@ -36,25 +44,42 @@ class InvoiceController extends Controller
         $invoices = $query->latest('date')->paginate(20);
 
         // Counts for tabs
-        $raisedCount = Invoice::where('status', '!=', 'Paid')->count();
-        $receivedCount = Invoice::where('status', 'Paid')->count();
+        $raisedCountQuery = Invoice::where('status', '!=', Invoice::STATUS_PAID);
+        $receivedCountQuery = Invoice::where('status', Invoice::STATUS_PAID);
+        $this->scopeInvoicesToUser($raisedCountQuery);
+        $this->scopeInvoicesToUser($receivedCountQuery);
+        $raisedCount = $raisedCountQuery->count();
+        $receivedCount = $receivedCountQuery->count();
 
-        $clients = Client::orderBy('name')->get();
+        $clients = $this->clientOptionsQuery()->orderBy('name')->get();
 
-        $unbilledTasks = \App\Models\Task::where('assigned_to', auth()->id())
-            ->where('status', 'Completed')
-            ->where('is_billed', false)
-            ->with('client')
-            ->get();
+        $unbilledTasks = collect();
+        if (! auth()->user()?->isAssociate()) {
+            $unbilledTasks = \App\Models\Task::where('assigned_to', auth()->id())
+                ->where('status', \App\Models\Task::STATUS_COMPLETED)
+                ->where('is_billed', false)
+                ->with('client')
+                ->get();
+        }
 
         return view('invoices.index', compact('invoices', 'clients', 'unbilledTasks', 'tab', 'raisedCount', 'receivedCount'));
     }
 
     public function downloadPdf(Invoice $invoice)
     {
+        $this->authorize('download', $invoice);
+
         $invoice->load(['client', 'items']);
-        $pdf = Pdf::loadView('invoices.pdf', compact('invoice'));
-        return $pdf->download($invoice->invoice_number . '.pdf');
+
+        $pdf = Pdf::loadView('invoices.pdf', InvoicePdfData::for($invoice))
+            ->setPaper('a4', 'portrait')
+            ->setOption('isHtml5ParserEnabled', true)
+            ->setOption('isRemoteEnabled', false)
+            ->setOption('defaultFont', 'DejaVu Sans');
+
+        $filename = preg_replace('/[^A-Za-z0-9._-]/', '_', $invoice->invoice_number).'.pdf';
+
+        return $pdf->download($filename);
     }
 
     /**
@@ -62,7 +87,9 @@ class InvoiceController extends Controller
      */
     public function create()
     {
-        $clients = Client::orderBy('name')->get();
+        $this->authorize('create', Invoice::class);
+
+        $clients = $this->clientOptionsQuery()->orderBy('name')->get();
         // Generate next invoice number logic could go here
         $nextInvoiceNumber = 'INV-' . str_pad(Invoice::max('id') + 1, 5, '0', STR_PAD_LEFT);
 
@@ -99,21 +126,11 @@ class InvoiceController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(\App\Http\Requests\StoreInvoiceRequest $request)
     {
-        $request->validate([
-            'client_id' => 'required|exists:clients,id',
-            'invoice_number' => 'required|unique:invoices,invoice_number',
-            'date' => 'required|date',
-            'due_date' => 'required|date|after_or_equal:date',
-            'place_of_supply' => 'nullable|string',
-            'items' => 'required|array|min:1',
-            'items.*.description' => 'required|string',
-            'items.*.hsn_sac_code' => 'nullable|string',
-            'items.*.gst_rate' => 'nullable|numeric|min:0|max:28',
-            'items.*.quantity' => 'required|numeric|min:0.01',
-            'items.*.rate' => 'required|numeric|min:0',
-        ]);
+        $this->authorize('create', Invoice::class);
+
+        $this->authorize('createForClient', [Invoice::class, Client::findOrFail($request->client_id)]);
 
         DB::transaction(function () use ($request) {
             $subtotal = 0;
@@ -163,7 +180,7 @@ class InvoiceController extends Controller
                 'invoice_number' => $request->invoice_number,
                 'date' => $request->date,
                 'due_date' => $request->due_date,
-                'status' => 'Draft',
+                'status' => Invoice::STATUS_DRAFT,
                 'subtotal' => $subtotal,
                 'tax' => $tax,
                 'cgst' => round($totalCgst, 2),
@@ -174,6 +191,9 @@ class InvoiceController extends Controller
                 'financial_year' => $fy,
                 'total_amount' => $total,
                 'notes' => $request->notes,
+                'reference_number' => $request->reference_number,
+                'work_period' => $request->work_period,
+                'project_name' => $request->project_name,
             ]);
 
             foreach ($itemsData as $data) {
@@ -185,7 +205,7 @@ class InvoiceController extends Controller
                 $dueIds = explode(',', $request->linked_service_dues);
                 \App\Models\ServiceDue::whereIn('id', $dueIds)->update([
                     'invoice_id' => $invoice->id,
-                    'billing_status' => 'Billed'
+                    'billing_status' => \App\Models\ServiceDue::BILLING_STATUS_BILLED
                 ]);
             }
 
@@ -193,6 +213,8 @@ class InvoiceController extends Controller
             if ($request->filled('linked_task')) {
                 \App\Models\Task::where('id', $request->linked_task)->update(['is_billed' => true]);
             }
+
+            $this->syncInvoicePaymentUrl($invoice->fresh());
         });
 
         // Clear session data
@@ -206,8 +228,13 @@ class InvoiceController extends Controller
      */
     public function show(Invoice $invoice)
     {
+        $this->authorize('view', $invoice);
+
         $invoice->load(['client', 'items']);
-        return view('invoices.show', compact('invoice'));
+        $this->syncInvoicePaymentUrl($invoice);
+        $paymentQrUrl = app(InvoicePaymentLinkBuilder::class)->qrImageUrl($invoice->payment_url);
+
+        return view('invoices.show', compact('invoice', 'paymentQrUrl'));
     }
 
     /**
@@ -215,8 +242,10 @@ class InvoiceController extends Controller
      */
     public function edit(Invoice $invoice)
     {
+        $this->authorize('update', $invoice);
+
         $invoice->load(['client', 'items']);
-        $clients = Client::orderBy('name')->get();
+        $clients = $this->clientOptionsQuery()->orderBy('name')->get();
         $defaultSacCode = \App\Models\Setting::get('default_sac_code', '998231');
         $defaultGstRate = \App\Models\Setting::get('default_gst_rate', '18');
         $firmStateCode = \App\Models\Setting::get('firm_state_code', '');
@@ -227,22 +256,16 @@ class InvoiceController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Invoice $invoice)
+    public function update(\App\Http\Requests\UpdateInvoiceRequest $request, Invoice $invoice, \App\Services\SensitiveActionLogger $audit)
     {
-        $request->validate([
-            'client_id' => 'required|exists:clients,id',
-            'invoice_number' => 'required|unique:invoices,invoice_number,' . $invoice->id,
-            'date' => 'required|date',
-            'due_date' => 'required|date|after_or_equal:date',
-            'status' => 'required|in:Draft,Sent,Paid,Overdue,Partially Paid',
-            'place_of_supply' => 'nullable|string',
-            'items' => 'required|array|min:1',
-            'items.*.description' => 'required|string',
-            'items.*.hsn_sac_code' => 'nullable|string',
-            'items.*.gst_rate' => 'nullable|numeric|min:0|max:28',
-            'items.*.quantity' => 'required|numeric|min:0.01',
-            'items.*.rate' => 'required|numeric|min:0',
-        ]);
+        $this->authorize('update', $invoice);
+
+        $before = [
+            'status' => $invoice->status,
+            'total_amount' => (float) $invoice->total_amount,
+            'client_id' => (int) $invoice->client_id,
+            'invoice_number' => $invoice->invoice_number,
+        ];
 
         DB::transaction(function () use ($request, $invoice) {
             $subtotal = 0;
@@ -292,6 +315,9 @@ class InvoiceController extends Controller
                 'financial_year' => $fy,
                 'total_amount' => $total,
                 'notes' => $request->notes,
+                'reference_number' => $request->reference_number,
+                'work_period' => $request->work_period,
+                'project_name' => $request->project_name,
             ]);
 
             // Sync Items
@@ -321,22 +347,40 @@ class InvoiceController extends Controller
                     ]);
                 }
             }
+
+            $this->syncInvoicePaymentUrl($invoice->fresh());
         });
 
+        $audit->invoiceUpdated($invoice->fresh(['client']), $before);
+
         return redirect()->route('invoices.show', $invoice)->with('success', 'Invoice updated successfully.');
+    }
+
+    protected function syncInvoicePaymentUrl(Invoice $invoice): void
+    {
+        $url = app(InvoicePaymentLinkBuilder::class)->build($invoice);
+        if ($invoice->payment_url !== $url) {
+            $invoice->forceFill(['payment_url' => $url])->saveQuietly();
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Invoice $invoice)
+    public function destroy(Invoice $invoice, \App\Services\SensitiveActionLogger $audit)
     {
+        $this->authorize('delete', $invoice);
+
+        $audit->invoiceDeleted($invoice);
         $invoice->delete();
+
         return redirect()->route('invoices.index')->with('success', 'Invoice deleted successfully.');
     }
 
-    public function sendEmail(Invoice $invoice)
+    public function sendEmail(Invoice $invoice, \App\Services\SensitiveActionLogger $audit)
     {
+        $this->authorize('send', $invoice);
+
         $invoice->load('client');
 
         $email = $invoice->client->invoice_email ?? $invoice->client->primary_contact_email;
@@ -347,16 +391,44 @@ class InvoiceController extends Controller
 
         try {
             \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\InvoiceMail($invoice));
+            $audit->invoiceSent($invoice, 'email');
 
-            // Update status to Sent if Draft
-            if ($invoice->status === 'Draft') {
-                $invoice->update(['status' => 'Sent']);
+            if ($invoice->status === Invoice::STATUS_DRAFT
+                && $invoice->due_date
+                && $invoice->due_date->isPast()) {
+                $invoice->update(['status' => Invoice::STATUS_OVERDUE]);
             }
 
             return back()->with('success', "Invoice emailed to {$email} successfully.");
         } catch (\Exception $e) {
             return back()->with('error', 'Failed to send email: ' . $e->getMessage());
         }
+    }
+
+    public function sendWhatsApp(Invoice $invoice, \App\Services\WhatsAppService $whatsAppService, \App\Services\SensitiveActionLogger $audit)
+    {
+        $this->authorize('send', $invoice);
+
+        $invoice->load('client');
+        $client = $invoice->client;
+
+        if (!$client || empty($client->mobile_number)) {
+            return back()->with('error', 'Client does not have a valid mobile number.');
+        }
+
+        $amount = number_format($invoice->total_amount);
+        $dueDate = $invoice->due_date ? \Carbon\Carbon::parse($invoice->due_date)->format('d M Y') : 'Immediately';
+        $message = "🔔 *Payment Reminder*\n\nDear {$client->name},\nThis is a gentle reminder that your payment of ₹{$amount} for Invoice #{$invoice->invoice_number} is due on {$dueDate}.\n\nPlease pay at the earliest.";
+
+        $result = $whatsAppService->sendMessage($client->mobile_number, $message);
+
+        if ($result['success']) {
+            $audit->invoiceSent($invoice, 'whatsapp');
+
+            return back()->with('success', "WhatsApp reminder sent to {$client->name} successfully.");
+        }
+
+        return back()->with('error', "Failed to send WhatsApp: " . $result['message']);
     }
 
     private function getIndianStates(): array
@@ -399,5 +471,39 @@ class InvoiceController extends Controller
             '37' => '37 - Andhra Pradesh',
             '38' => '38 - Ladakh',
         ];
+    }
+
+    private function scopeInvoicesToUser($query): void
+    {
+        $user = auth()->user();
+
+        if ($user?->isAssociate()) {
+            $query->whereHas('client', function ($clientQuery) use ($user) {
+                $clientQuery->where('manager_id', $user->id)
+                    ->where('approval_status', Client::APPROVAL_APPROVED);
+            });
+
+            return;
+        }
+
+        if (! $user?->isManager() || ! $user->branch_id) {
+            return;
+        }
+
+        $query->where(function ($q) use ($user) {
+            $q->where('branch_id', $user->branch_id)
+                ->orWhere(function ($q) use ($user) {
+                    $q->whereNull('branch_id')
+                        ->whereHas('client', function ($clientQuery) use ($user) {
+                            $clientQuery->whereNull('branch_id')
+                                ->orWhere('branch_id', $user->branch_id);
+                        });
+                });
+        });
+    }
+
+    private function clientOptionsQuery()
+    {
+        return Client::query()->visibleTo(auth()->user());
     }
 }

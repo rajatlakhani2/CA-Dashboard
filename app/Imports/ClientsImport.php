@@ -20,7 +20,7 @@ class ClientsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
 
     private $nextId;
 
-    public function __construct()
+    public function __construct(private ?int $branchId = null)
     {
         $lastClient = Client::latest('id')->first();
         $this->nextId = $lastClient ? $lastClient->id + 1 : 1;
@@ -53,12 +53,13 @@ class ClientsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
             'cin' => !empty($row['cin']) ? strtoupper($row['cin']) : null,
             'tan' => !empty($row['tan']) ? strtoupper($row['tan']) : null,
             'registered_address' => !empty($row['registered_address']) ? $row['registered_address'] : null,
-            'status' => !empty($row['status']) ? $row['status'] : 'Active',
+            'status' => !empty($row['status']) ? $row['status'] : Client::STATUS_ACTIVE,
             'category' => !empty($row['category']) ? $row['category'] : 'C',
             'primary_contact_name' => !empty($row['primary_contact_name']) ? $row['primary_contact_name'] : null,
             'primary_contact_phone' => !empty($row['phone']) ? strval($row['phone']) : null,
             'primary_contact_email' => !empty($row['email']) ? $row['email'] : null,
             'gst_applicable' => !empty($row['gstin']) ? true : false,
+            'branch_id' => $this->branchId,
         ]);
     }
 

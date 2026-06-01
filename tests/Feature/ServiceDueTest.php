@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\ClientService;
 use App\Models\Service;
 use App\Models\ServiceDue;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -13,6 +14,12 @@ use Tests\TestCase;
 class ServiceDueTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->actingAs(User::factory()->create(['role' => 'manager']));
+    }
 
     public function test_monthly_service_due_generation()
     {
@@ -146,5 +153,78 @@ class ServiceDueTest extends TestCase
         // Run again
         $this->artisan('services:generate-dues');
         $this->assertDatabaseCount('service_dues', 1);
+    }
+
+    public function test_compliance_due_can_be_rescheduled_from_calendar()
+    {
+        $client = Client::factory()->create();
+        $service = Service::create([
+            'name' => 'Calendar Due',
+            'code' => 'CAL-DUE',
+            'frequency' => 'Monthly',
+            'due_day' => 10,
+            'description' => 'Calendar drag and drop',
+        ]);
+
+        $clientService = ClientService::create([
+            'client_id' => $client->id,
+            'service_id' => $service->id,
+            'status' => 'Active',
+        ]);
+
+        $due = ServiceDue::create([
+            'client_service_id' => $clientService->id,
+            'due_date' => '2025-01-10',
+            'status' => 'Pending',
+        ]);
+
+        $manager = User::factory()->create(['role' => 'manager']);
+
+        $response = $this->actingAs($manager)->postJson(route('calendar.update'), [
+            'type' => 'due',
+            'id' => $due->id,
+            'new_date' => '2025-01-20',
+        ]);
+
+        $response->assertOk()->assertJson(['success' => true]);
+
+        $this->assertDatabaseHas('service_dues', [
+            'id' => $due->id,
+            'due_date' => '2025-01-20 00:00:00',
+        ]);
+    }
+
+    public function test_compliance_calendar_receives_plain_event_array()
+    {
+        $client = Client::factory()->create();
+        $service = Service::create([
+            'name' => 'Calendar Array Due',
+            'code' => 'CAL-ARR',
+            'frequency' => 'Monthly',
+            'due_day' => 12,
+            'description' => 'Calendar payload shape',
+        ]);
+
+        $clientService = ClientService::create([
+            'client_id' => $client->id,
+            'service_id' => $service->id,
+            'status' => 'Active',
+        ]);
+
+        $due = ServiceDue::create([
+            'client_service_id' => $clientService->id,
+            'due_date' => '2025-02-12',
+            'status' => 'Pending',
+        ]);
+
+        $response = $this->get(route('compliance.index'));
+
+        $response->assertOk();
+
+        $events = $response->viewData('events');
+
+        $this->assertIsArray($events);
+        $this->assertSame('due_' . $due->id, $events[0]['id']);
+        $this->assertSame($due->id, $events[0]['extendedProps']['db_id']);
     }
 }

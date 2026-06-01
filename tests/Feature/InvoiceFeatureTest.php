@@ -19,7 +19,7 @@ class InvoiceFeatureTest extends TestCase
     {
         parent::setUp();
         // Authenticate as a user for all tests
-        $this->user = User::factory()->create();
+        $this->user = User::factory()->create(['role' => 'manager']);
         $this->actingAs($this->user);
     }
 
@@ -84,7 +84,7 @@ class InvoiceFeatureTest extends TestCase
             'invoice_number' => 'INV-VIEW-001',
             'date' => now(),
             'due_date' => now()->addDays(7),
-            'status' => 'Sent',
+            'status' => 'Draft',
             'subtotal' => 1000,
             'tax' => 180,
             'total_amount' => 1180

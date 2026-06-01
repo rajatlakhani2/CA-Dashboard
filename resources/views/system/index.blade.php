@@ -133,6 +133,9 @@
                     <hr class="border-gray-100">
 
                     <!-- Migrate -->
+                    @if(app()->environment('production') && !config('app.allow_dangerous_system_actions'))
+                    <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3">Run migrations is disabled in production. Set <code>APP_ALLOW_DANGEROUS_SYSTEM=true</code> only when needed.</p>
+                    @else
                     <form action="{{ route('system.migrate') }}" method="POST" onsubmit="return confirm('Are you sure? This will update the database structure.');">
                         @csrf
                         <button type="submit" class="w-full group relative flex items-center justify-center py-3 px-4 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
@@ -143,6 +146,7 @@
                         </button>
                         <p class="mt-2 text-xs text-gray-500 text-center">Update DB schema.</p>
                     </form>
+                    @endif
                 </div>
             </div>
         </div>
@@ -165,7 +169,85 @@
                     <div class="text-gray-500 italic">No logs found or log file is empty.</div>
                     @endforelse
                 </div>
+        </div>
+    </div>
+
+    <!-- Database Backups Card -->
+    <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+        <div class="px-10 py-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/20">
+            <div>
+                <h3 class="font-black text-slate-900 text-xl tracking-tight">Database & Asset Backups</h3>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Backups are automatically taken daily and stored for 30 days (1 month)</p>
             </div>
+            <form action="{{ route('system.backup.run') }}" method="POST">
+                @csrf
+                <button type="submit" class="inline-flex items-center px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white bg-green-600 hover:bg-green-700 border border-green-700 shadow-sm transition-all cursor-pointer">
+                    <svg class="mr-2 h-4 w-4 text-green-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Create Manual Backup
+                </button>
+            </form>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                    <tr>
+                        <th class="px-10 py-6">Filename</th>
+                        <th class="px-10 py-6">Size</th>
+                        <th class="px-10 py-6">Created At</th>
+                        <th class="px-10 py-6">Age</th>
+                        <th class="px-10 py-6 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    @forelse($backups as $backup)
+                    <tr class="hover:bg-indigo-50/20 transition-colors">
+                        <td class="px-10 py-7">
+                            <div class="text-sm font-black text-slate-900 font-mono">{{ $backup['filename'] }}</div>
+                        </td>
+                        <td class="px-10 py-7 text-sm font-medium text-slate-500">
+                            {{ $backup['size'] }}
+                        </td>
+                        <td class="px-10 py-7 text-sm font-medium text-slate-500">
+                            {{ $backup['created_at'] }}
+                        </td>
+                        <td class="px-10 py-7">
+                            <span class="inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-black uppercase {{ $backup['days_old'] > 20 ? 'bg-yellow-50 text-yellow-700 border border-yellow-100' : 'bg-green-50 text-green-700 border border-green-100' }} shadow-sm">
+                                {{ $backup['age'] }}
+                            </span>
+                        </td>
+                        <td class="px-10 py-7 text-right">
+                            <div class="flex items-center justify-end space-x-4">
+                                <a href="{{ route('system.backup.download', $backup['filename']) }}" class="inline-flex items-center text-xs font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-900 transition-colors">
+                                    <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    Download
+                                </a>
+                                <form action="{{ route('system.backup.delete', $backup['filename']) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to permanently delete this backup?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="inline-flex items-center text-xs font-black uppercase tracking-widest text-red-600 hover:text-red-900 transition-colors cursor-pointer">
+                                        <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" class="px-10 py-12 text-center text-sm font-medium text-slate-400 italic">
+                            No backup files found. Run a manual backup to create one.
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

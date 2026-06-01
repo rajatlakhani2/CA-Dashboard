@@ -21,7 +21,7 @@ class ClientModuleTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = \App\Models\User::factory()->create();
+        $this->user = \App\Models\User::factory()->create(['role' => 'manager']);
         $this->actingAs($this->user);
     }
 
@@ -107,25 +107,21 @@ class ClientModuleTest extends TestCase
 
     public function test_can_import_clients()
     {
-        Excel::fake();
-
+        \Illuminate\Support\Facades\Storage::fake('local');
         $this->actingAs($this->user);
 
-        $response = $this->post(route('clients.import'), [
-            'file' => \Illuminate\Http\UploadedFile::fake()->create('clients.xlsx')
-        ]);
+        $csv = "name,pan\nImported Client,IMPRT1234A\n";
 
-        $response->assertRedirect(route('clients.index'));
-        $response->assertSessionHas('success');
+        $this->post(route('clients.import.preview'), [
+            'file' => \Illuminate\Http\UploadedFile::fake()->createWithContent('clients.csv', $csv),
+        ])->assertOk();
 
-        Excel::assertImported('clients.xlsx', function (ClientsImport $import) {
-            return true;
-        });
+        $this->post(route('clients.import.confirm'))
+            ->assertRedirect(route('clients.index'))
+            ->assertSessionHas('success');
 
-        // Note: Actual DB assertion requires a real file or more complex mocking. 
-        // For now, we trust the import class logic which we just verified by code review.
-        // But let's add a unit test for the model() method if needed.
-        // Actually, let's look at the logic in ClientsImport::model
+        $this->assertDatabaseHas('clients', ['pan' => 'IMPRT1234A']);
+
         $import = new ClientsImport();
         $row = [
             'name' => 'Imported Client',

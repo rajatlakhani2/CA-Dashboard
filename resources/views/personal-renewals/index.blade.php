@@ -10,6 +10,26 @@
 @endsection
 
 @section('content')
+<div class="mb-6 rounded-3xl bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-700 p-8 text-white shadow-xl">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+            <p class="text-xs font-bold uppercase tracking-widest text-indigo-200">Renewals Hub</p>
+            <h2 class="text-2xl font-black mt-1">Personal & family renewals</h2>
+            <p class="text-indigo-100 text-sm mt-2 max-w-xl">Track LIC, loans, medical policies and other due dates — with calendar view and WhatsApp reminders.</p>
+        </div>
+        <div class="flex gap-3 text-center">
+            <div class="bg-white/15 backdrop-blur rounded-2xl px-5 py-3">
+                <div class="text-2xl font-black">{{ $renewals->where('status', 'Pending')->count() }}</div>
+                <div class="text-[10px] uppercase font-bold text-indigo-200">Pending</div>
+            </div>
+            <div class="bg-white/15 backdrop-blur rounded-2xl px-5 py-3">
+                <div class="text-2xl font-black">{{ $renewals->filter(fn ($r) => $r->status === 'Pending' && $r->due_date->isPast())->count() }}</div>
+                <div class="text-[10px] uppercase font-bold text-indigo-200">Overdue</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- List View -->
     <div class="lg:col-span-1 space-y-6">
@@ -41,7 +61,7 @@
             </div>
             <ul class="divide-y divide-line max-h-[600px] overflow-y-auto">
                 @forelse($renewals->where('status', 'Pending') as $renewal)
-                <li class="px-4 py-3 sm:px-6 hover:bg-gray-50 transition duration-150 ease-in-out group">
+                <li class="px-4 py-4 sm:px-6 hover:bg-indigo-50/50 transition duration-150 ease-in-out group border-l-4 border-transparent hover:border-indigo-400">
                     <div class="flex items-center justify-between mb-1">
                         <p class="text-sm font-semibold text-gray-800 truncate">{{ $renewal->title }}</p>
                         <span class="px-2 py-0.5 inline-flex text-[10px] font-bold uppercase tracking-wide rounded-full 
@@ -118,10 +138,16 @@
     <div class="lg:col-span-2">
         <div class="bg-white shadow sm:rounded-lg p-4">
             <!-- Resize Controls -->
-            <div class="flex justify-end space-x-2 mb-2">
-                <button onclick="resizeCalendar(400)" class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded">Small</button>
-                <button onclick="resizeCalendar(600)" class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded">Normal</button>
-                <button onclick="resizeCalendar(800)" class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded">Large</button>
+            <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+                <div>
+                    <p class="text-xs text-gray-500">Drag pending renewals to reschedule. Paid renewals remain locked.</p>
+                    <p class="mt-1 text-xs text-gray-500">When this month is empty, the calendar opens on the nearest pending renewal automatically.</p>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button onclick="resizeCalendar(400)" class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded">Small</button>
+                    <button onclick="resizeCalendar(600)" class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded">Normal</button>
+                    <button onclick="resizeCalendar(800)" class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded">Large</button>
+                </div>
             </div>
             <div id="calendar"></div>
         </div>
@@ -138,8 +164,46 @@
         var calendarEl = document.getElementById('calendar');
         var events = @json($events);
 
+        function getInitialCalendarDate(calendarEvents, lockedStatus) {
+            if (!calendarEvents.length) {
+                return undefined;
+            }
+
+            var today = new Date();
+            var todayMonth = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+
+            if (calendarEvents.some(function(event) {
+                return (event.start || '').slice(0, 7) === todayMonth;
+            })) {
+                return undefined;
+            }
+
+            var candidates = calendarEvents.filter(function(event) {
+                return event.extendedProps && event.extendedProps.status !== lockedStatus;
+            });
+
+            if (!candidates.length) {
+                candidates = calendarEvents.slice();
+            }
+
+            candidates.sort(function(a, b) {
+                var aDiff = Math.abs(new Date(a.start + 'T00:00:00') - today);
+                var bDiff = Math.abs(new Date(b.start + 'T00:00:00') - today);
+                return aDiff - bDiff;
+            });
+
+            return candidates[0] ? candidates[0].start : undefined;
+        }
+
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
+            initialDate: getInitialCalendarDate(events, 'Paid'),
+            editable: true,
+            eventStartEditable: true,
+            eventDurationEditable: false,
+            eventDragMinDistance: 4,
+            longPressDelay: 0,
+            eventLongPressDelay: 0,
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
@@ -148,10 +212,58 @@
             events: events,
             height: 600,
             eventClick: function(info) {
-                if (info.event.url) {
-                    window.location.href = info.event.url;
-                    info.jsEvent.preventDefault();
+                window.dispatchEvent(new CustomEvent('open-calendar-modal', {
+                    detail: {
+                        id: info.event.id,
+                        title: info.event.extendedProps.details || info.event.title,
+                        title_text: info.event.extendedProps.title_text || info.event.title,
+                        type: info.event.extendedProps.type || 'renewal',
+                        db_id: info.event.extendedProps.db_id,
+                        client_name: info.event.extendedProps.client_name,
+                        status: info.event.extendedProps.status,
+                        start: info.event.startStr
+                    }
+                }));
+            },
+            eventDrop: function(info) {
+                if (info.event.extendedProps.status === 'Paid') {
+                    info.revert();
+                    return;
                 }
+
+                if (!confirm('Reschedule renewal to ' + info.event.startStr + '?')) {
+                    info.revert();
+                    return;
+                }
+
+                fetch('{{ route('calendar.update') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        type: 'renewal',
+                        id: info.event.extendedProps.db_id,
+                        new_date: info.event.startStr
+                    })
+                }).then(r => r.json()).then(data => {
+                    if (!data.success) {
+                        alert(data.message || 'Failed to reschedule renewal.');
+                        info.revert();
+                    }
+                }).catch(() => {
+                    info.revert();
+                });
+            },
+            eventDidMount: function(info) {
+                if (info.event.extendedProps.status !== 'Paid') {
+                    info.el.style.cursor = 'move';
+                    return;
+                }
+
+                info.el.style.cursor = 'not-allowed';
+                info.el.style.opacity = '0.75';
             }
         });
         calendar.render();
@@ -163,4 +275,5 @@
         }
     }
 </script>
+@include('partials.calendar-event-modal')
 @endsection

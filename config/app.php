@@ -123,4 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'allow_dangerous_system_actions' => (bool) env('APP_ALLOW_DANGEROUS_SYSTEM', false),
+
 ];

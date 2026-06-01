@@ -14,6 +14,12 @@
             @csrf
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Receipt Number (Auto) -->
+                <div class="col-span-2">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Receipt Number</label>
+                    <input type="text" name="receipt_number" value="{{ old('receipt_number', $nextReceiptNumber) }}" readonly class="w-full rounded-xl border-gray-200 bg-gray-100 text-gray-500 py-3 px-4 shadow-sm focus:outline-none">
+                </div>
+
                 <!-- Client/Invoice Selection -->
                 <div class="col-span-2">
                     <label class="block text-sm font-bold text-gray-700 mb-2">Select Invoice <span class="text-red-500">*</span></label>
@@ -21,7 +27,7 @@
                         <option value="">-- Choose an Invoice --</option>
                         @foreach($invoices as $invoice)
                         <option value="{{ $invoice->id }}" {{ old('invoice_id', request('invoice_id')) == $invoice->id ? 'selected' : '' }}>
-                            {{ $invoice->invoice_number }} - {{ $invoice->client->name }} (Due: ₹{{ number_format($invoice->total_amount - $invoice->payments->sum('amount'), 2) }})
+                            {{ $invoice->invoice_number }} - {{ $invoice->client?->name ?? 'Unknown client' }} (Due: ₹{{ number_format($invoice->total_amount - $invoice->payments->sum('amount'), 2) }})
                         </option>
                         @endforeach
                     </select>

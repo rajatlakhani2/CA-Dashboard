@@ -21,9 +21,11 @@
             </a>
         </div>
     </div>
+    @can('create', App\Models\Task::class)
     <a href="{{ route('tasks.create') }}" class="bg-primary-600 hover:bg-primary-700 text-white text-sm px-4 py-2 rounded shadow">
         + New Task
     </a>
+    @endcan
 </div>
 @endsection
 
@@ -56,6 +58,7 @@
                 </select>
             </div>
 
+            @unless(auth()->user()?->isArticle())
             <!-- Assigned To -->
             <div>
                 <label for="assigned_to" class="block text-sm font-medium text-text-main">Assigned To</label>
@@ -66,6 +69,7 @@
                     @endforeach
                 </select>
             </div>
+            @endunless
 
             <div class="flex items-end">
                 <a href="{{ route('tasks.index', ['view' => $view]) }}" class="text-sm text-text-secondary hover:text-text-main underline">Clear Filters</a>
@@ -98,9 +102,13 @@
     <!-- LIST VIEW (Original) -->
     <div class="bg-bg-card shadow overflow-hidden sm:rounded-lg">
         @if($tasks->isEmpty())
-        <div class="p-6 text-center text-text-secondary">
-            No tasks found.
-        </div>
+        @include('partials.empty-state', [
+            'title' => 'No tasks found',
+            'description' => 'Create a task or adjust filters to see work items here.',
+            'icon' => 'tasks',
+            'actionLabel' => auth()->user()?->can('create', App\Models\Task::class) ? 'New Task' : null,
+            'actionUrl' => auth()->user()?->can('create', App\Models\Task::class) ? route('tasks.create') : null,
+        ])
         @else
         <table class="min-w-full">
             <thead class="bg-bg-body">
@@ -140,20 +148,32 @@
                         {{ $task->assignee ? $task->assignee->name : 'Unassigned' }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
+                        @if(auth()->user()?->isArticle())
+                        <select class="rounded-md border-gray-300 text-sm" onchange="updateTaskStatus({{ $task->id }}, this.value)">
+                            @foreach(['Pending', 'In Progress', 'On Hold', 'Completed'] as $status)
+                            <option value="{{ $status }}" {{ $task->status === $status ? 'selected' : '' }}>{{ $status }}</option>
+                            @endforeach
+                        </select>
+                        @else
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                     {{ $task->status === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
                             {{ $task->status }}
                         </span>
+                        @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        @can('update', $task)
                         <a href="{{ route('tasks.edit', $task) }}" class="text-primary-600 hover:text-primary-900">Edit</a>
+                        @else
+                        <span class="text-gray-400">—</span>
+                        @endcan
                     </td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
         <div class="p-4">
-            {{ $tasks->links() }}
+            {!! $tasks->links() !!}
         </div>
         @endif
     </div>
@@ -164,6 +184,29 @@
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script>
+    function updateTaskStatus(taskId, status) {
+        fetch(`/tasks/${taskId}/status`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ status }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    alert('Failed to update status');
+                    location.reload();
+                }
+            })
+            .catch(() => {
+                alert('Something went wrong');
+                location.reload();
+            });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         if ("{{ $view }}" !== 'board') return;
 

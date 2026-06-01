@@ -9,6 +9,23 @@ class ServiceDue extends Model
 {
     use HasFactory, \Illuminate\Database\Eloquent\SoftDeletes;
 
+    public const STATUS_PENDING = 'Pending';
+    public const STATUS_OVERDUE = 'Overdue';
+    public const STATUS_COMPLETED = 'Completed';
+    public const STATUS_EXTENDED = 'Extended';
+
+    public const STATUSES = [
+        self::STATUS_PENDING,
+        self::STATUS_OVERDUE,
+        self::STATUS_COMPLETED,
+        self::STATUS_EXTENDED,
+    ];
+
+    public const BILLING_STATUS_PENDING = 'Pending';
+    public const BILLING_STATUS_UNBILLED = 'Unbilled';
+    public const BILLING_STATUS_BILLED = 'Billed';
+    public const BILLING_STATUS_NON_BILLABLE = 'Non-Billable';
+
     protected $fillable = [
         'client_service_id',
         'due_date',

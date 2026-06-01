@@ -9,8 +9,15 @@ use Illuminate\Support\Facades\File;
 
 class SystemController extends Controller
 {
+    private function ensureAdmin(): void
+    {
+        abort_unless(auth()->user()?->isPartner(), 403);
+    }
+
     public function index()
     {
+        $this->ensureAdmin();
+
         // System Info
         $phpVersion = phpversion();
         $laravelVersion = app()->version();
@@ -41,11 +48,61 @@ class SystemController extends Controller
             $logs = array_reverse($logs);
         }
 
-        return view('system.index', compact('phpVersion', 'laravelVersion', 'environment', 'dbStatus', 'dbName', 'logs'));
+        // Fetch existing backups
+        $backupDir = storage_path('app/private/backups');
+        $backups = [];
+        if (File::exists($backupDir)) {
+            $files = File::files($backupDir);
+            foreach ($files as $file) {
+                if ($file->getExtension() === 'zip' && str_starts_with($file->getFilename(), 'backup-')) {
+                    $mtime = File::lastModified($file->getRealPath());
+                    $size = File::size($file->getRealPath());
+                    
+                    // Format size
+                    $units = ['B', 'KB', 'MB', 'GB'];
+                    $formattedSize = $size;
+                    for ($i = 0; $formattedSize >= 1024 && $i < count($units) - 1; $i++) {
+                        $formattedSize /= 1024;
+                    }
+                    $formattedSize = round($formattedSize, 2) . ' ' . $units[$i];
+
+                    // Age calculations
+                    $diff = time() - $mtime;
+                    $daysOld = floor($diff / 86400);
+                    if ($daysOld < 1) {
+                        $hoursOld = floor($diff / 3600);
+                        if ($hoursOld < 1) {
+                            $ageStr = 'Just now';
+                        } else {
+                            $ageStr = $hoursOld . ' hour' . ($hoursOld > 1 ? 's' : '') . ' old';
+                        }
+                    } else {
+                        $ageStr = $daysOld . ' day' . ($daysOld > 1 ? 's' : '') . ' old';
+                    }
+
+                    $backups[] = [
+                        'filename' => $file->getFilename(),
+                        'size' => $formattedSize,
+                        'created_at' => date('d M Y H:i:s', $mtime),
+                        'days_old' => $daysOld,
+                        'age' => $ageStr,
+                        'mtime' => $mtime, // to sort by
+                    ];
+                }
+            }
+            // Sort by mtime descending (newest first)
+            usort($backups, function ($a, $b) {
+                return $b['mtime'] <=> $a['mtime'];
+            });
+        }
+
+        return view('system.index', compact('phpVersion', 'laravelVersion', 'environment', 'dbStatus', 'dbName', 'logs', 'backups'));
     }
 
     public function clearCache()
     {
+        $this->ensureAdmin();
+
         Artisan::call('cache:clear');
         Artisan::call('view:clear');
         Artisan::call('config:clear');
@@ -56,6 +113,8 @@ class SystemController extends Controller
 
     public function optimize()
     {
+        $this->ensureAdmin();
+
         Artisan::call('optimize');
 
         return back()->with('success', 'System optimized successfully!');
@@ -63,6 +122,8 @@ class SystemController extends Controller
 
     public function migrate()
     {
+        $this->ensureAdmin();
+
         try {
             Artisan::call('migrate', ['--force' => true]);
             $output = Artisan::output();
@@ -70,5 +131,56 @@ class SystemController extends Controller
         } catch (\Exception $e) {
             return back()->with('warning', 'Migration failed: ' . $e->getMessage());
         }
+    }
+
+    public function runBackup(\App\Services\SensitiveActionLogger $audit)
+    {
+        $this->ensureAdmin();
+
+        try {
+            Artisan::call('backup:run');
+            $audit->systemBackup('manual_ui');
+
+            return back()->with('success', 'Manual backup completed successfully!');
+        } catch (\Exception $e) {
+            return back()->with('warning', 'Backup run failed: ' . $e->getMessage());
+        }
+    }
+
+    public function downloadBackup(string $filename)
+    {
+        $this->ensureAdmin();
+
+        // Prevent path traversal attacks
+        if (basename($filename) !== $filename) {
+            abort(400, 'Invalid filename.');
+        }
+
+        $filePath = storage_path('app/private/backups/' . $filename);
+
+        if (!File::exists($filePath)) {
+            abort(404, 'Backup file not found.');
+        }
+
+        return response()->download($filePath);
+    }
+
+    public function deleteBackup(string $filename)
+    {
+        $this->ensureAdmin();
+
+        // Prevent path traversal attacks
+        if (basename($filename) !== $filename) {
+            abort(400, 'Invalid filename.');
+        }
+
+        $filePath = storage_path('app/private/backups/' . $filename);
+
+        if (File::exists($filePath)) {
+            File::delete($filePath);
+            return back()->with('success', 'Backup file deleted successfully.');
+        }
+
+        return back()->with('warning', 'Backup file not found.');
     }
 }

@@ -13,10 +13,9 @@ class WhatsAppService
 
     public function __construct()
     {
-        // Example config structure - in real app, put in services.php
-        $this->apiUrl = config('services.whatsapp.url', 'https://api.example.com');
-        $this->apiToken = config('services.whatsapp.token', 'dummy_token');
-        $this->instanceId = config('services.whatsapp.instance_id', 'dummy_instance');
+        $this->apiToken = config('services.whatsapp.token');
+        $this->instanceId = config('services.whatsapp.phone_number_id'); // Storing phone_number_id
+        $this->apiUrl = "https://graph.facebook.com/v18.0/{$this->instanceId}/messages";
     }
 
     /**
@@ -28,27 +27,47 @@ class WhatsAppService
      */
     public function sendMessage($mobile, $message)
     {
-        // Simulation Mode (since we don't have a real API key)
-        Log::info("WhatsApp Simulated Send to {$mobile}: {$message}");
+        if (empty($this->apiToken) || empty($this->instanceId) || str_contains($this->apiToken, 'your_meta_app')) {
+            Log::warning("WhatsApp API not configured. Missing token or phone number ID.");
+            return [
+                'success' => false,
+                'message' => 'WhatsApp API not configured. Please check your .env file.',
+            ];
+        }
 
-        return [
-            'success' => true,
-            'message' => 'Message queued (simulated)',
-            'data' => [
+        try {
+            $response = Http::withToken($this->apiToken)->withOptions(['verify' => false])->post($this->apiUrl, [
+                'messaging_product' => 'whatsapp',
                 'to' => $mobile,
-                'body' => $message,
-                'status' => 'queued'
-            ]
-        ];
+                'type' => 'text',
+                'text' => [
+                    'preview_url' => false,
+                    'body' => $message
+                ]
+            ]);
 
-        /* Real Implementation Example:
-        $response = Http::post("{$this->apiUrl}/message/send", [
-            'token' => $this->apiToken,
-            'to' => $mobile,
-            'body' => $message
-        ]);
-        return $response->json();
-        */
+            if ($response->successful()) {
+                Log::info("WhatsApp Message sent to {$mobile}");
+                return [
+                    'success' => true,
+                    'message' => 'Message sent successfully',
+                    'data' => $response->json()
+                ];
+            }
+
+            Log::error("WhatsApp Send Error: " . $response->body());
+            return [
+                'success' => false,
+                'message' => 'Failed to send message: ' . $response->json('error.message', 'Unknown error'),
+            ];
+
+        } catch (\Exception $e) {
+            Log::error("WhatsApp Exception: " . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage(),
+            ];
+        }
     }
 
     /**

@@ -23,4 +23,19 @@ class Service extends Model
     {
         return $this->hasMany(ClientService::class);
     }
+
+    public function taskTemplates()
+    {
+        return $this->hasMany(TaskTemplate::class);
+    }
+
+    public function billingRules()
+    {
+        return $this->hasMany(BillingRule::class);
+    }
+
+    public function documentRequirements()
+    {
+        return $this->hasMany(ServiceDocumentRequirement::class)->orderBy('sort_order')->orderBy('name');
+    }
 }

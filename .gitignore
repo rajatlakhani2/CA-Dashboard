@@ -22,3 +22,21 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Local tooling / deploy artifacts (do not publish)
+.tools/
+*.zip
+/public.zip
+/cpanel-deploy.zip
+/cpanel_update_latest.zip
+/update_patch.zip
+/scratch*.php
+/scratch*.py
+/scratch*.cjs
+/send_hello_world.php
+/create_patch.php
+/fix_theme.py
+/test_output.html
+/test_tab.cjs
+/project_structure.txt
+/verify_*.cjs

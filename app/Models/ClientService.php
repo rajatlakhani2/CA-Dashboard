@@ -9,6 +9,10 @@ class ClientService extends Model
 {
     use HasFactory;
 
+    public const STATUS_ACTIVE = 'Active';
+    public const STATUS_INACTIVE = 'Inactive';
+    public const STATUS_CLOSED = 'Closed';
+
     protected $fillable = [
         'client_id',
         'service_id',
@@ -29,5 +33,10 @@ class ClientService extends Model
     public function dues()
     {
         return $this->hasMany(ServiceDue::class);
+    }
+
+    public function documentChecks()
+    {
+        return $this->hasMany(ClientServiceDocumentCheck::class);
     }
 }

@@ -9,12 +9,16 @@ class BranchController extends Controller
 {
     public function index()
     {
+        $this->authorize('viewAny', Branch::class);
+
         $branches = Branch::all();
         return view('branches.index', compact('branches'));
     }
 
     public function store(Request $request)
     {
+        $this->authorize('create', Branch::class);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:10|unique:branches',
@@ -29,6 +33,8 @@ class BranchController extends Controller
 
     public function destroy(Branch $branch)
     {
+        $this->authorize('delete', $branch);
+
         $branch->delete();
         return redirect()->route('branches.index')->with('success', 'Branch deleted successfully.');
     }

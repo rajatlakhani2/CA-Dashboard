@@ -3,7 +3,7 @@
 @section('header')
 <div class="flex justify-between items-center w-full">
     <span>WhatsApp Notifications</span>
-    <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Simulation Mode</span>
+    <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded">Live API Connected</span>
 </div>
 @endsection
 
@@ -20,9 +20,73 @@
             </div>
             <div class="ml-3">
                 <p class="text-sm text-blue-700">
-                    This module simulates sending WhatsApp messages. In a production environment, you would integrate with a provider like Twilio, Wati, or Meta Cloud API.
+                    This module uses the live Meta Cloud API. Messages sent from here will be delivered to real client WhatsApp numbers instantly. Ensure you have Meta API credits.
                 </p>
             </div>
+        </div>
+    </div>
+
+    <!-- Inbound bot (Meta webhook) -->
+    <div class="bg-white shadow sm:rounded-lg mb-6 border border-gray-200">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg leading-6 font-bold text-gray-900">Client auto-reply bot</h3>
+                @if($inboundEnabled ?? false)
+                <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded">Inbound enabled</span>
+                @else
+                <span class="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">Inbound disabled</span>
+                @endif
+            </div>
+            <p class="text-sm text-gray-600 mb-4">
+                When enabled, clients can WhatsApp your business number and get automated replies for compliance status and open invoices.
+                Set <code class="text-xs bg-gray-100 px-1 rounded">WHATSAPP_INBOUND_ENABLED=true</code> and configure the webhook in Meta Developer Console.
+            </p>
+            <dl class="grid grid-cols-1 gap-3 text-sm">
+                <div>
+                    <dt class="font-medium text-gray-700">Callback URL</dt>
+                    <dd class="mt-1 font-mono text-xs bg-gray-50 p-2 rounded border border-gray-200 break-all">{{ $webhookUrl ?? url('/webhooks/whatsapp') }}</dd>
+                </div>
+                <div>
+                    <dt class="font-medium text-gray-700">Verify token</dt>
+                    <dd class="mt-1 text-gray-600">Must match <code class="text-xs bg-gray-100 px-1 rounded">WHATSAPP_WEBHOOK_VERIFY_TOKEN</code> in <code class="text-xs">.env</code></dd>
+                </div>
+                <div>
+                    <dt class="font-medium text-gray-700">Client keywords</dt>
+                    <dd class="mt-1 text-gray-600">GST / compliance / due · invoice / payment / outstanding · HELP for menu</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+
+    <!-- Notification Settings -->
+    <div class="bg-white shadow sm:rounded-lg mb-6 border border-gray-200">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-bold text-gray-900 mb-4">Automation Settings</h3>
+            <form action="{{ route('whatsapp.settings') }}" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                @csrf
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Morning Reminder Time</label>
+                    <input type="time" name="reminder_time_1" value="{{ $time1 ?? '10:00' }}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Evening Reminder Time</label>
+                    <input type="time" name="reminder_time_2" value="{{ $time2 ?? '18:00' }}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Lookahead Days</label>
+                    <div class="flex items-center mt-1">
+                        <input type="number" name="reminder_days_ahead" value="{{ $daysAhead ?? '7' }}" min="1" max="365" class="block w-full border border-gray-300 rounded-l-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
+                            Days
+                        </span>
+                    </div>
+                </div>
+                <div class="md:col-span-3 flex justify-end">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm transition">
+                        Save Settings
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 

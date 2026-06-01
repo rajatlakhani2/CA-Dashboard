@@ -9,7 +9,7 @@ class ServiceController extends Controller
 {
     public function index()
     {
-        $services = Service::all();
+        $services = Service::with(['taskTemplates', 'documentRequirements'])->orderBy('name')->get();
         return view('settings.services', compact('services'));
     }
 

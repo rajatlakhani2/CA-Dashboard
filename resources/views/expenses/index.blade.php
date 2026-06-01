@@ -108,14 +108,22 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-12 text-center text-gray-500 italic">No expenses recorded for this period.</td>
+                            <td colspan="5" class="p-4">
+                                @include('partials.empty-state', [
+                                    'title' => 'No expenses this period',
+                                    'description' => 'Record firm expenses to track spend by category and month.',
+                                    'icon' => 'inbox',
+                                    'actionLabel' => 'Add expense',
+                                    'actionUrl' => route('expenses.create'),
+                                ])
+                            </td>
                         </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
             <div class="px-6 py-4">
-                {{ $expenses->links() }}
+                {!! $expenses->links() !!}
             </div>
         </div>
 

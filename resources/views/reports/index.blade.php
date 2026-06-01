@@ -49,7 +49,17 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Client</label>
                     <select name="client_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                         <option value="">All Clients</option>
-                        @foreach(\App\Models\Client::orderBy('name')->get() as $client)
+                        @php
+                        $clientQuery = \App\Models\Client::query();
+                        $currentUser = auth()->user();
+                        if ($currentUser?->isManager() && $currentUser->branch_id) {
+                            $clientQuery->where(function ($query) use ($currentUser) {
+                                $query->whereNull('branch_id')
+                                    ->orWhere('branch_id', $currentUser->branch_id);
+                            });
+                        }
+                        @endphp
+                        @foreach($clientQuery->orderBy('name')->get() as $client)
                         <option value="{{ $client->id }}" {{ request('client_id') == $client->id ? 'selected' : '' }}>{{ $client->name }}</option>
                         @endforeach
                     </select>
@@ -125,6 +135,16 @@
                     <div class="text-2xl mb-2">📅</div>
                     <div class="font-medium text-sm">Due Dates</div>
                     <div class="text-xs text-gray-500">Upcoming & Overdue</div>
+                </a>
+                <a href="{{ route('reports.staff-productivity') }}" class="p-4 border border-gray-200 rounded-lg hover:border-indigo-500 hover:shadow transition">
+                    <div class="text-2xl mb-2">👤</div>
+                    <div class="font-medium text-sm">Staff Productivity</div>
+                    <div class="text-xs text-gray-500">Tasks & time</div>
+                </a>
+                <a href="{{ route('reports.client-profitability') }}" class="p-4 border border-gray-200 rounded-lg hover:border-indigo-500 hover:shadow transition">
+                    <div class="text-2xl mb-2">📈</div>
+                    <div class="font-medium text-sm">Profitability</div>
+                    <div class="text-xs text-gray-500">Revenue vs effort</div>
                 </a>
             </div>
         </div>

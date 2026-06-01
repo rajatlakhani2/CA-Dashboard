@@ -9,6 +9,14 @@ class Dsc extends Model
 {
     use HasFactory;
 
+    public const STATUS_ACTIVE = 'Active';
+    public const STATUS_EXPIRED = 'Expired';
+
+    public const STATUSES = [
+        self::STATUS_ACTIVE,
+        self::STATUS_EXPIRED,
+    ];
+
     protected $fillable = [
         'client_id',
         'holder_name',
@@ -32,6 +40,6 @@ class Dsc extends Model
 
     public function isExpiringSoon(int $days = 30): bool
     {
-        return $this->status === 'Active' && $this->expiry_date->diffInDays(now()) <= $days;
+        return $this->status === self::STATUS_ACTIVE && $this->expiry_date->diffInDays(now()) <= $days;
     }
 }

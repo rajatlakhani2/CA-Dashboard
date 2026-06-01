@@ -75,7 +75,7 @@
                     <tr class="hover:bg-indigo-50/20 transition-colors">
                         <td class="px-8 py-6">
                             <div class="text-sm font-black text-slate-900">{{ $dsc->holder_name }}</div>
-                            <div class="text-xs font-bold text-slate-400">{{ $dsc->client->name }}</div>
+                            <div class="text-xs font-bold text-slate-400">{{ $dsc->client?->name ?? '—' }}</div>
                         </td>
                         <td class="px-8 py-6">
                             <div class="flex items-center text-xs font-bold text-slate-700">
@@ -140,7 +140,7 @@
             </table>
         </div>
         <div class="px-8 py-6 bg-slate-50/50">
-            {{ $dscs->links() }}
+            {!! $dscs->links() !!}
         </div>
     </div>
 </div>

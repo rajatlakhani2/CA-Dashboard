@@ -10,7 +10,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Received (Month)</p>
-                    <p class="text-3xl font-bold text-gray-900 mt-1">₹{{ number_format($monthlyTotal, 2) }}</p>
+                    <p class="text-3xl font-bold text-gray-900 mt-1">₹{{ number_format($totalReceived, 2) }}</p>
                 </div>
                 <div class="p-3 bg-green-50 rounded-xl">
                     <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -95,7 +95,7 @@
                             {{ $payment->payment_date->format('d M, Y') }}
                         </td>
                         <td class="px-6 py-4">
-                            <div class="text-sm font-bold text-gray-900">{{ $payment->invoice->client->name }}</div>
+                            <div class="text-sm font-bold text-gray-900">{{ $payment->invoice?->client?->name ?? 'N/A' }}</div>
                             <div class="text-xs text-gray-500">Inv: #{{ $payment->invoice->invoice_number }}</div>
                         </td>
                         <td class="px-6 py-4 font-bold text-gray-900">
@@ -120,9 +120,14 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-gray-500 font-medium">
-                            No payments recorded yet. <br>
-                            <a href="{{ route('payments.create') }}" class="text-indigo-600 hover:underline">Record the first one.</a>
+                        <td colspan="6" class="p-4">
+                            @include('partials.empty-state', [
+                                'title' => 'No payments recorded',
+                                'description' => 'Log receipts against invoices to track collections and outstanding balances.',
+                                'icon' => 'payment',
+                                'actionLabel' => 'Record payment',
+                                'actionUrl' => route('payments.create'),
+                            ])
                         </td>
                     </tr>
                     @endforelse
@@ -130,7 +135,7 @@
             </table>
         </div>
         <div class="px-6 py-4 bg-gray-50/50">
-            {{ $payments->links() }}
+            {!! $payments->links() !!}
         </div>
     </div>
 </div>
