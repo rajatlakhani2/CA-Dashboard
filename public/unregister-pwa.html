@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Clear old app cache</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 32rem; margin: 3rem auto; padding: 0 1rem; }
+        .ok { color: #15803d; }
+        .warn { color: #b45309; }
+    </style>
+</head>
+<body>
+    <h1>RLA Dashboard — clear old cache</h1>
+    <p id="status">Working…</p>
+    <p><a href="/login">Go to login</a></p>
+    <script>
+        (async function () {
+            const el = document.getElementById('status');
+            const lines = [];
+
+            if ('serviceWorker' in navigator) {
+                const regs = await navigator.serviceWorker.getRegistrations();
+                for (const r of regs) {
+                    await r.unregister();
+                }
+                lines.push('Unregistered ' + regs.length + ' service worker(s).');
+            } else {
+                lines.push('No service worker support in this browser.');
+            }
+
+            if ('caches' in window) {
+                const keys = await caches.keys();
+                for (const k of keys) {
+                    await caches.delete(k);
+                }
+                lines.push('Cleared ' + keys.length + ' cache(s).');
+            }
+
+            el.innerHTML = '<span class="ok">' + lines.join('<br>') + '</span><br><br>Close this tab, then open <strong>/login</strong> in a new tab (or Incognito).';
+        })();
+    </script>
+</body>
+</html>
