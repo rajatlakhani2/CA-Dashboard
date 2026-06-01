@@ -23,10 +23,16 @@ unzip -q -o /tmp/ca-dashboard.zip -d /tmp
 rm -f /tmp/ca-dashboard.zip
 
 echo "==> Sync files (keep .env)"
-rsync -a --delete \
-  --exclude='.env' \
-  --exclude='storage/logs/*' \
-  /tmp/CA-Dashboard-master/ ./
+shopt -s dotglob
+for item in /tmp/CA-Dashboard-master/*; do
+  name="$(basename "$item")"
+  if [ "$name" = ".env" ]; then
+    continue
+  fi
+  rm -rf "./$name"
+  cp -a "$item" "./$name"
+done
+shopt -u dotglob
 
 cp -f /tmp/ca-dashboard.env.backup .env
 rm -rf /tmp/CA-Dashboard-master
