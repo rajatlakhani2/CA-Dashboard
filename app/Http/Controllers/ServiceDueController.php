@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
+use App\Models\Service;
 use App\Models\ServiceDue;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -49,9 +51,24 @@ class ServiceDueController extends Controller
 
         $dues = $query->orderBy('due_date', 'asc')->paginate(20);
         app(\App\Services\ServiceDocumentChecklistService::class)->attachToDues($dues->getCollection());
-        $clients = \App\Models\Client::orderBy('name')->get();
 
-        return view('service-dues.index', compact('dues', 'clients'));
+        $baseQuery = ServiceDue::query()
+            ->whereHas('clientService', fn ($q) => $q->whereHas('client')->whereHas('service'));
+
+        $stats = [
+            'pending' => (clone $baseQuery)->where('status', ServiceDue::STATUS_PENDING)->count(),
+            'overdue' => (clone $baseQuery)->where('status', ServiceDue::STATUS_OVERDUE)->count(),
+            'due_this_month' => (clone $baseQuery)
+                ->whereMonth('due_date', now()->month)
+                ->whereYear('due_date', now()->year)
+                ->where('status', '!=', ServiceDue::STATUS_COMPLETED)
+                ->count(),
+        ];
+
+        $clients = Client::orderBy('name')->get(['id', 'name', 'client_code']);
+        $services = Service::orderBy('name')->get(['id', 'name']);
+
+        return view('service-dues.index', compact('dues', 'clients', 'services', 'stats'));
     }
 
     /**
