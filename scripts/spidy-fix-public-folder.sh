@@ -15,10 +15,11 @@ fi
 if [ ! -d public ]; then
   echo "==> Download public/ from GitHub"
   curl -fsSL -o /tmp/ca.zip https://github.com/rajatlakhani2/CA-Dashboard/archive/refs/heads/master.zip
-  unzip -q -o /tmp/ca.zip -d /tmp "CA-Dashboard-master/public/*"
-  mkdir -p public
-  cp -a /tmp/CA-Dashboard-master/public/. public/
+  rm -rf /tmp/CA-Dashboard-master
+  unzip -q -o /tmp/ca.zip -d /tmp
+  cp -a /tmp/CA-Dashboard-master/public .
   rm -f /tmp/ca.zip
+  rm -rf /tmp/CA-Dashboard-master
 fi
 
 if [ -d build ] && [ ! -d public/build ]; then
