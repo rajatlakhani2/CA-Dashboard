@@ -1,25 +1,29 @@
 #!/bin/bash
-# Install WITHOUT uploading zip from PC — run in cPanel Terminal only.
+# Install from GitHub — run in cPanel Terminal (no PC zip upload).
 set -e
 
-APP="$HOME/public_html/app.kuhu.org.in"
+APP="${APP:-$HOME/public_html/app.kuhu.org.in}"
 ZIP_URL="https://github.com/rajatlakhani2/CA-Dashboard/archive/refs/heads/master.zip"
 
-echo "==> Installing into $APP"
+echo "==> RLA Dashboard — GitHub install"
+echo "    Target: $APP"
 mkdir -p "$APP"
 cd "$APP"
 
+ENV_BACKUP=""
 if [ -f .env ]; then
-  cp .env /tmp/ca-dashboard.env.backup
-  echo "Backed up .env"
+  ENV_BACKUP="/tmp/ca-dashboard.env.backup"
+  cp .env "$ENV_BACKUP"
+  echo "==> Backed up existing .env"
 fi
 
-echo "==> Download from GitHub (~15 MB)"
+echo "==> Download code from GitHub"
 curl -fsSL -o /tmp/ca-master.zip "$ZIP_URL"
-rm -rf /tmp/ca-master
+rm -rf /tmp/CA-Dashboard-master
 unzip -q -o /tmp/ca-master.zip -d /tmp
 rm -f /tmp/ca-master.zip
 
+echo "==> Copy files"
 shopt -s dotglob
 for item in /tmp/CA-Dashboard-master/*; do
   name="$(basename "$item")"
@@ -29,25 +33,45 @@ for item in /tmp/CA-Dashboard-master/*; do
 done
 shopt -u dotglob
 
-if [ -f /tmp/ca-dashboard.env.backup ]; then
-  cp -f /tmp/ca-dashboard.env.backup .env
+if [ -n "$ENV_BACKUP" ] && [ -f "$ENV_BACKUP" ]; then
+  cp -f "$ENV_BACKUP" .env
 else
   cp -f .env.spidy.example .env
-  echo "EDIT .env with MySQL credentials, then run: bash scripts/spidy-install.sh"
+  echo ""
+  echo ">>> Created .env — edit MySQL settings before continuing:"
+  echo "    cPanel File Manager → app.kuhu.org.in → .env"
+  echo "    Set: DB_DATABASE, DB_USERNAME, DB_PASSWORD, APP_URL"
+  echo ""
+  echo "    Then run:  bash scripts/spidy-install.sh"
   exit 0
 fi
 
-echo "==> composer install (required — vendor not in GitHub zip)"
-if command -v composer >/dev/null 2>&1; then
-  composer install --no-dev --optimize-autoloader --no-interaction
-else
-  echo "ERROR: Install Composer in cPanel or upload vendor/ via FTP"
-  exit 1
-fi
+install_composer_deps() {
+  if command -v composer >/dev/null 2>&1; then
+    composer install --no-dev --optimize-autoloader --no-interaction
+    return
+  fi
+  if [ -f "$HOME/composer.phar" ]; then
+    php "$HOME/composer.phar" install --no-dev --optimize-autoloader --no-interaction
+    return
+  fi
+  echo "==> Installing composer.phar locally"
+  curl -fsSL https://getcomposer.org/installer | php -- --install-dir="$HOME" --filename=composer.phar
+  php "$HOME/composer.phar" install --no-dev --optimize-autoloader --no-interaction
+}
 
-echo "==> Build assets missing from Git — download build zip or upload public/build from PC"
+echo "==> composer install"
+install_composer_deps
+
+chmod -R 775 storage bootstrap/cache 2>/dev/null || true
+
 if [ ! -f public/build/manifest.json ]; then
-  echo "WARN: Upload cpanel-build-upload.zip to public/ and extract build/ folder"
+  echo ""
+  echo ">>> UI build missing (not in GitHub)."
+  echo "    Upload cpanel-build-upload.zip to public/ and Extract,"
+  echo "    OR from PC upload folder public/build only via File Manager."
+  echo "    Then run: bash scripts/spidy-install.sh"
+  exit 0
 fi
 
 bash scripts/spidy-install.sh
