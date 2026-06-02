@@ -8,12 +8,19 @@
 
 ## 2. Download app from GitHub (Terminal)
 
-cPanel → **Terminal** → paste:
+cPanel → **Terminal** → paste (moves old folder to `app.kuhu.org.in.old`, fixes permissions):
 
 ```bash
-mkdir -p ~/public_html/app.kuhu.org.in
-cd ~/public_html/app.kuhu.org.in
 curl -fsSL https://raw.githubusercontent.com/rajatlakhani2/CA-Dashboard/master/scripts/spidy-download-on-server.sh | bash
+```
+
+If you see `$'\r': command not found`, fix scripts then re-run install:
+
+```bash
+cd ~/public_html/app.kuhu.org.in
+sed -i 's/\r$//' scripts/*.sh
+chmod +x scripts/*.sh
+bash scripts/spidy-install.sh
 ```
 
 ## 3. Edit `.env`

@@ -5,15 +5,20 @@ set -e
 APP="${APP:-$HOME/public_html/app.kuhu.org.in}"
 ZIP_URL="https://github.com/rajatlakhani2/CA-Dashboard/archive/refs/heads/master.zip"
 
+fix_script_line_endings() {
+  if [ -d scripts ]; then
+    sed -i 's/\r$//' scripts/*.sh 2>/dev/null || true
+    chmod +x scripts/*.sh 2>/dev/null || true
+  fi
+}
+
 echo "==> RLA Dashboard — GitHub install"
 echo "    Target: $APP"
-mkdir -p "$APP"
-cd "$APP"
 
 ENV_BACKUP=""
-if [ -f .env ]; then
+if [ -f "$APP/.env" ]; then
   ENV_BACKUP="/tmp/ca-dashboard.env.backup"
-  cp .env "$ENV_BACKUP"
+  cp "$APP/.env" "$ENV_BACKUP"
   echo "==> Backed up existing .env"
 fi
 
@@ -23,26 +28,33 @@ rm -rf /tmp/CA-Dashboard-master
 unzip -q -o /tmp/ca-master.zip -d /tmp
 rm -f /tmp/ca-master.zip
 
-echo "==> Copy files"
-shopt -s dotglob
-for item in /tmp/CA-Dashboard-master/*; do
-  name="$(basename "$item")"
-  [ "$name" = ".env" ] && continue
-  rm -rf "./$name"
-  cp -a "$item" "./$name"
-done
-shopt -u dotglob
+STAGE="/tmp/CA-Dashboard-master"
+
+# Fresh folder avoids "Permission denied" on old files
+if [ -d "$APP" ] && [ -n "$(ls -A "$APP" 2>/dev/null)" ]; then
+  echo "==> Moving old folder to app.kuhu.org.in.old (no data loss in .old)"
+  parent="$(dirname "$APP")"
+  base="$(basename "$APP")"
+  cd "$parent"
+  rm -rf "${base}.old"
+  mv "$base" "${base}.old"
+fi
+
+mkdir -p "$APP"
+cd "$APP"
+
+echo "==> Copy files into empty folder"
+cp -a "$STAGE"/. .
+fix_script_line_endings
 
 if [ -n "$ENV_BACKUP" ] && [ -f "$ENV_BACKUP" ]; then
   cp -f "$ENV_BACKUP" .env
 else
   cp -f .env.spidy.example .env
   echo ""
-  echo ">>> Created .env — edit MySQL settings before continuing:"
-  echo "    cPanel File Manager → app.kuhu.org.in → .env"
-  echo "    Set: DB_DATABASE, DB_USERNAME, DB_PASSWORD, APP_URL"
-  echo ""
-  echo "    Then run:  bash scripts/spidy-install.sh"
+  echo ">>> Created .env — edit MySQL in File Manager, then run:"
+  echo "    cd ~/public_html/app.kuhu.org.in"
+  echo "    bash scripts/spidy-install.sh"
   exit 0
 fi
 
@@ -55,7 +67,7 @@ install_composer_deps() {
     php "$HOME/composer.phar" install --no-dev --optimize-autoloader --no-interaction
     return
   fi
-  echo "==> Installing composer.phar locally"
+  echo "==> Installing composer.phar"
   curl -fsSL https://getcomposer.org/installer | php -- --install-dir="$HOME" --filename=composer.phar
   php "$HOME/composer.phar" install --no-dev --optimize-autoloader --no-interaction
 }
@@ -64,13 +76,12 @@ echo "==> composer install"
 install_composer_deps
 
 chmod -R 775 storage bootstrap/cache 2>/dev/null || true
+fix_script_line_endings
 
 if [ ! -f public/build/manifest.json ]; then
   echo ""
-  echo ">>> UI build missing (not in GitHub)."
-  echo "    Upload cpanel-build-upload.zip to public/ and Extract,"
-  echo "    OR from PC upload folder public/build only via File Manager."
-  echo "    Then run: bash scripts/spidy-install.sh"
+  echo ">>> Upload cpanel-build-upload.zip to public/ and Extract (build folder)."
+  echo "    Then: bash scripts/spidy-install.sh"
   exit 0
 fi
 
