@@ -32,6 +32,18 @@ class ClientImportApplier
 
         DB::transaction(function () use ($preview, $branchId, &$created, &$updated, &$usedCodes) {
             foreach ($preview['create'] as $row) {
+                $existing = Client::withTrashed()->where('pan', $row['pan'])->first();
+                if ($existing) {
+                    if ($existing->trashed()) {
+                        $existing->restore();
+                    }
+                    $existing->update($this->attributesFromRow($row, $branchId, null, false));
+                    $this->syncServices($existing, $row);
+                    $updated++;
+
+                    continue;
+                }
+
                 $row['client_code'] = $this->resolveClientCodeForCreate($row, $usedCodes);
                 $client = Client::create($this->attributesFromRow($row, $branchId, null, true));
                 $this->syncServices($client, $row);
@@ -39,9 +51,13 @@ class ClientImportApplier
             }
 
             foreach ($preview['update'] as $row) {
-                $client = Client::find($row['existing_id']);
+                $client = Client::withTrashed()->find($row['existing_id']);
                 if (! $client) {
                     continue;
+                }
+
+                if ($client->trashed()) {
+                    $client->restore();
                 }
 
                 $client->update($this->attributesFromRow($row, $branchId, null, false));

@@ -93,7 +93,7 @@ class ClientImportPreviewService
                 $seenCode[$clientCode] = $row['row'];
             }
 
-            $existing = Client::query()->where('pan', $pan)->first();
+            $existing = Client::withTrashed()->where('pan', $pan)->first();
 
             if ($gstin !== null) {
                 $gstinOwner = Client::query()->where('gstin', $gstin)->where('pan', '!=', $pan)->first();
@@ -134,6 +134,9 @@ class ClientImportPreviewService
             if ($existing) {
                 $entry['existing_id'] = $existing->id;
                 $entry['existing_name'] = $existing->name;
+                if ($existing->trashed()) {
+                    $rowWarnings[] = 'Client was deleted earlier — will be restored and updated on import';
+                }
                 $update[] = $entry;
             } else {
                 $create[] = $entry;
