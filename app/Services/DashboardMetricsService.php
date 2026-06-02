@@ -86,7 +86,7 @@ class DashboardMetricsService
                 0
             ),
             'collections_this_month' => '₹ ' . number_format(
-                Payment::whereBetween('date', [$startOfMonth, $endOfMonth])->sum('amount'),
+                Payment::whereBetween('payment_date', [$startOfMonth, $endOfMonth])->sum('amount'),
                 0
             ),
             'unbilled_items' => $this->unbilledItemsCount(),
