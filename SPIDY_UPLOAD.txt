@@ -7,6 +7,20 @@ BEFORE YOU DELETE THE OLD FOLDER
 1. Download a backup of .env from the server (File Manager).
 2. Export MySQL database (phpMyAdmin → Export) if you have live data.
 
+ZIP TOO LARGE FOR CPANEL?
+-------------------------
+  Desktop spidy-upload.zip is ~167 MB — many hosts reject it.
+
+  Option A — Small zip on PC:
+    powershell -ExecutionPolicy Bypass -File scripts\create-spidy-zip-small.ps1
+    Upload spidy-upload-small.zip (~30 MB), then run composer on server.
+
+  Option B — No upload from PC (cPanel Terminal only):
+    curl -fsSL https://raw.githubusercontent.com/rajatlakhani2/CA-Dashboard/master/scripts/spidy-download-on-server.sh | bash
+    Then upload ONLY cpanel-build-upload.zip to public/ (or build on PC).
+
+  Option C — FileZilla FTP (no size limit like File Manager).
+
 WHAT TO UPLOAD
 --------------
 Upload this entire project folder EXCEPT (do not upload these — saves space):
