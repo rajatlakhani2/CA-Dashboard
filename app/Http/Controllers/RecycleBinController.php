@@ -14,7 +14,7 @@ class RecycleBinController extends Controller
     {
         $trashedClients = Client::onlyTrashed()->get()->map(function ($item) {
             $item->type = 'Client';
-            $item->display_name = $item->name;
+            $item->display_name = $item->name.($item->pan ? ' · PAN '.$item->pan : '');
             return $item;
         });
 

@@ -59,6 +59,11 @@ class ClientController extends Controller
         $clients = $query->latest()->paginate(10);
         $managers = \App\Models\User::all();
 
+        $panLookupHint = null;
+        if ($request->filled('search') && $clients->total() === 0) {
+            $panLookupHint = $this->panLookupHint((string) $request->input('search'));
+        }
+
         $pendingClients = collect();
         if (auth()->user()?->isPartner()) {
             $pendingClients = Client::query()
@@ -68,7 +73,66 @@ class ClientController extends Controller
                 ->get();
         }
 
-        return view('clients.index', compact('clients', 'managers', 'pendingClients'));
+        return view('clients.index', compact('clients', 'managers', 'pendingClients', 'panLookupHint'));
+    }
+
+    /**
+     * @return array{type: string, name: string, code: ?string, action_url: ?string, action_label: ?string}|null
+     */
+    protected function panLookupHint(string $search): ?array
+    {
+        $term = strtoupper(trim($search));
+        if (! preg_match('/^[A-Z]{5}[0-9]{4}[A-Z]$/', $term)) {
+            return null;
+        }
+
+        $trashed = Client::onlyTrashed()->whereRaw('UPPER(TRIM(pan)) = ?', [$term])->first();
+        if ($trashed) {
+            return [
+                'type' => 'trashed',
+                'name' => $trashed->name,
+                'code' => $trashed->client_code,
+                'action_url' => route('recycle-bin.index'),
+                'action_label' => 'Open Recycle Bin',
+            ];
+        }
+
+        $pending = Client::query()
+            ->whereRaw('UPPER(TRIM(pan)) = ?', [$term])
+            ->where('approval_status', Client::APPROVAL_PENDING)
+            ->first();
+
+        if ($pending) {
+            return [
+                'type' => 'pending',
+                'name' => $pending->name,
+                'code' => $pending->client_code,
+                'action_url' => null,
+                'action_label' => null,
+            ];
+        }
+
+        $hidden = Client::findByPan($term, false);
+        $user = auth()->user();
+        if ($hidden && $user) {
+            $visible = Client::query()
+                ->visibleTo($user)
+                ->when($user->isPartner(), fn ($q) => $q->where('approval_status', Client::APPROVAL_APPROVED))
+                ->where('id', $hidden->id)
+                ->exists();
+
+            if (! $visible) {
+                return [
+                    'type' => 'hidden',
+                    'name' => $hidden->name,
+                    'code' => $hidden->client_code,
+                    'action_url' => $user->can('update', $hidden) ? route('clients.edit', $hidden) : null,
+                    'action_label' => 'Open client',
+                ];
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -90,6 +154,25 @@ class ClientController extends Controller
         $this->authorize('create', Client::class);
 
         $validated = $request->validated();
+        $validated['pan'] = strtoupper(trim($validated['pan']));
+
+        $trashed = Client::onlyTrashed()->whereRaw('UPPER(TRIM(pan)) = ?', [$validated['pan']])->first();
+        if ($trashed) {
+            $trashed->restore();
+            $trashed->fill(collect($validated)->except(['services', 'custom_due_days'])->all());
+            $trashed->approval_status = Client::APPROVAL_APPROVED;
+            $trashed->approved_at = now();
+            $trashed->approved_by_user_id = auth()->id();
+            $trashed->save();
+
+            if ($request->has('services')) {
+                $this->syncClientServices($trashed, $request->input('services', []), $request->input('custom_due_days', []));
+            }
+
+            return redirect()
+                ->route('clients.edit', $trashed)
+                ->with('success', "Client \"{$trashed->name}\" was in the Recycle Bin and has been restored.");
+        }
 
         if ($request->has('tags') && $request->tags) {
             $validated['tags'] = array_map('trim', explode(',', $request->tags));
@@ -132,18 +215,8 @@ class ClientController extends Controller
 
         $client->save();
 
-        // Sync Services with Custom Due Days
         if ($request->has('services')) {
-            $services = $request->input('services', []);
-            $customDueDays = $request->input('custom_due_days', []);
-            $syncData = [];
-
-            foreach ($services as $serviceId) {
-                $syncData[$serviceId] = [
-                    'custom_due_day' => $customDueDays[$serviceId] ?? null
-                ];
-            }
-            $client->optedServices()->sync($syncData);
+            $this->syncClientServices($client, $request->input('services', []), $request->input('custom_due_days', []));
         }
 
         if ($user->isArticle()) {
@@ -277,20 +350,27 @@ class ClientController extends Controller
 
         $client->update($validated);
 
-        // Sync Services with Custom Due Days
-        $services = $request->input('services', []);
-        $customDueDays = $request->input('custom_due_days', []);
+        if ($request->has('services')) {
+            $this->syncClientServices($client, $request->input('services', []), $request->input('custom_due_days', []));
+        }
 
+        return redirect()->route('clients.index')->with('success', 'Client updated successfully.');
+    }
+
+    /**
+     * @param  list<int|string>  $services
+     * @param  array<int|string, mixed>  $customDueDays
+     */
+    protected function syncClientServices(Client $client, array $services, array $customDueDays): void
+    {
         $syncData = [];
         foreach ($services as $serviceId) {
             $syncData[$serviceId] = [
-                'custom_due_day' => $customDueDays[$serviceId] ?? null
+                'custom_due_day' => $customDueDays[$serviceId] ?? null,
             ];
         }
 
         $client->optedServices()->sync($syncData);
-
-        return redirect()->route('clients.index')->with('success', 'Client updated successfully.');
     }
 
     /**

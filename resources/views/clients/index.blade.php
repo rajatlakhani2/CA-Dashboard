@@ -36,6 +36,24 @@ Clients
     </div>
     @endif
 
+    @if(!empty($panLookupHint))
+    <div class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+        @if($panLookupHint['type'] === 'trashed')
+        <p class="font-semibold">PAN found in Recycle Bin</p>
+        <p class="mt-1">Client <strong>{{ $panLookupHint['name'] }}</strong> ({{ $panLookupHint['code'] }}) was deleted and does not appear in the main list.</p>
+        @elseif($panLookupHint['type'] === 'pending')
+        <p class="font-semibold">PAN waiting for approval</p>
+        <p class="mt-1">Client <strong>{{ $panLookupHint['name'] }}</strong> ({{ $panLookupHint['code'] }}) is pending approval — see the yellow box above.</p>
+        @else
+        <p class="font-semibold">PAN exists but is hidden by your access rules</p>
+        <p class="mt-1">Client <strong>{{ $panLookupHint['name'] }}</strong> ({{ $panLookupHint['code'] }}) may be assigned to another manager.</p>
+        @endif
+        @if(!empty($panLookupHint['action_url']))
+        <a href="{{ $panLookupHint['action_url'] }}" class="mt-2 inline-flex font-semibold text-indigo-700 hover:underline">{{ $panLookupHint['action_label'] }} →</a>
+        @endif
+    </div>
+    @endif
+
     <!-- Action Bar -->
     <div class="flex flex-col sm:flex-row justify-between gap-4">
         <!-- Search & Filter -->

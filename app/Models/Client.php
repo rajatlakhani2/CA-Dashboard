@@ -90,6 +90,18 @@ class Client extends Model
         return $query->where('approval_status', self::APPROVAL_APPROVED);
     }
 
+    public static function findByPan(string $pan, bool $withTrashed = true): ?self
+    {
+        $pan = strtoupper(trim($pan));
+        if ($pan === '') {
+            return null;
+        }
+
+        $query = $withTrashed ? static::withTrashed() : static::query();
+
+        return $query->whereRaw('UPPER(TRIM(pan)) = ?', [$pan])->first();
+    }
+
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
         if ($user->isArticle()) {

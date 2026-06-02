@@ -77,11 +77,46 @@ class ClientModuleTest extends TestCase
         $response->assertSessionHasErrors(['pan']);
     }
 
+    public function test_create_restores_trashed_client_with_same_pan(): void
+    {
+        $pan = 'AIJPL2460L';
+        $trashed = Client::factory()->create([
+            'name' => 'Hidden Client',
+            'pan' => $pan,
+            'client_code' => 'CL-OLD1',
+        ]);
+        $trashed->delete();
+
+        $response = $this->post('/clients', [
+            'name' => 'Restored Name',
+            'pan' => $pan,
+            'category' => 'C',
+            'status' => 'Active',
+        ]);
+
+        $response->assertRedirect(route('clients.edit', $trashed));
+        $this->assertNull($trashed->fresh()->deleted_at);
+        $this->assertSame('Restored Name', $trashed->fresh()->name);
+    }
+
+    public function test_pan_search_shows_recycle_bin_hint_for_trashed_client(): void
+    {
+        $partner = \App\Models\User::factory()->create(['role' => 'partner']);
+        $client = Client::factory()->create(['pan' => 'AIJPL2460L', 'name' => 'Trashed Co']);
+        $client->delete();
+
+        $this->actingAs($partner)
+            ->get(route('clients.index', ['search' => 'AIJPL2460L']))
+            ->assertOk()
+            ->assertSee('Recycle Bin', false)
+            ->assertSee('Trashed Co', false);
+    }
+
     public function test_can_create_client_with_tags()
     {
         $data = [
             'name' => 'Tagged Client',
-            'pan' => 'TAGGED1234F',
+            'pan' => 'TAGGE1234F',
             'status' => 'Active',
             'category' => 'A',
             'tags' => 'VIP, Urgent, Audit'
@@ -91,7 +126,7 @@ class ClientModuleTest extends TestCase
 
         $response->assertRedirect('/clients');
 
-        $client = Client::where('pan', 'TAGGED1234F')->first();
+        $client = Client::where('pan', 'TAGGE1234F')->first();
         $this->assertNotNull($client);
         $this->assertTrue(in_array('VIP', $client->tags));
         $this->assertTrue(in_array('Urgent', $client->tags));

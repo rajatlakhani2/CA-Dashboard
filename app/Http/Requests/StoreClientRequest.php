@@ -19,7 +19,18 @@ class StoreClientRequest extends FormRequest
             'group_name' => 'nullable|string|max:255',
             'entity_type' => 'nullable|string',
             'industry' => 'nullable|string',
-            'pan' => 'required|string|unique:clients,pan',
+            'pan' => [
+                'required',
+                'regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    $existing = Client::findByPan((string) $value);
+                    if (! $existing || $existing->trashed()) {
+                        return;
+                    }
+
+                    $fail("This PAN is already used by {$existing->name} ({$existing->client_code}). Find them on the Clients page or search for {$existing->client_code}.");
+                },
+            ],
             'gstin' => 'nullable|string|unique:clients,gstin',
             'cin' => 'nullable|string',
             'tan' => 'nullable|string',
@@ -27,7 +38,7 @@ class StoreClientRequest extends FormRequest
             'primary_contact_phone' => 'nullable|string',
             'primary_contact_email' => 'nullable|email',
             'category' => 'required|in:A,B,C',
-            'status' => 'required|in:' . implode(',', [Client::STATUS_ACTIVE, Client::STATUS_ON_HOLD, Client::STATUS_CLOSED]),
+            'status' => 'required|in:'.implode(',', [Client::STATUS_ACTIVE, Client::STATUS_ON_HOLD, Client::STATUS_CLOSED]),
             'tags' => 'nullable|string',
             'billing_cycle' => 'nullable|string',
             'registered_address' => 'nullable|string',
