@@ -4,8 +4,9 @@
 
 @section('content')
 <div class="max-w-6xl mx-auto space-y-6">
-    <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4 text-sm text-indigo-900">
-        Review all rows before confirming. Invalid rows must be fixed in Excel and re-uploaded. Warnings can be reviewed but do not block import.
+    <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4 text-sm text-indigo-900 space-y-2">
+        <p>Review all rows before confirming. Invalid rows must be fixed in Excel and re-uploaded. Warnings can be reviewed but do not block import.</p>
+        <p><strong>Services column:</strong> comma-separated names (e.g. <code class="bg-white/80 px-1 rounded">IT Return, GST Return</code>). Aliases like <code class="bg-white/80 px-1 rounded">Income Tax</code> or <code class="bg-white/80 px-1 rounded">ITR</code> also work. Leave blank to skip service assignment on that row.</p>
     </div>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -37,6 +38,7 @@
                     <th class="px-4 py-2 text-left">Name</th>
                     <th class="px-4 py-2 text-left">PAN</th>
                     <th class="px-4 py-2 text-left">Code</th>
+                    <th class="px-4 py-2 text-left">Services</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
@@ -46,6 +48,7 @@
                     <td class="px-4 py-2 font-medium">{{ $row['name'] }}</td>
                     <td class="px-4 py-2">{{ $row['pan'] }}</td>
                     <td class="px-4 py-2 text-gray-500">{{ $row['client_code'] ?? 'auto' }}</td>
+                    <td class="px-4 py-2 text-gray-600">{{ !empty($row['services_resolved']) ? implode(', ', $row['services_resolved']) : '—' }}</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -63,6 +66,7 @@
                     <th class="px-4 py-2 text-left">Name</th>
                     <th class="px-4 py-2 text-left">PAN</th>
                     <th class="px-4 py-2 text-left">Existing</th>
+                    <th class="px-4 py-2 text-left">Services</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
@@ -72,6 +76,7 @@
                     <td class="px-4 py-2 font-medium">{{ $row['name'] }}</td>
                     <td class="px-4 py-2">{{ $row['pan'] }}</td>
                     <td class="px-4 py-2 text-gray-500">{{ $row['existing_name'] ?? '—' }}</td>
+                    <td class="px-4 py-2 text-gray-600">{{ !empty($row['services_resolved']) ? implode(', ', $row['services_resolved']) : '—' }}</td>
                 </tr>
                 @endforeach
             </tbody>

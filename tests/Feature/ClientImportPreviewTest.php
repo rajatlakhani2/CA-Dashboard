@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Client;
+use App\Models\ClientService;
+use App\Models\Service;
 use App\Models\User;
 use App\Services\ClientImportApplier;
 use App\Services\ClientImportPreviewService;
@@ -41,6 +43,51 @@ class ClientImportPreviewTest extends TestCase
         $this->assertCount(1, $preview['create']);
         $this->assertCount(1, $preview['invalid']);
         $this->assertStringContainsString('Duplicate PAN', $preview['invalid'][0]['errors'][0]);
+    }
+
+    public function test_import_assigns_services_from_column(): void
+    {
+        Storage::fake('local');
+
+        $itr = Service::create(['name' => 'IT Return', 'code' => 'ITR', 'frequency' => 'Annually']);
+        $gst = Service::create(['name' => 'GST Return', 'code' => 'GST', 'frequency' => 'Monthly']);
+
+        $csv = "name,pan,services\nService Client,SERVC1234A,\"Income Tax, GST\"\n";
+        $path = 'client-imports/services.csv';
+        Storage::put($path, $csv);
+
+        $preview = app(ClientImportPreviewService::class)->preview(Storage::path($path));
+
+        $this->assertCount(1, $preview['create']);
+        $this->assertSame([$itr->id, $gst->id], $preview['create'][0]['service_ids']);
+
+        app(ClientImportApplier::class)->apply(Storage::path($path));
+
+        $client = Client::where('pan', 'SERVC1234A')->first();
+        $this->assertNotNull($client);
+        $this->assertDatabaseHas('client_services', [
+            'client_id' => $client->id,
+            'service_id' => $itr->id,
+            'status' => ClientService::STATUS_ACTIVE,
+        ]);
+        $this->assertDatabaseHas('client_services', [
+            'client_id' => $client->id,
+            'service_id' => $gst->id,
+        ]);
+    }
+
+    public function test_preview_warns_on_unknown_services(): void
+    {
+        Service::create(['name' => 'IT Return', 'code' => 'ITR', 'frequency' => 'Annually']);
+
+        $csv = "name,pan,services\nWarn Co,WARNC1234A,IT Return; Fake Service\n";
+        $file = UploadedFile::fake()->createWithContent('warn.csv', $csv);
+
+        $preview = app(ClientImportPreviewService::class)->preview($file);
+
+        $this->assertCount(1, $preview['create']);
+        $this->assertCount(1, $preview['warnings']);
+        $this->assertStringContainsString('Fake Service', $preview['warnings'][0]['messages'][0]);
     }
 
     public function test_confirm_import_applies_create_and_update(): void

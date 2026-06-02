@@ -10,6 +10,10 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ClientImportPreviewService
 {
+    public function __construct(
+        protected ClientImportServiceResolver $serviceResolver,
+    ) {}
+
     /**
      * @return array{create: array, update: array, invalid: array, warnings: array, skip: array}
      */
@@ -109,6 +113,10 @@ class ClientImportPreviewService
                 }
             }
 
+            if (! empty($row['unknown_services'])) {
+                $rowWarnings[] = 'Unknown service(s): ' . implode(', ', $row['unknown_services']);
+            }
+
             $entry = array_merge($row, [
                 'branch_id' => $branchId,
                 'warnings' => $rowWarnings,
@@ -170,6 +178,9 @@ class ClientImportPreviewService
             $gstin = strtoupper(trim((string) ($data['gstin'] ?? '')));
             $clientCode = trim((string) ($data['client_code'] ?? ''));
 
+            $servicesRaw = $this->stringOrNull($data['services'] ?? null);
+            $serviceMatch = $this->serviceResolver->resolve($servicesRaw);
+
             $parsed[] = [
                 'row' => $i + 1,
                 'empty' => $name === '' && $pan === '',
@@ -187,6 +198,10 @@ class ClientImportPreviewService
                 'primary_contact_name' => $this->stringOrNull($data['primary_contact_name'] ?? null),
                 'phone' => $this->stringOrNull($data['phone'] ?? null),
                 'email' => $this->stringOrNull($data['email'] ?? null),
+                'services_raw' => $servicesRaw,
+                'service_ids' => $serviceMatch['service_ids'],
+                'services_resolved' => $serviceMatch['resolved'],
+                'unknown_services' => $serviceMatch['unknown'],
             ];
         }
 
@@ -199,6 +214,7 @@ class ClientImportPreviewService
 
         return match ($header) {
             'mobile', 'contact_phone', 'primary_contact_phone' => 'phone',
+            'service', 'service_types', 'services_provided', 'type_of_services' => 'services',
             default => $header,
         };
     }

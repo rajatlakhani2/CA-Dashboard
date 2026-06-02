@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Client;
+use App\Models\ClientService;
 use Illuminate\Support\Facades\DB;
 
 class ClientImportApplier
@@ -28,7 +29,8 @@ class ClientImportApplier
 
         DB::transaction(function () use ($preview, $branchId, &$created, &$updated, &$nextId) {
             foreach ($preview['create'] as $row) {
-                Client::create($this->attributesFromRow($row, $branchId, $nextId));
+                $client = Client::create($this->attributesFromRow($row, $branchId, $nextId));
+                $this->syncServices($client, $row);
                 $created++;
                 $nextId++;
             }
@@ -40,6 +42,7 @@ class ClientImportApplier
                 }
 
                 $client->update($this->attributesFromRow($row, $branchId, null, false));
+                $this->syncServices($client, $row);
                 $updated++;
             }
         });
@@ -85,5 +88,26 @@ class ClientImportApplier
         }
 
         return array_filter($attrs, fn ($v) => $v !== null);
+    }
+
+    /**
+     * @param  array<string, mixed>  $row
+     */
+    protected function syncServices(Client $client, array $row): void
+    {
+        $serviceIds = $row['service_ids'] ?? [];
+        if ($serviceIds === []) {
+            return;
+        }
+
+        $syncData = [];
+        foreach ($serviceIds as $serviceId) {
+            $syncData[$serviceId] = [
+                'status' => ClientService::STATUS_ACTIVE,
+                'custom_due_day' => null,
+            ];
+        }
+
+        $client->optedServices()->sync($syncData);
     }
 }
