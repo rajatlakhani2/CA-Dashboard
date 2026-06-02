@@ -185,6 +185,7 @@ class ClientImportPreviewService
                 'row' => $i + 1,
                 'empty' => $name === '' && $pan === '',
                 'name' => $name,
+                'group_name' => $this->stringOrNull($data['group_name'] ?? null),
                 'pan' => $pan,
                 'gstin' => $gstin !== '' ? $gstin : null,
                 'client_code' => $clientCode !== '' ? $clientCode : null,
@@ -215,6 +216,7 @@ class ClientImportPreviewService
         return match ($header) {
             'mobile', 'contact_phone', 'primary_contact_phone' => 'phone',
             'service', 'service_types', 'services_provided', 'type_of_services' => 'services',
+            'group', 'client reference', 'reference', 'portfolio' => 'group_name',
             default => $header,
         };
     }

@@ -67,6 +67,7 @@ class ClientImportApplier
 
         $attrs = [
             'name' => $row['name'],
+            'group_name' => $row['group_name'] ?? null,
             'entity_type' => $row['entity_type'],
             'industry' => $row['industry'],
             'pan' => $row['pan'],

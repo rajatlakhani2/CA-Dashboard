@@ -6,7 +6,7 @@
 <div class="max-w-6xl mx-auto space-y-6">
     <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4 text-sm text-indigo-900 space-y-2">
         <p>Review all rows before confirming. Invalid rows must be fixed in Excel and re-uploaded. Warnings can be reviewed but do not block import.</p>
-        <p><strong>Services column:</strong> comma-separated names (e.g. <code class="bg-white/80 px-1 rounded">IT Return, GST Return</code>). Aliases like <code class="bg-white/80 px-1 rounded">Income Tax</code> or <code class="bg-white/80 px-1 rounded">ITR</code> also work. Leave blank to skip service assignment on that row.</p>
+        <p><strong>group_name</strong> = client reference / portfolio (e.g. <code class="bg-white/80 px-1 rounded">Nileshbhai</code>). <strong>Services:</strong> comma-separated (e.g. <code class="bg-white/80 px-1 rounded">IT Return, GST Return</code>).</p>
     </div>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">

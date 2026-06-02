@@ -13,6 +13,7 @@ class ClientTemplateExport implements FromArray, WithTitle
             [
                 'client_code',
                 'name',
+                'group_name',
                 'entity_type',
                 'industry',
                 'pan',
@@ -30,6 +31,7 @@ class ClientTemplateExport implements FromArray, WithTitle
             [
                 '',
                 'Example Client Ltd',
+                'Nileshbhai',
                 'Private Limited',
                 'Trading',
                 'ABCDE1234F',

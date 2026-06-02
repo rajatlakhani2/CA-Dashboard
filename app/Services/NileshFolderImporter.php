@@ -44,7 +44,7 @@ class NileshFolderImporter
 
             $payload = [
                 'name' => $clientName,
-                'group_name' => 'Nilesh Bhai',
+                'group_name' => 'Nileshbhai',
                 'tags' => ['Nileshbhai client'],
                 'status' => Client::STATUS_ACTIVE,
                 'category' => 'C',

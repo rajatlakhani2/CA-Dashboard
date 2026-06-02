@@ -36,10 +36,10 @@ class ExportNileshImportSheet extends Command
         $withPan = 0;
         $withGst = 0;
         foreach (array_slice($rows, 1) as $row) {
-            if (! empty($row[4])) {
+            if (! empty($row[5])) {
                 $withPan++;
             }
-            if (str_contains((string) ($row[14] ?? ''), 'GST Return')) {
+            if (str_contains((string) ($row[15] ?? ''), 'GST Return')) {
                 $withGst++;
             }
         }

@@ -34,6 +34,7 @@ class NileshClientsImportExport implements FromArray, WithTitle
         $headers = [
             'client_code',
             'name',
+            'group_name',
             'entity_type',
             'industry',
             'pan',
@@ -97,6 +98,7 @@ class NileshClientsImportExport implements FromArray, WithTitle
             $sheet[] = [
                 '',
                 $name,
+                'Nileshbhai',
                 $this->guessEntityType($name),
                 '',
                 $pan,
