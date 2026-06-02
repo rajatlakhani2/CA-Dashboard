@@ -5,6 +5,10 @@ Compliance Schedule
 @endsection
 
 @section('content')
+@php
+    $stats = $stats ?? ['pending' => 0, 'overdue' => 0, 'due_this_month' => 0];
+    $services = $services ?? collect();
+@endphp
 <div class="max-w-7xl mx-auto space-y-5">
     {{-- Summary --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
