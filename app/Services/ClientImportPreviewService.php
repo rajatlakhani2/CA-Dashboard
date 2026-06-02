@@ -93,7 +93,7 @@ class ClientImportPreviewService
                 $seenCode[$clientCode] = $row['row'];
             }
 
-            $existing = Client::withTrashed()->where('pan', $pan)->first();
+            $existing = $this->findClientByPan($pan);
 
             if ($gstin !== null) {
                 $gstinOwner = Client::query()->where('gstin', $gstin)->where('pan', '!=', $pan)->first();
@@ -210,6 +210,18 @@ class ClientImportPreviewService
         }
 
         return $parsed;
+    }
+
+    protected function findClientByPan(string $pan): ?Client
+    {
+        $pan = strtoupper(trim($pan));
+        if ($pan === '') {
+            return null;
+        }
+
+        return Client::withTrashed()
+            ->whereRaw('UPPER(TRIM(pan)) = ?', [$pan])
+            ->first();
     }
 
     protected function normalizeHeader(string $header): string

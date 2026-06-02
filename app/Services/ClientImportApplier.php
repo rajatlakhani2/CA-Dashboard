@@ -8,16 +8,20 @@ use Illuminate\Support\Facades\DB;
 
 class ClientImportApplier
 {
+    /** Bump when deploy verification is needed (grep on server). */
+    public const VERSION = 2;
+
     public function __construct(
         protected ClientImportPreviewService $previewService,
     ) {}
 
     /**
+     * @param  array{create: array, update: array, invalid: array}|null  $preview  Optional preview from session (confirm UI).
      * @return array{created: int, updated: int, skipped: int}
      */
-    public function apply(string $absolutePath, ?int $branchId = null): array
+    public function apply(string $absolutePath, ?int $branchId = null, ?array $preview = null): array
     {
-        $preview = $this->previewService->preview($absolutePath, $branchId);
+        $preview ??= $this->previewService->preview($absolutePath, $branchId);
 
         if (count($preview['invalid']) > 0) {
             throw new \InvalidArgumentException('Cannot import while invalid rows exist.');
@@ -32,7 +36,7 @@ class ClientImportApplier
 
         DB::transaction(function () use ($preview, $branchId, &$created, &$updated, &$usedCodes) {
             foreach ($preview['create'] as $row) {
-                $existing = Client::withTrashed()->where('pan', $row['pan'])->first();
+                $existing = $this->findClientByPan((string) $row['pan']);
                 if ($existing) {
                     if ($existing->trashed()) {
                         $existing->restore();
@@ -71,6 +75,18 @@ class ClientImportApplier
             'updated' => $updated,
             'skipped' => 0,
         ];
+    }
+
+    protected function findClientByPan(string $pan): ?Client
+    {
+        $pan = strtoupper(trim($pan));
+        if ($pan === '') {
+            return null;
+        }
+
+        return Client::withTrashed()
+            ->whereRaw('UPPER(TRIM(pan)) = ?', [$pan])
+            ->first();
     }
 
     /**

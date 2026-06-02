@@ -7,6 +7,7 @@ use App\Services\ClientImportApplier;
 use App\Services\ClientImportPreviewService;
 use App\Services\NileshFolderImporter;
 use App\Services\NileshFolderImportService;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -54,13 +55,27 @@ class ClientImportController extends Controller
         }
 
         try {
-            $result = $applier->apply(Storage::path($storedPath), session('client_import_branch'));
+            $result = $applier->apply(
+                Storage::path($storedPath),
+                session('client_import_branch'),
+                $preview,
+            );
         } catch (\InvalidArgumentException $e) {
             return redirect()->route('clients.index')->with('error', $e->getMessage());
-        } finally {
-            Storage::delete($storedPath);
-            session()->forget(['client_import_preview', 'client_import_branch', 'client_import_file']);
+        } catch (UniqueConstraintViolationException $e) {
+            if (str_contains($e->getMessage(), 'clients_pan_unique')) {
+                return redirect()->route('clients.index')->with(
+                    'error',
+                    'Import failed: a client with this PAN already exists (often from a previous partial import). '
+                    .'Deploy the latest ClientImportApplier.php (version '.ClientImportApplier::VERSION.'), run php artisan optimize:clear, then upload and import again.'
+                );
+            }
+
+            throw $e;
         }
+
+        Storage::delete($storedPath);
+        session()->forget(['client_import_preview', 'client_import_branch', 'client_import_file']);
 
         return redirect()->route('clients.index')->with(
             'success',
