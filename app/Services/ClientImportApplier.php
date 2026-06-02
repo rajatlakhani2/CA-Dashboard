@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class ClientImportApplier
 {
     /** Bump when deploy verification is needed (grep on server). */
-    public const VERSION = 2;
+    public const VERSION = 3;
 
     public function __construct(
         protected ClientImportPreviewService $previewService,
@@ -116,7 +116,8 @@ class ClientImportApplier
             'branch_id' => $branchId,
         ];
 
-        if ($forCreate || $code) {
+        // On update, keep the existing client_code (Excel codes are often re-export labels).
+        if ($forCreate && $code) {
             $attrs['client_code'] = $code;
         }
 

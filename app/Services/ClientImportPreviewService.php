@@ -102,8 +102,8 @@ class ClientImportPreviewService
                 }
             }
 
-            if ($clientCode !== '' && $existing && $existing->client_code !== $clientCode) {
-                $rowWarnings[] = 'Client code differs from existing record';
+            if ($clientCode !== null && $existing && $existing->client_code !== $clientCode) {
+                $rowWarnings[] = 'Excel client code differs from existing (existing code will be kept)';
             }
 
             if ($clientCode !== '' && ! $existing) {

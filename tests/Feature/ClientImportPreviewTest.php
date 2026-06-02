@@ -158,6 +158,28 @@ class ClientImportPreviewTest extends TestCase
         $this->assertMatchesRegularExpression('/^CL-\d{4}$/', $client->client_code);
     }
 
+    public function test_import_update_keeps_existing_client_code_when_excel_differs(): void
+    {
+        Storage::fake('local');
+
+        $existing = Client::factory()->create([
+            'pan' => 'EYVPD6712B',
+            'name' => 'Old Ajay',
+            'client_code' => 'CL-0099',
+        ]);
+
+        $csv = "name,pan,client_code,group_name\nAjay Dalki,EYVPD6712B,CL-0284,Nileshbhai\n";
+        $path = 'client-imports/keep-code.csv';
+        Storage::put($path, $csv);
+
+        app(ClientImportApplier::class)->apply(Storage::path($path));
+
+        $existing->refresh();
+        $this->assertSame('CL-0099', $existing->client_code);
+        $this->assertSame('Ajay Dalki', $existing->name);
+        $this->assertSame('Nileshbhai', $existing->group_name);
+    }
+
     public function test_confirm_import_applies_create_and_update(): void
     {
         Storage::fake('local');
