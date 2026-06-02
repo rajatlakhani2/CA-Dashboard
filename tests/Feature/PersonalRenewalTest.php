@@ -41,6 +41,7 @@ class PersonalRenewalTest extends TestCase
             'document' => $file,
         ]);
 
+        $response->assertRedirect(route('personal-renewals.index'));
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('personal_renewals', [

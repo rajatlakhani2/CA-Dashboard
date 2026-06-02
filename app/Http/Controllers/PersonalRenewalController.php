@@ -72,7 +72,9 @@ class PersonalRenewalController extends Controller
 
         PersonalRenewal::create($validated);
 
-        return redirect()->back()->with('success', 'Renewal added successfully.');
+        return redirect()
+            ->route('personal-renewals.index')
+            ->with('success', 'Renewal added successfully.');
     }
 
     public function edit(PersonalRenewal $personalRenewal)
@@ -137,10 +139,14 @@ class PersonalRenewalController extends Controller
                 // Don't carry over document path for new period usually? Or maybe yes? Let's say no for now.
             ]);
 
-            return redirect()->back()->with('success', 'Renewal marked paid & next cycle created!');
+            return redirect()
+                ->route('personal-renewals.index')
+                ->with('success', 'Renewal marked paid & next cycle created!');
         }
 
-        return redirect()->back()->with('success', 'Renewal updated successfully.');
+        return redirect()
+            ->route('personal-renewals.index', request()->only('tab'))
+            ->with('success', 'Renewal updated successfully.');
     }
 
     public function destroy(PersonalRenewal $personalRenewal)
@@ -150,7 +156,10 @@ class PersonalRenewalController extends Controller
         }
 
         $personalRenewal->delete();
-        return redirect()->back()->with('success', 'Renewal deleted successfully.');
+
+        return redirect()
+            ->route('personal-renewals.index', request()->only('tab'))
+            ->with('success', 'Renewal deleted successfully.');
     }
 
     public function sendWhatsApp(PersonalRenewal $personalRenewal, \App\Services\WhatsAppService $whatsapp)

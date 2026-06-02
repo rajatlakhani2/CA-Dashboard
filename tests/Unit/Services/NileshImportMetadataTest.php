@@ -33,7 +33,26 @@ class NileshImportMetadataTest extends TestCase
     {
         $this->assertTrue($this->metadata->shouldSkipFolder('.hidden'));
         $this->assertTrue($this->metadata->shouldSkipFolder('desktop.ini'));
+        $this->assertTrue($this->metadata->shouldSkipFolder('Extra'));
+        $this->assertTrue($this->metadata->shouldSkipFolder('Payment sheet'));
         $this->assertFalse($this->metadata->shouldSkipFolder('Rajesh Shah'));
+    }
+
+    public function test_extract_gst_metadata_detects_gst_folder_and_gstin(): void
+    {
+        $clientDir = $this->tempDir.'/Mitesh Agia- GST';
+        $gstDir = $clientDir.'/GST';
+        $returnDir = $clientDir.'/GST return';
+        File::makeDirectory($gstDir, 0755, true);
+        File::makeDirectory($returnDir, 0755, true);
+        File::put($gstDir.'/27ABCDE1234F1Z5_registration.pdf', 'pdf');
+        File::put($returnDir.'/GSTR3B_Apr.pdf', 'pdf');
+
+        $meta = $this->metadata->extractGstMetadata($clientDir);
+
+        $this->assertTrue($meta['has_gst']);
+        $this->assertSame('27ABCDE1234F1Z5', $meta['gstin']);
+        $this->assertNotEmpty($meta['gst_files']);
     }
 
     public function test_extract_itr_metadata_finds_pan_and_ack(): void

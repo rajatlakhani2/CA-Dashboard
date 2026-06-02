@@ -8,8 +8,13 @@
 @endsection
 
 @section('content')
+@if(session('success'))
+<div class="max-w-lg mx-auto mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+    {{ session('success') }}
+</div>
+@endif
 <div class="max-w-lg mx-auto bg-bg-card shadow sm:rounded-lg p-6">
-    <form action="{{ route('personal-renewals.store') }}" method="POST" class="space-y-6">
+    <form action="{{ route('personal-renewals.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
         @csrf
 
         <div>
@@ -52,6 +57,11 @@
         <div>
             <label for="notes" class="block text-sm font-medium text-text-main">Notes</label>
             <textarea name="notes" id="notes" rows="3" class="mt-1 block w-full rounded-md border-line bg-bg-body text-text-main shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></textarea>
+        </div>
+
+        <div>
+            <label for="document" class="block text-sm font-medium text-text-main">Document (optional)</label>
+            <input type="file" name="document" id="document" accept=".pdf,.jpg,.jpeg,.png" class="mt-1 block w-full text-sm text-text-secondary">
         </div>
 
         <div class="flex justify-end">
