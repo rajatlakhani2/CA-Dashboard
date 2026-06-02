@@ -39,28 +39,30 @@ Compliance Schedule
                 </div>
             </div>
 
-            <div class="mt-5 flex justify-end gap-2">
+            <div class="mt-5 flex flex-wrap items-center justify-end gap-2">
                 <a href="{{ route('service-dues.index') }}" class="inline-flex items-center rounded-md border border-line bg-bg-card px-4 py-2 text-sm font-medium text-text-secondary shadow-sm hover:bg-gray-50">Clear</a>
                 <button type="submit" class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Filter</button>
             </div>
+        </form>
+        @if(auth()->user()?->isPartner() || auth()->user()?->isManager())
+        <form action="{{ route('service-dues.generate') }}" method="POST" class="mt-5 flex justify-end">
+            @csrf
+            <button type="submit" class="inline-flex items-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Generate Dues
+            </button>
+        </form>
+        @endif
     </div>
-    </form>
-</div>
-</form>
-</div>
 
-<!-- Actions -->
-<div class="flex justify-end">
-    <form action="{{ route('service-dues.generate') }}" method="POST">
-        @csrf
-        <button type="submit" class="inline-flex items-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-            <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Generate Dues
-        </button>
-    </form>
-</div>
+    @if($dues->isEmpty())
+    <div class="rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-900">
+        <p class="font-semibold">No dues on the schedule yet</p>
+        <p class="mt-1 text-indigo-800">1) Set due dates in <a href="{{ route('services.index') }}" class="underline font-medium">Settings → Services</a> (e.g. IT Return: 31 July, Annually). 2) Ensure clients have services ticked under <strong>Clients → Edit → Services</strong>. 3) Click <strong>Generate Dues</strong> above.</p>
+    </div>
+    @endif
 
 <!-- Data Table -->
 <div class="overflow-hidden rounded-lg bg-bg-card shadow">
@@ -161,7 +163,7 @@ Compliance Schedule
                     <td colspan="6" class="p-0 border-0">
                         @include('partials.empty-state', [
                             'title' => 'No scheduled dues found',
-                            'description' => 'Try adjusting your filters or generate dues from Service Master.',
+                            'description' => 'Click Generate Dues (green button above), or clear Month filter. Clients need services assigned first.',
                             'icon' => 'inbox',
                         ])
                     </td>
