@@ -30,6 +30,7 @@ class ExportNileshImportSheet extends Command
         $skipMissingPan = ! $this->option('include-missing-pan');
         $export = new NileshClientsImportExport($path, skipMissingPan: $skipMissingPan);
         $rows = $export->array();
+        $duplicates = $export->duplicatePanRows();
         $clientRows = max(0, count($rows) - 1);
 
         $withPan = 0;
@@ -58,6 +59,19 @@ class ExportNileshImportSheet extends Command
         $this->info("With PAN: {$withPan} | With GST Return service: {$withGst}");
         if ($skipMissingPan) {
             $this->comment('Skipped folders with no PAN (masked XXXX ignored; other PDFs scanned).');
+        }
+        if (count($duplicates) > 0) {
+            $dupPath = dirname($output).DIRECTORY_SEPARATOR.'nilesh_duplicate_pans.csv';
+            $dupHandle = fopen($dupPath, 'w');
+            if ($dupHandle) {
+                fputcsv($dupHandle, ['pan', 'duplicate_folder_name', 'kept_folder_name']);
+                foreach ($duplicates as $dup) {
+                    fputcsv($dupHandle, [$dup['pan'], $dup['name'], $dup['kept_name']]);
+                    $this->warn("Duplicate PAN {$dup['pan']}: skipped \"{$dup['name']}\" (kept \"{$dup['kept_name']}\")");
+                }
+                fclose($dupHandle);
+                $this->comment("Duplicate report: {$dupPath}");
+            }
         }
         $this->newLine();
         $this->comment('Upload on app.kuhu.org.in → Clients → Preview import → Confirm.');
