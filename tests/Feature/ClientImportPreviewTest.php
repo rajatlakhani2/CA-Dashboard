@@ -76,6 +76,19 @@ class ClientImportPreviewTest extends TestCase
         ]);
     }
 
+    public function test_preview_does_not_warn_duplicate_empty_gstin_or_client_code(): void
+    {
+        Service::create(['name' => 'IT Return', 'code' => 'ITR', 'frequency' => 'Annually']);
+
+        $csv = "name,pan,gstin,client_code\nFirst,FRSTA1234A,,\nSecond,SCNDB5678B,,\n";
+        $file = UploadedFile::fake()->createWithContent('empty-gst.csv', $csv);
+
+        $preview = app(ClientImportPreviewService::class)->preview($file);
+
+        $this->assertCount(2, $preview['create']);
+        $this->assertCount(0, $preview['warnings']);
+    }
+
     public function test_preview_warns_on_unknown_services(): void
     {
         Service::create(['name' => 'IT Return', 'code' => 'ITR', 'frequency' => 'Annually']);

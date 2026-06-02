@@ -35,8 +35,8 @@ class ClientImportPreviewService
 
             $name = $row['name'];
             $pan = $row['pan'];
-            $gstin = $row['gstin'];
-            $clientCode = $row['client_code'];
+            $gstin = filled($row['gstin'] ?? null) ? (string) $row['gstin'] : null;
+            $clientCode = filled($row['client_code'] ?? null) ? (string) $row['client_code'] : null;
 
             $rowWarnings = [];
 
@@ -50,11 +50,11 @@ class ClientImportPreviewService
                 continue;
             }
 
-            if ($gstin !== '' && isset($seenGstin[$gstin])) {
+            if ($gstin !== null && isset($seenGstin[$gstin])) {
                 $rowWarnings[] = "Duplicate GSTIN in file (row {$seenGstin[$gstin]})";
             }
 
-            if ($clientCode !== '' && isset($seenCode[$clientCode])) {
+            if ($clientCode !== null && isset($seenCode[$clientCode])) {
                 $rowWarnings[] = "Duplicate client code in file (row {$seenCode[$clientCode]})";
             }
 
@@ -86,16 +86,16 @@ class ClientImportPreviewService
             if ($pan !== '') {
                 $seenPan[$pan] = $row['row'];
             }
-            if ($gstin !== '') {
+            if ($gstin !== null) {
                 $seenGstin[$gstin] = $row['row'];
             }
-            if ($clientCode !== '') {
+            if ($clientCode !== null) {
                 $seenCode[$clientCode] = $row['row'];
             }
 
             $existing = Client::query()->where('pan', $pan)->first();
 
-            if ($gstin !== '') {
+            if ($gstin !== null) {
                 $gstinOwner = Client::query()->where('gstin', $gstin)->where('pan', '!=', $pan)->first();
                 if ($gstinOwner) {
                     $rowWarnings[] = "GSTIN already used by {$gstinOwner->name}";

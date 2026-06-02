@@ -110,6 +110,14 @@ class ClientImportServiceResolver
      */
     protected function catalog(): Collection
     {
-        return $this->catalog ??= Service::query()->get(['id', 'name', 'code']);
+        if ($this->catalog !== null) {
+            return $this->catalog;
+        }
+
+        if (Service::query()->count() === 0) {
+            DefaultServicesCatalog::ensureExists();
+        }
+
+        return $this->catalog = Service::query()->get(['id', 'name', 'code']);
     }
 }
