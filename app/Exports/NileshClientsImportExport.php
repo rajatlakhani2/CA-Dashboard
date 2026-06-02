@@ -12,6 +12,7 @@ class NileshClientsImportExport implements FromArray, WithTitle
     public function __construct(
         private string $folderPath,
         private ?ImportClientsNileshMetadata $metadata = null,
+        private bool $skipMissingPan = true,
     ) {
         $this->metadata ??= new ImportClientsNileshMetadata;
     }
@@ -53,8 +54,12 @@ class NileshClientsImportExport implements FromArray, WithTitle
 
             $itr = $this->metadata->extractItrMetadata($dir);
             $gst = $this->metadata->extractGstMetadata($dir);
-            $pan = $itr['pan'] ?? $this->metadata->findPanInFiles($dir);
+            $pan = $itr['pan'] ?? $this->metadata->resolvePanForClientFolder($dir);
             $gstin = $gst['gstin'] ?? null;
+
+            if ($this->skipMissingPan && ($pan === null || $pan === '')) {
+                continue;
+            }
 
             $services = ['IT Return'];
             if ($gst['has_gst']) {

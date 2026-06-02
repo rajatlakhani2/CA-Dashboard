@@ -68,23 +68,121 @@ class ImportClientsNileshMetadata
             if ((str_contains($basename, 'computation') || str_contains($basename, 'compu')) && preg_match('/\.pdf$/i', $basename)) {
                 $meta['computation_file'] = $file->getFilename();
             }
-            if (! $meta['pan'] && preg_match('/([A-Z]{5}[0-9]{4}[A-Z])/i', $basename, $m)) {
-                $meta['pan'] = strtoupper($m[1]);
+            if (! $meta['pan']) {
+                $meta['pan'] = $this->extractPanFromText($file->getFilename());
             }
+        }
+
+        if (! $meta['pan']) {
+            $meta['pan'] = $this->resolvePanForClientFolder($dir);
         }
 
         return $meta;
     }
 
-    public function findPanInFiles(string $dir): ?string
+    /**
+     * Resolve PAN from filenames first, then scan PDF contents (skips masked XXXX patterns).
+     */
+    public function resolvePanForClientFolder(string $dir): ?string
     {
         foreach (File::allFiles($dir) as $file) {
-            if (preg_match('/([A-Z]{5}[0-9]{4}[A-Z])/i', $file->getFilename(), $m)) {
-                return strtoupper($m[1]);
+            $pan = $this->extractPanFromText($file->getFilename());
+            if ($pan) {
+                return $pan;
+            }
+        }
+
+        $pdfs = collect(File::allFiles($dir))
+            ->filter(fn ($file) => preg_match('/\.pdf$/i', $file->getFilename()) === 1)
+            ->sortBy(fn ($file) => $this->pdfPanSearchPriority($file->getFilename()));
+
+        foreach ($pdfs as $file) {
+            $pan = $this->extractPanFromPdfContents($file->getPathname());
+            if ($pan) {
+                return $pan;
             }
         }
 
         return null;
+    }
+
+    public function findPanInFiles(string $dir): ?string
+    {
+        return $this->resolvePanForClientFolder($dir);
+    }
+
+    public function extractPanFromText(string $text): ?string
+    {
+        if (! preg_match_all('/([A-Z]{5}[0-9]{4}[A-Z])/i', $text, $matches)) {
+            return null;
+        }
+
+        foreach (array_unique(array_map('strtoupper', $matches[1])) as $candidate) {
+            if (! $this->isMaskedPan($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return null;
+    }
+
+    public function isMaskedPan(string $pan): bool
+    {
+        $pan = strtoupper(trim($pan));
+
+        if ($pan === '' || preg_match('/X/', $pan)) {
+            return true;
+        }
+
+        if (preg_match('/^(.)\1{4}[0-9]{4}.$/', $pan)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function extractPanFromPdfContents(string $path): ?string
+    {
+        $binary = @file_get_contents($path, false, null, 0, 8_000_000);
+        if ($binary === false || $binary === '') {
+            return null;
+        }
+
+        $pan = $this->extractPanFromText($binary);
+        if ($pan) {
+            return $pan;
+        }
+
+        if (preg_match_all('/stream\r?\n(.*?)\r?\nendstream/s', $binary, $streams)) {
+            foreach ($streams[1] as $stream) {
+                $decoded = @gzuncompress($stream);
+                if ($decoded === false && strlen($stream) > 2) {
+                    $decoded = @gzuncompress(substr($stream, 2));
+                }
+                if (is_string($decoded) && $decoded !== '') {
+                    $pan = $this->extractPanFromText($decoded);
+                    if ($pan) {
+                        return $pan;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    protected function pdfPanSearchPriority(string $filename): int
+    {
+        $lower = strtolower($filename);
+
+        return match (true) {
+            str_contains($lower, 'pan') => 0,
+            str_contains($lower, 'ack') || str_contains($lower, 'itr-v') => 1,
+            str_contains($lower, 'computation') || str_contains($lower, 'compu') => 2,
+            str_contains($lower, 'itr') || str_contains($lower, 'income') => 3,
+            str_contains($lower, 'aadhaar') || str_contains($lower, 'aadhar') => 4,
+            default => 5,
+        };
     }
 
     /**

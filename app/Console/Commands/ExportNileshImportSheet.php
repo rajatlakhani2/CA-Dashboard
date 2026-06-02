@@ -11,7 +11,8 @@ class ExportNileshImportSheet extends Command
 {
     protected $signature = 'export:nilesh-import-sheet
                             {--path= : Folder path (default: Nileshbhai on this PC)}
-                            {--output= : Output .xlsx path (default: storage/app/nilesh_clients_import.xlsx)}';
+                            {--output= : Output .xlsx path (default: storage/app/nilesh_clients_import.xlsx)}
+                            {--include-missing-pan : Include rows without PAN (default: skip them)}';
 
     protected $description = 'Build dashboard-format Excel from Nilesh client folders for Preview import upload';
 
@@ -26,7 +27,8 @@ class ExportNileshImportSheet extends Command
             return self::FAILURE;
         }
 
-        $export = new NileshClientsImportExport($path);
+        $skipMissingPan = ! $this->option('include-missing-pan');
+        $export = new NileshClientsImportExport($path, skipMissingPan: $skipMissingPan);
         $rows = $export->array();
         $clientRows = max(0, count($rows) - 1);
 
@@ -54,9 +56,12 @@ class ExportNileshImportSheet extends Command
         $this->info("Wrote {$clientRows} clients (dashboard import format).");
         $this->line($output);
         $this->info("With PAN: {$withPan} | With GST Return service: {$withGst}");
+        if ($skipMissingPan) {
+            $this->comment('Skipped folders with no PAN (masked XXXX ignored; other PDFs scanned).');
+        }
         $this->newLine();
         $this->comment('Upload on app.kuhu.org.in → Clients → Preview import → Confirm.');
-        $this->comment('Do not change row 1 column headings. Rows without PAN will show as invalid until you fill PAN.');
+        $this->comment('Do not change row 1 column headings.');
 
         return self::SUCCESS;
     }
