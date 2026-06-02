@@ -2,22 +2,23 @@
 
 namespace App\Console\Commands;
 
-use App\Services\ImportClientsNileshMetadata;
+use App\Exports\NileshClientsImportExport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ExportNileshImportSheet extends Command
 {
     protected $signature = 'export:nilesh-import-sheet
                             {--path= : Folder path (default: Nileshbhai on this PC)}
-                            {--output= : Output CSV path (default: storage/app/nilesh_clients_import.csv)}';
+                            {--output= : Output .xlsx path (default: storage/app/nilesh_clients_import.xlsx)}';
 
-    protected $description = 'Build a small CSV/Excel-ready file from Nilesh client folders for upload to live site (no folder upload needed)';
+    protected $description = 'Build dashboard-format Excel from Nilesh client folders for Preview import upload';
 
-    public function handle(ImportClientsNileshMetadata $metadata): int
+    public function handle(): int
     {
         $path = $this->option('path') ?: 'D:\\New folder\\Rajat\\Rajat\\IT Return\\Nileshbhai';
-        $output = $this->option('output') ?: storage_path('app/nilesh_clients_import.csv');
+        $output = $this->option('output') ?: storage_path('app/nilesh_clients_import.xlsx');
 
         if (! File::isDirectory($path)) {
             $this->error("Directory not found: {$path}");
@@ -25,73 +26,58 @@ class ExportNileshImportSheet extends Command
             return self::FAILURE;
         }
 
-        $headers = [
-            'name',
-            'pan',
-            'gstin',
-            'entity_type',
-            'status',
-            'category',
-            'primary_contact_name',
-            'phone',
-            'email',
-            'registered_address',
-            'services',
-        ];
+        $export = new NileshClientsImportExport($path);
+        $rows = $export->array();
+        $clientRows = max(0, count($rows) - 1);
 
-        $handle = fopen($output, 'w');
-        if ($handle === false) {
-            $this->error("Cannot write: {$output}");
-
-            return self::FAILURE;
-        }
-
-        fputcsv($handle, $headers);
-
-        $rows = 0;
+        $withPan = 0;
         $withGst = 0;
-
-        foreach (File::directories($path) as $dir) {
-            $name = trim(basename($dir));
-            if ($metadata->shouldSkipFolder($name)) {
-                continue;
+        foreach (array_slice($rows, 1) as $row) {
+            if (! empty($row[4])) {
+                $withPan++;
             }
-
-            $itr = $metadata->extractItrMetadata($dir);
-            $gst = $metadata->extractGstMetadata($dir);
-            $pan = $itr['pan'] ?? $metadata->findPanInFiles($dir);
-            $gstin = $gst['gstin'] ?? null;
-
-            $services = ['IT Return'];
-            if ($gst['has_gst']) {
-                $services[] = 'GST Return';
+            if (str_contains((string) ($row[14] ?? ''), 'GST Return')) {
                 $withGst++;
             }
-
-            fputcsv($handle, [
-                $name,
-                $pan ?? '',
-                $gstin ?? '',
-                '',
-                'Active',
-                'C',
-                '',
-                '',
-                '',
-                '',
-                implode(', ', $services),
-            ]);
-            $rows++;
         }
 
-        fclose($handle);
+        File::ensureDirectoryExists(dirname($output));
+        File::put($output, Excel::raw($export, \Maatwebsite\Excel\Excel::XLSX));
 
-        $this->info("Wrote {$rows} client rows to:");
+        $desktop = $this->desktopPath();
+        if ($desktop) {
+            $desktopFile = $desktop.DIRECTORY_SEPARATOR.'nilesh_clients_import.xlsx';
+            File::copy($output, $desktopFile);
+            $this->info("Also copied to: {$desktopFile}");
+        }
+
+        $this->info("Wrote {$clientRows} clients (dashboard import format).");
         $this->line($output);
-        $this->info("Rows with GST Return in services column: {$withGst}");
+        $this->info("With PAN: {$withPan} | With GST Return service: {$withGst}");
         $this->newLine();
-        $this->comment('Upload this file on app.kuhu.org.in → Clients → Preview import → Confirm.');
+        $this->comment('Upload on app.kuhu.org.in → Clients → Preview import → Confirm.');
+        $this->comment('Do not change row 1 column headings. Rows without PAN will show as invalid until you fill PAN.');
 
         return self::SUCCESS;
+    }
+
+    protected function desktopPath(): ?string
+    {
+        $home = getenv('USERPROFILE') ?: getenv('HOME');
+        if (! $home) {
+            return null;
+        }
+
+        $desktop = $home.DIRECTORY_SEPARATOR.'Desktop';
+        if (File::isDirectory($desktop)) {
+            return $desktop;
+        }
+
+        $oneDrive = $home.DIRECTORY_SEPARATOR.'OneDrive'.DIRECTORY_SEPARATOR.'Desktop';
+        if (File::isDirectory($oneDrive)) {
+            return $oneDrive;
+        }
+
+        return null;
     }
 }
