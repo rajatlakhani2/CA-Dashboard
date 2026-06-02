@@ -6,6 +6,7 @@
 <div class="max-w-6xl mx-auto space-y-6">
     <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4 text-sm text-indigo-900 space-y-2">
         <p>Review all rows before confirming. Invalid rows must be fixed in Excel and re-uploaded. Warnings can be reviewed but do not block import.</p>
+        <p>Re-imports match clients by <strong>PAN</strong>. Existing <strong>client codes are kept</strong>; codes in Excel are only used for new clients.</p>
         <p><strong>group_name</strong> = client reference / portfolio (e.g. <code class="bg-white/80 px-1 rounded">Nileshbhai</code>). <strong>Services:</strong> comma-separated (e.g. <code class="bg-white/80 px-1 rounded">IT Return, GST Return</code>).</p>
     </div>
 

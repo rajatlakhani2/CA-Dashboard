@@ -158,6 +158,22 @@ class ClientImportPreviewTest extends TestCase
         $this->assertMatchesRegularExpression('/^CL-\d{4}$/', $client->client_code);
     }
 
+    public function test_preview_does_not_warn_when_excel_client_code_differs_from_existing(): void
+    {
+        Client::factory()->create([
+            'pan' => 'EYVPD6712B',
+            'client_code' => 'CL-0099',
+        ]);
+
+        $csv = "name,pan,client_code\nAjay Dalki,EYVPD6712B,CL-0284\n";
+        $file = UploadedFile::fake()->createWithContent('code-warn.csv', $csv);
+
+        $preview = app(ClientImportPreviewService::class)->preview($file);
+
+        $this->assertCount(1, $preview['update']);
+        $this->assertCount(0, $preview['warnings']);
+    }
+
     public function test_import_update_keeps_existing_client_code_when_excel_differs(): void
     {
         Storage::fake('local');

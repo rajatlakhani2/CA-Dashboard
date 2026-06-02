@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class ClientImportApplier
 {
     /** Bump when deploy verification is needed (grep on server). */
-    public const VERSION = 3;
+    public const VERSION = 4;
 
     public function __construct(
         protected ClientImportPreviewService $previewService,

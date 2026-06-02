@@ -102,11 +102,7 @@ class ClientImportPreviewService
                 }
             }
 
-            if ($clientCode !== null && $existing && $existing->client_code !== $clientCode) {
-                $rowWarnings[] = 'Excel client code differs from existing (existing code will be kept)';
-            }
-
-            if ($clientCode !== '' && ! $existing) {
+            if ($clientCode !== null && ! $existing) {
                 $codeOwner = Client::withTrashed()->where('client_code', $clientCode)->first();
                 if ($codeOwner) {
                     $rowWarnings[] = "Client code already used by {$codeOwner->name} (a new code will be assigned on import)";
@@ -117,10 +113,26 @@ class ClientImportPreviewService
                 $rowWarnings[] = 'Unknown service(s): ' . implode(', ', $row['unknown_services']);
             }
 
-            $entry = array_merge($row, [
-                'branch_id' => $branchId,
-                'warnings' => $rowWarnings,
-            ]);
+            if ($existing) {
+                $entry = array_merge($row, [
+                    'branch_id' => $branchId,
+                    'client_code' => $existing->client_code,
+                    'warnings' => $rowWarnings,
+                    'existing_id' => $existing->id,
+                    'existing_name' => $existing->name,
+                ]);
+                if ($existing->trashed()) {
+                    $rowWarnings[] = 'Client was deleted earlier — will be restored and updated on import';
+                    $entry['warnings'] = $rowWarnings;
+                }
+                $update[] = $entry;
+            } else {
+                $entry = array_merge($row, [
+                    'branch_id' => $branchId,
+                    'warnings' => $rowWarnings,
+                ]);
+                $create[] = $entry;
+            }
 
             if (! empty($rowWarnings)) {
                 $warnings[] = [
@@ -129,17 +141,6 @@ class ClientImportPreviewService
                     'pan' => $pan,
                     'messages' => $rowWarnings,
                 ];
-            }
-
-            if ($existing) {
-                $entry['existing_id'] = $existing->id;
-                $entry['existing_name'] = $existing->name;
-                if ($existing->trashed()) {
-                    $rowWarnings[] = 'Client was deleted earlier — will be restored and updated on import';
-                }
-                $update[] = $entry;
-            } else {
-                $create[] = $entry;
             }
         }
 
