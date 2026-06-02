@@ -15,6 +15,9 @@ Route::middleware(['role:partner', 'module:clients'])->group(function () {
 Route::delete('clients/bulk-destroy', [\App\Http\Controllers\ClientController::class, 'bulkDestroy'])
     ->middleware('role:partner,manager')
     ->name('clients.bulk-destroy');
+Route::delete('clients/purge-by-group', [\App\Http\Controllers\ClientController::class, 'purgeByGroup'])
+    ->middleware('role:partner')
+    ->name('clients.purge-by-group');
 
 Route::post('clients/{client}/approve', [\App\Http\Controllers\ClientController::class, 'approve'])
     ->middleware('role:partner')

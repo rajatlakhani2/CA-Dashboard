@@ -114,10 +114,45 @@ Clients
             <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
-            Delete Selected
+            Delete Selected (this page)
         </button>
     </div>
     @endcan
+
+    @if(auth()->user()?->isPartner())
+    <div class="rounded-lg border border-red-200 bg-red-50/80 p-4 text-sm text-red-900">
+        <p class="font-semibold">One-time delete by client reference</p>
+        <p class="mt-1 text-red-800">Removes <strong>all</strong> clients with that group/reference (not only this page). Use before a fresh Nilesh import if every row shows as “update”.</p>
+        <form action="{{ route('clients.purge-by-group') }}" method="POST" class="mt-3 flex flex-wrap items-end gap-3" onsubmit="return confirmPurgeByGroup(this);">
+            @csrf
+            @method('DELETE')
+            <div>
+                <label for="purge_group_name" class="block text-xs font-medium text-red-800">Client reference (group_name)</label>
+                <input type="text" name="group_name" id="purge_group_name" value="Nileshbhai" required
+                    class="mt-1 block w-48 rounded-md border-red-200 text-sm shadow-sm focus:border-red-500 focus:ring-red-500">
+            </div>
+            <div>
+                <label for="purge_confirm" class="block text-xs font-medium text-red-800">Type DELETE to confirm</label>
+                <input type="text" name="confirm" id="purge_confirm" placeholder="DELETE" required autocomplete="off"
+                    class="mt-1 block w-32 rounded-md border-red-200 text-sm shadow-sm focus:border-red-500 focus:ring-red-500">
+            </div>
+            <button type="submit" class="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">
+                Delete all with this reference
+            </button>
+        </form>
+    </div>
+    <script>
+        function confirmPurgeByGroup(form) {
+            const group = form.group_name.value.trim();
+            const confirm = form.confirm.value.trim();
+            if (confirm !== 'DELETE') {
+                alert('Type DELETE in the confirmation box.');
+                return false;
+            }
+            return confirm('Permanently delete ALL clients with reference "' + group + '"? This cannot be undone.');
+        }
+    </script>
+    @endif
 
     <form id="bulkDeleteForm" action="{{ route('clients.bulk-destroy') }}" method="POST" class="hidden">
         @csrf

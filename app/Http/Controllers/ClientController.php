@@ -342,4 +342,41 @@ class ClientController extends Controller
 
         return redirect()->route('clients.index')->with('success', 'Selected clients deleted successfully.');
     }
+
+    public function purgeByGroup(Request $request, \App\Services\SensitiveActionLogger $audit)
+    {
+        $this->authorize('bulkDelete', Client::class);
+
+        if (! auth()->user()?->isPartner()) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'group_name' => 'required|string|max:255',
+            'confirm' => 'required|in:DELETE',
+        ]);
+
+        $groupName = $validated['group_name'];
+        $clients = Client::query()
+            ->where('group_name', $groupName)
+            ->get();
+
+        if ($clients->isEmpty()) {
+            return redirect()
+                ->route('clients.index')
+                ->with('warning', "No clients found with reference \"{$groupName}\".");
+        }
+
+        $ids = [];
+        foreach ($clients as $client) {
+            $client->delete();
+            $ids[] = $client->id;
+        }
+
+        $audit->clientsBulkDeleted($ids);
+
+        return redirect()
+            ->route('clients.index')
+            ->with('success', count($ids).' client(s) with reference "'.$groupName.'" were deleted. You can import fresh data now.');
+    }
 }
