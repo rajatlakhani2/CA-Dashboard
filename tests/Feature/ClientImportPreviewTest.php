@@ -103,6 +103,31 @@ class ClientImportPreviewTest extends TestCase
         $this->assertStringContainsString('Fake Service', $preview['warnings'][0]['messages'][0]);
     }
 
+    public function test_import_assigns_new_code_when_cl_code_taken_by_trashed_client(): void
+    {
+        Storage::fake('local');
+
+        Client::factory()->create([
+            'pan' => 'TAKEN1234A',
+            'client_code' => 'CL-0001',
+        ])->delete();
+
+        $csv = "name,pan,group_name\nFresh Import,FRESH2345B,Nileshbhai\n";
+        $path = 'client-imports/trashed-code.csv';
+        Storage::put($path, $csv);
+
+        app(ClientImportApplier::class)->apply(Storage::path($path));
+
+        $this->assertDatabaseHas('clients', [
+            'pan' => 'FRESH2345B',
+            'group_name' => 'Nileshbhai',
+        ]);
+
+        $client = Client::where('pan', 'FRESH2345B')->first();
+        $this->assertNotSame('CL-0001', $client->client_code);
+        $this->assertMatchesRegularExpression('/^CL-\d{4}$/', $client->client_code);
+    }
+
     public function test_confirm_import_applies_create_and_update(): void
     {
         Storage::fake('local');

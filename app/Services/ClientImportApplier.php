@@ -25,14 +25,17 @@ class ClientImportApplier
 
         $created = 0;
         $updated = 0;
-        $nextId = (Client::max('id') ?? 0) + 1;
+        $usedCodes = Client::withTrashed()
+            ->whereNotNull('client_code')
+            ->pluck('client_code')
+            ->all();
 
-        DB::transaction(function () use ($preview, $branchId, &$created, &$updated, &$nextId) {
+        DB::transaction(function () use ($preview, $branchId, &$created, &$updated, &$usedCodes) {
             foreach ($preview['create'] as $row) {
-                $client = Client::create($this->attributesFromRow($row, $branchId, $nextId));
+                $row['client_code'] = $this->resolveClientCodeForCreate($row, $usedCodes);
+                $client = Client::create($this->attributesFromRow($row, $branchId, null, true));
                 $this->syncServices($client, $row);
                 $created++;
-                $nextId++;
             }
 
             foreach ($preview['update'] as $row) {
@@ -61,9 +64,6 @@ class ClientImportApplier
     protected function attributesFromRow(array $row, ?int $branchId, ?int $nextId = null, bool $forCreate = true): array
     {
         $code = $row['client_code'] ?? null;
-        if ($forCreate && ! $code && $nextId) {
-            $code = 'CL-' . str_pad((string) $nextId, 4, '0', STR_PAD_LEFT);
-        }
 
         $attrs = [
             'name' => $row['name'],
@@ -110,5 +110,49 @@ class ClientImportApplier
         }
 
         $client->optedServices()->sync($syncData);
+    }
+
+    /**
+     * @param  array<string, mixed>  $row
+     * @param  list<string>  $usedCodes
+     */
+    protected function resolveClientCodeForCreate(array $row, array &$usedCodes): string
+    {
+        $requested = trim((string) ($row['client_code'] ?? ''));
+
+        if ($requested !== ''
+            && ! in_array($requested, $usedCodes, true)
+            && ! Client::withTrashed()->where('client_code', $requested)->exists()) {
+            $usedCodes[] = $requested;
+
+            return $requested;
+        }
+
+        return $this->allocateClientCode($usedCodes);
+    }
+
+    /**
+     * @param  list<string>  $usedCodes
+     */
+    protected function allocateClientCode(array &$usedCodes): string
+    {
+        $max = 0;
+        foreach ($usedCodes as $code) {
+            if (preg_match('/^CL-(\d+)$/i', $code, $match)) {
+                $max = max($max, (int) $match[1]);
+            }
+        }
+
+        do {
+            $max++;
+            $candidate = 'CL-'.str_pad((string) $max, 4, '0', STR_PAD_LEFT);
+        } while (
+            in_array($candidate, $usedCodes, true)
+            || Client::withTrashed()->where('client_code', $candidate)->exists()
+        );
+
+        $usedCodes[] = $candidate;
+
+        return $candidate;
     }
 }

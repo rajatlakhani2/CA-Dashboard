@@ -107,9 +107,9 @@ class ClientImportPreviewService
             }
 
             if ($clientCode !== '' && ! $existing) {
-                $codeOwner = Client::query()->where('client_code', $clientCode)->first();
+                $codeOwner = Client::withTrashed()->where('client_code', $clientCode)->first();
                 if ($codeOwner) {
-                    $rowWarnings[] = "Client code already used by {$codeOwner->name}";
+                    $rowWarnings[] = "Client code already used by {$codeOwner->name} (a new code will be assigned on import)";
                 }
             }
 
