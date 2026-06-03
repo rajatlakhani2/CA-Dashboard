@@ -52,9 +52,9 @@ else
 fi
 php artisan migrate:fresh --force
 php artisan users:ensure-firm-logins
+php artisan optimize:clear
 php artisan config:cache
 php artisan route:cache
-php artisan view:cache
 chmod -R 775 storage bootstrap/cache 2>/dev/null || true
 
 echo ""

@@ -191,6 +191,10 @@
             </div>
         </aside>
     </div>
+
+    <p class="fixed bottom-3 right-3 z-10 rounded-lg bg-slate-800/90 text-white text-[10px] font-mono px-2 py-1 pointer-events-none" title="Deploy marker — if you do not see the 3-step form, run scripts/sync-ui-now.sh on the server">
+        Task UI v2
+    </p>
 </div>
 
 <script>
