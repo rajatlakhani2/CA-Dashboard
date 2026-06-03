@@ -144,9 +144,21 @@ class TaskController extends Controller
     {
         $this->authorize('updateStatus', $task);
 
-        $task->update(['status' => $request->validated('status')]);
+        $status = $request->validated('status');
+        $payload = ['status' => $status];
 
-        return response()->json(['success' => true, 'message' => 'Task status updated.']);
+        if (in_array($status, Task::TERMINAL_STATUSES, true) && ! $task->is_billed) {
+            $payload['is_billed'] = false;
+        }
+
+        $task->update($payload);
+
+        $message = 'Task status updated.';
+        if (in_array($status, Task::TERMINAL_STATUSES, true)) {
+            $message = 'Task completed. It will appear under Invoices → Unbilled Work.';
+        }
+
+        return response()->json(['success' => true, 'message' => $message]);
     }
 
     public function destroy(Task $task)

@@ -56,6 +56,7 @@ class Task extends Model
 
     protected $casts = [
         'due_date' => 'date',
+        'is_billed' => 'boolean',
     ];
 
     public function client()
@@ -97,13 +98,17 @@ class Task extends Model
     {
         $query->whereIn('status', self::TERMINAL_STATUSES)
             ->where(function (Builder $q) {
-                $q->where('is_billed', false)->orWhereNull('is_billed');
+                $q->where('is_billed', false)
+                    ->orWhere('is_billed', 0)
+                    ->orWhereNull('is_billed');
             });
 
-        if ($user->managesFirmModules()) {
+        // Partner/manager: every completed unbilled task (including unassigned).
+        if ($user->isPartner() || $user->isManager()) {
             return $query;
         }
 
+        // Others: assigned to them, or unassigned tasks they created.
         return $query->where(function (Builder $q) use ($user) {
             $q->where('assigned_to', $user->id)
                 ->orWhere(function (Builder $inner) use ($user) {

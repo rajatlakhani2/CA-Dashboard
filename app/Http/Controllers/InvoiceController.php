@@ -24,10 +24,26 @@ class InvoiceController extends Controller
         $query = Invoice::with('client')->whereHas('client');
         $this->scopeInvoicesToUser($query);
 
-        // Tab Logic
-        $tab = $request->get('tab', 'raised');
-        if (auth()->user()?->isAssociate() && $tab === 'unbilled') {
+        $user = auth()->user();
+
+        $unbilledTasks = collect();
+        if ($user && ! $user->isAssociate()) {
+            $unbilledTasks = \App\Models\Task::query()
+                ->unbilledForUser($user)
+                ->with(['client', 'assignee', 'creator'])
+                ->latest('updated_at')
+                ->get();
+        }
+
+        // Tab logic — open Unbilled first when there is work waiting (partner/manager).
+        $tab = $request->get('tab');
+        if ($user?->isAssociate() && $tab === 'unbilled') {
             $tab = 'raised';
+        }
+        if ($tab === null) {
+            $tab = ($user?->managesFirmModules() && $unbilledTasks->isNotEmpty())
+                ? 'unbilled'
+                : 'raised';
         }
 
         if ($tab === 'received') {
@@ -52,16 +68,6 @@ class InvoiceController extends Controller
         $receivedCount = $receivedCountQuery->count();
 
         $clients = $this->clientOptionsQuery()->orderBy('name')->get();
-
-        $unbilledTasks = collect();
-        $user = auth()->user();
-        if ($user && ! $user->isAssociate()) {
-            $unbilledTasks = \App\Models\Task::query()
-                ->unbilledForUser($user)
-                ->with(['client', 'assignee', 'creator'])
-                ->latest('updated_at')
-                ->get();
-        }
 
         return view('invoices.index', compact('invoices', 'clients', 'unbilledTasks', 'tab', 'raisedCount', 'receivedCount'));
     }

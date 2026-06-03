@@ -132,7 +132,9 @@
                     @empty
                     <tr>
                         <td colspan="{{ auth()->user()?->hasRole('partner', 'manager') ? 5 : 4 }}" class="px-6 py-12 text-center text-sm text-gray-500">
-                            No unbilled tasks pending.
+                            <p>No unbilled tasks here.</p>
+                            <p class="mt-2 text-xs text-gray-400">Task must be <strong>Completed</strong> and not marked FOC. Use <strong>Tasks</strong> list → status <strong>Completed</strong> (unassigned tasks appear here too).</p>
+                            <p class="mt-1 text-xs text-gray-400">Service dues use <a href="{{ route('billing.index') }}" class="text-indigo-600 underline">Billing Queue</a>, not this tab.</p>
                         </td>
                     </tr>
                     @endforelse

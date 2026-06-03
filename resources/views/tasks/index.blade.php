@@ -148,8 +148,8 @@
                         {{ $task->assignee ? $task->assignee->name : 'Unassigned' }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
-                        @if(auth()->user()?->isArticle())
-                        <select class="rounded-md border-gray-300 text-sm" onchange="updateTaskStatus({{ $task->id }}, this.value)">
+                        @can('updateStatus', $task)
+                        <select class="rounded-md border-gray-300 text-sm min-w-[8.5rem]" onchange="updateTaskStatus({{ $task->id }}, this.value, this)">
                             @foreach(['Pending', 'In Progress', 'On Hold', 'Completed'] as $status)
                             <option value="{{ $status }}" {{ $task->status === $status ? 'selected' : '' }}>{{ $status }}</option>
                             @endforeach
@@ -159,7 +159,7 @@
                                     {{ $task->status === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
                             {{ $task->status }}
                         </span>
-                        @endif
+                        @endcan
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         @can('update', $task)
@@ -184,7 +184,7 @@
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script>
-    function updateTaskStatus(taskId, status) {
+    function updateTaskStatus(taskId, status, selectEl) {
         fetch(`/tasks/${taskId}/status`, {
             method: 'PATCH',
             headers: {
@@ -199,6 +199,10 @@
                 if (!data.success) {
                     alert('Failed to update status');
                     location.reload();
+                    return;
+                }
+                if (status === 'Completed' && confirm('Task completed. Open Invoices → Unbilled now?')) {
+                    window.location.href = '{{ route('invoices.index', ['tab' => 'unbilled']) }}';
                 }
             })
             .catch(() => {
