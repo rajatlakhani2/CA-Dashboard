@@ -96,6 +96,19 @@
         </div>
     </div>
 
+    <div class="rounded-xl border {{ str_contains($taskCreateUi ?? '', 'v2') ? 'border-emerald-200 bg-emerald-50' : 'border-amber-300 bg-amber-50' }} px-5 py-4">
+        <h3 class="text-sm font-bold text-gray-900">Deploy check — Create Task screen</h3>
+        <p class="mt-2 text-sm">
+            <span class="font-semibold">UI on server:</span>
+            <span class="{{ str_contains($taskCreateUi ?? '', 'v2') ? 'text-emerald-800' : 'text-amber-900 font-bold' }}">{{ $taskCreateUi ?? 'unknown' }}</span>
+        </p>
+        <p class="mt-1 text-xs text-gray-600">App path: <code class="text-[11px]">{{ $appPath ?? '' }}</code></p>
+        <p class="mt-1 text-xs text-gray-600">Git: <code class="text-[11px]">{{ $deployRef ?? 'n/a' }}</code></p>
+        @if(!str_contains($taskCreateUi ?? '', 'v2'))
+        <p class="mt-3 text-sm text-amber-900 font-medium">Still on old UI? In cPanel Terminal run: <code class="block mt-1 text-xs bg-white/80 p-2 rounded">bash scripts/sync-ui-now.sh</code> then click <strong>Clear &amp; Rebuild Cache</strong> below.</p>
+        @endif
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Actions Panel -->
         <div class="lg:col-span-1 space-y-6">

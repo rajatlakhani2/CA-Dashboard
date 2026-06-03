@@ -29,8 +29,10 @@
             transform: translateX(-100%);
         }
 
-        body.zen-mode .pl-64 {
-            padding-left: 0 !important;
+        body.zen-mode .main-shell {
+            left: 0 !important;
+            margin-left: 0 !important;
+            width: 100% !important;
         }
 
         /* Premium Scrollbar */
@@ -49,6 +51,63 @@
 
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Sidebar must not paint over the main panel when scrolling */
+        html,
+        body {
+            overflow-x: hidden;
+        }
+
+        #sidebar {
+            overflow: hidden;
+            contain: layout style;
+        }
+
+        #sidebar nav {
+            overflow-x: hidden;
+        }
+
+        /* Stop active/hover menu items from scaling into the content area */
+        #sidebar nav a,
+        #sidebar nav button {
+            transform: none !important;
+        }
+
+        .main-shell {
+            position: relative;
+            z-index: 40;
+            min-width: 0;
+            overflow-x: hidden;
+            background-color: #f8fafc;
+            isolation: isolate;
+        }
+
+        @media (min-width: 1024px) {
+            #sidebar {
+                z-index: 20 !important;
+            }
+
+            .main-shell {
+                position: fixed;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 16rem;
+                width: auto;
+                margin-left: 0;
+                overflow-y: auto;
+                overflow-x: hidden;
+                box-shadow: -6px 0 20px -6px rgba(15, 23, 42, 0.15);
+            }
+
+            .main-shell > header {
+                position: sticky;
+                top: 0;
+                z-index: 50;
+                background-color: #ffffff !important;
+                backdrop-filter: none;
+            }
         }
     </style>
     @stack('head_styles')
@@ -72,12 +131,12 @@
         <div id="sidebar-overlay" class="fixed inset-0 z-40 bg-slate-900/50 lg:hidden" onclick="closeMobileSidebar()" aria-hidden="true"></div>
 
         <!-- Sidebar -->
-        <div class="fixed inset-y-0 left-0 z-50 w-64 bg-sidebar text-white transition-transform duration-300 ease-in-out transform flex flex-col lg:translate-x-0" id="sidebar">
+        <div class="fixed inset-y-0 left-0 z-30 w-64 max-w-[16rem] bg-sidebar text-white transition-transform duration-300 ease-in-out transform flex flex-col overflow-hidden lg:translate-x-0 lg:z-20" id="sidebar">
             <div class="flex-shrink-0 flex items-center justify-center h-16 bg-white/10 shadow-md">
                 <h1 class="text-xl font-bold tracking-wider">RLA DASHBOARD</h1>
             </div>
 
-            <nav class="flex-1 mt-5 px-4 space-y-6 overflow-y-auto custom-scrollbar pb-10">
+            <nav class="flex-1 mt-5 px-4 space-y-6 overflow-y-auto overflow-x-hidden custom-scrollbar pb-10">
                 @php
                     $user = auth()->user();
                     $canManageFirm = $user?->managesFirmModules();
@@ -424,9 +483,9 @@
         </div>
 
         <!-- Main Content -->
-        <div class="main-shell pl-64 flex flex-col min-h-screen">
+        <div class="main-shell flex flex-col min-h-screen w-full">
             <!-- Header -->
-            <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 sticky top-0 z-40">
+            <header class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
                 <div class="px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center gap-3">
                     <div class="flex items-center gap-3 min-w-0 flex-1">
                         <button type="button" onclick="openMobileSidebar()" class="lg:hidden flex-shrink-0 p-2 -ml-1 rounded-lg text-slate-600 hover:bg-slate-100 focus:outline-none" aria-label="Open menu">

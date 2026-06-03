@@ -96,19 +96,44 @@ class SystemController extends Controller
             });
         }
 
-        return view('system.index', compact('phpVersion', 'laravelVersion', 'environment', 'dbStatus', 'dbName', 'logs', 'backups'));
+        $taskCreateView = resource_path('views/tasks/create.blade.php');
+        $taskCreateUi = 'missing';
+        if (File::exists($taskCreateView)) {
+            $snippet = File::get($taskCreateView);
+            $taskCreateUi = str_contains($snippet, 'Create a new task') && str_contains($snippet, 'taskCreateForm')
+                ? 'v2-searchable (latest)'
+                : 'v1-legacy (old form — run sync script)';
+        }
+
+        $appPath = base_path();
+        $gitHead = base_path('.git/HEAD');
+        $deployRef = File::exists($gitHead) ? trim(File::get($gitHead)) : 'not a git clone';
+
+        return view('system.index', compact(
+            'phpVersion',
+            'laravelVersion',
+            'environment',
+            'dbStatus',
+            'dbName',
+            'logs',
+            'backups',
+            'taskCreateUi',
+            'appPath',
+            'deployRef',
+        ));
     }
 
     public function clearCache()
     {
         $this->ensureAdmin();
 
-        Artisan::call('cache:clear');
-        Artisan::call('view:clear');
-        Artisan::call('config:clear');
-        Artisan::call('route:clear');
+        Artisan::call('optimize:clear');
 
-        return back()->with('success', 'System cache cleared successfully!');
+        if (function_exists('opcache_reset')) {
+            opcache_reset();
+        }
+
+        return back()->with('success', 'All caches cleared (views, config, routes). Refresh the browser with Ctrl+F5.');
     }
 
     public function optimize()

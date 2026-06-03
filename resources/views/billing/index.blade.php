@@ -16,6 +16,11 @@
 @endsection
 
 @section('content')
+<div class="mb-4 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-900">
+    <strong>Completed tasks</strong> (including unassigned) are billed from
+    <a href="{{ route('invoices.index', ['tab' => 'unbilled']) }}" class="font-semibold underline">Invoices → Unbilled Work</a>,
+    not this Billing Queue.
+</div>
 <div class="space-y-6">
     @forelse($clients as $client)
     <div class="bg-white shadow sm:rounded-lg overflow-hidden">

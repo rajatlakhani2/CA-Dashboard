@@ -233,7 +233,8 @@ body {
         }
 
         .main-shell {
-            padding-left: 0 !important;
+            margin-left: 0 !important;
+            width: 100% !important;
         }
 
         .mobile-bottom-nav {
@@ -248,6 +249,29 @@ body {
     @media (min-width: 1024px) {
         .mobile-bottom-nav {
             display: none;
+        }
+
+        #sidebar {
+            z-index: 20;
+            overflow: hidden;
+        }
+
+        #sidebar nav a,
+        #sidebar nav button {
+            transform: none !important;
+        }
+
+        .main-shell {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 16rem;
+            width: auto;
+            z-index: 40;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background-color: #f8fafc;
         }
     }
 

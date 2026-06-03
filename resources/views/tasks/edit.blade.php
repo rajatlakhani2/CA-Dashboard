@@ -89,10 +89,30 @@
             </div>
         </div>
 
-        <div class="flex justify-end pt-4">
-            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded shadow">
-                Update Task
-            </button>
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-4">
+            <div class="text-sm text-gray-500">
+                @if($task->is_billed)
+                    <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 font-medium text-emerald-800">Billed / FOC — not in Unbilled</span>
+                @elseif(in_array($task->status, \App\Models\Task::TERMINAL_STATUSES, true))
+                    <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 font-medium text-amber-800">Completed — shows in Invoices → Unbilled until invoiced or FOC</span>
+                @endif
+            </div>
+            <div class="flex flex-wrap gap-2">
+                @can('markFoc', $task)
+                @if(! $task->is_billed && in_array($task->status, \App\Models\Task::TERMINAL_STATUSES, true))
+                <form action="{{ route('tasks.mark-foc', $task) }}" method="POST" onsubmit="return confirm('Mark as Free of Cost?');">
+                    @csrf
+                    @method('PATCH')
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded shadow">
+                        Mark FOC
+                    </button>
+                </form>
+                @endif
+                @endcan
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded shadow">
+                    Update Task
+                </button>
+            </div>
         </div>
     </form>
 </div>
