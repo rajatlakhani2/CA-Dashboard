@@ -30,6 +30,7 @@
         }
 
         body.zen-mode .main-shell {
+            left: 0 !important;
             margin-left: 0 !important;
             width: 100% !important;
         }
@@ -52,31 +53,58 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
-        /* Keep main panel fully to the right of the fixed sidebar (no peek-through) */
+        /* Sidebar must not paint over the main panel when scrolling */
+        html,
         body {
             overflow-x: hidden;
         }
 
         #sidebar {
-            z-index: 30;
+            overflow: hidden;
+            contain: layout style;
+        }
+
+        #sidebar nav {
             overflow-x: hidden;
+        }
+
+        /* Stop active/hover menu items from scaling into the content area */
+        #sidebar nav a,
+        #sidebar nav button {
+            transform: none !important;
         }
 
         .main-shell {
             position: relative;
-            z-index: 20;
+            z-index: 40;
             min-width: 0;
             overflow-x: hidden;
-            background-color: rgb(248 250 252);
+            background-color: #f8fafc;
+            isolation: isolate;
         }
 
         @media (min-width: 1024px) {
+            #sidebar {
+                z-index: 20 !important;
+            }
+
             .main-shell {
-                margin-left: 16rem;
-                width: calc(100% - 16rem);
+                position: fixed;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 16rem;
+                width: auto;
+                margin-left: 0;
+                overflow-y: auto;
+                overflow-x: hidden;
+                box-shadow: -6px 0 20px -6px rgba(15, 23, 42, 0.15);
             }
 
             .main-shell > header {
+                position: sticky;
+                top: 0;
+                z-index: 50;
                 background-color: #ffffff !important;
                 backdrop-filter: none;
             }
@@ -103,12 +131,12 @@
         <div id="sidebar-overlay" class="fixed inset-0 z-40 bg-slate-900/50 lg:hidden" onclick="closeMobileSidebar()" aria-hidden="true"></div>
 
         <!-- Sidebar -->
-        <div class="fixed inset-y-0 left-0 z-50 w-64 bg-sidebar text-white transition-transform duration-300 ease-in-out transform flex flex-col lg:translate-x-0" id="sidebar">
+        <div class="fixed inset-y-0 left-0 z-30 w-64 max-w-[16rem] bg-sidebar text-white transition-transform duration-300 ease-in-out transform flex flex-col overflow-hidden lg:translate-x-0 lg:z-20" id="sidebar">
             <div class="flex-shrink-0 flex items-center justify-center h-16 bg-white/10 shadow-md">
                 <h1 class="text-xl font-bold tracking-wider">RLA DASHBOARD</h1>
             </div>
 
-            <nav class="flex-1 mt-5 px-4 space-y-6 overflow-y-auto custom-scrollbar pb-10">
+            <nav class="flex-1 mt-5 px-4 space-y-6 overflow-y-auto overflow-x-hidden custom-scrollbar pb-10">
                 @php
                     $user = auth()->user();
                     $canManageFirm = $user?->managesFirmModules();
