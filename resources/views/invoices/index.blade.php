@@ -40,13 +40,13 @@
     @endif
 
     <!-- Tab Navigation -->
-    <div class="mb-6">
-        <div class="flex flex-wrap gap-2">
+    <div class="mb-6 overflow-x-auto">
+        <div class="flex flex-wrap gap-2 min-w-0">
             @if($canManageInvoices)
             <a href="{{ route('invoices.index', ['tab' => 'unbilled']) }}"
-                class="px-5 py-2.5 text-base font-bold rounded-full transition-all duration-200 shadow-sm border flex items-center
+                class="px-5 py-2.5 text-base font-bold rounded-full transition-all duration-200 shadow-sm border flex items-center shrink-0
                 {{ $tab == 'unbilled' 
-                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-indigo-200 transform scale-105' 
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-indigo-200' 
                     : 'bg-white text-gray-500 border-gray-200 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-md' }}">
                 Unbilled Work
                 @if($unbilledTasks->count() > 0)
@@ -58,9 +58,9 @@
             @endif
 
             <a href="{{ route('invoices.index', ['tab' => 'raised']) }}"
-                class="px-5 py-2.5 text-base font-bold rounded-full transition-all duration-200 shadow-sm border flex items-center
+                class="px-5 py-2.5 text-base font-bold rounded-full transition-all duration-200 shadow-sm border flex items-center shrink-0
                 {{ $tab == 'raised' 
-                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-indigo-200 transform scale-105' 
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-indigo-200' 
                     : 'bg-white text-gray-500 border-gray-200 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-md' }}">
                 Raised (Unpaid)
                 <span class="ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium {{ $tab == 'raised' ? 'bg-indigo-500 text-white' : 'bg-gray-100 text-gray-900' }}">
@@ -69,9 +69,9 @@
             </a>
 
             <a href="{{ route('invoices.index', ['tab' => 'received']) }}"
-                class="px-5 py-2.5 text-base font-bold rounded-full transition-all duration-200 shadow-sm border flex items-center
+                class="px-5 py-2.5 text-base font-bold rounded-full transition-all duration-200 shadow-sm border flex items-center shrink-0
                 {{ $tab == 'received' 
-                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-emerald-200 transform scale-105' 
+                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-emerald-200' 
                     : 'bg-white text-gray-500 border-gray-200 hover:border-emerald-300 hover:text-emerald-600 hover:shadow-md' }}">
                 Received (Paid)
                 <span class="ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium {{ $tab == 'received' ? 'bg-emerald-500 text-white' : 'bg-green-100 text-green-800' }}">
@@ -83,6 +83,7 @@
 
     <!-- CONTENT: UNBILLED -->
     @if($canManageInvoices && $tab == 'unbilled')
+    <p class="text-sm text-gray-600 mb-3">Shows completed tasks that are not yet invoiced or marked FOC — including <strong>unassigned</strong> tasks.</p>
     <div class="overflow-hidden rounded-lg bg-white shadow border border-gray-200">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
@@ -91,6 +92,9 @@
                         <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Client</th>
                         <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Task</th>
                         <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Completed Date</th>
+                        @if(auth()->user()?->hasRole('partner', 'manager'))
+                        <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Assigned To</th>
+                        @endif
                         <th class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                             <span class="sr-only">Actions</span>
                         </th>
@@ -102,13 +106,32 @@
                         <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{{ $task->client->name ?? 'N/A' }}</td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $task->title }}</td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $task->updated_at->format('d M Y') }}</td>
+                        @if(auth()->user()?->hasRole('partner', 'manager'))
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                            @if($task->assignee)
+                                {{ $task->assignee->name }}
+                            @else
+                                <span class="text-amber-700 font-medium">Unassigned</span>
+                                @if($task->creator)
+                                <span class="text-gray-400 text-xs block">by {{ $task->creator->name }}</span>
+                                @endif
+                            @endif
+                        </td>
+                        @endif
                         <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 space-x-2">
                             <a href="{{ route('invoices.create', ['task_id' => $task->id, 'client_id' => $task->client_id]) }}" class="text-indigo-600 hover:text-indigo-900 font-bold">Raise Invoice</a>
+                            @can('markFoc', $task)
+                            <form action="{{ route('tasks.mark-foc', $task) }}" method="POST" class="inline" onsubmit="return confirm('Mark as Free of Cost? This task will leave the Unbilled list.');">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="text-emerald-700 hover:text-emerald-900 font-bold">Mark FOC</button>
+                            </form>
+                            @endcan
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="px-6 py-12 text-center text-sm text-gray-500">
+                        <td colspan="{{ auth()->user()?->hasRole('partner', 'manager') ? 5 : 4 }}" class="px-6 py-12 text-center text-sm text-gray-500">
                             No unbilled tasks pending.
                         </td>
                     </tr>

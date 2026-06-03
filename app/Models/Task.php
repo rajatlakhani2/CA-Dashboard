@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -85,5 +86,30 @@ class Task extends Model
     public function totalHours(): float
     {
         return (float) $this->timeEntries()->sum('hours');
+    }
+
+    /**
+     * Completed work that still needs invoicing or FOC.
+     * Partners/managers see all firm tasks (including unassigned).
+     * Others see tasks assigned to them or unassigned tasks they created.
+     */
+    public function scopeUnbilledForUser(Builder $query, User $user): Builder
+    {
+        $query->whereIn('status', self::TERMINAL_STATUSES)
+            ->where(function (Builder $q) {
+                $q->where('is_billed', false)->orWhereNull('is_billed');
+            });
+
+        if ($user->managesFirmModules()) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $q) use ($user) {
+            $q->where('assigned_to', $user->id)
+                ->orWhere(function (Builder $inner) use ($user) {
+                    $inner->whereNull('assigned_to')
+                        ->where('created_by', $user->id);
+                });
+        });
     }
 }

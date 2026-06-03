@@ -50,6 +50,15 @@
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.2);
         }
+
+        /* Prevent main content from sliding under the fixed sidebar */
+        .main-shell {
+            position: relative;
+            z-index: 0;
+            min-width: 0;
+            overflow-x: hidden;
+            background-color: rgb(248 250 252);
+        }
     </style>
     @stack('head_styles')
     <script>

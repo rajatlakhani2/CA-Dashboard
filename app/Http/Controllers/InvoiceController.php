@@ -54,11 +54,12 @@ class InvoiceController extends Controller
         $clients = $this->clientOptionsQuery()->orderBy('name')->get();
 
         $unbilledTasks = collect();
-        if (! auth()->user()?->isAssociate()) {
-            $unbilledTasks = \App\Models\Task::where('assigned_to', auth()->id())
-                ->where('status', \App\Models\Task::STATUS_COMPLETED)
-                ->where('is_billed', false)
-                ->with('client')
+        $user = auth()->user();
+        if ($user && ! $user->isAssociate()) {
+            $unbilledTasks = \App\Models\Task::query()
+                ->unbilledForUser($user)
+                ->with(['client', 'assignee', 'creator'])
+                ->latest('updated_at')
                 ->get();
         }
 

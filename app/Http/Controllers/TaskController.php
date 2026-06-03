@@ -68,8 +68,10 @@ class TaskController extends Controller
 
         $clients = Client::where('status', Client::STATUS_ACTIVE)->orderBy('name')->get();
         $users = $this->assignableUsers($request->user())->get();
-        $prefillDueDate = $request->input('due_date');
-        return view('tasks.create', compact('clients', 'users', 'prefillDueDate'));
+        $prefillDueDate = $request->input('due_date', now()->addDays(7)->format('Y-m-d'));
+        $defaultAssignTo = $request->old('assigned_to', $request->input('assign_to_me') ? (string) $request->user()->id : '');
+
+        return view('tasks.create', compact('clients', 'users', 'prefillDueDate', 'defaultAssignTo'));
     }
 
     public function store(\App\Http\Requests\StoreTaskRequest $request)
