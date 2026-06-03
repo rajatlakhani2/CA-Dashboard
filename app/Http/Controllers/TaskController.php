@@ -71,7 +71,17 @@ class TaskController extends Controller
         $prefillDueDate = $request->input('due_date', now()->addDays(7)->format('Y-m-d'));
         $defaultAssignTo = $request->old('assigned_to', $request->input('assign_to_me') ? (string) $request->user()->id : '');
 
-        return view('tasks.create', compact('clients', 'users', 'prefillDueDate', 'defaultAssignTo'));
+        $clientsForPicker = $clients->map(fn (Client $c) => ['id' => $c->id, 'name' => $c->name])->values();
+        $usersForPicker = $users->map(fn (User $u) => ['id' => $u->id, 'name' => $u->name])->values();
+
+        return view('tasks.create', compact(
+            'clients',
+            'users',
+            'prefillDueDate',
+            'defaultAssignTo',
+            'clientsForPicker',
+            'usersForPicker',
+        ));
     }
 
     public function store(\App\Http\Requests\StoreTaskRequest $request)
