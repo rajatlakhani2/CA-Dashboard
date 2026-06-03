@@ -17,16 +17,16 @@
             <div>
                 <p class="text-xs font-bold uppercase tracking-widest text-indigo-600">Tasks</p>
                 <h1 class="text-2xl sm:text-3xl font-black text-gray-900 mt-0.5">Create a new task</h1>
-                <p class="text-sm text-gray-500 mt-1">Search clients &amp; staff, set priority, save in one go.</p>
+                <p class="text-sm text-gray-500 mt-1">All sections below — scroll and fill in any order.</p>
             </div>
         </div>
-        {{-- Step progress --}}
-        <div class="flex items-center gap-2 text-xs font-semibold text-gray-500">
-            <span class="flex items-center gap-1.5" :class="step >= 1 ? 'text-indigo-600' : ''"><span class="h-6 w-6 rounded-full flex items-center justify-center text-[11px]" :class="step >= 1 ? 'bg-indigo-600 text-white' : 'bg-gray-200'">1</span> Details</span>
-            <span class="text-gray-300">›</span>
-            <span class="flex items-center gap-1.5" :class="step >= 2 ? 'text-indigo-600' : ''"><span class="h-6 w-6 rounded-full flex items-center justify-center text-[11px]" :class="step >= 2 ? 'bg-indigo-600 text-white' : 'bg-gray-200'">2</span> People</span>
-            <span class="text-gray-300">›</span>
-            <span class="flex items-center gap-1.5" :class="step >= 3 ? 'text-indigo-600' : ''"><span class="h-6 w-6 rounded-full flex items-center justify-center text-[11px]" :class="step >= 3 ? 'bg-indigo-600 text-white' : 'bg-gray-200'">3</span> Schedule</span>
+        {{-- Step labels (all visible at once) --}}
+        <div class="flex flex-wrap items-center gap-2 text-xs font-semibold text-indigo-700">
+            <span class="flex items-center gap-1.5"><span class="h-6 w-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[11px]">1</span> Details</span>
+            <span class="text-indigo-300">+</span>
+            <span class="flex items-center gap-1.5"><span class="h-6 w-6 rounded-full bg-violet-600 text-white flex items-center justify-center text-[11px]">2</span> People</span>
+            <span class="text-indigo-300">+</span>
+            <span class="flex items-center gap-1.5"><span class="h-6 w-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[11px]">3</span> Schedule</span>
         </div>
     </div>
 
@@ -46,12 +46,12 @@
             <input type="hidden" name="assigned_to" :value="assignToMe ? '{{ auth()->id() }}' : (assigneeId || '')">
 
             {{-- Step 1 --}}
-            <section class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden transition-shadow hover:shadow-md">
-                <button type="button" @click="step = 1" class="w-full flex items-center gap-3 px-5 py-4 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white text-left">
+            <section id="task-step-1" class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                <div class="w-full flex items-center gap-3 px-5 py-4 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white">
                     <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 text-sm font-black">1</span>
                     <span class="font-bold text-base">What is this task about?</span>
-                </button>
-                <div class="p-5 space-y-4" x-show="step === 1" x-transition>
+                </div>
+                <div class="p-5 space-y-4">
                     <div>
                         <label for="title" class="block text-sm font-semibold text-gray-800">Task title <span class="text-red-500">*</span></label>
                         <input type="text" name="title" id="title" x-model="title" required autofocus maxlength="255"
@@ -65,19 +65,16 @@
                             placeholder="Scope, documents, checklist, links…"
                             class="mt-2 block w-full rounded-xl border-gray-300 text-sm py-3 px-4 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
                     </div>
-                    <button type="button" @click="step = 2" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-800">
-                        Next: Client &amp; assignee →
-                    </button>
                 </div>
             </section>
 
             {{-- Step 2 --}}
-            <section class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden transition-shadow hover:shadow-md">
-                <button type="button" @click="step = 2" class="w-full flex items-center gap-3 px-5 py-4 bg-gradient-to-r from-violet-600 to-indigo-500 text-white text-left">
+            <section id="task-step-2" class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                <div class="w-full flex items-center gap-3 px-5 py-4 bg-gradient-to-r from-violet-600 to-indigo-500 text-white">
                     <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 text-sm font-black">2</span>
                     <span class="font-bold text-base">Client &amp; who will do it</span>
-                </button>
-                <div class="p-5 space-y-5" x-show="step === 2" x-transition>
+                </div>
+                <div class="p-5 space-y-5">
                     @include('tasks.partials.searchable-picker', [
                         'name' => 'client_id',
                         'label' => 'Client',
@@ -104,21 +101,16 @@
                         ])
                     </div>
                     <p x-show="assignToMe" class="text-sm text-indigo-800 font-medium">✓ Assigned to you</p>
-
-                    <div class="flex gap-2">
-                        <button type="button" @click="step = 1" class="px-4 py-2.5 rounded-xl border border-gray-300 text-sm font-semibold text-gray-700 hover:bg-gray-50">← Back</button>
-                        <button type="button" @click="step = 3" class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-800">Next: Due date →</button>
-                    </div>
                 </div>
             </section>
 
             {{-- Step 3 --}}
-            <section class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden transition-shadow hover:shadow-md">
-                <button type="button" @click="step = 3" class="w-full flex items-center gap-3 px-5 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-left">
+            <section id="task-step-3" class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                <div class="w-full flex items-center gap-3 px-5 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
                     <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 text-sm font-black">3</span>
                     <span class="font-bold text-base">When &amp; how urgent?</span>
-                </button>
-                <div class="p-5 space-y-5" x-show="step === 3" x-transition>
+                </div>
+                <div class="p-5 space-y-5">
                     <div>
                         <span class="block text-sm font-semibold text-gray-800 mb-2">Quick due date</span>
                         <div class="flex flex-wrap gap-2">
@@ -145,15 +137,16 @@
                             </template>
                         </div>
                     </div>
-                    <div class="flex flex-col-reverse sm:flex-row gap-3 pt-2">
-                        <button type="button" @click="step = 2" class="px-4 py-2.5 rounded-xl border border-gray-300 text-sm font-semibold text-gray-700 hover:bg-gray-50">← Back</button>
-                        <button type="submit" class="flex-1 inline-flex justify-center items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-indigo-600/30 transition-all hover:scale-[1.01]">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                            Create task
-                        </button>
-                    </div>
                 </div>
             </section>
+
+            <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 pb-4">
+                <a href="{{ route('tasks.index') }}" class="text-center text-sm font-semibold text-gray-600 hover:text-gray-900 py-2">Cancel</a>
+                <button type="submit" class="inline-flex justify-center items-center gap-2 w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-10 rounded-xl shadow-lg shadow-indigo-600/30">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    Create task
+                </button>
+            </div>
 
             <p class="text-center text-xs text-gray-400 lg:hidden">
                 After completion → <a href="{{ route('invoices.index', ['tab' => 'unbilled']) }}" class="text-indigo-600 underline">Invoices → Unbilled</a>
@@ -193,7 +186,7 @@
     </div>
 
     <p class="fixed bottom-3 right-3 z-10 rounded-lg bg-slate-800/90 text-white text-[10px] font-mono px-2 py-1 pointer-events-none" title="Deploy marker — if you do not see the 3-step form, run scripts/sync-ui-now.sh on the server">
-        Task UI v2
+        Task UI v2 · all steps
     </p>
 </div>
 
@@ -210,7 +203,6 @@ function taskCreateForm() {
     const oldAssigneeId = @json(old('assigned_to', $defaultAssignTo ?: null));
 
     return {
-        step: 1,
         title: @json(old('title', '')),
         description: @json(old('description', '')),
         assignToMe: @json(old('assign_to_me', '0') === '1'),
@@ -267,7 +259,7 @@ function taskCreateForm() {
         onSubmit(e) {
             if (!this.title.trim()) {
                 e.preventDefault();
-                this.step = 1;
+                document.getElementById('task-step-1')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 alert('Please enter a task title.');
             }
         },

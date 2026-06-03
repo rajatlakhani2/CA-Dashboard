@@ -41,7 +41,7 @@ fi
 
 php -r "if (function_exists('opcache_reset')) { opcache_reset(); echo \"OPcache reset\n\"; }"
 
-if grep -q "Create a new task" resources/views/tasks/create.blade.php; then
+if grep -q "Create a new task" resources/views/tasks/create.blade.php && grep -q "task-step-3" resources/views/tasks/create.blade.php; then
   echo ""
   echo "SUCCESS: New Create Task UI is on disk (v2-searchable)."
   echo "Open https://app.kuhu.org.in/tasks/create in Incognito + Ctrl+F5"
