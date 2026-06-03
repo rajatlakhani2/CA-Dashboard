@@ -29,8 +29,9 @@
             transform: translateX(-100%);
         }
 
-        body.zen-mode .pl-64 {
-            padding-left: 0 !important;
+        body.zen-mode .main-shell {
+            margin-left: 0 !important;
+            width: 100% !important;
         }
 
         /* Premium Scrollbar */
@@ -51,13 +52,34 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
-        /* Prevent main content from sliding under the fixed sidebar */
+        /* Keep main panel fully to the right of the fixed sidebar (no peek-through) */
+        body {
+            overflow-x: hidden;
+        }
+
+        #sidebar {
+            z-index: 30;
+            overflow-x: hidden;
+        }
+
         .main-shell {
             position: relative;
-            z-index: 0;
+            z-index: 20;
             min-width: 0;
             overflow-x: hidden;
             background-color: rgb(248 250 252);
+        }
+
+        @media (min-width: 1024px) {
+            .main-shell {
+                margin-left: 16rem;
+                width: calc(100% - 16rem);
+            }
+
+            .main-shell > header {
+                background-color: #ffffff !important;
+                backdrop-filter: none;
+            }
         }
     </style>
     @stack('head_styles')
@@ -433,9 +455,9 @@
         </div>
 
         <!-- Main Content -->
-        <div class="main-shell pl-64 flex flex-col min-h-screen">
+        <div class="main-shell flex flex-col min-h-screen w-full">
             <!-- Header -->
-            <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 sticky top-0 z-40">
+            <header class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
                 <div class="px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center gap-3">
                     <div class="flex items-center gap-3 min-w-0 flex-1">
                         <button type="button" onclick="openMobileSidebar()" class="lg:hidden flex-shrink-0 p-2 -ml-1 rounded-lg text-slate-600 hover:bg-slate-100 focus:outline-none" aria-label="Open menu">

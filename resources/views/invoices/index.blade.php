@@ -19,7 +19,7 @@
 @php
     $canManageInvoices = auth()->user()?->managesFirmModules();
 @endphp
-<div class="space-y-6">
+<div class="space-y-6 max-w-full overflow-x-hidden">
 
     @if($canManageInvoices)
     <!-- Counters / Summary -->
