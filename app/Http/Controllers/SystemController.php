@@ -100,11 +100,13 @@ class SystemController extends Controller
         $taskCreateUi = 'missing';
         if (File::exists($taskCreateView)) {
             $snippet = File::get($taskCreateView);
-            $taskCreateUi = str_contains($snippet, 'Task UI v3') && str_contains($snippet, 'taskCreateForm')
-                ? 'v3-single-screen (latest)'
+            $taskCreateUi = str_contains($snippet, 'Task UI v4') && str_contains($snippet, 'task-form-table')
+                ? 'v4-table (latest)'
+                : (str_contains($snippet, 'Task UI v3') && str_contains($snippet, 'taskCreateForm')
+                ? 'v3-single-screen'
                 : (str_contains($snippet, 'taskCreateForm')
                     ? 'older-searchable (pull latest + sync script)'
-                    : 'v1-legacy (old form — run sync script)');
+                    : 'v1-legacy (old form — run sync script)'));
         }
 
         $appPath = base_path();

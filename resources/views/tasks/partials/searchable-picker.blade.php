@@ -1,18 +1,21 @@
-{{-- Searchable dropdown (Alpine). Props: name, label, placeholder, prefix, hint, compact (bool) --}}
+{{-- Searchable dropdown (Alpine). Props: name, label, placeholder, prefix, hint, compact, tableCell --}}
 @php
     $prefix = $prefix ?? 'item';
     $compact = $compact ?? false;
+    $tableCell = $tableCell ?? false;
     $required = $required ?? false;
-    $inputClass = $compact
+    $inputClass = ($compact || $tableCell)
         ? 'block w-full rounded-lg border-gray-300 py-2 pl-3 pr-9 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500'
         : 'block w-full rounded-xl border-gray-300 py-3 pl-4 pr-10 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500';
     $labelClass = $compact ? 'block text-xs font-semibold text-gray-700 mb-1' : 'block text-sm font-semibold text-gray-800 mb-2';
 @endphp
 <div class="relative" @click.outside="{{ $prefix }}Open = false">
+    @unless($tableCell)
     <label class="{{ $labelClass }}">
         {{ $label }}
         @if($required)<span class="text-red-500">*</span>@endif
     </label>
+    @endunless
     @if(!empty($name))
     <input type="hidden" name="{{ $name }}" :value="{{ $prefix }}Id ?? ''">
     @endif
@@ -45,7 +48,7 @@
             </template>
         </div>
     </div>
-    @if(!$compact)
-    <p class="mt-1 text-xs text-gray-500" x-show="!{{ $prefix }}Id">{{ $hint ?? 'Type to search.' }}</p>
+    @if(!empty($hint) && ($tableCell || !$compact))
+    <p class="mt-1 text-xs text-gray-500" x-show="!{{ $prefix }}Id">{{ $hint }}</p>
     @endif
 </div>
