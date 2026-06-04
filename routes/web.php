@@ -24,21 +24,6 @@ Route::middleware([
 ])->group(function () {
     Route::post('/logout', [\App\Http\Controllers\LoginController::class, 'logout'])->name('logout');
 
-    // Backup deploy check (works after syncing web.php; run php artisan route:clear if 404)
-    Route::get('/dashboard-build-probe', function () {
-        abort_unless(auth()->user()?->hasRole('partner', 'manager'), 403);
-
-        $path = resource_path('views/dashboard.blade.php');
-        $content = is_readable($path) ? (string) file_get_contents($path) : '';
-
-        return response()->json([
-            'build' => 'tabs-v2-20260604',
-            'tabs_v2_marker' => str_contains($content, 'dashboard-tabs-v2'),
-            'workspace_header_in_view' => str_contains($content, 'workspace-header'),
-            'probe' => 'web-route',
-        ]);
-    })->name('dashboard.build-probe');
-
     require __DIR__ . '/modules/operations.php';
     require __DIR__ . '/modules/clients.php';
     require __DIR__ . '/modules/work.php';

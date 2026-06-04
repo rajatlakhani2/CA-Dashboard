@@ -2,10 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->middleware('module:dashboard')->name('dashboard');
 Route::get('/dashboard/deploy-probe', [\App\Http\Controllers\DashboardController::class, 'deployProbe'])
     ->middleware(['module:dashboard', 'role:partner,manager'])
     ->name('dashboard.deploy-probe');
+Route::get('/dashboard-build-probe', [\App\Http\Controllers\DashboardController::class, 'deployProbe'])
+    ->middleware(['module:dashboard', 'role:partner,manager'])
+    ->name('dashboard.build-probe');
+Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->middleware('module:dashboard')->name('dashboard');
 Route::post('/onboarding/dismiss', [\App\Http\Controllers\WorkspaceOnboardingController::class, 'dismiss'])->name('onboarding.dismiss');
 Route::get('/partner-dashboard', [\App\Http\Controllers\PartnerDashboardController::class, 'index'])->middleware('role:partner')->name('partner.dashboard');
 

@@ -114,7 +114,7 @@
             var args = arguments;
             var url = typeof args[0] === 'string' ? args[0] : (args[0] && args[0].url ? args[0].url : '');
             return nativeFetch.apply(this, args).then(function (response) {
-                if (!response.ok && url.indexOf('/dashboard/deploy-probe') === -1) {
+                if (!response.ok && url.indexOf('/dashboard/deploy-probe') === -1 && url.indexOf('/dashboard-build-probe') === -1 && url.indexOf('/build-status.json') === -1) {
                     response.clone().text().then(function (text) {
                         window.reportDashboardError({
                             type: 'fetch',

@@ -35,7 +35,9 @@ if grep -q "workspace-header" resources/views/dashboard.blade.php; then
   exit 1
 fi
 
-echo "tabs-v2-$(date -u +%Y%m%d-%H%M%S)" > public/dashboard-build.txt
+STAMP="tabs-v2-$(date -u +%Y%m%d-%H%M%S)"
+echo "$STAMP" > public/dashboard-build.txt
+printf '%s\n' "{\"build\":\"tabs-v2-20260604\",\"deploy_stamp\":\"$STAMP\",\"ok\":true}" > public/build-status.json
 
 rm -rf storage/framework/views/* 2>/dev/null || true
 php artisan route:clear 2>/dev/null || true
