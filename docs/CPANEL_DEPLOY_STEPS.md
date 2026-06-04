@@ -4,6 +4,24 @@ GitHub repo (already created): **https://github.com/rajatlakhani2/CA-Dashboard**
 
 ---
 
+## Errors from your terminal (fixes)
+
+| Error | Fix |
+|--------|-----|
+| `Could not open input file: artisan` | Wrong folder — run `find $HOME -name artisan` and `cd` to that path |
+| `curl: (23) Failed writing body` | Bad command (often `>` before URL) or missing folder — use script below |
+| `not a git repository` | Skip `git pull`; use curl script instead |
+| `rajatlakhanni2` typo | Correct: **rajatlakhani2** |
+
+**Easiest fix (copy one block):**
+
+```bash
+curl -fsSL -o /tmp/find-and-fix.sh "https://raw.githubusercontent.com/rajatlakhani2/CA-Dashboard/master/scripts/find-and-fix-cpanel.sh"
+bash /tmp/find-and-fix.sh
+```
+
+---
+
 ## Option A — One-time: make server a git clone (recommended)
 
 ```bash

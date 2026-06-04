@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ComplianceRiskScore extends Model
 {
+    use \App\Models\Concerns\BelongsToOrganization;
     public const LEVEL_LOW = 'low';
 
     public const LEVEL_MEDIUM = 'medium';

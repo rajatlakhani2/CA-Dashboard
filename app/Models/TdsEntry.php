@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class TdsEntry extends Model
 {
     use HasFactory;
+    use \App\Models\Concerns\BelongsToOrganization;
 
     protected $fillable = [
         'invoice_id',

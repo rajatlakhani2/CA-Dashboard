@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PersonalRenewal extends Model
 {
+    use \App\Models\Concerns\BelongsToOrganization;
     use \Illuminate\Database\Eloquent\Factories\HasFactory;
 
     public const STATUS_PENDING = 'Pending';

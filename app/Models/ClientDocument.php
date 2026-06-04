@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ClientDocument extends Model
 {
+    use \App\Models\Concerns\BelongsToOrganization;
     protected $fillable = [
         'client_id',
         'document_type',

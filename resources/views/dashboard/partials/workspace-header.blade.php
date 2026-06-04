@@ -8,6 +8,9 @@
             <div class="min-w-0">
                 <div class="flex flex-wrap items-center gap-2 mb-2">
                     <span class="inline-flex items-center rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-indigo-200">SaaS Workspace</span>
+                    @if(!empty($ws['organization']?->slug))
+                    <span class="inline-flex items-center rounded-md bg-white/15 px-2 py-0.5 text-[10px] font-mono text-indigo-100" title="Share this ID for login">ID: {{ $ws['organization']->slug }}</span>
+                    @endif
                     <span class="inline-flex items-center rounded-md bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-200">{{ $ws['plan'] ?? 'Professional' }} plan</span>
                     @if(($ws['seats_remaining'] ?? 0) <= 3)
                     <span class="inline-flex items-center rounded-md bg-amber-500/25 px-2 py-0.5 text-[10px] font-semibold text-amber-100">Seats almost full</span>

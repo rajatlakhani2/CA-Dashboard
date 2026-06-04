@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CollectionFollowUp extends Model
 {
+    use \App\Models\Concerns\BelongsToOrganization;
     public const CHANNEL_PHONE = 'phone';
 
     public const CHANNEL_WHATSAPP = 'whatsapp';

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class BillingRule extends Model
 {
+    use \App\Models\Concerns\BelongsToOrganization;
     public const TYPE_FIXED_FEE = 'fixed_fee';
     public const TYPE_USE_DUE_AMOUNT = 'use_due_amount';
 

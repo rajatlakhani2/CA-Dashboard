@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Dsc extends Model
 {
     use HasFactory;
+    use \App\Models\Concerns\BelongsToOrganization;
 
     public const STATUS_ACTIVE = 'Active';
     public const STATUS_EXPIRED = 'Expired';

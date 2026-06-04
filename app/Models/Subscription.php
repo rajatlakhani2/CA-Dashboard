@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Subscription extends Model
 {
+    use \App\Models\Concerns\BelongsToOrganization;
     public const STATUS_ACTIVE = 'active';
     public const STATUS_PAUSED = 'paused';
     public const STATUS_CANCELLED = 'cancelled';

@@ -8,6 +8,9 @@ Route::get('/unregister-pwa', fn () => redirect('/clear-app-cache'));
 Route::get('/login', [\App\Http\Controllers\LoginController::class, 'show'])->name('login');
 Route::post('/login', [\App\Http\Controllers\LoginController::class, 'login']);
 
+Route::get('/register', [\App\Http\Controllers\RegisterOrganizationController::class, 'show'])->name('register.organization');
+Route::post('/register', [\App\Http\Controllers\RegisterOrganizationController::class, 'store']);
+
 Route::get('/', function () {
     return redirect()->route('login');
 });
@@ -16,7 +19,7 @@ require __DIR__ . '/portal.php';
 
 Route::middleware([
     'auth',
-    \App\Http\Middleware\SetOrganizationContext::class,
+    \App\Http\Middleware\EnsureOrganizationIsActive::class,
     \App\Http\Middleware\RestrictArticleAccess::class,
 ])->group(function () {
     Route::post('/logout', [\App\Http\Controllers\LoginController::class, 'logout'])->name('logout');

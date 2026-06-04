@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ClientServiceDocumentCheck extends Model
 {
+    use \App\Models\Concerns\BelongsToOrganization;
     protected $fillable = [
         'client_service_id',
         'service_document_requirement_id',

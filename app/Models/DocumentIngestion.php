@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DocumentIngestion extends Model
 {
+    use \App\Models\Concerns\BelongsToOrganization;
     public const STATUS_PENDING = 'pending_review';
 
     public const STATUS_CONFIRMED = 'confirmed';

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class TimeEntry extends Model
 {
     use HasFactory;
+    use \App\Models\Concerns\BelongsToOrganization;
 
     protected $fillable = [
         'task_id',

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class OnboardingChecklist extends Model
 {
     use HasFactory;
+    use \App\Models\Concerns\BelongsToOrganization;
 
     protected $fillable = [
         'client_id',

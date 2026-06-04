@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TaskTemplate extends Model
 {
+    use \App\Models\Concerns\BelongsToOrganization;
     protected $fillable = [
         'service_id',
         'title',

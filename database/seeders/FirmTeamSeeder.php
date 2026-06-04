@@ -91,8 +91,13 @@ class FirmTeamSeeder extends Seeder
     {
         $name = Setting::get('company_name', 'My CA Firm');
 
+        $slug = 'rla';
+        if (Organization::where('slug', $slug)->where('name', '!=', $name)->exists()) {
+            $slug = Str::slug($name) ?: 'default-workspace';
+        }
+
         return Organization::firstOrCreate(
-            ['slug' => Str::slug($name) ?: 'default-workspace'],
+            ['slug' => $slug],
             [
                 'name' => $name,
                 'plan' => Organization::PLAN_PROFESSIONAL,

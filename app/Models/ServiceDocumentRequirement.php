@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ServiceDocumentRequirement extends Model
 {
+    use \App\Models\Concerns\BelongsToOrganization;
     protected $fillable = [
         'service_id',
         'name',

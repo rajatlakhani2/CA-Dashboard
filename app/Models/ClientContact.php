@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ClientContact extends Model
 {
+    use \App\Models\Concerns\BelongsToOrganization;
     protected $fillable = ['client_id', 'name', 'phone', 'email', 'designation'];
 
     public function client()

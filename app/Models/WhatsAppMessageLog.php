@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class WhatsAppMessageLog extends Model
 {
+    use \App\Models\Concerns\BelongsToOrganization;
     protected $table = 'whatsapp_message_logs';
 
     public const DIRECTION_IN = 'in';

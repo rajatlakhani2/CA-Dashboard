@@ -34,6 +34,11 @@ class Organization extends Model
         return $this->hasMany(User::class);
     }
 
+    public function hasSeatAvailable(): bool
+    {
+        return $this->users()->count() < $this->seat_limit;
+    }
+
     public function planLabel(): string
     {
         return match ($this->plan) {

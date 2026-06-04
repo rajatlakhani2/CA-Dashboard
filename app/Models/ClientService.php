@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class ClientService extends Model
 {
     use HasFactory;
+    use \App\Models\Concerns\BelongsToOrganization;
 
     public const STATUS_ACTIVE = 'Active';
     public const STATUS_INACTIVE = 'Inactive';

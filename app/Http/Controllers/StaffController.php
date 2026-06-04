@@ -36,6 +36,11 @@ class StaffController extends Controller
             $validated['branch_id'] = $request->user()->branch_id;
         }
 
+        $organization = $request->user()->organization;
+        if ($organization && ! $organization->hasSeatAvailable()) {
+            return back()->withErrors(['email' => 'Seat limit reached (' . $organization->seat_limit . '). Upgrade plan or remove a user.']);
+        }
+
         $validated['password'] = Hash::make($request->password);
         $validated['organization_id'] = $request->user()->organization_id;
 
