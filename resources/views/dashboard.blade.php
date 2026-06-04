@@ -239,7 +239,11 @@
 {{-- Gradient background layer --}}
 <div id="glass-bg"></div>
 
-<div x-data="{ activeTab: (window.location.hash === '#schedule' ? 'calendar' : 'overview') }" class="w-full space-y-6 dashboard-shell px-0 sm:px-0">
+<div
+    x-data="{ activeTab: @json($initialDashboardTab ?? 'overview') }"
+    x-init="if (location.hash === '#schedule') activeTab = 'calendar'; if (location.hash === '#firm' && @json($showFirmOverviewTab ?? false)) activeTab = 'firm';"
+    class="w-full min-w-0 max-w-none space-y-6 dashboard-shell"
+>
 
     @if(($pendingClientApprovals ?? 0) > 0)
     <div class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 flex flex-wrap items-center justify-between gap-3 shadow-sm">
@@ -326,6 +330,9 @@
         <button type="button" @click="activeTab = 'workload'" :class="activeTab === 'workload' ? 'active' : ''" class="glass-tab">Workload</button>
         @if($canManageFirm)
         <button type="button" @click="activeTab = 'financials'" :class="activeTab === 'financials' ? 'active' : ''" class="glass-tab">Financials</button>
+        @endif
+        @if($showFirmOverviewTab ?? false)
+        <button type="button" @click="activeTab = 'firm'" :class="activeTab === 'firm' ? 'active' : ''" class="glass-tab">Firm overview</button>
         @endif
     </div>
 
@@ -573,6 +580,12 @@
                 </div>
             </div>
         </div>
+    </div>
+    @endif
+
+    @if($showFirmOverviewTab ?? false)
+    <div x-show="activeTab === 'firm'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" style="display:none;">
+        @include('dashboard.partials.firm-overview', ['firmOverview' => $firmOverview])
     </div>
     @endif
 

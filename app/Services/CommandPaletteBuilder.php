@@ -253,7 +253,7 @@ class CommandPaletteBuilder
             $pages[] = ['title' => 'Dashboard', 'url' => route('dashboard'), 'icon' => 'home', 'module' => 'dashboard'];
         }
         if ($user->isPartner()) {
-            $pages[] = ['title' => 'Partner Overview', 'url' => route('partner.dashboard'), 'icon' => 'chart-bar', 'module' => 'dashboard'];
+            $pages[] = ['title' => 'Firm overview', 'url' => route('dashboard', ['tab' => 'firm']), 'icon' => 'chart-bar', 'module' => 'dashboard'];
         }
         if ($user->canAccessModule('tasks')) {
             $pages[] = ['title' => 'My Day', 'url' => route('tasks.my-day'), 'icon' => 'sun', 'module' => 'tasks'];

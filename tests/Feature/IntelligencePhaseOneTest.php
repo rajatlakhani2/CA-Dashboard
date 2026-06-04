@@ -88,6 +88,10 @@ class IntelligencePhaseOneTest extends TestCase
 
         $this->actingAs($partner)
             ->get(route('partner.dashboard'))
+            ->assertRedirect(route('dashboard', ['tab' => 'firm']));
+
+        $this->actingAs($partner)
+            ->get(route('dashboard', ['tab' => 'firm']))
             ->assertOk()
             ->assertSee('Firm alerts', false)
             ->assertSee('Backlog alert', false);

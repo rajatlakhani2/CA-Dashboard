@@ -44,6 +44,10 @@ class NewFeaturesBatchTest extends TestCase
 
         $this->actingAs($partner)
             ->get(route('partner.dashboard'))
+            ->assertRedirect(route('dashboard', ['tab' => 'firm']));
+
+        $this->actingAs($partner)
+            ->get(route('dashboard', ['tab' => 'firm']))
             ->assertOk()
             ->assertSee('MTD Invoiced', false);
     }

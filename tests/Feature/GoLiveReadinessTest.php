@@ -82,9 +82,15 @@ class GoLiveReadinessTest extends TestCase
     {
         $partner = User::factory()->create(['role' => 'partner']);
 
-        $this->actingAs($partner)
-            ->get(route($routeName))
-            ->assertSuccessful();
+        $response = $this->actingAs($partner)->get(route($routeName));
+
+        if ($routeName === 'partner.dashboard') {
+            $response->assertRedirect(route('dashboard', ['tab' => 'firm']));
+
+            return;
+        }
+
+        $response->assertSuccessful();
     }
 
     public function test_partner_param_routes_and_json_endpoints(): void

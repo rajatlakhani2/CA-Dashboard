@@ -85,6 +85,8 @@ FILES=(
   database/seeders/FirmTeamSeeder.php
   database/migrations/2026_06_04_120000_add_onboarding_to_organizations.php
   app/Services/DashboardMissionControlService.php
+  app/Services/PartnerFirmOverviewService.php
+  app/Http/Controllers/PartnerDashboardController.php
   app/Services/ClientHealthScoreService.php
   app/Services/NotificationSummaryService.php
   app/Services/WorkspaceOnboardingService.php
@@ -93,6 +95,7 @@ FILES=(
   app/Http/Controllers/ClientController.php
   routes/modules/operations.php
   resources/views/dashboard/partials/mission-control.blade.php
+  resources/views/dashboard/partials/firm-overview.blade.php
   resources/views/dashboard/partials/firm-pulse.blade.php
   resources/views/dashboard/partials/revenue-command-center.blade.php
   resources/views/dashboard/partials/onboarding-banner.blade.php

@@ -267,11 +267,13 @@ body {
             right: 0;
             bottom: 0;
             left: var(--sidebar-width, 16rem);
-            width: calc(100% - var(--sidebar-width, 16rem));
+            width: calc(100vw - var(--sidebar-width, 16rem));
+            max-width: calc(100vw - var(--sidebar-width, 16rem));
             z-index: 40;
             overflow-y: auto;
             overflow-x: hidden;
             background-color: #e8ecf1;
+            box-sizing: border-box;
         }
     }
 

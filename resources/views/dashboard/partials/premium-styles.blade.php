@@ -33,19 +33,34 @@
         background: var(--premium-bg) !important;
     }
 
+    @media (min-width: 1024px) {
+        .main-shell {
+            width: calc(100vw - var(--sidebar-width, 16rem)) !important;
+            max-width: calc(100vw - var(--sidebar-width, 16rem)) !important;
+        }
+    }
+
     main.main-content-pad {
         width: 100%;
-        max-width: none !important;
+        max-width: 100% !important;
+        min-width: 0;
         padding-left: var(--content-pad) !important;
         padding-right: var(--content-pad) !important;
         box-sizing: border-box;
+        overflow-x: hidden;
     }
 
     .dashboard-shell {
         width: 100%;
-        max-width: none !important;
+        max-width: 100% !important;
+        min-width: 0;
         margin: 0;
         box-sizing: border-box;
+    }
+
+    .dashboard-shell > * {
+        max-width: 100%;
+        min-width: 0;
     }
 
     .saas-workspace {

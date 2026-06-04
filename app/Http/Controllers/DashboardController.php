@@ -12,6 +12,7 @@ use App\Services\DashboardMetricsService;
 use App\Services\DashboardMissionControlService;
 use App\Services\NotificationSummaryService;
 use App\Services\OrganizationWorkspaceService;
+use App\Services\PartnerFirmOverviewService;
 use App\Services\WorkspaceOnboardingService;
 use Illuminate\Http\Request;
 
@@ -39,6 +40,8 @@ class DashboardController extends Controller
             session(['welcome_shown' => true]);
         }
 
+        $isPartner = $user?->isPartner() ?? false;
+
         return view('dashboard', array_merge($data, [
             'calendarEvents' => $calendarEvents,
             'calendarFilters' => $calendarFilters,
@@ -49,7 +52,29 @@ class DashboardController extends Controller
             'missionControl' => $missionControl->build($user),
             'notificationGroups' => $notificationSummary->groups(),
             'onboarding' => $onboarding->forUser($user),
+            'initialDashboardTab' => $this->initialDashboardTab($request, $isPartner),
+            'firmOverview' => $isPartner ? app(PartnerFirmOverviewService::class)->build() : null,
+            'showFirmOverviewTab' => $isPartner,
         ]));
+    }
+
+    private function initialDashboardTab(Request $request, bool $isPartner): string
+    {
+        $tab = $request->query('tab');
+
+        if ($tab === 'firm' && $isPartner) {
+            return 'firm';
+        }
+
+        if (in_array($tab, ['calendar', 'schedule'], true)) {
+            return 'calendar';
+        }
+
+        if (in_array($tab, ['workload', 'financials', 'overview'], true)) {
+            return $tab;
+        }
+
+        return 'overview';
     }
 
     public function calendarEvents(Request $request, DashboardCalendarBuilder $builder)

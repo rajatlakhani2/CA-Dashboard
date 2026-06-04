@@ -81,10 +81,11 @@
             position: relative;
             z-index: 40;
             min-width: 0;
-            width: 100%;
+            max-width: 100%;
             overflow-x: hidden;
             background-color: #e8ecf1;
             isolation: isolate;
+            box-sizing: border-box;
         }
 
         #sidebar {
@@ -119,7 +120,8 @@
                 right: 0;
                 bottom: 0;
                 left: var(--sidebar-width);
-                width: calc(100% - var(--sidebar-width));
+                width: calc(100vw - var(--sidebar-width)) !important;
+                max-width: calc(100vw - var(--sidebar-width)) !important;
                 margin-left: 0;
                 overflow-y: auto;
                 overflow-x: hidden;
@@ -210,14 +212,6 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                         </svg>
                         Dashboard
-                    </a>
-                    @endif
-                    @if($isPartner)
-                    <a href="{{ route('partner.dashboard') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('partner.dashboard') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
-                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('partner.dashboard') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                        Partner Overview
                     </a>
                     @endif
                 </div>
@@ -509,7 +503,7 @@
         </div>
 
         <!-- Main Content -->
-        <div class="main-shell flex flex-col min-h-screen w-full">
+        <div class="main-shell flex flex-col min-h-screen min-w-0">
             <!-- Header -->
             <header class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
                 <div class="px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center gap-3">
@@ -647,7 +641,7 @@
             </header>
 
             <!-- Page Content -->
-            <main class="main-content-pad flex-1 py-8 px-4 sm:px-6 lg:px-8 animate-enter">
+            <main class="main-content-pad flex-1 py-8 px-4 sm:px-6 lg:px-8 animate-enter w-full min-w-0 max-w-full box-border">
                 @if(session('success'))
                 <div class="mb-4 bg-green-50 border-l-4 border-green-500 p-4">
                     <div class="flex">
