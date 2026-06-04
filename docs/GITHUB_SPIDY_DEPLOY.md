@@ -1,5 +1,7 @@
 # Deploy on Spidy using GitHub (no large zip upload)
 
+**Track what is live:** keep [DEPLOY_TRACKER.md](./DEPLOY_TRACKER.md) updated after each task (Local → GitHub → Server).
+
 ## 1. cPanel settings
 
 - Subdomain **app.kuhu.org.in** → document root: `public_html/app.kuhu.org.in/public`
