@@ -1,5 +1,5 @@
 @if(!empty($onboarding['show']))
-<div class="rounded-xl border border-indigo-200 bg-indigo-50 p-4 sm:p-5" x-data="{ open: true }" x-show="open">
+<div class="rounded-xl border border-indigo-100 bg-indigo-50/70 p-4 sm:p-5" x-data="{ open: true }" x-show="open">
     <div class="flex flex-wrap items-start justify-between gap-3">
         <div class="flex-1 min-w-0">
             <p class="text-sm font-bold text-indigo-900">Workspace setup · {{ $onboarding['percent'] }}% complete</p>

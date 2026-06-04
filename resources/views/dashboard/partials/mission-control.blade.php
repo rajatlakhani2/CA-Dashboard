@@ -6,8 +6,8 @@
     $team = $mc['team_workload'] ?? collect();
     $attention = $mc['clients_needing_attention'] ?? collect();
 @endphp
-<section class="mission-control space-y-4 max-w-[1600px] mx-auto w-full" aria-label="Mission control">
-    <div class="rounded-2xl border border-indigo-200/80 bg-gradient-to-br from-indigo-50 via-white to-slate-50 p-4 sm:p-6 shadow-sm">
+<section class="mission-control space-y-4 w-full" aria-label="Mission control">
+    <div class="rounded-2xl border border-indigo-100 bg-white p-4 sm:p-6 shadow-sm ring-1 ring-indigo-50">
         <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3 mb-4">
             <div>
                 <p class="text-[10px] font-bold uppercase tracking-widest text-indigo-600">Command centre</p>
@@ -22,12 +22,12 @@
             @endif
         </div>
 
-        <div class="mc-strip flex gap-2 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-thin -mx-1 px-1">
+        <div class="mc-strip">
             @foreach($strip as $item)
             <a href="{{ $item['url'] }}"
-               class="mc-strip-item snap-start shrink-0 min-w-[7.5rem] sm:min-w-[8.5rem] rounded-xl border border-gray-200 bg-white px-3 py-2.5 hover:border-indigo-300 hover:shadow-md transition">
-                <p class="text-[10px] font-semibold text-gray-500 uppercase tracking-wide truncate">{{ $item['label'] }}</p>
-                <p class="text-2xl font-black text-gray-900 tabular-nums">{{ $item['value'] }}</p>
+               class="mc-strip-item rounded-xl border border-indigo-100 bg-indigo-50/40 px-3 py-3 hover:border-indigo-300 hover:bg-indigo-50 hover:shadow-sm transition">
+                <p class="text-[10px] font-semibold text-indigo-600/80 uppercase tracking-wide leading-tight">{{ $item['label'] }}</p>
+                <p class="text-xl sm:text-2xl font-black text-indigo-950 tabular-nums mt-1">{{ $item['value'] }}</p>
             </a>
             @endforeach
         </div>

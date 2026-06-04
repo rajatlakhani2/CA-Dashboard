@@ -2,22 +2,22 @@
     $ws = $workspace ?? [];
     $team = collect($ws['team'] ?? []);
 @endphp
-<div class="saas-workspace rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-    <div class="px-5 py-4 sm:px-6 bg-gradient-to-r from-slate-900 via-indigo-950 to-indigo-900 text-white">
+<div class="saas-workspace rounded-2xl border border-indigo-100 bg-white shadow-sm overflow-hidden">
+    <div class="px-5 py-4 sm:px-6 bg-gradient-to-br from-indigo-700 via-indigo-600 to-indigo-500 text-white">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div class="min-w-0">
                 <div class="flex flex-wrap items-center gap-2 mb-2">
-                    <span class="inline-flex items-center rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-indigo-200">SaaS Workspace</span>
+                    <span class="inline-flex items-center rounded-md bg-white/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white/90">SaaS Workspace</span>
                     @if(!empty($ws['organization']?->slug))
-                    <span class="inline-flex items-center rounded-md bg-white/15 px-2 py-0.5 text-[10px] font-mono text-indigo-100" title="Share this ID for login">ID: {{ $ws['organization']->slug }}</span>
+                    <span class="inline-flex items-center rounded-md bg-white/15 px-2 py-0.5 text-[10px] font-mono text-white/80" title="Share this ID for login">ID: {{ $ws['organization']->slug }}</span>
                     @endif
-                    <span class="inline-flex items-center rounded-md bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-200">{{ $ws['plan'] ?? 'Professional' }} plan</span>
+                    <span class="inline-flex items-center rounded-md bg-emerald-400/30 px-2 py-0.5 text-[10px] font-semibold text-emerald-50">{{ $ws['plan'] ?? 'Professional' }} plan</span>
                     @if(($ws['seats_remaining'] ?? 0) <= 3)
                     <span class="inline-flex items-center rounded-md bg-amber-500/25 px-2 py-0.5 text-[10px] font-semibold text-amber-100">Seats almost full</span>
                     @endif
                 </div>
                 <h1 class="text-xl sm:text-2xl font-black truncate">{{ $ws['name'] ?? 'Your firm' }}</h1>
-                <p class="text-indigo-200/90 text-sm mt-1">
+                <p class="text-indigo-100 text-sm mt-1">
                     Welcome, <span class="font-semibold text-white">{{ auth()->user()->name }}</span>
                     · <span class="capitalize">{{ $ws['role_label'] ?? 'user' }}</span>
                     · {{ now()->format('l, d M Y') }}
