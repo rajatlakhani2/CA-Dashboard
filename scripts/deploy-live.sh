@@ -1,4 +1,6 @@
 #!/bin/bash
+# DEPRECATED for production — use scripts/deploy-production-safe.sh (keeps data, full repo sync).
+# This script runs migrate:fresh and wipes the database.
 # One-shot deploy for app.kuhu.org.in (run on cPanel Terminal).
 # Requires: .env with valid MySQL, PHP 8.2+, composer on PATH.
 set -e

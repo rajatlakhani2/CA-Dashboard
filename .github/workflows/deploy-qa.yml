@@ -1,19 +1,17 @@
-# Deploy to app.kuhu.org.in when pushing to master.
-# Required GitHub repo secrets (Settings → Secrets → Actions):
-#   SSH_HOST          e.g. s3508.stableserver.net or server IP
-#   SSH_USER          e.g. kuhuorgi
-#   SSH_KEY           private key (full PEM) with access to the account
-#   DEPLOY_PATH       e.g. /home/kuhuorgi/public_html/app.kuhu.org.in
+# Deploy to QA/staging when pushing to the qa branch (or manual run).
+# Secrets (can reuse production SSH or separate QA path):
+#   SSH_HOST, SSH_USER, SSH_KEY
+#   QA_DEPLOY_PATH  e.g. /home/kuhuorgi/public_html/qa.kuhu.org.in
 
-name: Deploy Production
+name: Deploy QA
 
 on:
   push:
-    branches: [master]
+    branches: [qa]
   workflow_dispatch:
 
 concurrency:
-  group: production-deploy
+  group: qa-deploy
   cancel-in-progress: true
 
 jobs:
@@ -24,6 +22,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: qa
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -56,16 +56,16 @@ jobs:
             --exclude='*.zip' \
             .
 
-      - name: Upload to server
+      - name: Upload to QA server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           source: release.tar.gz
-          target: ${{ secrets.DEPLOY_PATH }}
+          target: ${{ secrets.QA_DEPLOY_PATH }}
 
-      - name: Extract and optimize on server
+      - name: Extract and optimize on QA
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -74,11 +74,12 @@ jobs:
           script_stop: true
           script: |
             set -e
-            cd "${{ secrets.DEPLOY_PATH }}"
+            cd "${{ secrets.QA_DEPLOY_PATH }}"
+            cp -f .env /tmp/qa.env.bak 2>/dev/null || true
             tar -xzf release.tar.gz
             rm -f release.tar.gz
+            cp -f /tmp/qa.env.bak .env 2>/dev/null || true
             php artisan migrate --force
             php artisan optimize:clear
             php artisan view:clear
             rm -f bootstrap/cache/routes-v7.php 2>/dev/null || true
-            chmod -R 775 storage bootstrap/cache
