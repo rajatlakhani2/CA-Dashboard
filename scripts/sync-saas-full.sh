@@ -75,7 +75,10 @@ FILES=(
   resources/views/auth/login.blade.php
   resources/views/auth/register-organization.blade.php
   resources/views/dashboard.blade.php
+  resources/views/dashboard/partials/tabs-script.blade.php
   resources/views/dashboard/partials/premium-styles.blade.php
+  app/Http/Controllers/DashboardController.php
+  scripts/force-dashboard-deploy.sh
   scripts/sync-all-pending-fixes.sh
   scripts/check-saas-deploy.sh
   app/Http/Middleware/EnforceSessionIdle.php
@@ -138,6 +141,8 @@ if command -v composer >/dev/null 2>&1; then
   composer dump-autoload --no-interaction 2>/dev/null || composer dump-autoload
 fi
 php artisan migrate --force
+echo "tabs-v2-$(date -u +%Y%m%d-%H%M%S)" > public/dashboard-build.txt
+rm -rf storage/framework/views/* 2>/dev/null || true
 php artisan optimize:clear
 php artisan view:clear
 php -r "if (function_exists('opcache_reset')) { opcache_reset(); echo \"OPcache reset\n\"; }"

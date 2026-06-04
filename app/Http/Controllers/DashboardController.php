@@ -55,7 +55,26 @@ class DashboardController extends Controller
             'initialDashboardTab' => $this->initialDashboardTab($request, $isPartner),
             'firmOverview' => $isPartner ? app(PartnerFirmOverviewService::class)->build() : null,
             'showFirmOverviewTab' => $isPartner,
+            'dashboardBuildId' => 'tabs-v2-20260604',
         ]));
+    }
+
+    /** JSON probe for live deploy verification (partner/manager only). */
+    public function deployProbe()
+    {
+        abort_unless(auth()->user()?->hasRole('partner', 'manager'), 403);
+
+        $path = resource_path('views/dashboard.blade.php');
+        $content = is_readable($path) ? (string) file_get_contents($path) : '';
+
+        return response()->json([
+            'build' => 'tabs-v2-20260604',
+            'view_path' => $path,
+            'view_mtime' => is_readable($path) ? date('c', filemtime($path)) : null,
+            'tabs_v2_marker' => str_contains($content, 'dashboard-tabs-v2'),
+            'workspace_header_in_view' => str_contains($content, 'workspace-header'),
+            'tab_root_marker' => str_contains($content, 'dashboard-tab-root'),
+        ]);
     }
 
     private function initialDashboardTab(Request $request, bool $isPartner): string

@@ -326,6 +326,10 @@
         @endif
     </div>
 
+    <p class="text-[10px] text-gray-400 text-right -mb-2" title="If this does not say tabs-v2, the server still has an old dashboard file">
+        Build: {{ $dashboardBuildId ?? 'unknown' }}
+    </p>
+
     {{-- ===== TAB NAVIGATION ===== --}}
     <div class="glass-tabs" role="tablist">
         <button type="button" role="tab" data-dashboard-tab="overview" class="glass-tab {{ $dashboardActiveTab === 'overview' ? 'active' : '' }}">Overview</button>
@@ -593,47 +597,14 @@
     @endif
 
     @include('partials.welcome-modal')
+
+    @include('dashboard.partials.tabs-script')
 </div>
 @endsection
 
 @section('scripts')
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 <script>
-(function () {
-    var root = document.getElementById('dashboard-tab-root');
-    if (!root) return;
-
-    function showDashboardTab(tab) {
-        root.querySelectorAll('[data-dashboard-panel]').forEach(function (panel) {
-            panel.classList.toggle('hidden', panel.getAttribute('data-dashboard-panel') !== tab);
-        });
-        root.querySelectorAll('[data-dashboard-tab]').forEach(function (btn) {
-            btn.classList.toggle('active', btn.getAttribute('data-dashboard-tab') === tab);
-        });
-        if (tab === 'calendar') {
-            setTimeout(function () {
-                window.dispatchEvent(new Event('resize'));
-                if (window.calendar) {
-                    window.calendar.updateSize();
-                    window.calendar.render();
-                }
-            }, 350);
-        }
-    }
-
-    root.querySelectorAll('[data-dashboard-tab]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            showDashboardTab(btn.getAttribute('data-dashboard-tab'));
-        });
-    });
-
-    var tab = root.getAttribute('data-initial-tab') || 'overview';
-    if (location.hash === '#schedule') tab = 'calendar';
-    if (location.hash === '#firm' && root.getAttribute('data-firm-tab') === '1') tab = 'firm';
-    showDashboardTab(tab);
-    window.showDashboardTab = showDashboardTab;
-})();
-
 function calendarFilterBar() {
     var initial = @json($calendarFilters->toQueryArray());
     return {

@@ -96,10 +96,13 @@ class SystemController extends Controller
             });
         }
 
-        $dashboardView = resource_path('views/dashboard/partials/workspace-header.blade.php');
-        $dashboardUi = File::exists($dashboardView) && str_contains(File::get($dashboardView), 'Dashboard SaaS v1')
-            ? 'saas-workspace (latest)'
-            : 'legacy command centre';
+        $dashboardView = resource_path('views/dashboard.blade.php');
+        $dashboardContent = File::exists($dashboardView) ? File::get($dashboardView) : '';
+        $dashboardUi = str_contains($dashboardContent, 'dashboard-tabs-v2')
+            ? 'tabs-v2 (latest — Build tabs-v2-20260604)'
+            : (str_contains($dashboardContent, 'workspace-header')
+                ? 'legacy (old workspace strip + broken tabs)'
+                : 'unknown / partial deploy');
 
         $taskCreateView = resource_path('views/tasks/create.blade.php');
         $taskCreateUi = 'missing';

@@ -25,6 +25,10 @@ FILES=(
   scripts/sync-all-pending-fixes.sh
   scripts/check-saas-deploy.sh
   resources/views/dashboard.blade.php
+  resources/views/dashboard/partials/tabs-script.blade.php
+  app/Http/Controllers/DashboardController.php
+  routes/modules/operations.php
+  scripts/force-dashboard-deploy.sh
   resources/views/layouts/app.blade.php
   app/Models/Subscription.php
   app/Models/ClientCredential.php
@@ -52,9 +56,16 @@ echo "==> Cache + autoload"
 if command -v composer >/dev/null 2>&1; then
   composer dump-autoload --no-interaction 2>/dev/null || composer dump-autoload
 fi
+echo "tabs-v2-$(date -u +%Y%m%d-%H%M%S)" > public/dashboard-build.txt
+rm -rf storage/framework/views/* 2>/dev/null || true
 php artisan optimize:clear
 php artisan view:clear
 php -r "if (function_exists('opcache_reset')) { opcache_reset(); echo \"OPcache reset\n\"; }"
+
+if ! grep -q "dashboard-tabs-v2" resources/views/dashboard.blade.php; then
+  echo "ERROR: dashboard.blade.php missing tabs-v2 after sync."
+  exit 1
+fi
 
 echo ""
 echo "==> Verify on disk"
