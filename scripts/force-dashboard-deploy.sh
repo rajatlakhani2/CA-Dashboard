@@ -17,6 +17,13 @@ curl -fsSL -o resources/views/dashboard.blade.php "$BASE/resources/views/dashboa
 curl -fsSL -o resources/views/dashboard/partials/tabs-script.blade.php "$BASE/resources/views/dashboard/partials/tabs-script.blade.php"
 curl -fsSL -o app/Http/Controllers/DashboardController.php "$BASE/app/Http/Controllers/DashboardController.php"
 curl -fsSL -o routes/modules/operations.php "$BASE/routes/modules/operations.php"
+curl -fsSL -o routes/web.php "$BASE/routes/web.php"
+curl -fsSL -o resources/views/dashboard/partials/error-reporter.blade.php "$BASE/resources/views/dashboard/partials/error-reporter.blade.php"
+
+if ! grep -q "function deployProbe" app/Http/Controllers/DashboardController.php; then
+  echo "ERROR: DashboardController.php missing deployProbe() — download failed."
+  exit 1
+fi
 
 if ! grep -q "dashboard-tabs-v2" resources/views/dashboard.blade.php; then
   echo "ERROR: Downloaded dashboard.blade.php is still OLD (no dashboard-tabs-v2 marker)."
@@ -31,6 +38,7 @@ fi
 echo "tabs-v2-$(date -u +%Y%m%d-%H%M%S)" > public/dashboard-build.txt
 
 rm -rf storage/framework/views/* 2>/dev/null || true
+php artisan route:clear 2>/dev/null || true
 php artisan view:clear 2>/dev/null || true
 php artisan optimize:clear 2>/dev/null || true
 php -r "if (function_exists('opcache_reset')) { opcache_reset(); echo \"OPcache reset\n\"; }"

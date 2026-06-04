@@ -67,13 +67,18 @@ class DashboardController extends Controller
         $path = resource_path('views/dashboard.blade.php');
         $content = is_readable($path) ? (string) file_get_contents($path) : '';
 
+        $buildFile = public_path('dashboard-build.txt');
+        $buildStamp = is_readable($buildFile) ? trim((string) file_get_contents($buildFile)) : null;
+
         return response()->json([
             'build' => 'tabs-v2-20260604',
+            'deploy_stamp' => $buildStamp,
             'view_path' => $path,
             'view_mtime' => is_readable($path) ? date('c', filemtime($path)) : null,
             'tabs_v2_marker' => str_contains($content, 'dashboard-tabs-v2'),
             'workspace_header_in_view' => str_contains($content, 'workspace-header'),
             'tab_root_marker' => str_contains($content, 'dashboard-tab-root'),
+            'controller_deploy_probe' => true,
         ]);
     }
 

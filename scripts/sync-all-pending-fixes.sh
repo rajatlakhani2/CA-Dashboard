@@ -26,8 +26,10 @@ FILES=(
   scripts/check-saas-deploy.sh
   resources/views/dashboard.blade.php
   resources/views/dashboard/partials/tabs-script.blade.php
+  resources/views/dashboard/partials/error-reporter.blade.php
   app/Http/Controllers/DashboardController.php
   routes/modules/operations.php
+  routes/web.php
   scripts/force-dashboard-deploy.sh
   resources/views/layouts/app.blade.php
   app/Models/Subscription.php
@@ -58,6 +60,7 @@ if command -v composer >/dev/null 2>&1; then
 fi
 echo "tabs-v2-$(date -u +%Y%m%d-%H%M%S)" > public/dashboard-build.txt
 rm -rf storage/framework/views/* 2>/dev/null || true
+php artisan route:clear
 php artisan optimize:clear
 php artisan view:clear
 php -r "if (function_exists('opcache_reset')) { opcache_reset(); echo \"OPcache reset\n\"; }"

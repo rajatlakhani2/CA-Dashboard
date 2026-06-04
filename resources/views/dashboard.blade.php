@@ -326,9 +326,14 @@
         @endif
     </div>
 
-    <p class="text-[10px] text-gray-400 text-right -mb-2" title="If this does not say tabs-v2, the server still has an old dashboard file">
-        Build: {{ $dashboardBuildId ?? 'unknown' }}
-    </p>
+    <div class="flex flex-wrap items-center justify-end gap-3 -mb-2">
+        <p class="text-[10px] text-gray-400" title="If this does not say tabs-v2, the server still has an old dashboard file">
+            Build: {{ $dashboardBuildId ?? 'unknown' }}
+        </p>
+        <button type="button" data-dashboard-report-issue class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-800 underline">
+            Report technical issue
+        </button>
+    </div>
 
     {{-- ===== TAB NAVIGATION ===== --}}
     <div class="glass-tabs" role="tablist">
@@ -599,6 +604,7 @@
     @include('partials.welcome-modal')
 
     @include('dashboard.partials.tabs-script')
+    @include('dashboard.partials.error-reporter')
 </div>
 @endsection
 
