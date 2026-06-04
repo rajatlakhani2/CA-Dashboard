@@ -40,6 +40,9 @@ echo "$STAMP" > public/dashboard-build.txt
 printf '%s\n' "{\"build\":\"tabs-v2-20260604\",\"deploy_stamp\":\"$STAMP\",\"ok\":true}" > public/build-status.json
 
 rm -rf storage/framework/views/* 2>/dev/null || true
+rm -f bootstrap/cache/routes-v7.php bootstrap/cache/routes*.php 2>/dev/null || true
+curl -fsSL -o public/ping.php "$BASE/public/ping.php"
+curl -fsSL -o routes/web.php "$BASE/routes/web.php"
 php artisan route:clear 2>/dev/null || true
 php artisan view:clear 2>/dev/null || true
 php artisan optimize:clear 2>/dev/null || true

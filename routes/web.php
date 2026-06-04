@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/clear-app-cache', 'clear-app-cache');
@@ -23,6 +24,17 @@ Route::middleware([
     \App\Http\Middleware\RestrictArticleAccess::class,
 ])->group(function () {
     Route::post('/logout', [\App\Http\Controllers\LoginController::class, 'logout'])->name('logout');
+
+    // Dashboard routes in web.php so they register even if route cache / operations.php is stale
+    Route::get('/dashboard/deploy-probe', [DashboardController::class, 'deployProbe'])
+        ->middleware(['module:dashboard', 'role:partner,manager'])
+        ->name('dashboard.deploy-probe');
+    Route::get('/dashboard-build-probe', [DashboardController::class, 'deployProbe'])
+        ->middleware(['module:dashboard', 'role:partner,manager'])
+        ->name('dashboard.build-probe');
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->middleware('module:dashboard')
+        ->name('dashboard');
 
     require __DIR__ . '/modules/operations.php';
     require __DIR__ . '/modules/clients.php';
