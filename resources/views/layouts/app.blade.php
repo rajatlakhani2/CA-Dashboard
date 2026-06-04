@@ -7,13 +7,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>RLA Dashboard v2.1</title>
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    @include('partials.premium-fonts')
 
     <!-- PWA / mobile install hints -->
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#0c1929">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -74,13 +71,32 @@
             transform: none !important;
         }
 
+        :root {
+            --sidebar-width: clamp(13.5rem, 16vw, 16.5rem);
+            --premium-navy: #0c1929;
+            --premium-brass: #b8956a;
+        }
+
         .main-shell {
             position: relative;
             z-index: 40;
             min-width: 0;
+            width: 100%;
             overflow-x: hidden;
-            background-color: #f8fafc;
+            background-color: #e8ecf1;
             isolation: isolate;
+        }
+
+        #sidebar {
+            width: var(--sidebar-width);
+            max-width: var(--sidebar-width);
+        }
+
+        #sidebar nav a.bg-gradient-to-r,
+        #sidebar nav a[class*="from-indigo"] {
+            background: linear-gradient(90deg, #152238 0%, #1e3352 100%) !important;
+            border-left-color: var(--premium-brass) !important;
+            box-shadow: 0 2px 12px rgba(12, 25, 41, 0.25) !important;
         }
 
         @media (max-width: 1023px) {
@@ -102,12 +118,12 @@
                 top: 0;
                 right: 0;
                 bottom: 0;
-                left: 16rem;
-                width: auto;
+                left: var(--sidebar-width);
+                width: calc(100% - var(--sidebar-width));
                 margin-left: 0;
                 overflow-y: auto;
                 overflow-x: hidden;
-                box-shadow: -6px 0 20px -6px rgba(15, 23, 42, 0.15);
+                box-shadow: -6px 0 20px -6px rgba(15, 23, 42, 0.12);
             }
 
             .main-shell > header {
@@ -140,7 +156,7 @@
         <div id="sidebar-overlay" class="fixed inset-0 z-40 bg-slate-900/50 lg:hidden" onclick="closeMobileSidebar()" aria-hidden="true"></div>
 
         <!-- Sidebar -->
-        <div class="fixed inset-y-0 left-0 z-30 w-64 max-w-[16rem] bg-sidebar text-white transition-transform duration-300 ease-in-out transform flex flex-col overflow-hidden lg:translate-x-0 lg:z-20" id="sidebar">
+        <div class="fixed inset-y-0 left-0 z-30 bg-sidebar text-white transition-transform duration-300 ease-in-out transform flex flex-col overflow-hidden lg:translate-x-0 lg:z-20" id="sidebar">
             <div class="flex-shrink-0 flex items-center justify-center h-16 bg-white/10 shadow-md">
                 <h1 class="text-xl font-bold tracking-wider">RLA DASHBOARD</h1>
             </div>

@@ -16,23 +16,23 @@
     --color-sidebar: var(--c-sidebar);
     --color-text-secondary: var(--c-text-secondary);
     --color-line: var(--c-line);
-    --font-sans: 'Plus Jakarta Sans', sans-serif;
+    --font-sans: 'DM Sans', 'Plus Jakarta Sans', sans-serif;
 }
 
 :root {
-    /* Modern Theme (Indigo/Slate) */
-    --c-primary-50: #eef2ff;
-    --c-primary-100: #e0e7ff;
-    --c-primary-500: #6366f1;
-    --c-primary-600: #4f46e5;
-    --c-primary-700: #4338ca;
-    --c-bg-body: #f8fafc;
+    /* Modern Theme — professional navy & brass */
+    --c-primary-50: #f4f6f9;
+    --c-primary-100: #e8ecf1;
+    --c-primary-500: #1e3352;
+    --c-primary-600: #152238;
+    --c-primary-700: #0c1929;
+    --c-bg-body: #e8ecf1;
     --c-bg-card: #ffffff;
-    --c-text-main: #1e293b;
-    --c-sidebar: #0f172a;
-    --c-text-secondary: #64748b;
-    --c-line: #e2e8f0;
-    --radius-card: 0.75rem;
+    --c-text-main: #0f172a;
+    --c-sidebar: #0c1929;
+    --c-text-secondary: #5c6b7a;
+    --c-line: #d8dee6;
+    --radius-card: 0.875rem;
 }
 
 /* Increase Base Font Size for "Premium" Feel */
@@ -42,7 +42,7 @@ html {
 }
 
 body {
-    font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'DM Sans', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
     font-size: 1rem;
 }
 
@@ -266,12 +266,12 @@ body {
             top: 0;
             right: 0;
             bottom: 0;
-            left: 16rem;
-            width: auto;
+            left: var(--sidebar-width, 16rem);
+            width: calc(100% - var(--sidebar-width, 16rem));
             z-index: 40;
             overflow-y: auto;
             overflow-x: hidden;
-            background-color: #f8fafc;
+            background-color: #e8ecf1;
         }
     }
 

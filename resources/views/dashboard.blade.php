@@ -28,9 +28,10 @@
 @endsection
 
 @push('head_styles')
+@include('dashboard.partials.premium-styles')
 <style>
     /* ===== LIGHT THEME DASHBOARD OVERRIDE ===== */
-    body { background: #f8fafc !important; }
+    body { background: var(--premium-bg, #e8ecf1) !important; }
     .min-h-full.bg-bg-body { background: transparent !important; }
     main.flex-1 { background: transparent !important; }
 
@@ -79,49 +80,9 @@
     .glass-tab.active { color: #fff; background: linear-gradient(135deg, #4f46e5, #6366f1); box-shadow: 0 2px 8px rgba(79,70,229,0.35); }
     .glass-tab:hover:not(.active) { color: #374151; background: #f3f4f6; }
 
-    .dashboard-shell {
-        width: 100%;
-        max-width: 1440px;
-        margin-left: auto;
-        margin-right: auto;
-        padding-left: 0;
-        padding-right: 0;
-    }
-    .mission-control { max-width: 100%; }
-    .mc-strip {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.5rem;
-        width: 100%;
-    }
-    @media (min-width: 640px) {
-        .mc-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    }
-    @media (min-width: 1024px) {
-        .mc-strip { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.625rem; }
-    }
-    @media (min-width: 1280px) {
-        .mc-strip { grid-template-columns: repeat(7, minmax(0, 1fr)); }
-    }
     @media (max-width: 639px) {
-        .mc-strip {
-            display: flex;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            scroll-snap-type: x mandatory;
-            padding-bottom: 0.25rem;
-        }
-        .mc-strip .mc-strip-item {
-            flex: 0 0 42%;
-            min-width: 8.5rem;
-            scroll-snap-align: start;
-        }
-        .kpi-card .kpi-value { font-size: 1.75rem; }
         .glass-tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
         .glass-tab { flex-shrink: 0; }
-    }
-    @media (min-width: 1536px) {
-        .dashboard-shell { max-width: 1520px; }
     }
 
     .glass-section-title { color: #4b5563; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:1rem; }

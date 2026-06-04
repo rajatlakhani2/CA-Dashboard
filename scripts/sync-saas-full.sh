@@ -75,7 +75,10 @@ FILES=(
   resources/views/auth/login.blade.php
   resources/views/auth/register-organization.blade.php
   resources/views/dashboard.blade.php
+  resources/views/dashboard/partials/premium-styles.blade.php
   resources/views/dashboard/partials/workspace-header.blade.php
+  resources/views/partials/premium-fonts.blade.php
+  resources/css/app.css
   resources/views/system/index.blade.php
   database/migrations/2026_06_03_120000_create_organizations_multi_tenant.php
   database/migrations/2026_06_04_100000_extend_organization_tenancy_tables.php

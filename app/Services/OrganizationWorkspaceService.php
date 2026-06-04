@@ -25,11 +25,11 @@ class OrganizationWorkspaceService
             return $this->legacyWorkspace($user);
         }
 
-        $teamMembers = User::query()
+        $teamMembers = $this->visibleTeamQuery()
             ->where('organization_id', $organization->id)
             ->orderByRaw("CASE WHEN role = 'partner' THEN 0 WHEN role = 'manager' THEN 1 ELSE 2 END")
             ->orderBy('name')
-            ->get(['id', 'name', 'role', 'branch_id']);
+            ->get(['id', 'name', 'role', 'branch_id', 'email']);
 
         $activeTasksByUser = Task::query()
             ->where('organization_id', $organization->id)
@@ -68,12 +68,21 @@ class OrganizationWorkspaceService
         return $letters ?: '?';
     }
 
+    /** Hide legacy demo users from workspace UI (DB row may remain until seeder runs). */
+    private function visibleTeamQuery()
+    {
+        return User::query()->where(function ($query) {
+            $query->whereNotIn('email', ['nilesh@rlassociates.in', 'nilesh@rla.local'])
+                ->whereRaw('LOWER(name) NOT LIKE ?', ['%nilesh%']);
+        });
+    }
+
     private function legacyWorkspace(?User $user): array
     {
-        $teamMembers = User::query()
+        $teamMembers = $this->visibleTeamQuery()
             ->orderByRaw("CASE WHEN role = 'partner' THEN 0 WHEN role = 'manager' THEN 1 ELSE 2 END")
             ->orderBy('name')
-            ->get(['id', 'name', 'role', 'branch_id']);
+            ->get(['id', 'name', 'role', 'branch_id', 'email']);
 
         $activeTasksByUser = Task::query()
             ->whereNotIn('status', Task::TERMINAL_STATUSES)

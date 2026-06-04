@@ -19,9 +19,9 @@
         }}}};
     </script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+        body { font-family: 'DM Sans', system-ui, sans-serif; background-color: #e8ecf1; }
         .bg-bg-card { background-color: #fff; }
-        .bg-bg-body { background-color: #f8fafc; }
+        .bg-bg-body { background-color: #e8ecf1; }
         .text-text-main { color: #0f172a; }
         .text-text-secondary { color: #64748b; }
         .border-line { border-color: #e2e8f0; }
