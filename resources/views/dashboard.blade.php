@@ -80,6 +80,8 @@
     .glass-tab.active { color: #fff; background: linear-gradient(135deg, #4f46e5, #6366f1); box-shadow: 0 2px 8px rgba(79,70,229,0.35); }
     .glass-tab:hover:not(.active) { color: #374151; background: #f3f4f6; }
 
+    .dashboard-tab-panel.hidden { display: none !important; }
+
     @media (max-width: 639px) {
         .glass-tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
         .glass-tab { flex-shrink: 0; }
@@ -239,9 +241,12 @@
 {{-- Gradient background layer --}}
 <div id="glass-bg"></div>
 
+{{-- dashboard-tabs-v2: vanilla JS tabs (no Alpine dependency) --}}
+@php $dashboardActiveTab = $initialDashboardTab ?? 'overview'; @endphp
 <div
-    x-data="{ activeTab: @json($initialDashboardTab ?? 'overview') }"
-    x-init="if (location.hash === '#schedule') activeTab = 'calendar'; if (location.hash === '#firm' && @json($showFirmOverviewTab ?? false)) activeTab = 'firm';"
+    id="dashboard-tab-root"
+    data-initial-tab="{{ $dashboardActiveTab }}"
+    data-firm-tab="{{ ($showFirmOverviewTab ?? false) ? '1' : '0' }}"
     class="w-full min-w-0 max-w-none space-y-6 dashboard-shell"
 >
 
@@ -256,8 +261,6 @@
         </a>
     </div>
     @endif
-
-    @include('dashboard.partials.workspace-header')
 
     @include('dashboard.partials.onboarding-banner')
 
@@ -324,20 +327,20 @@
     </div>
 
     {{-- ===== TAB NAVIGATION ===== --}}
-    <div class="glass-tabs">
-        <button type="button" @click="activeTab = 'overview'" :class="activeTab === 'overview' ? 'active' : ''" class="glass-tab">Overview</button>
-        <button type="button" @click="activeTab = 'calendar'; setTimeout(() => { window.dispatchEvent(new Event('resize')); if(window.calendar) { window.calendar.updateSize(); window.calendar.render(); } }, 350)" :class="activeTab === 'calendar' ? 'active' : ''" class="glass-tab">Schedule</button>
-        <button type="button" @click="activeTab = 'workload'" :class="activeTab === 'workload' ? 'active' : ''" class="glass-tab">Workload</button>
+    <div class="glass-tabs" role="tablist">
+        <button type="button" role="tab" data-dashboard-tab="overview" class="glass-tab {{ $dashboardActiveTab === 'overview' ? 'active' : '' }}">Overview</button>
+        <button type="button" role="tab" data-dashboard-tab="calendar" class="glass-tab {{ $dashboardActiveTab === 'calendar' ? 'active' : '' }}">Schedule</button>
+        <button type="button" role="tab" data-dashboard-tab="workload" class="glass-tab {{ $dashboardActiveTab === 'workload' ? 'active' : '' }}">Workload</button>
         @if($canManageFirm)
-        <button type="button" @click="activeTab = 'financials'" :class="activeTab === 'financials' ? 'active' : ''" class="glass-tab">Financials</button>
+        <button type="button" role="tab" data-dashboard-tab="financials" class="glass-tab {{ $dashboardActiveTab === 'financials' ? 'active' : '' }}">Financials</button>
         @endif
         @if($showFirmOverviewTab ?? false)
-        <button type="button" @click="activeTab = 'firm'" :class="activeTab === 'firm' ? 'active' : ''" class="glass-tab">Firm overview</button>
+        <button type="button" role="tab" data-dashboard-tab="firm" class="glass-tab {{ $dashboardActiveTab === 'firm' ? 'active' : '' }}">Firm overview</button>
         @endif
     </div>
 
     {{-- ===== OVERVIEW TAB ===== --}}
-    <div x-show="activeTab === 'overview'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0">
+    <div data-dashboard-panel="overview" class="dashboard-tab-panel {{ $dashboardActiveTab !== 'overview' ? 'hidden' : '' }}">
         @include('dashboard.partials.firm-pulse')
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
 
@@ -464,7 +467,7 @@
     </div>
 
     {{-- ===== SCHEDULE / CALENDAR TAB ===== --}}
-    <div id="schedule" x-show="activeTab === 'calendar'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" style="display:none;">
+    <div id="schedule" data-dashboard-panel="calendar" class="dashboard-tab-panel {{ $dashboardActiveTab !== 'calendar' ? 'hidden' : '' }}">
         <div class="glass-card p-6" style="min-height: 600px;">
             <div class="flex justify-between items-center mb-4">
                 <div>
@@ -484,7 +487,7 @@
     </div>
 
     {{-- ===== WORKLOAD TAB ===== --}}
-    <div x-show="activeTab === 'workload'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" style="display:none;">
+    <div data-dashboard-panel="workload" class="dashboard-tab-panel {{ $dashboardActiveTab !== 'workload' ? 'hidden' : '' }}">
         <div class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="glass-card p-6">
@@ -556,7 +559,7 @@
 
     @if($canManageFirm)
     {{-- ===== FINANCIALS TAB ===== --}}
-    <div x-show="activeTab === 'financials'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" style="display:none;">
+    <div data-dashboard-panel="financials" class="dashboard-tab-panel {{ $dashboardActiveTab !== 'financials' ? 'hidden' : '' }}">
         @include('dashboard.partials.revenue-command-center')
         <div class="space-y-6 mt-6">
             {{-- Recent Clients --}}
@@ -584,7 +587,7 @@
     @endif
 
     @if($showFirmOverviewTab ?? false)
-    <div x-show="activeTab === 'firm'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" style="display:none;">
+    <div data-dashboard-panel="firm" class="dashboard-tab-panel {{ $dashboardActiveTab !== 'firm' ? 'hidden' : '' }}">
         @include('dashboard.partials.firm-overview', ['firmOverview' => $firmOverview])
     </div>
     @endif
@@ -596,6 +599,41 @@
 @section('scripts')
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 <script>
+(function () {
+    var root = document.getElementById('dashboard-tab-root');
+    if (!root) return;
+
+    function showDashboardTab(tab) {
+        root.querySelectorAll('[data-dashboard-panel]').forEach(function (panel) {
+            panel.classList.toggle('hidden', panel.getAttribute('data-dashboard-panel') !== tab);
+        });
+        root.querySelectorAll('[data-dashboard-tab]').forEach(function (btn) {
+            btn.classList.toggle('active', btn.getAttribute('data-dashboard-tab') === tab);
+        });
+        if (tab === 'calendar') {
+            setTimeout(function () {
+                window.dispatchEvent(new Event('resize'));
+                if (window.calendar) {
+                    window.calendar.updateSize();
+                    window.calendar.render();
+                }
+            }, 350);
+        }
+    }
+
+    root.querySelectorAll('[data-dashboard-tab]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            showDashboardTab(btn.getAttribute('data-dashboard-tab'));
+        });
+    });
+
+    var tab = root.getAttribute('data-initial-tab') || 'overview';
+    if (location.hash === '#schedule') tab = 'calendar';
+    if (location.hash === '#firm' && root.getAttribute('data-firm-tab') === '1') tab = 'firm';
+    showDashboardTab(tab);
+    window.showDashboardTab = showDashboardTab;
+})();
+
 function calendarFilterBar() {
     var initial = @json($calendarFilters->toQueryArray());
     return {

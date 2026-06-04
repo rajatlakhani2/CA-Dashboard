@@ -76,7 +76,16 @@ FILES=(
   resources/views/auth/register-organization.blade.php
   resources/views/dashboard.blade.php
   resources/views/dashboard/partials/premium-styles.blade.php
-  resources/views/dashboard/partials/workspace-header.blade.php
+  app/Models/Subscription.php
+  app/Http/Middleware/EnforceSessionIdle.php
+  bootstrap/app.php
+  app/Http/Controllers/SettingsController.php
+  resources/views/settings/profile.blade.php
+  resources/views/credentials/index.blade.php
+  resources/views/credentials/partials/vault-audit-script.blade.php
+  resources/views/personal-renewals/index.blade.php
+  app/Console/Commands/RunBackup.php
+  routes/console.php
   resources/views/partials/premium-fonts.blade.php
   resources/css/app.css
   resources/views/system/index.blade.php

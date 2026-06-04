@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -79,6 +80,24 @@ class ClientCredential extends Model
             'deleted' => 'deleted credential vault entry for',
             default => $eventName,
         };
+    }
+
+    /**
+     * Decrypted password for display/copy; empty string if missing or APP_KEY mismatch.
+     */
+    public function getDisplayPasswordAttribute(): string
+    {
+        $raw = $this->getAttributes()['password'] ?? null;
+
+        if ($raw === null || $raw === '') {
+            return '';
+        }
+
+        try {
+            return Crypt::decryptString($raw);
+        } catch (\Throwable) {
+            return '';
+        }
     }
 
     public function client()

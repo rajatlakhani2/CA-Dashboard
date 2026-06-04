@@ -233,6 +233,31 @@
 
                 <div class="border-t border-gray-200 pt-6">
                     <div>
+                        <h3 class="text-lg font-medium leading-6 text-gray-900">Security &amp; data</h3>
+                        <p class="mt-1 text-sm text-gray-500">Automatic sign-out and nightly backups (requires server cron: <code class="text-xs bg-gray-100 px-1 rounded">php artisan schedule:run</code>).</p>
+                    </div>
+                    <div class="grid grid-cols-6 gap-6 mt-6">
+                        <div class="col-span-6 sm:col-span-3">
+                            <label for="auto_logout_minutes" class="block text-sm font-medium text-gray-700">Auto logout after inactivity</label>
+                            <select name="auto_logout_minutes" id="auto_logout_minutes" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                                @foreach(['0' => 'Disabled', '15' => '15 minutes', '30' => '30 minutes', '60' => '1 hour', '120' => '2 hours', '240' => '4 hours', '480' => '8 hours'] as $val => $label)
+                                <option value="{{ $val }}" {{ (string) old('auto_logout_minutes', $auto_logout_minutes ?? '0') === (string) $val ? 'selected' : '' }}>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                            <label for="auto_backup_enabled" class="block text-sm font-medium text-gray-700">Automatic nightly backup</label>
+                            <select name="auto_backup_enabled" id="auto_backup_enabled" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                                <option value="1" {{ ($auto_backup_enabled ?? '1') == '1' ? 'selected' : '' }}>Enabled (daily)</option>
+                                <option value="0" {{ ($auto_backup_enabled ?? '1') == '0' ? 'selected' : '' }}>Disabled</option>
+                            </select>
+                            <p class="mt-2 text-xs text-gray-500">Manual backup: <a href="{{ route('system.index') }}" class="text-indigo-600 hover:underline">System Health</a>.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 pt-6">
+                    <div>
                         <h3 class="text-lg font-medium leading-6 text-gray-900">WhatsApp Reminder Settings</h3>
                         <p class="mt-1 text-sm text-gray-500">Configure when the daily pending task reminders are sent to the team.</p>
                     </div>

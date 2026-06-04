@@ -309,7 +309,7 @@
                 </div>
                 @endif
 
-                @if($mod('service_dues') || $mod('personal_renewals') || $mod('dsc') || $mod('tds'))
+                @if($mod('service_dues') || $mod('personal_renewals') || $mod('dsc'))
                 <!-- 4. COMPLIANCE -->
                 <div class="pt-4 border-t border-white/5 space-y-1">
                     <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
@@ -337,14 +337,6 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                         </svg>
                         DSC Tracker
-                    </a>
-                    @endif
-                    @if($mod('tds'))
-                    <a href="{{ route('tds.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('tds.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
-                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('tds.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.5m.5.5h.5m.5.5h.5m.5.5h.5m-5 5h.5m.5.5h.5m.5.5h.5m.5.5h.5" />
-                        </svg>
-                        TDS Management
                     </a>
                     @endif
                 </div>

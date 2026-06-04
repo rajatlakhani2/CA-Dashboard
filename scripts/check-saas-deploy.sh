@@ -35,19 +35,18 @@ if (Schema::hasColumn('users', 'organization_id')) {
 
 echo ""
 echo "--- Dashboard view on disk ---"
-if grep -q "Dashboard SaaS v1" resources/views/dashboard/partials/workspace-header.blade.php 2>/dev/null; then
-  echo "workspace-header: OK (SaaS v1)"
+if grep -q "dashboard-tabs-v2" resources/views/dashboard.blade.php 2>/dev/null; then
+  echo "dashboard.blade.php: OK (tabs v2 + deploy marker)"
 else
-  echo "workspace-header: MISSING or OLD — run: bash scripts/sync-saas-dashboard.sh"
+  echo "dashboard.blade.php: OLD — run: bash scripts/sync-saas-full.sh"
 fi
 
 if grep -q "workspace-header" resources/views/dashboard.blade.php 2>/dev/null; then
-  echo "dashboard.blade.php: includes workspace partial OK"
+  echo "workspace-header strip: STILL INCLUDED (old dashboard) — re-sync dashboard.blade.php"
 else
-  echo "dashboard.blade.php: OLD (no workspace partial)"
+  echo "workspace-header strip: removed from dashboard OK"
 fi
 
 echo ""
 echo "=== Done ==="
-echo "Nothing to migrate = migration already ran (normal)."
-echo "If views are OLD above, run: git pull && bash scripts/sync-saas-dashboard.sh && php artisan view:clear"
+echo "If dashboard is OLD, run: bash scripts/sync-saas-full.sh && php artisan view:clear"

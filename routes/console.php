@@ -9,7 +9,9 @@ Artisan::command('inspire', function () {
 
 use Illuminate\Support\Facades\Schedule;
 
-Schedule::command('backup:run')->daily();
+Schedule::command('backup:run')
+    ->daily()
+    ->when(fn () => \App\Models\Setting::get('auto_backup_enabled', '1') === '1');
 Schedule::command('anomaly:scan')->dailyAt('06:30');
 Schedule::command('compliance:score-risk')->dailyAt('06:45');
 Schedule::command('services:generate-dues')->daily();

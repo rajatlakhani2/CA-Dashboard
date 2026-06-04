@@ -74,7 +74,7 @@ Client Passwords & Credentials
                         @if($cred->username)
                         <button type="button"
                             onclick="credentialVaultCopy(this, '{{ route('credentials.audit', $cred) }}', 'copied_username')"
-                            data-copy-value="{{ $cred->username }}"
+                            data-copy-value="{{ e($cred->username) }}"
                             class="ml-2 text-gray-400 hover:text-indigo-600 inline" title="Copy User ID">
                             <svg class="h-4 w-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -83,8 +83,15 @@ Client Passwords & Credentials
                         @endif
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm font-mono text-gray-800">
+                        @php
+                            $vaultPassword = $cred->display_password;
+                            $vaultDecryptFailed = ($cred->getAttributes()['password'] ?? null) && $vaultPassword === '';
+                        @endphp
                         <div class="flex items-center">
-                            <input type="password" readonly value="{{ $cred->password }}" class="bg-transparent border-none text-sm font-mono text-gray-800 p-0 focus:ring-0 w-24" id="pwd-global-{{ $cred->id }}">
+                            @if($vaultDecryptFailed)
+                            <span class="text-xs text-amber-700" title="Re-save this password — APP_KEY may have changed">Cannot decrypt</span>
+                            @else
+                            <input type="password" readonly value="{{ $vaultPassword }}" class="bg-transparent border-none text-sm font-mono text-gray-800 p-0 focus:ring-0 w-28 max-w-[12rem]" id="pwd-global-{{ $cred->id }}">
                             <button type="button"
                                 onclick="credentialVaultTogglePassword(this, '{{ route('credentials.audit', $cred) }}')"
                                 data-target="pwd-global-{{ $cred->id }}"
@@ -96,12 +103,13 @@ Client Passwords & Credentials
                             </button>
                             <button type="button"
                                 onclick="credentialVaultCopy(this, '{{ route('credentials.audit', $cred) }}', 'copied_password')"
-                                data-copy-value="{{ $cred->password }}"
+                                data-copy-value="{{ e($vaultPassword) }}"
                                 class="ml-2 text-gray-400 hover:text-indigo-600 inline" title="Copy Password">
                                 <svg class="h-4 w-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                 </svg>
                             </button>
+                            @endif
                         </div>
                     </td>
                     <td class="px-3 py-4 text-sm text-gray-500 max-w-xs truncate" title="{{ $cred->notes }}">

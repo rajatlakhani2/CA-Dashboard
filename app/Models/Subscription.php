@@ -38,6 +38,8 @@ class Subscription extends Model
     ];
 
     protected $casts = [
+        'billing_day' => 'integer',
+        'amount' => 'decimal:2',
         'start_date' => 'date',
         'end_date' => 'date',
         'last_billed_at' => 'date',
@@ -74,8 +76,10 @@ class Subscription extends Model
                 break;
         }
 
-        // Set to the specific billing day
-        $nextDate->day($this->billing_day);
+        $billingDay = (int) $this->billing_day;
+        if ($billingDay >= 1 && $billingDay <= 28) {
+            $nextDate->day($billingDay);
+        }
 
         return $nextDate;
     }

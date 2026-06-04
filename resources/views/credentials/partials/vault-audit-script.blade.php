@@ -34,13 +34,24 @@
     function credentialVaultCopy(button, auditUrl, action) {
         const value = button.dataset.copyValue || '';
         if (!value) {
+            alert(action === 'copied_username' ? 'Nothing to copy.' : 'Password is empty or cannot be decrypted. Re-save the entry in the client profile.');
             return;
         }
 
-        navigator.clipboard.writeText(value).then(() => {
+        const done = () => {
             credentialVaultAudit(auditUrl, action);
             alert(action === 'copied_username' ? 'Copied User ID' : 'Copied Password');
-        });
+        };
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(value).then(done).catch(() => {
+                window.prompt('Copy manually:', value);
+                done();
+            });
+        } else {
+            window.prompt('Copy manually:', value);
+            done();
+        }
     }
 </script>
 @endonce

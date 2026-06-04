@@ -164,6 +164,8 @@ class SettingsController extends Controller
             'bank_ifsc' => '',
             'bank_upi' => '',
             'invoice_signatory_name' => '',
+            'auto_backup_enabled' => '1',
+            'auto_logout_minutes' => '0',
         ];
 
         $out = [];
@@ -205,6 +207,8 @@ class SettingsController extends Controller
             'bank_ifsc' => 'nullable|string|max:20',
             'bank_upi' => 'nullable|string|max:100',
             'invoice_signatory_name' => 'nullable|string|max:255',
+            'auto_backup_enabled' => 'nullable|in:0,1',
+            'auto_logout_minutes' => 'nullable|integer|in:0,15,30,60,120,240,480',
         ];
     }
 
