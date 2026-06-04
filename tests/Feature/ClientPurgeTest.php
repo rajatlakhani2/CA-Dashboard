@@ -15,11 +15,11 @@ class ClientPurgeTest extends TestCase
     {
         $partner = User::factory()->create(['role' => 'partner']);
         $keep = Client::factory()->create(['group_name' => 'Other']);
-        $remove = Client::factory()->count(2)->create(['group_name' => 'Nileshbhai']);
+        $remove = Client::factory()->count(2)->create(['group_name' => 'portfolio-a']);
 
         $this->actingAs($partner)
             ->delete(route('clients.purge-by-group'), [
-                'group_name' => 'Nileshbhai',
+                'group_name' => 'portfolio-a',
                 'confirm' => 'DELETE',
             ])
             ->assertRedirect(route('clients.index'))
@@ -32,11 +32,11 @@ class ClientPurgeTest extends TestCase
     public function test_manager_cannot_purge_by_group(): void
     {
         $manager = User::factory()->create(['role' => 'manager']);
-        Client::factory()->create(['group_name' => 'Nileshbhai']);
+        Client::factory()->create(['group_name' => 'portfolio-a']);
 
         $this->actingAs($manager)
             ->delete(route('clients.purge-by-group'), [
-                'group_name' => 'Nileshbhai',
+                'group_name' => 'portfolio-a',
                 'confirm' => 'DELETE',
             ])
             ->assertForbidden();

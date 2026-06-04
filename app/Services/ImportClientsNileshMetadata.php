@@ -5,7 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\File;
 
 /**
- * Shared metadata helpers for Nilesh folder import (CLI + UI preview).
+ * Shared metadata helpers for local folder import (CLI + UI preview).
  */
 class ImportClientsNileshMetadata
 {

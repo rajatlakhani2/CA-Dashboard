@@ -11,7 +11,7 @@ class EnsureFirmLoginUsers extends Command
 {
     protected $signature = 'users:ensure-firm-logins';
 
-    protected $description = 'Create or update Rajat (partner), Nilesh Bhai (associate), and Article login accounts';
+    protected $description = 'Create or update default firm login accounts (partner, associate, article)';
 
     public function handle(): int
     {

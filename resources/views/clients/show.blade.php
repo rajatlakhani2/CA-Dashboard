@@ -16,7 +16,8 @@
             },
         ])
     </div>
-    <div class="flex space-x-3">
+    <div class="flex flex-wrap items-center gap-3">
+        @include('clients.partials.whatsapp-quick-actions', ['client' => $client])
         <div class="flex rounded-md shadow-sm">
             @if(auth()->user()?->hasRole('partner', 'manager'))
             <a href="{{ route('ledger.show', $client) }}" class="relative inline-flex items-center rounded-l-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10">
@@ -62,6 +63,8 @@
         <input type="text" readonly value="{{ session('portal_url') }}" class="mt-2 w-full text-xs font-mono bg-white border border-emerald-200 rounded px-2 py-1" onclick="this.select()">
     </div>
     @endif
+
+    @include('clients.partials.health-score', ['clientHealth' => $clientHealth])
 
     <!-- Summary strip -->
     <div class="rounded-xl border border-slate-200 bg-white shadow-sm divide-y divide-slate-100 sm:divide-y-0 sm:divide-x sm:flex">

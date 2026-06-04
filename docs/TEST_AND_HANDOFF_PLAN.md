@@ -674,7 +674,7 @@ See `docs/FUTURE_INTELLIGENCE_ROADMAP.md` for config (`AI_*`, `WHATSAPP_INBOUND_
 - Added `tests/Feature/FirmLiveQATest.php` — HTTP matrix for partner, associate, and article roles.
 - Added `tests/Feature/DeepPostFlowTest.php` — billing process, invoice create, WhatsApp sends (mocked), client approval covered in `FirmRolesTest`.
 - Article browser UX fixes retained from 2026-05-25 pass (sidebar, finance KPI hiding, welcome modal).
-- Seeded logins: `php artisan users:ensure-firm-logins` (`rajat@rlassociates.in`, `nilesh@rlassociates.in`, `article@rlassociates.in`).
+- Seeded logins: `php artisan users:ensure-firm-logins` (`rajat@rlassociates.in`, `associate@rlassociates.in`, `article@rlassociates.in`).
 
 ### Production smoke (2026-05-30)
 

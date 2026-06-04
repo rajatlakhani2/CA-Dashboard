@@ -54,7 +54,7 @@ class FirmLiveQATest extends TestCase
     public function test_associate_live_qa_matrix_matches_register(): void
     {
         $partner = User::factory()->create(['role' => 'partner']);
-        $associate = User::factory()->create(['role' => 'associate', 'name' => 'Nilesh Bhai']);
+        $associate = User::factory()->create(['role' => 'associate', 'name' => 'Firm Associate']);
 
         $ownClient = Client::create([
             'client_code' => 'A-LIVE-1',

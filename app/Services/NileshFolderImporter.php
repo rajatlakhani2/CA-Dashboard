@@ -21,7 +21,7 @@ class NileshFolderImporter
             return ['error' => "Directory not found: {$path}", 'created' => 0, 'updated' => 0, 'skipped' => 0];
         }
 
-        $nilesh = User::query()->where('email', 'nilesh@rlassociates.in')->first();
+        $associate = User::query()->where('role', 'associate')->orderBy('id')->first();
         $created = 0;
         $updated = 0;
         $skipped = 0;
@@ -44,12 +44,12 @@ class NileshFolderImporter
 
             $payload = [
                 'name' => $clientName,
-                'group_name' => 'Nileshbhai',
-                'tags' => ['Nileshbhai client'],
+                'group_name' => 'imported-portfolio',
+                'tags' => ['folder-import'],
                 'status' => Client::STATUS_ACTIVE,
                 'category' => 'C',
                 'approval_status' => Client::APPROVAL_APPROVED,
-                'manager_id' => $nilesh?->id,
+                'manager_id' => $associate?->id,
                 'office_notes' => $this->formatOfficeNotes($itrMeta, $gstMeta),
                 'gst_applicable' => $gstMeta['has_gst'] || $gstin !== null,
             ];
@@ -194,7 +194,7 @@ class NileshFolderImporter
      */
     private function formatOfficeNotes(array $itrMeta, array $gstMeta): string
     {
-        $lines = ['Portfolio: Nilesh Bhai — Income Tax Return'];
+        $lines = ['Portfolio: Folder import — Income Tax Return'];
 
         if (! empty($itrMeta['pan'])) {
             $lines[] = 'PAN: '.$itrMeta['pan'];

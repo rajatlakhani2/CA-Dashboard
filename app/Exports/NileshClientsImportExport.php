@@ -98,7 +98,7 @@ class NileshClientsImportExport implements FromArray, WithTitle
             $sheet[] = [
                 '',
                 $name,
-                'Nileshbhai',
+                'imported-portfolio',
                 $this->guessEntityType($name),
                 '',
                 $pan,

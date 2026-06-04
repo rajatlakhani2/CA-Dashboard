@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('header', 'Nilesh Import Preview')
+@section('header', 'Folder import preview')
 
 @section('content')
 <div class="max-w-5xl mx-auto space-y-6">
@@ -21,7 +21,7 @@
     </div>
 
     @if(count($preview['create']) + count($preview['update']) > 0)
-    <form action="{{ route('clients.import.nilesh.run') }}" method="POST" class="bg-white rounded-lg shadow p-6 space-y-4">
+    <form action="{{ route('clients.import.folder.run') }}" method="POST" class="bg-white rounded-lg shadow p-6 space-y-4">
         @csrf
         <label class="flex items-center gap-2 text-sm text-gray-700">
             <input type="checkbox" name="assign_service" value="1" class="rounded border-gray-300 text-indigo-600">
@@ -32,12 +32,12 @@
                 onclick="return confirm('Import {{ count($preview['create']) }} new and update {{ count($preview['update']) }} clients?')">
                 Confirm import
             </button>
-            <a href="{{ route('clients.import.nilesh') }}" class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700">Cancel</a>
+            <a href="{{ route('clients.import.folder') }}" class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700">Cancel</a>
         </div>
     </form>
     @else
     <p class="text-sm text-gray-500">Nothing to import. Adjust the folder path or scan again.</p>
-    <a href="{{ route('clients.import.nilesh') }}" class="text-indigo-600 text-sm font-medium">← Back</a>
+    <a href="{{ route('clients.import.folder') }}" class="text-indigo-600 text-sm font-medium">← Back</a>
     @endif
 </div>
 @endsection

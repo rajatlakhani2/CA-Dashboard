@@ -83,6 +83,15 @@
             isolation: isolate;
         }
 
+        @media (max-width: 1023px) {
+            .main-shell {
+                padding-bottom: 4.5rem;
+            }
+            .safe-area-pb {
+                padding-bottom: env(safe-area-inset-bottom, 0);
+            }
+        }
+
         @media (min-width: 1024px) {
             #sidebar {
                 z-index: 20 !important;
@@ -176,8 +185,9 @@
                 @else
                 
                 @if($mod('dashboard') || $isPartner)
-                <!-- 1. CORE DASHBOARD -->
+                <!-- Command Centre -->
                 <div class="space-y-1">
+                    <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">Command Centre</p>
                     @if($mod('dashboard'))
                     <a href="{{ route('dashboard') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
                         <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('dashboard') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -198,10 +208,10 @@
                 @endif
 
                 @if($mod('clients') || $mod('credentials') || $mod('smart_documents'))
-                <!-- 2. CLIENT 360 -->
+                <!-- Clients -->
                 <div class="pt-4 border-t border-white/5 space-y-1">
                     <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
-                        Client 360
+                        Clients
                     </p>
                     @if($mod('clients'))
                     <a href="{{ route('clients.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('clients.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
@@ -240,7 +250,7 @@
                 <!-- 3. WORK MANAGEMENT -->
                 <div class="pt-4 border-t border-white/5 space-y-1">
                     <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
-                        Work Management
+                        Work
                     </p>
                     @if($mod('tasks'))
                     <a href="{{ route('tasks.my-day') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('tasks.my-day') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
@@ -334,7 +344,7 @@
                 @if($showFinance)
                 <div class="pt-4 border-t border-white/5 space-y-1">
                     <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
-                        Finance & Billing
+                        Billing
                     </p>
                     @if($mod('billing'))
                     <a href="{{ route('billing.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('billing.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
@@ -390,7 +400,7 @@
                 @if($mod('reports') || $mod('compliance'))
                 <div class="pt-4 border-t border-white/5" x-data="{ open: {{ request()->routeIs('reports.*') || request()->routeIs('compliance.index') ? 'true' : 'false' }} }">
                     <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
-                        Analytics
+                        Insights
                     </p>
                     <button @click="open = !open" class="group w-full flex items-center justify-between px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('reports.*') || request()->routeIs('compliance.index') ? 'text-white bg-white/5' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1' }} focus:outline-none">
                         <div class="flex items-center">
@@ -532,20 +542,34 @@
                                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                                 </svg>
-                                @if(auth()->user()->unreadNotifications->count() > 0)
-                                <span class="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+                                @php
+                                    $groupTotal = collect($notificationGroups ?? [])->sum('count');
+                                    $unreadCount = auth()->user()->unreadNotifications->count();
+                                @endphp
+                                @if($unreadCount > 0 || $groupTotal > 0)
+                                <span class="absolute top-1.5 right-1.5 min-w-[1.125rem] h-[1.125rem] px-0.5 rounded-full bg-red-500 ring-2 ring-white text-[9px] font-bold text-white flex items-center justify-center">{{ max($unreadCount, $groupTotal) > 9 ? '9+' : max($unreadCount, $groupTotal) }}</span>
                                 @endif
                             </button>
 
                             <!-- Dropdown -->
-                            <div x-show="open" @click.away="open = false" style="display: none;" class="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 z-50">
-                                <div class="px-4 py-2 border-b border-gray-100 flex justify-between items-center">
+                            <div x-show="open" @click.away="open = false" style="display: none;" class="origin-top-right absolute right-0 mt-2 w-80 sm:w-96 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 z-50 max-h-[min(24rem,70vh)] overflow-hidden flex flex-col">
+                                <div class="px-4 py-2 border-b border-gray-100 flex justify-between items-center shrink-0">
                                     <h3 class="text-sm font-semibold text-gray-700">Notifications</h3>
-                                    @if(auth()->user()->unreadNotifications->count() > 0)
+                                    @if($unreadCount > 0)
                                     <a href="{{ route('notifications.read.all') }}" class="text-xs text-indigo-600 hover:text-indigo-800">Mark all read</a>
                                     @endif
                                 </div>
-                                <div class="max-h-64 overflow-y-auto">
+                                @if(!empty($notificationGroups))
+                                <div class="px-3 py-2 border-b border-gray-50 space-y-1 shrink-0">
+                                    @foreach($notificationGroups as $group)
+                                    <a href="{{ $group['url'] }}" class="flex items-center justify-between rounded-lg px-2 py-1.5 text-sm hover:bg-indigo-50">
+                                        <span class="font-medium text-gray-800">{{ $group['label'] }}</span>
+                                        <span class="font-black text-indigo-600">{{ $group['count'] }}</span>
+                                    </a>
+                                    @endforeach
+                                </div>
+                                @endif
+                                <div class="max-h-48 overflow-y-auto flex-1">
                                     @forelse(auth()->user()->unreadNotifications as $notification)
                                     <a href="{{ route('notifications.read', $notification->id) }}" class="block px-4 py-3 hover:bg-gray-50 transition-colors border-b last:border-0 border-gray-50">
                                         <div class="flex items-start">

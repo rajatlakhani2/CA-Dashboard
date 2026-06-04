@@ -3,7 +3,10 @@
 namespace App\Services;
 
 use App\Models\Client;
+use App\Models\ClientCredential;
 use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Service;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -78,6 +81,18 @@ class CommandPaletteBuilder
 
         if ($mode === 'all' && ($user->canAccessModule('invoices') || $user->canViewPortfolioInvoices())) {
             $results = array_merge($results, $this->searchInvoices($user, $query));
+        }
+
+        if ($mode === 'all' && $user->canAccessModule('payments') && $user->managesFirmModules()) {
+            $results = array_merge($results, $this->searchPayments($user, $query));
+        }
+
+        if ($mode === 'all' && $user->canAccessModule('credentials')) {
+            $results = array_merge($results, $this->searchCredentials($user, $query));
+        }
+
+        if ($mode === 'all' && $user->canAccessModule('service_dues')) {
+            $results = array_merge($results, $this->searchServices($user, $query));
         }
 
         return $this->grouped($results);
@@ -170,6 +185,64 @@ class CommandPaletteBuilder
             'url' => route('invoices.show', $invoice),
             'icon' => 'currency-rupee',
         ])->all();
+    }
+
+    private function searchPayments(User $user, string $query): array
+    {
+        return Payment::query()
+            ->where(function ($q) use ($query) {
+                $q->where('reference_number', 'like', "%{$query}%")
+                    ->orWhere('receipt_number', 'like', "%{$query}%")
+                    ->orWhere('amount', 'like', "%{$query}%");
+            })
+            ->latest()
+            ->limit(3)
+            ->get()
+            ->map(fn (Payment $p) => [
+                'category' => 'Payments',
+                'title' => '₹' . number_format($p->amount, 0) . ' · ' . ($p->payment_date?->format('d M Y') ?? ''),
+                'subtitle' => $p->invoice?->invoice_number ?? 'Payment',
+                'url' => route('payments.index'),
+                'icon' => 'cash',
+            ])
+            ->all();
+    }
+
+    private function searchCredentials(User $user, string $query): array
+    {
+        return ClientCredential::query()
+            ->with('client')
+            ->where(function ($q) use ($query) {
+                $q->where('portal_name', 'like', "%{$query}%")
+                    ->orWhere('username', 'like', "%{$query}%")
+                    ->orWhereHas('client', fn ($c) => $c->where('name', 'like', "%{$query}%"));
+            })
+            ->limit(3)
+            ->get()
+            ->map(fn (ClientCredential $cred) => [
+                'category' => 'Passwords',
+                'title' => $cred->portal_name,
+                'subtitle' => $cred->client?->name ?? 'Client',
+                'url' => route('credentials.index'),
+                'icon' => 'key',
+            ])
+            ->all();
+    }
+
+    private function searchServices(User $user, string $query): array
+    {
+        return Service::query()
+            ->where('name', 'like', "%{$query}%")
+            ->limit(3)
+            ->get()
+            ->map(fn (Service $s) => [
+                'category' => 'Services',
+                'title' => $s->name,
+                'subtitle' => 'Service master',
+                'url' => route('services.index'),
+                'icon' => 'calendar',
+            ])
+            ->all();
     }
 
     public function navigationPages(User $user): array

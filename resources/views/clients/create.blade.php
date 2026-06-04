@@ -58,7 +58,7 @@
                 <div class="sm:col-span-3">
                     <label for="group_name" class="block text-sm font-medium leading-6 text-text-main">Group Name / Reference</label>
                     <div class="mt-2">
-                        <input type="text" name="group_name" id="group_name" placeholder="e.g. Nilesh Bhai, Boarda" class="block w-full rounded-md border-0 py-1.5 text-text-main shadow-sm ring-1 ring-inset ring-line placeholder:text-text-secondary focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6">
+                        <input type="text" name="group_name" id="group_name" placeholder="e.g. Portfolio A, Corporate" class="block w-full rounded-md border-0 py-1.5 text-text-main shadow-sm ring-1 ring-inset ring-line placeholder:text-text-secondary focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6">
                     </div>
                 </div>
 

@@ -9,17 +9,22 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ExportNileshImportSheet extends Command
 {
-    protected $signature = 'export:nilesh-import-sheet
-                            {--path= : Folder path (default: Nileshbhai on this PC)}
-                            {--output= : Output .xlsx path (default: storage/app/nilesh_clients_import.xlsx)}
+    protected $signature = 'export:folder-import-sheet
+                            {--path= : Folder path containing client subfolders (required)}
+                            {--output= : Output .xlsx path (default: storage/app/folder_clients_import.xlsx)}
                             {--include-missing-pan : Include rows without PAN (default: skip them)}';
 
-    protected $description = 'Build dashboard-format Excel from Nilesh client folders for Preview import upload';
+    protected $description = 'Build dashboard-format Excel from local client folders for Preview import upload';
 
     public function handle(): int
     {
-        $path = $this->option('path') ?: 'D:\\New folder\\Rajat\\Rajat\\IT Return\\Nileshbhai';
-        $output = $this->option('output') ?: storage_path('app/nilesh_clients_import.xlsx');
+        $path = $this->option('path');
+        if (! $path) {
+            $this->error('Provide --path= to the folder containing client subfolders.');
+
+            return self::FAILURE;
+        }
+        $output = $this->option('output') ?: storage_path('app/folder_clients_import.xlsx');
 
         if (! File::isDirectory($path)) {
             $this->error("Directory not found: {$path}");
@@ -49,7 +54,7 @@ class ExportNileshImportSheet extends Command
 
         $desktop = $this->desktopPath();
         if ($desktop) {
-            $desktopFile = $desktop.DIRECTORY_SEPARATOR.'nilesh_clients_import.xlsx';
+            $desktopFile = $desktop.DIRECTORY_SEPARATOR.'folder_clients_import.xlsx';
             File::copy($output, $desktopFile);
             $this->info("Also copied to: {$desktopFile}");
         }
@@ -61,7 +66,7 @@ class ExportNileshImportSheet extends Command
             $this->comment('Skipped folders with no PAN (masked XXXX ignored; other PDFs scanned).');
         }
         if (count($duplicates) > 0) {
-            $dupPath = dirname($output).DIRECTORY_SEPARATOR.'nilesh_duplicate_pans.csv';
+            $dupPath = dirname($output).DIRECTORY_SEPARATOR.'folder_duplicate_pans.csv';
             $dupHandle = fopen($dupPath, 'w');
             if ($dupHandle) {
                 fputcsv($dupHandle, ['pan', 'duplicate_folder_name', 'kept_folder_name']);

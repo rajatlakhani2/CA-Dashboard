@@ -31,7 +31,7 @@ class ClientTemplateExport implements FromArray, WithTitle
             [
                 '',
                 'Example Client Ltd',
-                'Nileshbhai',
+                'portfolio-a',
                 'Private Limited',
                 'Trading',
                 'ABCDE1234F',

@@ -7,15 +7,20 @@ use Illuminate\Console\Command;
 
 class ImportClientsNilesh extends Command
 {
-    protected $signature = 'import:clients-nilesh
-                            {--path= : Folder path (default: Nileshbhai on this PC)}
+    protected $signature = 'import:clients-folder
+                            {--path= : Root folder of client subfolders (required)}
                             {--no-services : Skip assigning IT Return / GST Return services}';
 
-    protected $description = 'Import Nilesh Bhai clients from folder tree with ITR + GST metadata and services';
+    protected $description = 'Import clients from a local IT Return folder tree (ITR + GST metadata)';
 
     public function handle(NileshFolderImporter $importer): int
     {
-        $path = $this->option('path') ?: 'D:\\New folder\\Rajat\\Rajat\\IT Return\\Nileshbhai';
+        $path = $this->option('path');
+        if (! $path) {
+            $this->error('Provide --path= to the folder containing client subfolders.');
+
+            return self::FAILURE;
+        }
 
         $this->info('Scanning: '.$path);
         $assignServices = ! $this->option('no-services');

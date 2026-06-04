@@ -11,7 +11,7 @@ const PASSWORD = process.env.QA_PASSWORD || 'password';
 
 const USERS = {
     partner: 'rajat@rlassociates.in',
-    associate: 'nilesh@rlassociates.in',
+    associate: 'associate@rlassociates.in',
     article: 'article@rlassociates.in',
 };
 

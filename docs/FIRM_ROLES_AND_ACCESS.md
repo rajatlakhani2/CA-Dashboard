@@ -1,22 +1,26 @@
-# Firm roles and access
+# Firm roles and access (multi-tenant SaaS)
 
-This document describes the three login roles used in production QA and how they map to modules.
+Each **workspace** (organization) has its own users and data. Roles below apply **inside one firm** only.
 
-## Seeded users
+## Default seeded users (RLA workspace example)
 
 | Role | Email | Password (default) |
 |------|-------|-------------------|
-| Partner (Rajat) | `rajat@rlassociates.in` | `password` |
-| Associate (Nilesh Bhai) | `nilesh@rlassociates.in` | `password` |
+| Partner | `rajat@rlassociates.in` | `password` |
+| Associate | `associate@rlassociates.in` | `password` |
 | Article clerk | `article@rlassociates.in` | `password` |
 
-Setup commands:
+Login: **Workspace ID** (e.g. `rla`) + email + password.
+
+Setup:
 
 ```bash
-php artisan migrate
+php artisan migrate --force
 php artisan users:ensure-firm-logins
-php artisan clients:assign-portfolios
+php artisan organization:slug --set=rla
 ```
+
+New firms register at `/register` and create their own users via **Staff**.
 
 ## Access matrix
 
@@ -32,7 +36,7 @@ php artisan clients:assign-portfolios
 | Staff, reports, credentials, TDS, subscriptions | Yes | No | No |
 | Settings / users / branches | Partner only | No | No |
 
-## Nilesh (associate) — invoices
+## Associate — invoices
 
 - Sidebar: **My Client Invoices** → scoped list (raised / received tabs only).
 - Client profile: YTD billed, collected, outstanding (no ledger link); recent invoices read-only.
@@ -42,20 +46,12 @@ php artisan clients:assign-portfolios
 
 1. Article submits client from **Add Client** (no client list).
 2. Client stored as `approval_status = pending`.
-3. Partner receives optional email (`ClientPendingApprovalMail`) and sees queue on **Clients** and dashboard banner.
+3. Partner receives optional email and sees queue on **Clients** and dashboard banner.
 4. Partner approves via **Approve** on Clients index.
-
-## Product decisions (implemented)
-
-- Staff billing on client show: hidden for non-managers (unchanged).
-- Sidebar: Billing Queue, Subscriptions, Leaves visible to partner/manager only.
-- WhatsApp invoice send: partner/manager only (mock/integration unchanged).
-- Additional article users: add via Settings → Users or `FirmTeamSeeder`.
 
 ## Production QA checklist
 
-1. Log in as each role; confirm sidebar matches matrix above.
-2. As Nilesh: open own client → see finance summary and invoices; open Rajat client → 403.
-3. As Article: submit client → Rajat sees pending banner and approval queue.
-4. As Rajat: approve client → visible to Nilesh if approved firm-wide.
-5. Run `php artisan test` before deploy.
+1. Log in with workspace ID + each role; confirm sidebar matches matrix.
+2. As associate: open own client → finance summary; other manager’s client → 403.
+3. As article: submit client → partner sees pending queue.
+4. Run `php artisan test` before deploy.

@@ -10,64 +10,58 @@ class AssignClientPortfolios extends Command
 {
     protected $signature = 'clients:assign-portfolios {--dry-run : Show changes without saving}';
 
-    protected $description = 'Assign manager_id so Rajat and Nilesh Bhai each own their client portfolios';
+    protected $description = 'Assign manager_id to partner vs associate portfolios by client reference/tags';
 
     public function handle(): int
     {
-        $rajat = User::query()
-            ->where(function ($query) {
-                $query->where('email', 'rajat@rla.local')
-                    ->orWhere('name', 'like', '%Rajat%');
-            })
+        $partner = User::query()
             ->where('role', 'partner')
+            ->orderBy('id')
             ->first();
 
-        $nilesh = User::query()
-            ->where(function ($query) {
-                $query->where('email', 'nilesh@rla.local')
-                    ->orWhere('name', 'like', '%Nilesh%');
-            })
+        $associate = User::query()
             ->where('role', 'associate')
+            ->orderBy('id')
             ->first();
 
-        if (! $rajat) {
-            $this->error('Rajat (partner) user not found. Run: php artisan db:seed --class=FirmTeamSeeder');
+        if (! $partner) {
+            $this->error('Partner user not found. Run: php artisan users:ensure-firm-logins');
 
             return self::FAILURE;
         }
 
-        if (! $nilesh) {
-            $this->error('Nilesh Bhai (associate) user not found. Run: php artisan db:seed --class=FirmTeamSeeder');
+        if (! $associate) {
+            $this->warn('No associate user — all clients will be assigned to the partner.');
 
-            return self::FAILURE;
+            $associate = $partner;
         }
 
         $dryRun = (bool) $this->option('dry-run');
-        $rajatCount = 0;
-        $nileshCount = 0;
+        $partnerCount = 0;
+        $associateCount = 0;
 
-        Client::query()->orderBy('id')->chunkById(200, function ($clients) use ($rajat, $nilesh, $dryRun, &$rajatCount, &$nileshCount) {
+        Client::query()->orderBy('id')->chunkById(200, function ($clients) use ($partner, $associate, $dryRun, &$partnerCount, &$associateCount) {
             foreach ($clients as $client) {
                 $owner = $this->resolvePortfolioOwner($client);
 
-                if ($owner === 'nilesh') {
-                    $nileshCount++;
+                if ($owner === 'associate') {
+                    $associateCount++;
                     if (! $dryRun) {
-                        $client->update(['manager_id' => $nilesh->id]);
+                        $client->update(['manager_id' => $associate->id]);
                     }
                     continue;
                 }
 
-                $rajatCount++;
+                $partnerCount++;
                 if (! $dryRun) {
-                    $client->update(['manager_id' => $rajat->id]);
+                    $client->update(['manager_id' => $partner->id]);
                 }
             }
         });
 
         $this->info('Portfolio assignment ' . ($dryRun ? '(dry run) ' : '') . 'complete.');
-        $this->line("Rajat clients: {$rajatCount}");
-        $this->line("Nilesh Bhai clients: {$nileshCount}");
+        $this->line("Partner portfolio: {$partnerCount}");
+        $this->line("Associate portfolio: {$associateCount}");
 
         return self::SUCCESS;
     }
@@ -75,13 +69,13 @@ class AssignClientPortfolios extends Command
     private function resolvePortfolioOwner(Client $client): string
     {
         $group = strtolower((string) $client->group_name);
-        $tags = json_encode($client->tags ?? []);
-        $haystack = strtolower($group . ' ' . $tags);
+        $tags = strtolower(json_encode($client->tags ?? []));
+        $haystack = $group . ' ' . $tags;
 
-        if (str_contains($haystack, 'nilesh')) {
-            return 'nilesh';
+        if (str_contains($haystack, 'associate') || str_contains($haystack, 'portfolio-b')) {
+            return 'associate';
         }
 
-        return 'rajat';
+        return 'partner';
     }
 }

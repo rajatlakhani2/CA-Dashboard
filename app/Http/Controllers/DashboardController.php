@@ -9,7 +9,10 @@ use App\Models\Task;
 use App\Services\DashboardCalendarBuilder;
 use App\Services\DashboardCalendarFilters;
 use App\Services\DashboardMetricsService;
+use App\Services\DashboardMissionControlService;
+use App\Services\NotificationSummaryService;
 use App\Services\OrganizationWorkspaceService;
+use App\Services\WorkspaceOnboardingService;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -17,10 +20,14 @@ class DashboardController extends Controller
     public function index(
         Request $request,
         DashboardMetricsService $metrics,
+        DashboardMissionControlService $missionControl,
         OrganizationWorkspaceService $workspaceService,
+        NotificationSummaryService $notificationSummary,
+        WorkspaceOnboardingService $onboarding,
     ) {
-        $data = $metrics->build($request->user());
-        $workspace = $workspaceService->forUser($request->user());
+        $user = $request->user();
+        $data = $metrics->build($user);
+        $workspace = $workspaceService->forUser($user);
 
         $calendarBuilder = app(DashboardCalendarBuilder::class);
         $calendarFilters = DashboardCalendarFilters::fromRequest($request);
@@ -39,6 +46,9 @@ class DashboardController extends Controller
             'showWelcomeModal' => $showWelcomeModal,
             'positiveThought' => $metrics->randomPositiveThought(),
             'workspace' => $workspace,
+            'missionControl' => $missionControl->build($user),
+            'notificationGroups' => $notificationSummary->groups(),
+            'onboarding' => $onboarding->forUser($user),
         ]));
     }
 

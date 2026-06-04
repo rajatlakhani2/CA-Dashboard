@@ -110,7 +110,7 @@ Sidebar uses labeled sections (Dashboard, Client 360, Work, Compliance, Finance,
 
 - Excel: **Preview import** on clients list → review create/update/warnings/invalid → **Confirm** (stored file, no re-upload).
 - Duplicate PAN in file blocked; GSTIN/client code warnings.
-- Nilesh folder import preview remains separate (`clients/import/nilesh`).
+- Local folder import preview remains separate (`clients/import/folder`, partner-only).
 
 ### 20. Mobile Work Mode — **Done**
 

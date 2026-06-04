@@ -13,9 +13,9 @@ class FirmTeamSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->upgradeLegacyRajatAccount();
-
         $organization = $this->ensureDefaultOrganization();
+
+        $this->upgradeLegacyRajatAccount($organization->id);
 
         $accounts = [
             [
@@ -25,8 +25,8 @@ class FirmTeamSeeder extends Seeder
                 'mobile' => '919999000001',
             ],
             [
-                'name' => 'Nilesh Bhai',
-                'email' => 'nilesh@rlassociates.in',
+                'name' => 'Firm Associate',
+                'email' => 'associate@rlassociates.in',
                 'role' => 'associate',
                 'mobile' => '919999000002',
             ],
@@ -52,6 +52,9 @@ class FirmTeamSeeder extends Seeder
                 $attributes['module_access'] = \App\Support\ModuleAccess::defaultsForRole($data['role']);
             }
 
+            // Required on INSERT (MySQL has no default for password).
+            $attributes['password'] = 'password';
+
             $user = User::withoutGlobalScopes()->updateOrCreate(
                 ['email' => $email, 'organization_id' => $organization->id],
                 $attributes
@@ -60,14 +63,28 @@ class FirmTeamSeeder extends Seeder
             // Always reset password (production recoveries often leave a bad hash).
             $user->forceFill(['password' => 'password'])->save();
         }
+
+        $this->removeLegacyNamedSeedUsers($organization->id);
+    }
+
+    /** Drop old firm-specific demo users (SaaS uses generic roles only). */
+    private function removeLegacyNamedSeedUsers(int $organizationId): void
+    {
+        User::withoutGlobalScopes()
+            ->where('organization_id', $organizationId)
+            ->where(function ($query) {
+                $query->whereIn('email', ['nilesh@rlassociates.in', 'nilesh@rla.local'])
+                    ->orWhereRaw('LOWER(name) LIKE ?', ['%nilesh%']);
+            })
+            ->delete();
     }
 
     /**
      * Fix an existing Rajat row that was created as staff before firm roles were seeded.
      */
-    private function upgradeLegacyRajatAccount(): void
+    private function upgradeLegacyRajatAccount(int $organizationId): void
     {
-        $legacy = User::query()
+        $legacy = User::withoutGlobalScopes()
             ->where(function ($query) {
                 $query->where('email', 'rajat@rlassociates.in')
                     ->orWhere('email', 'rajat@rla.local')
@@ -84,6 +101,7 @@ class FirmTeamSeeder extends Seeder
             'name' => 'Rajat Lakhani',
             'email' => 'rajat@rlassociates.in',
             'role' => 'partner',
+            'organization_id' => $organizationId,
         ])->save();
     }
 

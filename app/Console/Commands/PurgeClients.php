@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 class PurgeClients extends Command
 {
     protected $signature = 'clients:purge
-                            {--group= : Delete clients with this group_name / reference (e.g. Nileshbhai)}
+                            {--group= : Delete clients with this group_name / reference (e.g. imported-portfolio)}
                             {--all : Delete every client (requires --force)}
                             {--dry-run : Show count only, do not delete}
                             {--force : Skip interactive confirmation}';
@@ -24,7 +24,7 @@ class PurgeClients extends Command
             $query = Client::query()->where('group_name', $group);
             $label = "clients with group_name \"{$group}\"";
         } else {
-            $this->error('Specify --group=Nileshbhai or --all (with --force).');
+            $this->error('Specify --group=<reference> or --all (with --force).');
 
             return self::FAILURE;
         }

@@ -10,7 +10,7 @@ const PASSWORD = process.env.QA_PASSWORD || 'password';
 
 const USERS = {
     partner: 'rajat@rlassociates.in',
-    associate: 'nilesh@rlassociates.in',
+    associate: 'associate@rlassociates.in',
     article: 'article@rlassociates.in',
 };
 
@@ -149,7 +149,7 @@ async function runPartnerFlows(page) {
         ['/branches', 'Branches'],
         ['/activity', 'Activity'],
         ['/notifications/whatsapp', 'WhatsApp settings'],
-        ['/clients/import/nilesh', 'Nilesh import form'],
+        ['/clients/import', 'Client import'],
     ];
 
     for (const [path, label, opts = {}] of partnerRoutes) {
@@ -248,7 +248,7 @@ async function runPartnerFlows(page) {
 }
 
 async function runAssociateFlows(page) {
-    console.log('\n=== Associate (Nilesh) ===');
+    console.log('\n=== Associate ===');
     await login(page, USERS.associate, '/dashboard');
     await dismissWelcomeModal(page);
 

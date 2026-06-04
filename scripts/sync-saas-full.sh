@@ -80,6 +80,27 @@ FILES=(
   database/migrations/2026_06_03_120000_create_organizations_multi_tenant.php
   database/migrations/2026_06_04_100000_extend_organization_tenancy_tables.php
   database/seeders/FirmTeamSeeder.php
+  database/migrations/2026_06_04_120000_add_onboarding_to_organizations.php
+  app/Services/DashboardMissionControlService.php
+  app/Services/ClientHealthScoreService.php
+  app/Services/NotificationSummaryService.php
+  app/Services/WorkspaceOnboardingService.php
+  app/Services/CommandPaletteBuilder.php
+  app/Http/Controllers/WorkspaceOnboardingController.php
+  app/Http/Controllers/ClientController.php
+  routes/modules/operations.php
+  resources/views/dashboard/partials/mission-control.blade.php
+  resources/views/dashboard/partials/firm-pulse.blade.php
+  resources/views/dashboard/partials/revenue-command-center.blade.php
+  resources/views/dashboard/partials/onboarding-banner.blade.php
+  resources/views/clients/index.blade.php
+  resources/views/clients/show.blade.php
+  resources/views/clients/partials/health-score.blade.php
+  resources/views/clients/partials/whatsapp-quick-actions.blade.php
+  resources/views/layouts/app.blade.php
+  resources/views/partials/mobile-bottom-nav.blade.php
+  resources/views/partials/mobile-fab.blade.php
+  resources/views/partials/command-palette.blade.php
 )
 
 for path in "${FILES[@]}"; do

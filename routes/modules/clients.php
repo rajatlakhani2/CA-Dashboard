@@ -8,9 +8,10 @@ Route::get('clients/template', [\App\Http\Controllers\ClientController::class, '
 Route::post('clients/import/preview', [\App\Http\Controllers\ClientImportController::class, 'previewExcel'])->name('clients.import.preview');
 Route::post('clients/import/confirm', [\App\Http\Controllers\ClientImportController::class, 'confirmExcel'])->name('clients.import.confirm');
 Route::middleware(['role:partner', 'module:clients'])->group(function () {
-    Route::get('clients/import/nilesh', [\App\Http\Controllers\ClientImportController::class, 'nileshForm'])->name('clients.import.nilesh');
-    Route::post('clients/import/nilesh/preview', [\App\Http\Controllers\ClientImportController::class, 'previewNilesh'])->name('clients.import.nilesh.preview');
-    Route::post('clients/import/nilesh/run', [\App\Http\Controllers\ClientImportController::class, 'runNilesh'])->name('clients.import.nilesh.run');
+    Route::get('clients/import/folder', [\App\Http\Controllers\ClientImportController::class, 'folderForm'])->name('clients.import.folder');
+    Route::post('clients/import/folder/preview', [\App\Http\Controllers\ClientImportController::class, 'previewFolder'])->name('clients.import.folder.preview');
+    Route::post('clients/import/folder/run', [\App\Http\Controllers\ClientImportController::class, 'runFolder'])->name('clients.import.folder.run');
+    Route::redirect('clients/import/nilesh', '/clients/import/folder', 301);
 });
 Route::delete('clients/bulk-destroy', [\App\Http\Controllers\ClientController::class, 'bulkDestroy'])
     ->middleware('role:partner,manager')

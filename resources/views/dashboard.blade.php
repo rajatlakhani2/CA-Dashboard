@@ -79,6 +79,17 @@
     .glass-tab.active { color: #fff; background: linear-gradient(135deg, #4f46e5, #6366f1); box-shadow: 0 2px 8px rgba(79,70,229,0.35); }
     .glass-tab:hover:not(.active) { color: #374151; background: #f3f4f6; }
 
+    .mission-control { max-width: 100%; }
+    .mc-strip { -webkit-overflow-scrolling: touch; }
+    @media (min-width: 1280px) {
+        .dashboard-shell { max-width: 1600px; margin-left: auto; margin-right: auto; }
+    }
+    @media (max-width: 639px) {
+        .kpi-card .kpi-value { font-size: 1.75rem; }
+        .glass-tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+        .glass-tab { flex-shrink: 0; }
+    }
+
     .glass-section-title { color: #4b5563; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:1rem; }
     .glass-list-item { padding: 0.75rem 0; border-bottom: 1px solid #f3f4f6; }
     .glass-list-item:last-child { border-bottom: none; }
@@ -233,7 +244,7 @@
 {{-- Gradient background layer --}}
 <div id="glass-bg"></div>
 
-<div x-data="{ activeTab: 'overview' }" class="w-full space-y-6">
+<div x-data="{ activeTab: (window.location.hash === '#schedule' ? 'calendar' : 'overview') }" class="w-full space-y-6 dashboard-shell px-0 sm:px-0">
 
     @if(($pendingClientApprovals ?? 0) > 0)
     <div class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 flex flex-wrap items-center justify-between gap-3 shadow-sm">
@@ -248,6 +259,10 @@
     @endif
 
     @include('dashboard.partials.workspace-header')
+
+    @include('dashboard.partials.onboarding-banner')
+
+    @include('dashboard.partials.mission-control')
 
     {{-- ===== KPI TILES ===== --}}
     <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-5">
@@ -321,7 +336,8 @@
 
     {{-- ===== OVERVIEW TAB ===== --}}
     <div x-show="activeTab === 'overview'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        @include('dashboard.partials.firm-pulse')
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
 
             {{-- Pending Tasks --}}
             <div class="lg:col-span-2 glass-card p-6 h-full">
@@ -446,7 +462,7 @@
     </div>
 
     {{-- ===== SCHEDULE / CALENDAR TAB ===== --}}
-    <div x-show="activeTab === 'calendar'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" style="display:none;">
+    <div id="schedule" x-show="activeTab === 'calendar'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" style="display:none;">
         <div class="glass-card p-6" style="min-height: 600px;">
             <div class="flex justify-between items-center mb-4">
                 <div>
@@ -539,25 +555,8 @@
     @if($canManageFirm)
     {{-- ===== FINANCIALS TAB ===== --}}
     <div x-show="activeTab === 'financials'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" style="display:none;">
-        <div class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="glass-card p-6 kpi-emerald">
-                    <p class="glass-section-title">Outstanding Fees</p>
-                    <p class="text-3xl font-black text-emerald-700">{{ $summary['outstanding_fees'] }}</p>
-                    <p class="text-gray-400 text-xs mt-1">Across all open invoices</p>
-                </div>
-                <div class="glass-card p-6 kpi-violet">
-                    <p class="glass-section-title">Overdue Collections</p>
-                    <p class="text-3xl font-black text-violet-700">{{ $summary['overdue_collections'] }}</p>
-                    <p class="text-gray-400 text-xs mt-1">Overdue invoices only</p>
-                </div>
-                <div class="glass-card p-6 kpi-blue">
-                    <p class="glass-section-title">Collected This Month</p>
-                    <p class="text-3xl font-black text-indigo-700">{{ $summary['collections_this_month'] }}</p>
-                    <p class="text-gray-400 text-xs mt-1">Since 1st {{ now()->format('M') }}</p>
-                </div>
-            </div>
-
+        @include('dashboard.partials.revenue-command-center')
+        <div class="space-y-6 mt-6">
             {{-- Recent Clients --}}
             <div class="glass-card p-6">
                 <div class="flex justify-between items-center mb-4">

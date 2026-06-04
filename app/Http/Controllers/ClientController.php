@@ -22,7 +22,12 @@ class ClientController extends Controller
     {
         $this->authorize('viewAny', Client::class);
 
-        $query = Client::query()->visibleTo(auth()->user());
+        $query = Client::query()
+            ->visibleTo(auth()->user())
+            ->with('manager')
+            ->withCount(['tasks as open_tasks_count' => function ($q) {
+                $q->whereNotIn('status', Task::TERMINAL_STATUSES);
+            }]);
 
         if (auth()->user()?->isPartner()) {
             $query->where('approval_status', Client::APPROVAL_APPROVED);
@@ -56,8 +61,12 @@ class ClientController extends Controller
             $query->whereJsonContains('tags', $request->input('tag'));
         }
 
-        $clients = $query->latest()->paginate(10);
+        $clients = $query->latest()->paginate(12);
         $managers = \App\Models\User::all();
+        $healthService = app(\App\Services\ClientHealthScoreService::class);
+        $clientHealthMap = $clients->getCollection()->mapWithKeys(fn (Client $c) => [
+            $c->id => $healthService->forClient($c),
+        ]);
 
         $panLookupHint = null;
         if ($request->filled('search') && $clients->total() === 0) {
@@ -73,7 +82,7 @@ class ClientController extends Controller
                 ->get();
         }
 
-        return view('clients.index', compact('clients', 'managers', 'pendingClients', 'panLookupHint'));
+        return view('clients.index', compact('clients', 'managers', 'pendingClients', 'panLookupHint', 'clientHealthMap'));
     }
 
     /**
@@ -307,6 +316,8 @@ class ClientController extends Controller
             ->limit(5)
             ->get();
 
+        $clientHealth = app(\App\Services\ClientHealthScoreService::class)->forClient($client);
+
         return view('clients.show', compact(
             'client',
             'totalBilled',
@@ -320,6 +331,7 @@ class ClientController extends Controller
             'timeline',
             'complianceRisks',
             'documentChecklists',
+            'clientHealth',
         ));
     }
 

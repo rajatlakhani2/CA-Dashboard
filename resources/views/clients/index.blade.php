@@ -110,9 +110,6 @@ Clients
         </a>
 
         <!-- Import Form -->
-        @if(auth()->user()?->isPartner())
-        <a href="{{ route('clients.import.nilesh') }}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium mr-2">Nilesh folder preview</a>
-        @endif
         <form action="{{ route('clients.import.preview') }}" method="POST" enctype="multipart/form-data" class="flex items-center space-x-2">
             @csrf
             <input type="file" name="file" class="block w-full text-sm text-slate-500
@@ -139,14 +136,14 @@ Clients
 
     @if(auth()->user()?->isPartner())
     <div class="rounded-lg border border-red-200 bg-red-50/80 p-4 text-sm text-red-900">
-        <p class="font-semibold">One-time delete by client reference</p>
-        <p class="mt-1 text-red-800">Removes <strong>all</strong> clients with that group/reference (not only this page). Use before a fresh Nilesh import if every row shows as “update”.</p>
+        <p class="font-semibold">Danger zone — delete by portfolio reference</p>
+        <p class="mt-1 text-red-800">Permanently removes <strong>every</strong> client whose <code class="text-red-900">group_name</code> matches (firm-wide, not just this page). Use only to undo a bad Excel import or test data — e.g. <span class="font-mono">portfolio-a</span>, <span class="font-mono">imported-portfolio</span>.</p>
         <form action="{{ route('clients.purge-by-group') }}" method="POST" class="mt-3 flex flex-wrap items-end gap-3" onsubmit="return confirmPurgeByGroup(this);">
             @csrf
             @method('DELETE')
             <div>
-                <label for="purge_group_name" class="block text-xs font-medium text-red-800">Client reference (group_name)</label>
-                <input type="text" name="group_name" id="purge_group_name" value="Nileshbhai" required
+                <label for="purge_group_name" class="block text-xs font-medium text-red-800">Portfolio reference (group_name)</label>
+                <input type="text" name="group_name" id="purge_group_name" value="" placeholder="portfolio-a" required autocomplete="off"
                     class="mt-1 block w-48 rounded-md border-red-200 text-sm shadow-sm focus:border-red-500 focus:ring-red-500">
             </div>
             <div>
@@ -205,8 +202,38 @@ Clients
         }
     </script>
 
+    <div x-data="{ view: localStorage.getItem('clients_view') || 'table' }" x-init="$watch('view', v => localStorage.setItem('clients_view', v))" class="space-y-4">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+        <p class="text-sm text-gray-600">{{ $clients->total() }} clients</p>
+        <div class="inline-flex rounded-lg border border-gray-200 bg-white p-0.5 text-xs font-semibold">
+            <button type="button" @click="view = 'table'" :class="view === 'table' ? 'bg-indigo-600 text-white' : 'text-gray-600'" class="px-3 py-1.5 rounded-md">Table</button>
+            <button type="button" @click="view = 'cards'" :class="view === 'cards' ? 'bg-indigo-600 text-white' : 'text-gray-600'" class="px-3 py-1.5 rounded-md">Cards</button>
+        </div>
+    </div>
+
+    <div x-show="view === 'cards'" x-cloak class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        @forelse($clients as $client)
+        @php $h = $clientHealthMap[$client->id] ?? ['score' => 0, 'label' => '—', 'tone' => 'gray']; @endphp
+        <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:border-indigo-200 hover:shadow-md transition flex flex-col min-h-[10rem]">
+            <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0 flex-1">
+                    <a href="{{ route('clients.show', $client) }}" class="text-base font-bold text-gray-900 hover:text-indigo-600 truncate block">{{ $client->name }}</a>
+                    <p class="text-xs text-gray-500 truncate">Mgr: {{ $client->manager?->name ?? '—' }}</p>
+                </div>
+                <span class="shrink-0 text-lg font-black {{ $h['tone'] === 'green' ? 'text-emerald-600' : ($h['tone'] === 'amber' ? 'text-amber-600' : 'text-rose-600') }}">{{ $h['score'] }}</span>
+            </div>
+            <p class="mt-2 text-xs text-gray-600">{{ $h['label'] }} · {{ $client->open_tasks_count ?? 0 }} open tasks</p>
+            <div class="mt-auto pt-4">
+                <a href="{{ route('clients.show', $client) }}" class="block text-center rounded-lg bg-indigo-600 px-3 py-2 text-xs font-bold text-white hover:bg-indigo-700">View</a>
+            </div>
+        </div>
+        @empty
+        <p class="col-span-full text-sm text-gray-500 py-8 text-center">No clients found.</p>
+        @endforelse
+    </div>
+
     <!-- Data Table -->
-    <div class="overflow-hidden rounded-lg bg-bg-card shadow">
+    <div x-show="view === 'table'" class="overflow-hidden rounded-lg bg-bg-card shadow overflow-x-auto">
         <table class="min-w-full divide-y divide-line">
             <thead class="bg-bg-body">
                 <tr>
@@ -298,6 +325,7 @@ Clients
     <!-- Pagination -->
     <div class="mt-4">
         {!! $clients->links() !!}
+    </div>
     </div>
 </div>
 <script>

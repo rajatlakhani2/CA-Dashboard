@@ -9,19 +9,19 @@ use App\Models\ClientService;
 
 class AssignNileshServices extends Command
 {
-    protected $signature = 'assign:nilesh-services';
-    protected $description = 'Assign IT and GST services to Nileshbhai clients';
+    protected $signature = 'assign:folder-import-services';
+    protected $description = 'Assign IT and GST services to clients imported from folders';
 
     public function handle()
     {
-        // 1. Find Clients
-        // We look for clients where 'tags' JSON contains "Nileshbhai client"
-        // SQLite doesn't support JSON_CONTAINS efficiently in all versions, 
-        // so we'll fetch all and filter in PHP for safety or use LIKE if simple.
+        $clients = Client::query()
+            ->where(function ($query) {
+                $query->where('tags', 'like', '%"folder-import"%')
+                    ->orWhere('tags', 'like', '%"Nileshbhai client"%');
+            })
+            ->get();
 
-        $clients = Client::where('tags', 'like', '%"Nileshbhai client"%')->get();
-
-        $this->info("Found " . $clients->count() . " Nileshbhai clients.");
+        $this->info('Found '.$clients->count().' folder-import clients.');
 
         // 2. Define Services
         // ID 3 = IT Return (Non-Audit)
@@ -53,6 +53,6 @@ class AssignNileshServices extends Command
 
         $bar->finish();
         $this->newLine();
-        $this->info("Assigned IT & GST Services to all Nileshbhai clients.");
+        $this->info('Assigned IT & GST services to folder-import clients.');
     }
 }

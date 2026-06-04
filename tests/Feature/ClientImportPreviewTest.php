@@ -114,7 +114,7 @@ class ClientImportPreviewTest extends TestCase
         ]);
         $trashed->delete();
 
-        $csv = "name,pan,group_name\nAjay Dalki,EYVPD6712B,Nileshbhai\n";
+        $csv = "name,pan,group_name\nAjay Dalki,EYVPD6712B,portfolio-a\n";
         $path = 'client-imports/trashed-pan.csv';
         Storage::put($path, $csv);
 
@@ -130,7 +130,7 @@ class ClientImportPreviewTest extends TestCase
         $client = Client::where('pan', 'EYVPD6712B')->first();
         $this->assertNotNull($client);
         $this->assertSame('Ajay Dalki', $client->name);
-        $this->assertSame('Nileshbhai', $client->group_name);
+        $this->assertSame('portfolio-a', $client->group_name);
     }
 
     public function test_import_assigns_new_code_when_cl_code_taken_by_trashed_client(): void
@@ -142,7 +142,7 @@ class ClientImportPreviewTest extends TestCase
             'client_code' => 'CL-0001',
         ])->delete();
 
-        $csv = "name,pan,group_name\nFresh Import,FRESH2345B,Nileshbhai\n";
+        $csv = "name,pan,group_name\nFresh Import,FRESH2345B,portfolio-a\n";
         $path = 'client-imports/trashed-code.csv';
         Storage::put($path, $csv);
 
@@ -150,7 +150,7 @@ class ClientImportPreviewTest extends TestCase
 
         $this->assertDatabaseHas('clients', [
             'pan' => 'FRESH2345B',
-            'group_name' => 'Nileshbhai',
+            'group_name' => 'portfolio-a',
         ]);
 
         $client = Client::where('pan', 'FRESH2345B')->first();
@@ -184,7 +184,7 @@ class ClientImportPreviewTest extends TestCase
             'client_code' => 'CL-0099',
         ]);
 
-        $csv = "name,pan,client_code,group_name\nAjay Dalki,EYVPD6712B,CL-0284,Nileshbhai\n";
+        $csv = "name,pan,client_code,group_name\nAjay Dalki,EYVPD6712B,CL-0284,portfolio-a\n";
         $path = 'client-imports/keep-code.csv';
         Storage::put($path, $csv);
 
@@ -193,7 +193,7 @@ class ClientImportPreviewTest extends TestCase
         $existing->refresh();
         $this->assertSame('CL-0099', $existing->client_code);
         $this->assertSame('Ajay Dalki', $existing->name);
-        $this->assertSame('Nileshbhai', $existing->group_name);
+        $this->assertSame('portfolio-a', $existing->group_name);
     }
 
     public function test_confirm_import_applies_create_and_update(): void

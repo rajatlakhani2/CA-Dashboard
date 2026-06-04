@@ -36,9 +36,9 @@ class ArtisanCommandsCatalogTest extends TestCase
         $this->assertSame(0, Artisan::call('services:generate-dues'));
     }
 
-    public function test_import_clients_nilesh_fails_on_missing_directory(): void
+    public function test_import_clients_folder_fails_on_missing_directory(): void
     {
-        $exit = Artisan::call('import:clients-nilesh', ['--path' => '/nonexistent/nilesh/path']);
+        $exit = Artisan::call('import:clients-folder', ['--path' => '/nonexistent/folder/path']);
         $this->assertSame(1, $exit);
     }
 

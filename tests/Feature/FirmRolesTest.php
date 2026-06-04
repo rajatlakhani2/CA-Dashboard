@@ -31,19 +31,19 @@ class FirmRolesTest extends TestCase
         $this->actingAs($rajat)->get(route('clients.create'))->assertOk();
     }
 
-    public function test_nilesh_associate_sees_only_own_clients_and_read_only_portfolio_invoices(): void
+    public function test_associate_sees_only_own_clients_and_read_only_portfolio_invoices(): void
     {
         $rajat = User::factory()->create(['role' => 'partner', 'name' => 'Rajat Lakhani']);
-        $nilesh = User::factory()->create(['role' => 'associate', 'name' => 'Nilesh Bhai']);
+        $associate = User::factory()->create(['role' => 'associate', 'name' => 'Firm Associate']);
 
         $ownClient = Client::create([
             'client_code' => 'N-1',
-            'name' => 'Nilesh Client',
+            'name' => 'Associate Client',
             'pan' => 'NILE1234A',
             'status' => Client::STATUS_ACTIVE,
             'category' => 'A',
-            'manager_id' => $nilesh->id,
-            'group_name' => 'Nilesh Bhai',
+            'manager_id' => $associate->id,
+            'group_name' => 'portfolio-b',
             'approval_status' => Client::APPROVAL_APPROVED,
         ]);
         $otherClient = Client::create([
@@ -58,7 +58,7 @@ class FirmRolesTest extends TestCase
 
         $ownInvoice = Invoice::create([
             'client_id' => $ownClient->id,
-            'invoice_number' => 'INV-NILE-001',
+            'invoice_number' => 'INV-ASC-001',
             'date' => now()->toDateString(),
             'due_date' => now()->addDays(7)->toDateString(),
             'status' => Invoice::STATUS_DRAFT,
@@ -73,28 +73,28 @@ class FirmRolesTest extends TestCase
             'total_amount' => 2000,
         ]);
 
-        $index = $this->actingAs($nilesh)->get(route('clients.index'));
+        $index = $this->actingAs($associate)->get(route('clients.index'));
         $index->assertOk();
         $index->assertSee($ownClient->name);
         $index->assertDontSee($otherClient->name);
 
-        $this->actingAs($nilesh)->get(route('clients.show', $ownClient))->assertOk();
-        $this->actingAs($nilesh)->get(route('clients.show', $otherClient))->assertForbidden();
+        $this->actingAs($associate)->get(route('clients.show', $ownClient))->assertOk();
+        $this->actingAs($associate)->get(route('clients.show', $otherClient))->assertForbidden();
 
-        $invoiceIndex = $this->actingAs($nilesh)->get(route('invoices.index'));
+        $invoiceIndex = $this->actingAs($associate)->get(route('invoices.index'));
         $invoiceIndex->assertOk();
-        $invoiceIndex->assertSee('INV-NILE-001');
+        $invoiceIndex->assertSee('INV-ASC-001');
         $invoiceIndex->assertDontSee('INV-RAJ-001');
         $invoiceIndex->assertDontSee('Create Invoice');
 
-        $this->actingAs($nilesh)->get(route('invoices.show', $ownInvoice))->assertOk();
-        $this->actingAs($nilesh)->get(route('invoices.show', $otherInvoice))->assertForbidden();
-        $this->actingAs($nilesh)->get(route('invoices.create'))->assertForbidden();
+        $this->actingAs($associate)->get(route('invoices.show', $ownInvoice))->assertOk();
+        $this->actingAs($associate)->get(route('invoices.show', $otherInvoice))->assertForbidden();
+        $this->actingAs($associate)->get(route('invoices.create'))->assertForbidden();
 
-        $this->actingAs($nilesh)->get(route('staff.index'))->assertForbidden();
-        $this->actingAs($nilesh)->get(route('payments.index'))->assertForbidden();
-        $this->actingAs($nilesh)->get(route('dashboard'))->assertOk();
-        $this->actingAs($nilesh)->get(route('dashboard'))->assertSee(route('invoices.index'), false);
+        $this->actingAs($associate)->get(route('staff.index'))->assertForbidden();
+        $this->actingAs($associate)->get(route('payments.index'))->assertForbidden();
+        $this->actingAs($associate)->get(route('dashboard'))->assertOk();
+        $this->actingAs($associate)->get(route('dashboard'))->assertSee(route('invoices.index'), false);
     }
 
     public function test_article_clerk_can_only_update_assigned_task_status(): void
@@ -150,14 +150,14 @@ class FirmRolesTest extends TestCase
         ])->assertRedirect(route('tasks.my-day'));
     }
 
-    public function test_nilesh_associate_can_create_client_in_own_portfolio(): void
+    public function test_associate_can_create_client_in_own_portfolio(): void
     {
-        $nilesh = User::factory()->create(['role' => 'associate', 'name' => 'Nilesh Bhai']);
+        $associate = User::factory()->create(['role' => 'associate', 'name' => 'Firm Associate']);
 
-        $this->actingAs($nilesh)->get(route('clients.create'))->assertOk();
+        $this->actingAs($associate)->get(route('clients.create'))->assertOk();
 
-        $response = $this->actingAs($nilesh)->post(route('clients.store'), [
-            'name' => 'New Nilesh Corp',
+        $response = $this->actingAs($associate)->post(route('clients.store'), [
+            'name' => 'New Associate Corp',
             'pan' => 'NILENEW01A',
             'category' => 'A',
             'status' => Client::STATUS_ACTIVE,
@@ -165,12 +165,12 @@ class FirmRolesTest extends TestCase
 
         $response->assertRedirect(route('clients.index'));
         $this->assertDatabaseHas('clients', [
-            'name' => 'New Nilesh Corp',
-            'manager_id' => $nilesh->id,
+            'name' => 'New Associate Corp',
+            'manager_id' => $associate->id,
             'approval_status' => Client::APPROVAL_APPROVED,
         ]);
 
-        $this->actingAs($nilesh)->get(route('clients.index'))->assertSee('New Nilesh Corp');
+        $this->actingAs($associate)->get(route('clients.index'))->assertSee('New Associate Corp');
     }
 
     public function test_article_submits_client_for_rajat_approval(): void
@@ -210,7 +210,7 @@ class FirmRolesTest extends TestCase
             'approved_by_user_id' => $rajat->id,
         ]);
 
-        $nilesh = User::factory()->create(['role' => 'associate']);
-        $this->actingAs($nilesh)->get(route('clients.index'))->assertSee('Pending Article Client');
+        $associate = User::factory()->create(['role' => 'associate']);
+        $this->actingAs($associate)->get(route('clients.index'))->assertSee('Pending Article Client');
     }
 }

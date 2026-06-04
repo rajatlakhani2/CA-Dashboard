@@ -29,7 +29,9 @@ use App\Policies\StaffPolicy;
 use App\Policies\SubscriptionPolicy;
 use App\Policies\TaskPolicy;
 use App\Policies\TdsEntryPolicy;
+use App\Services\NotificationSummaryService;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -66,5 +68,12 @@ class AppServiceProvider extends ServiceProvider
         foreach (TenantModels::scoped() as $model) {
             $model::addGlobalScope(new OrganizationScope);
         }
+
+        View::composer('layouts.app', function ($view) {
+            $user = auth()->user();
+            if ($user) {
+                $view->with('notificationGroups', app(NotificationSummaryService::class)->groups());
+            }
+        });
     }
 }

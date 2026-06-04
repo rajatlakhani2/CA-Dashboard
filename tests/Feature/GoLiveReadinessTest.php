@@ -30,7 +30,7 @@ class GoLiveReadinessTest extends TestCase
             'clients.create',
             'clients.export',
             'clients.template',
-            'clients.import.nilesh',
+            'clients.import.folder',
             'tasks.index',
             'tasks.my-day',
             'tasks.create',

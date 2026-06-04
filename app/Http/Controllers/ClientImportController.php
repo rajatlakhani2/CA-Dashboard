@@ -83,16 +83,16 @@ class ClientImportController extends Controller
         );
     }
 
-    public function nileshForm()
+    public function folderForm()
     {
         abort_unless(auth()->user()?->isPartner(), 403);
 
-        return view('clients.import-nilesh', [
-            'defaultPath' => 'D:\\New folder\\Rajat\\Rajat\\IT Return\\Nileshbhai',
+        return view('clients.import-folder', [
+            'defaultPath' => '',
         ]);
     }
 
-    public function previewNilesh(Request $request, NileshFolderImportService $service)
+    public function previewFolder(Request $request, NileshFolderImportService $service)
     {
         abort_unless(auth()->user()?->isPartner(), 403);
 
@@ -103,32 +103,32 @@ class ClientImportController extends Controller
             return back()->with('error', $preview['error'])->withInput();
         }
 
-        session(['nilesh_import_path' => $path, 'nilesh_import_preview' => $preview]);
+        session(['folder_import_path' => $path, 'folder_import_preview' => $preview]);
 
-        return view('clients.import-nilesh-preview', compact('preview', 'path'));
+        return view('clients.import-folder-preview', compact('preview', 'path'));
     }
 
-    public function runNilesh(Request $request, NileshFolderImporter $importer)
+    public function runFolder(Request $request, NileshFolderImporter $importer)
     {
         abort_unless(auth()->user()?->isPartner(), 403);
 
-        $path = session('nilesh_import_path');
+        $path = session('folder_import_path');
         if (! $path) {
-            return redirect()->route('clients.import.nilesh')->with('error', 'Preview expired. Scan again.');
+            return redirect()->route('clients.import.folder')->with('error', 'Preview expired. Scan again.');
         }
 
         $assign = $request->boolean('assign_service');
         $result = $importer->run($path, $assign);
 
-        session()->forget(['nilesh_import_path', 'nilesh_import_preview']);
+        session()->forget(['folder_import_path', 'folder_import_preview']);
 
         if (isset($result['error'])) {
-            return redirect()->route('clients.import.nilesh')->with('error', $result['error']);
+            return redirect()->route('clients.import.folder')->with('error', $result['error']);
         }
 
         return redirect()->route('clients.index')->with(
             'success',
-            "Nilesh import complete: {$result['created']} created, {$result['updated']} updated, {$result['skipped']} skipped."
+            "Folder import complete: {$result['created']} created, {$result['updated']} updated, {$result['skipped']} skipped."
         );
     }
 }
