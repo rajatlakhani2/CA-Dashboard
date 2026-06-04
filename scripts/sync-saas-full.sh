@@ -76,14 +76,19 @@ FILES=(
   resources/views/auth/register-organization.blade.php
   resources/views/dashboard.blade.php
   resources/views/dashboard/partials/premium-styles.blade.php
-  app/Models/Subscription.php
+  scripts/sync-all-pending-fixes.sh
+  scripts/check-saas-deploy.sh
   app/Http/Middleware/EnforceSessionIdle.php
   bootstrap/app.php
   app/Http/Controllers/SettingsController.php
+  app/Http/Controllers/ComplianceController.php
   resources/views/settings/profile.blade.php
   resources/views/credentials/index.blade.php
   resources/views/credentials/partials/vault-audit-script.blade.php
+  resources/views/credentials/partials/vault-password-field.blade.php
+  resources/views/clients/edit.blade.php
   resources/views/personal-renewals/index.blade.php
+  resources/views/compliance/index.blade.php
   app/Console/Commands/RunBackup.php
   routes/console.php
   resources/views/partials/premium-fonts.blade.php

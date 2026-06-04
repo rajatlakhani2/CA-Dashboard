@@ -482,7 +482,7 @@
                             @if($credential->username)
                             <button type="button"
                                 onclick="credentialVaultCopy(this, '{{ route('credentials.audit', $credential) }}', 'copied_username')"
-                                data-copy-value="{{ $credential->username }}"
+                                data-copy-value="{{ e($credential->username) }}"
                                 class="text-gray-400 hover:text-indigo-600 p-1" title="Copy User ID">
                                 <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -493,27 +493,14 @@
                     </div>
                     <div>
                         <span class="text-xs text-gray-500 block">Password</span>
-                        <div class="flex items-center justify-between bg-gray-50 px-2 py-1 rounded">
-                            <input type="password" readonly value="{{ $credential->password }}" class="bg-transparent border-none text-sm font-medium font-mono text-gray-800 p-0 w-full focus:ring-0" id="pwd-{{ $credential->id }}">
-                            <div class="flex gap-1 ml-2">
-                                <button type="button"
-                                    onclick="credentialVaultTogglePassword(this, '{{ route('credentials.audit', $credential) }}')"
-                                    data-target="pwd-{{ $credential->id }}"
-                                    class="text-gray-400 hover:text-indigo-600 p-1" title="Toggle Visibility">
-                                    <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                </button>
-                                <button type="button"
-                                    onclick="credentialVaultCopy(this, '{{ route('credentials.audit', $credential) }}', 'copied_password')"
-                                    data-copy-value="{{ $credential->password }}"
-                                    class="text-gray-400 hover:text-indigo-600 p-1" title="Copy Password">
-                                    <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                    </svg>
-                                </button>
-                            </div>
+                        <div class="flex items-center justify-between bg-gray-50 px-2 py-1 rounded gap-1">
+                            @include('credentials.partials.vault-password-field', [
+                                'credential' => $credential,
+                                'inputId' => 'pwd-' . $credential->id,
+                                'inputClass' => 'bg-transparent border-none text-sm font-medium font-mono text-gray-800 p-0 flex-1 min-w-0 focus:ring-0',
+                                'toggleClass' => 'text-gray-400 hover:text-indigo-600 p-1 shrink-0',
+                                'copyClass' => 'text-gray-400 hover:text-indigo-600 p-1 shrink-0',
+                            ])
                         </div>
                     </div>
                 </div>

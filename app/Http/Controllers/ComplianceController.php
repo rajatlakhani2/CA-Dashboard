@@ -16,6 +16,13 @@ class ComplianceController extends Controller
             $query->where('status', $request->status);
         }
 
+        $allDues = ServiceDue::query();
+        $stats = [
+            'pending' => (clone $allDues)->where('status', ServiceDue::STATUS_PENDING)->count(),
+            'overdue' => (clone $allDues)->where('status', ServiceDue::STATUS_OVERDUE)->count(),
+            'completed' => (clone $allDues)->where('status', ServiceDue::STATUS_COMPLETED)->count(),
+        ];
+
         $dues = $query->get();
 
         // Format for FullCalendar
@@ -46,6 +53,6 @@ class ComplianceController extends Controller
             ];
         })->values()->all();
 
-        return view('compliance.index', compact('events'));
+        return view('compliance.index', compact('events', 'stats'));
     }
 }

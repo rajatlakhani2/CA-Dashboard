@@ -47,6 +47,36 @@ else
   echo "workspace-header strip: removed from dashboard OK"
 fi
 
+if grep -q "display_password" app/Models/ClientCredential.php 2>/dev/null; then
+  echo "passwords vault model: OK"
+else
+  echo "passwords vault model: OLD — run: bash scripts/sync-all-pending-fixes.sh"
+fi
+
+if grep -q "billing_day.*integer" app/Models/Subscription.php 2>/dev/null; then
+  echo "subscriptions billing_day cast: OK"
+else
+  echo "subscriptions: OLD — run: bash scripts/sync-all-pending-fixes.sh"
+fi
+
+if grep -q "TDS Management" resources/views/layouts/app.blade.php 2>/dev/null; then
+  echo "TDS sidebar: STILL VISIBLE (old layout)"
+else
+  echo "TDS sidebar: removed OK"
+fi
+
+if grep -q "auto_logout_minutes" resources/views/settings/profile.blade.php 2>/dev/null; then
+  echo "settings security (auto logout/backup): OK"
+else
+  echo "settings security: OLD — run: bash scripts/sync-all-pending-fixes.sh"
+fi
+
+if grep -q "dashboard-tabs-v2" resources/views/personal-renewals/index.blade.php 2>/dev/null || grep -q "renewals-shell" resources/views/personal-renewals/index.blade.php 2>/dev/null; then
+  echo "personal renewals UI: OK"
+else
+  echo "personal renewals UI: OLD — run: bash scripts/sync-all-pending-fixes.sh"
+fi
+
 echo ""
 echo "=== Done ==="
-echo "If dashboard is OLD, run: bash scripts/sync-saas-full.sh && php artisan view:clear"
+echo "If any line above says OLD, run: bash scripts/sync-all-pending-fixes.sh"

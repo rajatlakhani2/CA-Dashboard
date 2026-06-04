@@ -4,8 +4,35 @@
 Firm Compliance 360°
 @endsection
 
+@push('head_styles')
+@include('dashboard.partials.premium-styles')
+@endpush
+
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6 compliance-360-shell">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <a href="{{ route('compliance.index', ['status' => 'Pending']) }}" class="kpi-card kpi-amber">
+            <p class="kpi-label">Pending</p>
+            <p class="kpi-value">{{ $stats['pending'] ?? 0 }}</p>
+            <p class="kpi-sub">Open compliance dues</p>
+        </a>
+        <a href="{{ route('compliance.index', ['status' => 'Overdue']) }}" class="kpi-card kpi-rose">
+            <p class="kpi-label">Overdue</p>
+            <p class="kpi-value">{{ $stats['overdue'] ?? 0 }}</p>
+            <p class="kpi-sub">Needs immediate action</p>
+        </a>
+        <a href="{{ route('compliance.index', ['status' => 'Completed']) }}" class="kpi-card kpi-emerald">
+            <p class="kpi-label">Completed</p>
+            <p class="kpi-value">{{ $stats['completed'] ?? 0 }}</p>
+            <p class="kpi-sub">Filed / done</p>
+        </a>
+        <a href="{{ route('reports.due-date') }}" class="kpi-card kpi-blue">
+            <p class="kpi-label">Due date report</p>
+            <p class="kpi-value text-xl">→</p>
+            <p class="kpi-sub">Export &amp; filter by range</p>
+        </a>
+    </div>
+
     <div class="bg-bg-card shadow rounded-lg border border-line p-6">
         <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
