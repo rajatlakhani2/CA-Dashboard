@@ -318,7 +318,11 @@ class ClientController extends Controller
 
         $clientHealth = app(\App\Services\ClientHealthScoreService::class)->forClient($client);
 
-        $activePortalToken = \App\Models\ClientPortalToken::latestActiveForClient($client->id);
+        $activePortalToken = \App\Models\ClientPortalToken::query()
+            ->where('client_id', $client->id)
+            ->where('expires_at', '>', now())
+            ->orderByDesc('expires_at')
+            ->first();
 
         return view('clients.show', compact(
             'client',
