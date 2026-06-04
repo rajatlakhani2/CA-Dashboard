@@ -1,74 +1,52 @@
-# CA Dashboard (Laravel)
+# CA Dashboard
 
-A comprehensive practice management dashboard for Chartered Accountants, built with Laravel 12.
+Practice management dashboard for CA firms — clients, tasks, invoices, compliance, and multi-user workspace.
 
-## 🌟 Features
+## GitHub repository
 
-*   **Client Management**: 
-    *   Full CRUD for client details.
-    *   Excel Import/Export for bulk operations.
-    *   Service mapping (assign recurring services to clients).
-*   **Task Management (Kanban)**:
-    *   Visual Kanban board for task tracking.
-    *   Drag-and-drop status updates.
-    *   Due date tracking and priority assignment.
-*   **Service Dues Engine**:
-    *   Automated tracking of recurring compliances (GST, IT Returns, etc.).
-    *   Generates "Service Due" records based on frequency (Monthly, Quarterly, Annually).
-*   **Invoicing**:
-    *   Raise invoices linked to Tasks or Service Dues.
-    *   PDF Generation & Download.
-    *   Track payment status (Raised, Paid, Overdue).
-*   **Personal Renewals**:
-    *   Track personal payments (LIC, Loan, Medical).
-    *   **Auto-Recurring**: Automatically generates next due date for recurring payments.
-    *   **Reminders**: Send WhatsApp reminders instantly.
-    *   **Calendar**: Interactive calendar with resize controls.
-*   **Reports**:
-    *   Financial, Compliance, Service, and Client reports.
+**https://github.com/rajatlakhani2/CA-Dashboard**
 
-## 🛠 Installation
+Clone anywhere:
 
-1.  **Clone & Install Dependencies**
-    ```bash
-    git clone <repo-url>
-    cd ca-dashboard
-    composer install
-    npm install
-    ```
+```bash
+git clone https://github.com/rajatlakhani2/CA-Dashboard.git
+cd CA-Dashboard
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+```
 
-2.  **Environment Setup**
-    ```bash
-    copy .env.example .env
-    php artisan key:generate
-    touch database/db.sqlite
-    ```
-    *Update `.env` to set `DB_DATABASE` to your absolute path if needed.*
+## Production (cPanel) — no git yet?
 
-3.  **Database Migration & Seeding**
-    ```bash
-    php artisan migrate
-    php artisan db:seed
-    ```
+If `git pull` says *not a git repository*, use the one-time setup script:
 
-4.  **Run Application**
-    ```bash
-    npm run dev
-    # In a separate terminal:
-    php artisan serve
-    ```
+```bash
+cd ~/app.kuhu.org.in   # or ~/public_html/app.kuhu.org.in
+curl -fsSL -o /tmp/setup-git.sh \
+  https://raw.githubusercontent.com/rajatlakhani2/CA-Dashboard/master/scripts/setup-git-clone-on-cpanel.sh
+export CONFIRM=1
+bash /tmp/setup-git.sh
+```
 
-## 📂 Key Directories
+After that, deploy with:
 
-*   `app/Models`: Core business objects (Client, Task, Invoice, ServiceDue).
-*   `app/Http/Controllers`: Logic for Web routes.
-*   `resources/views`: Blade templates (Tailwind CSS styled).
-*   `routes/web.php`: Application routes.
+```bash
+cd ~/app.kuhu.org.in
+git pull origin master
+composer install --no-dev
+php artisan migrate --force
+php artisan optimize:clear
+```
 
-## 🔧 Commands
+Without git, sync UI only:
 
-*   `php artisan serve`: Start the dev server.
-*   `php artisan queue:work`: Run background jobs (if configured).
+```bash
+bash scripts/sync-saas-dashboard.sh
+```
 
-## 📄 License
-MIT License.
+See [docs/CPANEL_DEPLOY_STEPS.md](docs/CPANEL_DEPLOY_STEPS.md).
+
+## License
+
+Proprietary — RL Associates / Kuhu.

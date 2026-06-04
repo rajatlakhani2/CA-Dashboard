@@ -1,4 +1,32 @@
-# cPanel deploy (no Git on server)
+# cPanel deploy
+
+GitHub repo (already created): **https://github.com/rajatlakhani2/CA-Dashboard**
+
+---
+
+## Option A — One-time: make server a git clone (recommended)
+
+```bash
+cd ~/app.kuhu.org.in || cd ~/public_html/app.kuhu.org.in
+curl -fsSL -o /tmp/setup-git.sh \
+  https://raw.githubusercontent.com/rajatlakhani2/CA-Dashboard/master/scripts/setup-git-clone-on-cpanel.sh
+export CONFIRM=1
+bash /tmp/setup-git.sh
+```
+
+Then every update:
+
+```bash
+cd ~/app.kuhu.org.in
+git pull origin master
+composer install --no-dev
+php artisan migrate --force
+php artisan optimize:clear
+```
+
+---
+
+## Option B — No git (curl only)
 
 Your server folder is **not a git clone** (`fatal: not a git repository`).  
 Use **curl from GitHub** instead of `git pull`.
