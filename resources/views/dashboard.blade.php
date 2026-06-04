@@ -3,8 +3,8 @@
 @section('header')
 <div class="flex justify-between items-center w-full">
     <div>
-        <h2 class="font-bold text-lg text-gray-900 tracking-wide">Command Centre</h2>
-        <p class="text-xs text-gray-500 mt-0.5">{{ now()->format('l, d F Y') }}</p>
+        <h2 class="font-bold text-lg text-gray-900 tracking-wide">{{ ($workspace['name'] ?? null) ? $workspace['name'] : 'Command Centre' }}</h2>
+        <p class="text-xs text-gray-500 mt-0.5">Multi-user workspace · {{ $workspace['seat_used'] ?? '—' }} team members</p>
     </div>
     <div class="flex flex-wrap items-center gap-2">
         @can('create', App\Models\Client::class)
@@ -142,32 +142,7 @@
     </div>
     @endif
 
-    {{-- ===== WELCOME HERO ===== --}}
-    <div class="rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 p-6 sm:p-8 text-white shadow-lg shadow-indigo-600/20 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-        <div class="min-w-0 flex-1">
-            <p class="text-indigo-100 text-xs font-bold uppercase tracking-widest">Command Centre</p>
-            <h1 class="text-2xl sm:text-3xl font-black mt-1 truncate">
-                Welcome back, {{ auth()->user()->name }}
-            </h1>
-            <p class="text-indigo-100/90 text-sm mt-2 max-w-xl">"{{ $positiveThought }}"</p>
-            <div class="mt-4 flex flex-wrap gap-2 lg:hidden">
-                @can('create', App\Models\Client::class)
-                <a href="{{ route('clients.create') }}" class="rounded-lg bg-white/15 px-3 py-1.5 text-xs font-semibold hover:bg-white/25">+ Client</a>
-                @endcan
-                <a href="{{ route('tasks.create') }}" class="rounded-lg bg-white/15 px-3 py-1.5 text-xs font-semibold hover:bg-white/25">+ Task</a>
-                @can('create', App\Models\Invoice::class)
-                <a href="{{ route('invoices.create') }}" class="rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-50">+ Invoice</a>
-                @endcan
-            </div>
-        </div>
-        <div class="flex shrink-0 items-center gap-4 md:flex-col md:items-end md:text-right">
-            <div class="rounded-xl bg-white/15 px-4 py-3 backdrop-blur-sm">
-                <p class="text-indigo-100 text-[10px] font-bold uppercase tracking-widest">Today</p>
-                <p class="text-xl font-black">{{ now()->format('d M Y') }}</p>
-                <p class="text-indigo-100 text-sm">{{ now()->format('l') }}</p>
-            </div>
-        </div>
-    </div>
+    @include('dashboard.partials.workspace-header')
 
     {{-- ===== KPI TILES ===== --}}
     <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-5">

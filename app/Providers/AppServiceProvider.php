@@ -7,9 +7,12 @@ use App\Models\ClientCredential;
 use App\Models\Branch;
 use App\Models\Dsc;
 use App\Models\Expense;
+use App\Models\FirmAlert;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Scopes\OrganizationScope;
 use App\Models\Setting;
+use App\Models\ServiceDue;
 use App\Models\Subscription;
 use App\Models\Task;
 use App\Models\TdsEntry;
@@ -60,5 +63,18 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('viewReports', [ReportPolicy::class, 'view']);
         Gate::define('exportReports', [ReportPolicy::class, 'export']);
+
+        foreach ([
+            Client::class,
+            Task::class,
+            Invoice::class,
+            Branch::class,
+            ServiceDue::class,
+            Payment::class,
+            Setting::class,
+            FirmAlert::class,
+        ] as $model) {
+            $model::addGlobalScope(new OrganizationScope);
+        }
     }
 }

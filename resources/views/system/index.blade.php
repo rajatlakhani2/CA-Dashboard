@@ -96,15 +96,26 @@
         </div>
     </div>
 
-    <div class="rounded-xl border {{ str_contains($taskCreateUi ?? '', 'v2') ? 'border-emerald-200 bg-emerald-50' : 'border-amber-300 bg-amber-50' }} px-5 py-4">
+    <div class="rounded-xl border {{ str_contains($dashboardUi ?? '', 'saas') ? 'border-emerald-200 bg-emerald-50' : 'border-amber-300 bg-amber-50' }} px-5 py-4 mb-4">
+        <h3 class="text-sm font-bold text-gray-900">Deploy check — Dashboard (SaaS workspace)</h3>
+        <p class="mt-2 text-sm">
+            <span class="font-semibold">UI on server:</span>
+            <span class="{{ str_contains($dashboardUi ?? '', 'saas') ? 'text-emerald-800' : 'text-amber-900 font-bold' }}">{{ $dashboardUi ?? 'unknown' }}</span>
+        </p>
+        @if(!str_contains($dashboardUi ?? '', 'saas'))
+        <p class="mt-3 text-sm text-amber-900 font-medium">Run: <code class="block mt-1 text-xs bg-white/80 p-2 rounded">git pull && bash scripts/sync-saas-dashboard.sh</code></p>
+        @endif
+    </div>
+
+    <div class="rounded-xl border {{ str_contains($taskCreateUi ?? '', 'v4') || str_contains($taskCreateUi ?? '', 'v3') ? 'border-emerald-200 bg-emerald-50' : 'border-amber-300 bg-amber-50' }} px-5 py-4">
         <h3 class="text-sm font-bold text-gray-900">Deploy check — Create Task screen</h3>
         <p class="mt-2 text-sm">
             <span class="font-semibold">UI on server:</span>
-            <span class="{{ str_contains($taskCreateUi ?? '', 'v2') ? 'text-emerald-800' : 'text-amber-900 font-bold' }}">{{ $taskCreateUi ?? 'unknown' }}</span>
+            <span class="{{ str_contains($taskCreateUi ?? '', 'v4') || str_contains($taskCreateUi ?? '', 'v3') ? 'text-emerald-800' : 'text-amber-900 font-bold' }}">{{ $taskCreateUi ?? 'unknown' }}</span>
         </p>
         <p class="mt-1 text-xs text-gray-600">App path: <code class="text-[11px]">{{ $appPath ?? '' }}</code></p>
         <p class="mt-1 text-xs text-gray-600">Git: <code class="text-[11px]">{{ $deployRef ?? 'n/a' }}</code></p>
-        @if(!str_contains($taskCreateUi ?? '', 'v2'))
+        @if(!str_contains($taskCreateUi ?? '', 'v4') && !str_contains($taskCreateUi ?? '', 'v3'))
         <p class="mt-3 text-sm text-amber-900 font-medium">Still on old UI? In cPanel Terminal run: <code class="block mt-1 text-xs bg-white/80 p-2 rounded">bash scripts/sync-ui-now.sh</code> then click <strong>Clear &amp; Rebuild Cache</strong> below.</p>
         @endif
     </div>

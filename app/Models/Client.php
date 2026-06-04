@@ -14,6 +14,7 @@ class Client extends Model
 {
     use HasFactory, \Illuminate\Database\Eloquent\SoftDeletes;
     use \Spatie\Activitylog\Traits\LogsActivity;
+    use \App\Models\Concerns\BelongsToOrganization;
 
     public const STATUS_ACTIVE = 'Active';
     public const STATUS_ON_HOLD = 'On-Hold';

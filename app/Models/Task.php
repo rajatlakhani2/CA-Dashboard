@@ -12,6 +12,7 @@ use Spatie\Activitylog\LogOptions;
 class Task extends Model
 {
     use HasFactory, LogsActivity, SoftDeletes;
+    use \App\Models\Concerns\BelongsToOrganization;
 
     public const STATUS_PENDING = 'Pending';
     public const STATUS_IN_PROGRESS = 'In Progress';

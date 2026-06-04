@@ -2,15 +2,20 @@
 
 namespace Database\Seeders;
 
+use App\Models\Organization;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class FirmTeamSeeder extends Seeder
 {
     public function run(): void
     {
         $this->upgradeLegacyRajatAccount();
+
+        $organization = $this->ensureDefaultOrganization();
 
         $accounts = [
             [
@@ -40,13 +45,17 @@ class FirmTeamSeeder extends Seeder
                 'name' => $data['name'],
                 'role' => $data['role'],
                 'mobile' => $data['mobile'],
+                'organization_id' => $organization->id,
             ];
 
             if (Schema::hasColumn('users', 'module_access')) {
                 $attributes['module_access'] = \App\Support\ModuleAccess::defaultsForRole($data['role']);
             }
 
-            $user = User::updateOrCreate(['email' => $email], $attributes);
+            $user = User::withoutGlobalScopes()->updateOrCreate(
+                ['email' => $email, 'organization_id' => $organization->id],
+                $attributes
+            );
 
             // Always reset password (production recoveries often leave a bad hash).
             $user->forceFill(['password' => 'password'])->save();
@@ -76,5 +85,20 @@ class FirmTeamSeeder extends Seeder
             'email' => 'rajat@rlassociates.in',
             'role' => 'partner',
         ])->save();
+    }
+
+    private function ensureDefaultOrganization(): Organization
+    {
+        $name = Setting::get('company_name', 'My CA Firm');
+
+        return Organization::firstOrCreate(
+            ['slug' => Str::slug($name) ?: 'default-workspace'],
+            [
+                'name' => $name,
+                'plan' => Organization::PLAN_PROFESSIONAL,
+                'seat_limit' => 25,
+                'is_active' => true,
+            ]
+        );
     }
 }

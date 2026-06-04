@@ -96,6 +96,11 @@ class SystemController extends Controller
             });
         }
 
+        $dashboardView = resource_path('views/dashboard/partials/workspace-header.blade.php');
+        $dashboardUi = File::exists($dashboardView) && str_contains(File::get($dashboardView), 'Dashboard SaaS v1')
+            ? 'saas-workspace (latest)'
+            : 'legacy command centre';
+
         $taskCreateView = resource_path('views/tasks/create.blade.php');
         $taskCreateUi = 'missing';
         if (File::exists($taskCreateView)) {
@@ -122,6 +127,7 @@ class SystemController extends Controller
             'logs',
             'backups',
             'taskCreateUi',
+            'dashboardUi',
             'appPath',
             'deployRef',
         ));

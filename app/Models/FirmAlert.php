@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class FirmAlert extends Model
 {
+    use \App\Models\Concerns\BelongsToOrganization;
     public const SEVERITY_INFO = 'info';
 
     public const SEVERITY_WARNING = 'warning';

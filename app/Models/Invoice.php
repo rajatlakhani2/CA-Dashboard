@@ -10,6 +10,7 @@ use Spatie\Activitylog\LogOptions;
 
 class Invoice extends Model
 {
+    use \App\Models\Concerns\BelongsToOrganization;
     use HasFactory, LogsActivity, SoftDeletes;
 
     public const STATUS_DRAFT = 'Draft';

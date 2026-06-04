@@ -26,6 +26,7 @@ class User extends Authenticatable
         'theme',
         'branch_id',
         'module_access',
+        'organization_id',
     ];
 
     /**
@@ -94,6 +95,20 @@ class User extends Authenticatable
     public function branch()
     {
         return $this->belongsTo(Branch::class);
+    }
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
+    }
+
+    public function scopeInOrganization($query, ?int $organizationId)
+    {
+        if ($organizationId) {
+            $query->where('organization_id', $organizationId);
+        }
+
+        return $query;
     }
 
     public function expenses()

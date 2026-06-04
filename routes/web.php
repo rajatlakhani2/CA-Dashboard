@@ -14,7 +14,11 @@ Route::get('/', function () {
 
 require __DIR__ . '/portal.php';
 
-Route::middleware(['auth', \App\Http\Middleware\RestrictArticleAccess::class])->group(function () {
+Route::middleware([
+    'auth',
+    \App\Http\Middleware\SetOrganizationContext::class,
+    \App\Http\Middleware\RestrictArticleAccess::class,
+])->group(function () {
     Route::post('/logout', [\App\Http\Controllers\LoginController::class, 'logout'])->name('logout');
 
     require __DIR__ . '/modules/operations.php';

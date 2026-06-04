@@ -17,6 +17,7 @@ class StaffController extends Controller
         $this->authorize('viewAny', User::class);
 
         $employeesQuery = User::withCount(['tasks', 'managedClients'])->with('branch')->orderBy('name');
+        $employeesQuery->inOrganization($request->user()->organization_id);
         $this->scopeEmployeesToActor($employeesQuery, $request->user());
 
         $employees = $employeesQuery->get();
@@ -36,6 +37,7 @@ class StaffController extends Controller
         }
 
         $validated['password'] = Hash::make($request->password);
+        $validated['organization_id'] = $request->user()->organization_id;
 
         User::create($validated);
 

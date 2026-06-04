@@ -9,13 +9,18 @@ use App\Models\Task;
 use App\Services\DashboardCalendarBuilder;
 use App\Services\DashboardCalendarFilters;
 use App\Services\DashboardMetricsService;
+use App\Services\OrganizationWorkspaceService;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request, DashboardMetricsService $metrics)
-    {
+    public function index(
+        Request $request,
+        DashboardMetricsService $metrics,
+        OrganizationWorkspaceService $workspaceService,
+    ) {
         $data = $metrics->build($request->user());
+        $workspace = $workspaceService->forUser($request->user());
 
         $calendarBuilder = app(DashboardCalendarBuilder::class);
         $calendarFilters = DashboardCalendarFilters::fromRequest($request);
@@ -33,6 +38,7 @@ class DashboardController extends Controller
             'calendarFilterOptions' => $calendarFilterOptions,
             'showWelcomeModal' => $showWelcomeModal,
             'positiveThought' => $metrics->randomPositiveThought(),
+            'workspace' => $workspace,
         ]));
     }
 

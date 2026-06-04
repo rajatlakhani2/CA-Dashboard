@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ServiceDue extends Model
 {
+    use \App\Models\Concerns\BelongsToOrganization;
     use HasFactory, \Illuminate\Database\Eloquent\SoftDeletes;
 
     public const STATUS_PENDING = 'Pending';
