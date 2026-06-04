@@ -116,6 +116,7 @@ FILES=(
   routes/portal.php
   app/Models/DocumentIngestion.php
   routes/modules/operations.php
+  app/Http/Controllers/SystemController.php
   resources/views/dashboard/partials/mission-control.blade.php
   resources/views/dashboard/partials/firm-overview.blade.php
   resources/views/dashboard/partials/firm-pulse.blade.php
