@@ -83,20 +83,125 @@
     .glass-list-item { padding: 0.75rem 0; border-bottom: 1px solid #f3f4f6; }
     .glass-list-item:last-child { border-bottom: none; }
 
+    /* ===== Minimal month grid calendar (dot indicators) ===== */
+    #dashboardCalendar.cal-grid-minimal { background: #f3f4f6; border-radius: 16px; padding: 12px; }
     #dashboardCalendar .fc { color: #374151; }
-    .fc-theme-standard td, .fc-theme-standard th { border-color: #e5e7eb !important; }
-    .fc .fc-toolbar-title { color: #111827 !important; font-size: 1.1rem; font-weight: 700; }
-    .fc .fc-col-header-cell-cushion { color: #4b5563 !important; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; }
-    .fc .fc-daygrid-day-number { color: #6b7280 !important; font-size:0.8rem; }
-    .fc-day-today .fc-daygrid-day-number { color: #4f46e5 !important; font-weight:800; }
-    .fc-day-today { background: #eef2ff !important; }
-    .fc .fc-button-primary { background: #ffffff !important; border: 1px solid #d1d5db !important; color: #374151 !important; border-radius:8px !important; font-size:0.75rem !important; padding: 0.35rem 0.75rem !important; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-    .fc .fc-button-primary:hover { background: #f9fafb !important; color: #111827 !important; }
-    .fc .fc-button-primary:not(:disabled).fc-button-active { background: #eef2ff !important; border-color: #c7d2fe !important; color: #4f46e5 !important; }
-    .fc-event { border-radius: 6px !important; border: none !important; font-size:0.7rem !important; margin-top: 2px !important; }
-    .fc-popover { background: #ffffff !important; border: 1px solid #e5e7eb !important; border-radius:12px !important; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-    .fc-popover-header { background: #f9fafb !important; color: #111827 !important; border-radius:12px 12px 0 0 !important; border-bottom: 1px solid #e5e7eb; }
-    .fc-popover-body { background: transparent !important; }
+    #dashboardCalendar .fc-theme-standard .fc-scrollgrid { border: none !important; }
+    #dashboardCalendar .fc-theme-standard td,
+    #dashboardCalendar .fc-theme-standard th { border: none !important; }
+    #dashboardCalendar .fc-col-header { background: #f3f4f6; }
+    #dashboardCalendar .fc-col-header-cell {
+        background: #f3f4f6 !important;
+        padding: 8px 4px 12px !important;
+    }
+    #dashboardCalendar .fc-col-header-cell-cushion {
+        color: #6b7280 !important;
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
+        text-transform: capitalize;
+    }
+    #dashboardCalendar .fc-daygrid-body { background: #f3f4f6; }
+    #dashboardCalendar .fc-daygrid-day {
+        background: transparent !important;
+        padding: 4px !important;
+    }
+    #dashboardCalendar .fc-daygrid-day-frame {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        min-height: 92px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transition: box-shadow 0.15s, border-color 0.15s;
+    }
+    #dashboardCalendar .fc-daygrid-day:hover .fc-daygrid-day-frame {
+        border-color: #c7d2fe;
+        box-shadow: 0 2px 8px rgba(79, 70, 229, 0.08);
+    }
+    #dashboardCalendar .fc-day-today .fc-daygrid-day-frame {
+        border-color: #a5b4fc !important;
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+    }
+    #dashboardCalendar .fc-daygrid-day-top {
+        flex-direction: row !important;
+        justify-content: flex-start !important;
+        padding: 8px 10px 0 !important;
+    }
+    #dashboardCalendar .fc-daygrid-day-number {
+        color: #374151 !important;
+        font-size: 0.875rem !important;
+        font-weight: 600 !important;
+        float: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    #dashboardCalendar .fc-day-other .fc-daygrid-day-frame { background: #fafafa; }
+    #dashboardCalendar .fc-day-other .fc-daygrid-day-number { color: #9ca3af !important; }
+    #dashboardCalendar .fc-daygrid-day-events {
+        margin: auto 0 0 0 !important;
+        min-height: 28px;
+        display: flex !important;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 6px 8px 10px !important;
+    }
+    #dashboardCalendar .fc-daygrid-event-harness { margin: 0 !important; }
+    #dashboardCalendar .fc-daygrid-event {
+        background: transparent !important;
+        border: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    #dashboardCalendar .cal-event-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        display: block;
+        flex-shrink: 0;
+        cursor: pointer;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+    }
+    #dashboardCalendar .fc-daygrid-more-link {
+        font-size: 0.65rem !important;
+        color: #6366f1 !important;
+        font-weight: 700;
+        background: #eef2ff;
+        border-radius: 6px;
+        padding: 2px 6px;
+        margin: 0 !important;
+    }
+    #dashboardCalendar .fc .fc-toolbar { margin-bottom: 1rem !important; gap: 0.5rem; flex-wrap: wrap; }
+    #dashboardCalendar .fc .fc-toolbar-title {
+        color: #111827 !important;
+        font-size: 1.125rem !important;
+        font-weight: 700 !important;
+    }
+    #dashboardCalendar .fc .fc-button-primary {
+        background: #ffffff !important;
+        border: 1px solid #e5e7eb !important;
+        color: #374151 !important;
+        border-radius: 10px !important;
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
+        padding: 0.4rem 0.85rem !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+    #dashboardCalendar .fc .fc-button-primary:hover { background: #f9fafb !important; }
+    #dashboardCalendar .fc .fc-button-primary:not(:disabled).fc-button-active {
+        background: #eef2ff !important;
+        border-color: #c7d2fe !important;
+        color: #4f46e5 !important;
+    }
+    #dashboardCalendar .fc-list { border-radius: 12px; overflow: hidden; }
+    #dashboardCalendar .fc-popover {
+        background: #ffffff !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 12px !important;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
 
     .deadline-pill { border-radius:12px; padding:1rem 1.25rem; display:flex; justify-content:space-between; align-items:center; transition:all 0.2s; text-decoration:none; border: 1px solid #e5e7eb; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
     .deadline-pill:hover { transform:translateX(3px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08); }
@@ -346,7 +451,7 @@
             <div class="flex justify-between items-center mb-4">
                 <div>
                     <p class="glass-section-title mb-0">📅 Schedule & Deadlines</p>
-                    <p class="mt-1 text-xs text-gray-500">Drag tasks and pending dues to reschedule them. The calendar opens on the nearest live month when the current month is empty.</p>
+                    <p class="mt-1 text-xs text-gray-500">Colored dots = tasks &amp; dues. Click a dot for details, drag to reschedule, or click a day to add a task.</p>
                 </div>
                 <div class="flex gap-3 text-xs text-gray-500 flex-wrap justify-end">
                     <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full bg-blue-400"></span> Tasks</span>
@@ -356,7 +461,7 @@
                 </div>
             </div>
             @include('dashboard.partials.calendar-filters')
-            <div id="dashboardCalendar" style="min-height: 550px;"></div>
+            <div id="dashboardCalendar" class="cal-grid-minimal" style="min-height: 580px;"></div>
         </div>
     </div>
 
@@ -562,12 +667,15 @@ document.addEventListener('DOMContentLoaded', function() {
         initialDate: getInitialCalendarDate(events),
         height: 'auto',
         handleWindowResize: true,
-        eventDisplay: 'block',
-        dayMaxEvents: 3,
+        fixedWeekCount: false,
+        showNonCurrentDates: true,
+        firstDay: 1,
+        dayMaxEvents: 6,
+        moreLinkClick: 'popover',
         editable: true,
         eventStartEditable: true,
         eventDurationEditable: false,
-        eventDragMinDistance: 4,
+        eventDragMinDistance: 6,
         longPressDelay: 0,
         eventLongPressDelay: 0,
         droppable: true,
@@ -576,20 +684,20 @@ document.addEventListener('DOMContentLoaded', function() {
             center: 'title',
             right: 'dayGridMonth,listWeek'
         },
+        buttonText: { today: 'Today', month: 'Month', week: 'List' },
         events: events,
-        eventTextColor: '#ffffff',
         eventContent: function(arg) {
-            if (arg.view.type === 'listWeek') {
-                 // Fast fallback: let standard rendering apply for list view
-                 return null;
+            if (arg.view.type !== 'dayGridMonth') {
+                return null;
             }
-            let clientName = arg.event.extendedProps.client_name || '';
-            let details = arg.event.extendedProps.details || arg.event.title;
-            let el = document.createElement('div');
-            el.className = 'px-1.5 py-0.5 text-xs leading-tight overflow-hidden w-full';
-            el.setAttribute('title', clientName + ': ' + details);
-            el.innerHTML = `<div class="font-bold truncate">${clientName}</div><div class="truncate opacity-75 text-[10px]">${details}</div>`;
-            return { domNodes: [el] };
+            var clientName = arg.event.extendedProps.client_name || '';
+            var details = arg.event.extendedProps.details || arg.event.title;
+            var dot = document.createElement('span');
+            dot.className = 'cal-event-dot';
+            dot.style.backgroundColor = arg.event.backgroundColor || arg.event.borderColor || '#6366f1';
+            dot.setAttribute('title', clientName + ': ' + details);
+            dot.setAttribute('aria-label', details);
+            return { domNodes: [dot] };
         },
         eventDrop: function(info) {
             var newDate = info.event.startStr;
