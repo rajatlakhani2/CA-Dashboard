@@ -37,13 +37,8 @@ curl -fsSL -o resources/views/dashboard.blade.php \
   "$BASE/resources/views/dashboard.blade.php"
 echo "  ok dashboard.blade.php"
 
-if [ -f scripts/sync-saas-dashboard.sh ]; then
-  echo "=== Full SaaS sync (optional) ==="
-  bash scripts/sync-saas-dashboard.sh
-else
-  curl -fsSL -o /tmp/sync-saas.sh "$BASE/scripts/sync-saas-dashboard.sh"
-  bash /tmp/sync-saas.sh
-fi
+curl -fsSL -o /tmp/sync-saas-full.sh "$BASE/scripts/sync-saas-full.sh"
+bash /tmp/sync-saas-full.sh
 
 echo ""
 echo "=== Done ==="

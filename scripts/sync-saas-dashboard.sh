@@ -45,7 +45,16 @@ FILES=(
   app/Http/Middleware/SetOrganizationContext.php
   app/Http/Requests/StoreStaffRequest.php
   app/Services/OrganizationWorkspaceService.php
+  app/Support/TenantModels.php
   app/Support/OrganizationContext.php
+  app/Services/OrganizationRegistrationService.php
+  app/Http/Middleware/EnsureOrganizationIsActive.php
+  app/Http/Controllers/LoginController.php
+  app/Http/Controllers/RegisterOrganizationController.php
+  app/Console/Commands/ShowOrganizationSlug.php
+  resources/views/auth/login.blade.php
+  resources/views/auth/register-organization.blade.php
+  database/migrations/2026_06_04_100000_extend_organization_tenancy_tables.php
   app/Models/Organization.php
   app/Models/Concerns/BelongsToOrganization.php
   app/Models/Scopes/OrganizationScope.php
@@ -69,7 +78,10 @@ for path in "${FILES[@]}"; do
   echo "  ok $path"
 done
 
-echo "==> Migrate + cache"
+echo "==> Autoload + migrate + cache"
+if command -v composer >/dev/null 2>&1; then
+  composer dump-autoload --no-interaction 2>/dev/null || true
+fi
 php artisan migrate --force 2>/dev/null || true
 php artisan view:clear 2>/dev/null || true
 php artisan optimize:clear 2>/dev/null || true

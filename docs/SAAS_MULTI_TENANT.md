@@ -23,10 +23,23 @@ Staff login at `/login`:
 
 ## Deploy (cPanel, no git)
 
+If you see **`Class "App\Support\TenantModels" not found`**, the sync was incomplete. Run:
+
+```bash
+curl -fsSL -o /tmp/sync-saas-full.sh "https://raw.githubusercontent.com/rajatlakhani2/CA-Dashboard/master/scripts/sync-saas-full.sh"
+bash /tmp/sync-saas-full.sh
+```
+
+Or:
+
 ```bash
 curl -fsSL -o /tmp/find-and-fix.sh "https://raw.githubusercontent.com/rajatlakhani2/CA-Dashboard/master/scripts/find-and-fix-cpanel.sh"
 bash /tmp/find-and-fix.sh
-php artisan migrate --force
+```
+
+Then:
+
+```bash
 php artisan organization:slug --set=rla
 ```
 
