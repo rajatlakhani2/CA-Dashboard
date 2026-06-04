@@ -71,6 +71,13 @@ class IntelligencePhaseThreeTest extends TestCase
         ]);
     }
 
+    public function test_expired_or_unknown_portal_token_shows_friendly_page(): void
+    {
+        $this->get(route('portal.home', ['token' => str_repeat('x', 48)]))
+            ->assertForbidden()
+            ->assertSee('invalid or has expired', false);
+    }
+
     public function test_document_review_confirm_creates_task(): void
     {
         Storage::fake('local');

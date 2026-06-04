@@ -318,6 +318,8 @@ class ClientController extends Controller
 
         $clientHealth = app(\App\Services\ClientHealthScoreService::class)->forClient($client);
 
+        $activePortalToken = \App\Models\ClientPortalToken::latestActiveForClient($client->id);
+
         return view('clients.show', compact(
             'client',
             'totalBilled',
@@ -332,6 +334,7 @@ class ClientController extends Controller
             'complianceRisks',
             'documentChecklists',
             'clientHealth',
+            'activePortalToken',
         ));
     }
 

@@ -25,13 +25,16 @@ class ClientPortalController extends Controller
         return back()->with([
             'success' => 'Portal link created (valid 30 days). Copy and send to the client.',
             'portal_url' => $url,
+            'portal_expires_at' => $issued['model']->expires_at->format('d M Y'),
         ]);
     }
 
     public function home(Request $request, string $token)
     {
         $portalToken = ClientPortalToken::findValid($token);
-        abort_unless($portalToken, 403, 'This portal link is invalid or expired.');
+        if (! $portalToken) {
+            return response()->view('portal.invalid', [], 403);
+        }
 
         $client = $portalToken->client;
         $paymentBuilder = app(InvoicePaymentLinkBuilder::class);
@@ -68,7 +71,9 @@ class ClientPortalController extends Controller
     public function upload(Request $request, string $token)
     {
         $portalToken = ClientPortalToken::findValid($token);
-        abort_unless($portalToken, 403);
+        if (! $portalToken) {
+            return response()->view('portal.invalid', [], 403);
+        }
 
         $request->validate([
             'document' => 'required|file|max:10240|mimes:pdf,jpg,jpeg,png',

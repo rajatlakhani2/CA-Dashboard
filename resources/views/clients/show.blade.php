@@ -60,7 +60,19 @@
     @if(session('portal_url'))
     <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm">
         <p class="font-semibold text-emerald-900">Client portal link (copy now — shown once)</p>
+        @if(session('portal_expires_at'))
+        <p class="text-xs text-emerald-800 mt-1">Valid until {{ session('portal_expires_at') }}</p>
+        @endif
         <input type="text" readonly value="{{ session('portal_url') }}" class="mt-2 w-full text-xs font-mono bg-white border border-emerald-200 rounded px-2 py-1" onclick="this.select()">
+    </div>
+    @elseif($activePortalToken ?? null)
+    <div class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+        <p class="font-semibold text-slate-900">Portal access active</p>
+        <p class="text-xs mt-1">A link was issued and expires on <strong>{{ $activePortalToken->expires_at->format('d M Y') }}</strong>.
+            The full URL is only shown when you create a new link — use <strong>Portal link</strong> above to generate one for the client.</p>
+        @if($activePortalToken->last_accessed_at)
+        <p class="text-xs text-slate-500 mt-1">Last opened: {{ $activePortalToken->last_accessed_at->diffForHumans() }}</p>
+        @endif
     </div>
     @endif
 

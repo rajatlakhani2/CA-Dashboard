@@ -68,4 +68,13 @@ class ClientPortalToken extends Model
 
         return $token;
     }
+
+    public static function latestActiveForClient(int $clientId): ?self
+    {
+        return self::query()
+            ->where('client_id', $clientId)
+            ->where('expires_at', '>', now())
+            ->orderByDesc('expires_at')
+            ->first();
+    }
 }
