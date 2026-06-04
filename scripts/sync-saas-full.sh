@@ -93,6 +93,10 @@ FILES=(
   app/Services/CommandPaletteBuilder.php
   app/Http/Controllers/WorkspaceOnboardingController.php
   app/Http/Controllers/ClientController.php
+  app/Http/Controllers/ClientPortalController.php
+  app/Models/ClientPortalToken.php
+  resources/views/portal/invalid.blade.php
+  routes/portal.php
   routes/modules/operations.php
   resources/views/dashboard/partials/mission-control.blade.php
   resources/views/dashboard/partials/firm-overview.blade.php
