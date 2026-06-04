@@ -20,6 +20,7 @@ class DocumentIngestion extends Model
 
     protected $fillable = [
         'client_id',
+        'organization_id',
         'uploaded_by',
         'source',
         'original_filename',

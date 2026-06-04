@@ -97,6 +97,7 @@ FILES=(
   app/Models/ClientPortalToken.php
   resources/views/portal/invalid.blade.php
   routes/portal.php
+  app/Models/DocumentIngestion.php
   routes/modules/operations.php
   resources/views/dashboard/partials/mission-control.blade.php
   resources/views/dashboard/partials/firm-overview.blade.php

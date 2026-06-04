@@ -71,6 +71,22 @@ class IntelligencePhaseThreeTest extends TestCase
         ]);
     }
 
+    public function test_portal_upload_url_redirects_to_home(): void
+    {
+        Storage::fake('local');
+        $partner = User::factory()->create(['role' => 'partner']);
+        $client = Client::factory()->create();
+
+        $this->actingAs($partner)
+            ->post(route('clients.portal-link', $client));
+
+        preg_match('#/portal/([A-Za-z0-9]{48})#', session('portal_url'), $m);
+        $token = $m[1];
+
+        $this->get(route('portal.upload.redirect', ['token' => $token]))
+            ->assertRedirect(route('portal.home', ['token' => $token]));
+    }
+
     public function test_expired_or_unknown_portal_token_shows_friendly_page(): void
     {
         $this->get(route('portal.home', ['token' => str_repeat('x', 48)]))

@@ -9,6 +9,7 @@ use App\Models\Invoice;
 use App\Models\ServiceDue;
 use App\Services\Intelligence\DocumentFieldGuesser;
 use App\Support\InvoicePaymentLinkBuilder;
+use App\Support\OrganizationContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -37,6 +38,7 @@ class ClientPortalController extends Controller
         }
 
         $client = $portalToken->client;
+        $this->bindPortalOrganization($client);
         $paymentBuilder = app(InvoicePaymentLinkBuilder::class);
 
         $invoices = Invoice::query()
@@ -81,6 +83,7 @@ class ClientPortalController extends Controller
         ]);
 
         $client = $portalToken->client;
+        $this->bindPortalOrganization($client);
         $file = $request->file('document');
         $path = $file->store('document-ingestions/' . $client->id, 'local');
         $guessed = app(DocumentFieldGuesser::class)->fromFilename($file->getClientOriginalName());
@@ -88,6 +91,7 @@ class ClientPortalController extends Controller
 
         DocumentIngestion::create([
             'client_id' => $client->id,
+            'organization_id' => $client->organization_id,
             'uploaded_by' => null,
             'source' => DocumentIngestion::SOURCE_PORTAL,
             'original_filename' => $file->getClientOriginalName(),
@@ -100,5 +104,12 @@ class ClientPortalController extends Controller
         return redirect()
             ->route('portal.home', ['token' => $token])
             ->with('success', 'Document uploaded. Our team will review it shortly.');
+    }
+
+    private function bindPortalOrganization(Client $client): void
+    {
+        if ($client->organization_id) {
+            OrganizationContext::set((int) $client->organization_id);
+        }
     }
 }
