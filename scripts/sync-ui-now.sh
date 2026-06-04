@@ -41,9 +41,9 @@ fi
 
 php -r "if (function_exists('opcache_reset')) { opcache_reset(); echo \"OPcache reset\n\"; }"
 
-if grep -q "Create a new task" resources/views/tasks/create.blade.php && grep -q "task-step-3" resources/views/tasks/create.blade.php; then
+if grep -q "Task UI v3" resources/views/tasks/create.blade.php && grep -q "Save task" resources/views/tasks/create.blade.php; then
   echo ""
-  echo "SUCCESS: New Create Task UI is on disk (v2-searchable)."
+  echo "SUCCESS: Create Task UI v3 (single screen) is on disk."
   echo "Open https://app.kuhu.org.in/tasks/create in Incognito + Ctrl+F5"
 else
   echo "ERROR: Downloaded file still looks old — check network or GitHub URL."
