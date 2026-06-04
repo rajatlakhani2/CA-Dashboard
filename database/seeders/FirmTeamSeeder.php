@@ -81,14 +81,44 @@ class FirmTeamSeeder extends Seeder
 
     /**
      * Fix an existing Rajat row that was created as staff before firm roles were seeded.
+     * Production may already have a correct org-scoped partner row — never reassign a second copy.
      */
     private function upgradeLegacyRajatAccount(int $organizationId): void
     {
+        $canonicalEmail = 'rajat@rlassociates.in';
+        $legacyEmails = ['rajat@rlassociates.in', 'rajat@rla.local'];
+
+        $canonical = User::withoutGlobalScopes()
+            ->where('organization_id', $organizationId)
+            ->whereRaw('LOWER(email) = ?', [$canonicalEmail])
+            ->first();
+
+        if ($canonical) {
+            User::withoutGlobalScopes()
+                ->where('organization_id', $organizationId)
+                ->whereIn('email', $legacyEmails)
+                ->where('id', '!=', $canonical->id)
+                ->delete();
+
+            User::withoutGlobalScopes()
+                ->whereIn('email', $legacyEmails)
+                ->whereNull('organization_id')
+                ->where('id', '!=', $canonical->id)
+                ->delete();
+
+            $canonical->forceFill([
+                'name' => 'Rajat Lakhani',
+                'role' => 'partner',
+            ])->save();
+
+            return;
+        }
+
         $legacy = User::withoutGlobalScopes()
-            ->where(function ($query) {
-                $query->where('email', 'rajat@rlassociates.in')
-                    ->orWhere('email', 'rajat@rla.local')
-                    ->orWhereRaw('LOWER(name) LIKE ?', ['%rajat%']);
+            ->whereIn('email', $legacyEmails)
+            ->where(function ($query) use ($organizationId) {
+                $query->whereNull('organization_id')
+                    ->orWhere('organization_id', $organizationId);
             })
             ->orderBy('id')
             ->first();
@@ -97,9 +127,23 @@ class FirmTeamSeeder extends Seeder
             return;
         }
 
+        $duplicateInOrg = User::withoutGlobalScopes()
+            ->where('organization_id', $organizationId)
+            ->whereRaw('LOWER(email) = ?', [$canonicalEmail])
+            ->where('id', '!=', $legacy->id)
+            ->exists();
+
+        if ($duplicateInOrg) {
+            if ((int) $legacy->organization_id === $organizationId) {
+                $legacy->delete();
+            }
+
+            return;
+        }
+
         $legacy->forceFill([
             'name' => 'Rajat Lakhani',
-            'email' => 'rajat@rlassociates.in',
+            'email' => $canonicalEmail,
             'role' => 'partner',
             'organization_id' => $organizationId,
         ])->save();
