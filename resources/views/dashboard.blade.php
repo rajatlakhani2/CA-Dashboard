@@ -604,7 +604,7 @@
     @include('partials.welcome-modal')
 
     @include('dashboard.partials.tabs-script')
-    @include('dashboard.partials.error-reporter')
+    @includeIf('dashboard.partials.error-reporter', ['dashboardBuildId' => $dashboardBuildId ?? 'unknown'])
 </div>
 @endsection
 

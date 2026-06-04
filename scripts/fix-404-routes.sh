@@ -15,6 +15,10 @@ curl -fsSL -o routes/web.php "$BASE/routes/web.php"
 curl -fsSL -o routes/modules/operations.php "$BASE/routes/modules/operations.php"
 curl -fsSL -o public/ping.php "$BASE/public/ping.php"
 curl -fsSL -o app/Http/Controllers/DashboardController.php "$BASE/app/Http/Controllers/DashboardController.php"
+mkdir -p resources/views/dashboard/partials
+curl -fsSL -o resources/views/dashboard.blade.php "$BASE/resources/views/dashboard.blade.php"
+curl -fsSL -o resources/views/dashboard/partials/tabs-script.blade.php "$BASE/resources/views/dashboard/partials/tabs-script.blade.php"
+curl -fsSL -o resources/views/dashboard/partials/error-reporter.blade.php "$BASE/resources/views/dashboard/partials/error-reporter.blade.php"
 
 rm -f bootstrap/cache/routes-v7.php bootstrap/cache/routes*.php 2>/dev/null || true
 rm -rf storage/framework/views/* 2>/dev/null || true

@@ -35,6 +35,16 @@ if grep -q "workspace-header" resources/views/dashboard.blade.php; then
   exit 1
 fi
 
+if [ ! -f resources/views/dashboard/partials/error-reporter.blade.php ]; then
+  echo "ERROR: error-reporter.blade.php missing after download."
+  exit 1
+fi
+
+if [ ! -f resources/views/dashboard/partials/tabs-script.blade.php ]; then
+  echo "ERROR: tabs-script.blade.php missing after download."
+  exit 1
+fi
+
 STAMP="tabs-v2-$(date -u +%Y%m%d-%H%M%S)"
 echo "$STAMP" > public/dashboard-build.txt
 printf '%s\n' "{\"build\":\"tabs-v2-20260604\",\"deploy_stamp\":\"$STAMP\",\"ok\":true}" > public/build-status.json

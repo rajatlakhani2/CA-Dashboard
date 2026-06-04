@@ -76,6 +76,7 @@ FILES=(
   resources/views/auth/register-organization.blade.php
   resources/views/dashboard.blade.php
   resources/views/dashboard/partials/tabs-script.blade.php
+  resources/views/dashboard/partials/error-reporter.blade.php
   resources/views/dashboard/partials/premium-styles.blade.php
   app/Http/Controllers/DashboardController.php
   scripts/force-dashboard-deploy.sh
