@@ -20,18 +20,18 @@
 }
 
 :root {
-    /* Modern Theme — professional navy & brass */
-    --c-primary-50: #f4f6f9;
-    --c-primary-100: #e8ecf1;
-    --c-primary-500: #1e3352;
-    --c-primary-600: #152238;
-    --c-primary-700: #0c1929;
-    --c-bg-body: #e8ecf1;
+    /* VouchEx-aligned theme tokens */
+    --c-primary-50: #eff6ff;
+    --c-primary-100: #f1f5f9;
+    --c-primary-500: #2563eb;
+    --c-primary-600: #1d4ed8;
+    --c-primary-700: #0c1f4a;
+    --c-bg-body: #f8fafc;
     --c-bg-card: #ffffff;
     --c-text-main: #0f172a;
-    --c-sidebar: #0c1929;
-    --c-text-secondary: #5c6b7a;
-    --c-line: #d8dee6;
+    --c-sidebar: #0c1f4a;
+    --c-text-secondary: #475569;
+    --c-line: #e2e8f0;
     --radius-card: 0.875rem;
 }
 

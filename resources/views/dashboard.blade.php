@@ -30,55 +30,58 @@
 @push('head_styles')
 @include('dashboard.partials.premium-styles')
 <style>
-    /* ===== LIGHT THEME DASHBOARD OVERRIDE ===== */
-    body { background: var(--premium-bg, #e8ecf1) !important; }
+    /* ===== VouchEx colour palette (layout unchanged) ===== */
+    body { background: var(--premium-bg, #f8fafc) !important; }
     .min-h-full.bg-bg-body { background: transparent !important; }
     main.flex-1 { background: transparent !important; }
 
     #glass-bg { display: none; }
 
     header.bg-white\/80 {
-        background: rgba(255,255,255,0.95) !important;
-        border-bottom: 1px solid rgba(0,0,0,0.05) !important;
-        backdrop-filter: blur(10px) !important;
+        background: rgba(255, 255, 255, 0.78) !important;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.85) !important;
+        backdrop-filter: blur(14px) saturate(1.15) !important;
+        box-shadow: inset 0 1px rgba(255, 255, 255, 0.8);
     }
-    header h2 { color: #111827 !important; background: none !important; -webkit-text-fill-color: #111827 !important; }
+    header h2 { color: #0f172a !important; background: none !important; -webkit-text-fill-color: #0f172a !important; }
 
     .glass-card {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        transition: all 0.3s ease;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        border-radius: 14px;
+        transition: all 0.28s ease;
+        backdrop-filter: blur(10px) saturate(1.1);
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 8px 24px -8px rgba(15, 23, 42, 0.1);
     }
-    .glass-card:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: #d1d5db; }
+    .glass-card:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(15, 23, 42, 0.1); border-color: #bfdbfe; }
 
     .kpi-card {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.62);
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        border-radius: 14px;
+        padding: 1.25rem 1.35rem;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.28s ease;
         text-decoration: none;
         display: block;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        backdrop-filter: blur(12px) saturate(1.1);
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
     }
-    .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: #d1d5db; }
-    .kpi-card .kpi-label { color: #6b7280; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; }
-    .kpi-card .kpi-value { color: #111827; font-size:2.5rem; font-weight:800; line-height:1; margin: 0.5rem 0 0.25rem; }
-    .kpi-card .kpi-sub { color: #9ca3af; font-size:0.75rem; }
+    .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(15, 23, 42, 0.1); border-color: #bfdbfe; }
+    .kpi-card .kpi-label { color: #475569; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; }
+    .kpi-card .kpi-value { color: #0f172a; font-size:2.5rem; font-weight:800; line-height:1; margin: 0.5rem 0 0.25rem; }
+    .kpi-card .kpi-sub { color: #64748b; font-size:0.75rem; }
 
-    .kpi-blue { border-top: 3px solid #3b82f6 !important; }
-    .kpi-violet { border-top: 3px solid #8b5cf6 !important; }
+    .kpi-blue { border-top: 3px solid #2563eb !important; }
+    .kpi-violet { border-top: 3px solid #7c3aed !important; }
     .kpi-amber { border-top: 3px solid #f59e0b !important; }
     .kpi-rose { border-top: 3px solid #ef4444 !important; }
     .kpi-emerald { border-top: 3px solid #10b981 !important; }
 
-    .glass-tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.25rem; background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
-    .glass-tab { color: #6b7280; border: none; border-radius: 10px; padding: 0.6rem 1rem; font-size:0.8125rem; font-weight:600; cursor:pointer; transition: all 0.2s; white-space:nowrap; background: transparent; }
-    .glass-tab.active { color: #fff; background: linear-gradient(135deg, #4f46e5, #6366f1); box-shadow: 0 2px 8px rgba(79,70,229,0.35); }
-    .glass-tab:hover:not(.active) { color: #374151; background: #f3f4f6; }
+    .glass-tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.35rem; background: rgba(255,255,255,0.85); border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 1px 2px rgba(15,23,42,0.04); backdrop-filter: blur(8px); }
+    .glass-tab { color: #64748b; border: none; border-radius: 10px; padding: 0.6rem 1rem; font-size:0.8125rem; font-weight:600; cursor:pointer; transition: all 0.2s; white-space:nowrap; background: transparent; }
+    .glass-tab.active { color: #fff; background: linear-gradient(135deg, #2563eb, #0d9488); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25); }
+    .glass-tab:hover:not(.active) { color: #0f172a; background: #f1f5f9; }
 
     .dashboard-tab-panel.hidden { display: none !important; }
 
@@ -266,66 +269,6 @@
 
     @include('dashboard.partials.mission-control')
 
-    {{-- ===== KPI TILES ===== --}}
-    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-5">
-        <a href="{{ route('clients.index') }}" class="kpi-card kpi-blue">
-            <div class="flex items-center justify-between mb-3">
-                <p class="kpi-label">Total Clients</p>
-                <div class="h-9 w-9 rounded-xl bg-blue-50 flex items-center justify-center">
-                    <svg class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                </div>
-            </div>
-            <p class="kpi-value">{{ $summary['total_clients'] }}</p>
-            <p class="kpi-sub">+{{ $summary['new_clients_this_month'] }} this month</p>
-        </a>
-
-        <a href="{{ route('tasks.index') }}" class="kpi-card kpi-amber">
-            <div class="flex items-center justify-between mb-3">
-                <p class="kpi-label">My Tasks</p>
-                <div class="h-9 w-9 rounded-xl bg-amber-50 flex items-center justify-center">
-                    <svg class="h-5 w-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                </div>
-            </div>
-            <p class="kpi-value">{{ \App\Models\Task::where('assigned_to', auth()->id())->whereNotIn('status', ['Completed','Done','Closed'])->count() }}</p>
-            <p class="kpi-sub">Pending action</p>
-        </a>
-
-        <a href="{{ route('service-dues.index') }}" class="kpi-card kpi-rose">
-            <div class="flex items-center justify-between mb-3">
-                <p class="kpi-label">Due This Month</p>
-                <div class="h-9 w-9 rounded-xl bg-rose-50 flex items-center justify-center">
-                    <svg class="h-5 w-5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                </div>
-            </div>
-            <p class="kpi-value">{{ $summary['services_due_month'] }}</p>
-            <p class="kpi-sub">Service deadlines</p>
-        </a>
-
-        @if(auth()->user()?->hasRole('partner', 'manager'))
-        <a href="{{ route('invoices.index') }}" class="kpi-card kpi-emerald">
-            <div class="flex items-center justify-between mb-3">
-                <p class="kpi-label">Outstanding</p>
-                <div class="h-9 w-9 rounded-xl bg-emerald-50 flex items-center justify-center">
-                    <svg class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                </div>
-            </div>
-            <p class="kpi-value text-2xl">{{ $summary['outstanding_fees'] }}</p>
-            <p class="kpi-sub">Fees receivable</p>
-        </a>
-
-        <a href="{{ route('billing.index') }}" class="kpi-card kpi-violet">
-            <div class="flex items-center justify-between mb-3">
-                <p class="kpi-label">Unbilled Work</p>
-                <div class="h-9 w-9 rounded-xl bg-violet-50 flex items-center justify-center">
-                    <svg class="h-5 w-5 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                </div>
-            </div>
-            <p class="kpi-value">{{ $summary['unbilled_items'] }}</p>
-            <p class="kpi-sub">Ready to invoice</p>
-        </a>
-        @endif
-    </div>
-
     <div class="flex flex-wrap items-center justify-end gap-3 -mb-2">
         <p class="text-[10px] text-gray-400" title="If this does not say tabs-v2, the server still has an old dashboard file">
             Build: {{ $dashboardBuildId ?? 'unknown' }}
@@ -350,8 +293,7 @@
 
     {{-- ===== OVERVIEW TAB ===== --}}
     <div data-dashboard-panel="overview" class="dashboard-tab-panel {{ $dashboardActiveTab !== 'overview' ? 'hidden' : '' }}">
-        @include('dashboard.partials.firm-pulse')
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
             {{-- Pending Tasks --}}
             <div class="lg:col-span-2 glass-card p-6 h-full">

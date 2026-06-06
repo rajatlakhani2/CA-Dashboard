@@ -134,41 +134,6 @@ Clients
     </div>
     @endcan
 
-    @if(auth()->user()?->isPartner())
-    <div class="rounded-lg border border-red-200 bg-red-50/80 p-4 text-sm text-red-900">
-        <p class="font-semibold">Danger zone — delete by portfolio reference</p>
-        <p class="mt-1 text-red-800">Permanently removes <strong>every</strong> client whose <code class="text-red-900">group_name</code> matches (firm-wide, not just this page). Use only to undo a bad Excel import or test data — e.g. <span class="font-mono">portfolio-a</span>, <span class="font-mono">imported-portfolio</span>.</p>
-        <form action="{{ route('clients.purge-by-group') }}" method="POST" class="mt-3 flex flex-wrap items-end gap-3" onsubmit="return confirmPurgeByGroup(this);">
-            @csrf
-            @method('DELETE')
-            <div>
-                <label for="purge_group_name" class="block text-xs font-medium text-red-800">Portfolio reference (group_name)</label>
-                <input type="text" name="group_name" id="purge_group_name" value="" placeholder="portfolio-a" required autocomplete="off"
-                    class="mt-1 block w-48 rounded-md border-red-200 text-sm shadow-sm focus:border-red-500 focus:ring-red-500">
-            </div>
-            <div>
-                <label for="purge_confirm" class="block text-xs font-medium text-red-800">Type DELETE to confirm</label>
-                <input type="text" name="confirm" id="purge_confirm" placeholder="DELETE" required autocomplete="off"
-                    class="mt-1 block w-32 rounded-md border-red-200 text-sm shadow-sm focus:border-red-500 focus:ring-red-500">
-            </div>
-            <button type="submit" class="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">
-                Delete all with this reference
-            </button>
-        </form>
-    </div>
-    <script>
-        function confirmPurgeByGroup(form) {
-            const group = form.group_name.value.trim();
-            const confirm = form.confirm.value.trim();
-            if (confirm !== 'DELETE') {
-                alert('Type DELETE in the confirmation box.');
-                return false;
-            }
-            return confirm('Permanently delete ALL clients with reference "' + group + '"? This cannot be undone.');
-        }
-    </script>
-    @endif
-
     <form id="bulkDeleteForm" action="{{ route('clients.bulk-destroy') }}" method="POST" class="hidden">
         @csrf
         @method('DELETE')

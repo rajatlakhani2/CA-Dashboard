@@ -9,10 +9,25 @@
 <section class="mission-control space-y-4 w-full" aria-label="Mission control">
     <div class="mission-control__panel">
         <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3 mb-4">
-            <div>
-                <p class="mission-control__eyebrow">Command centre</p>
-                <h2 class="mission-control__heading">{{ $mc['greeting'] ?? 'Welcome' }}</h2>
-                <p class="text-xs text-[var(--premium-muted)] mt-1">Your firm at a glance — {{ now()->format('l, d M Y') }}</p>
+            <div class="flex gap-4 items-start min-w-0 flex-1">
+                <div class="dashboard-brand-icon shrink-0" aria-hidden="true">
+                    <div class="dashboard-brand-icon__circle">
+                        <span class="text-3xl leading-none">🕉️</span>
+                    </div>
+                    <div class="dashboard-brand-icon__strip">
+                        <span>🙏</span>
+                        <span>✨</span>
+                        <span>💰</span>
+                    </div>
+                </div>
+                <div class="min-w-0">
+                    <p class="mission-control__eyebrow">Command centre</p>
+                    <h2 class="mission-control__heading">{{ $mc['greeting'] ?? 'Welcome' }}</h2>
+                    @if(!empty($positiveThought))
+                    <p class="text-sm italic text-[var(--premium-muted)] mt-1.5 max-w-2xl">"{{ $positiveThought }}"</p>
+                    @endif
+                    <p class="text-xs text-[var(--premium-muted)] mt-1">Your firm at a glance — {{ now()->format('l, d M Y') }}</p>
+                </div>
             </div>
             @if(auth()->user()?->managesFirmModules() && isset($mc['revenue']['collected_today']))
             <div class="rounded-xl border border-[var(--premium-border)] bg-[#f6f8fb] px-4 py-2.5 text-right shrink-0">

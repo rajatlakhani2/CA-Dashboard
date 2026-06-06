@@ -38,9 +38,9 @@ class DashboardNavigationTest extends TestCase
         $response->assertDontSee('href="' . route('billing.index'), false);
         $response->assertDontSee('Outstanding</p>', false);
         $response->assertDontSee('Unbilled Work</p>', false);
-        $response->assertDontSee('💰 Financials', false);
+        $response->assertDontSee('data-dashboard-tab="financials"', false);
         $response->assertDontSee('Outstanding Fees</p>', false);
-        $response->assertSee('View Reminders →', false);
+        $response->assertSee('Reminders →', false);
     }
 
     public function test_manager_sidebar_shows_finance_modules(): void
@@ -52,7 +52,7 @@ class DashboardNavigationTest extends TestCase
         $response->assertOk();
         $response->assertSee(route('invoices.index'), false);
         $response->assertSee(route('credentials.index'), false);
-        $response->assertSee('💰 Financials', false);
+        $response->assertSee('data-dashboard-tab="financials"', false);
     }
 
     public function test_associate_client_show_shows_finance_summary_read_only(): void

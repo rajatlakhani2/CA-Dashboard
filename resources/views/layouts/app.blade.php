@@ -10,7 +10,7 @@
     @include('partials.premium-fonts')
 
     <!-- PWA / mobile install hints -->
-    <meta name="theme-color" content="#0c1929">
+    <meta name="theme-color" content="#0c1f4a">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -73,8 +73,16 @@
 
         :root {
             --sidebar-width: clamp(13.5rem, 16vw, 16.5rem);
-            --premium-navy: #0c1929;
-            --premium-brass: #b8956a;
+            --vx-sidebar-navy: #0c1f4a;
+            --vx-sidebar-mid: #0a1838;
+            --vx-sidebar-deep: #061228;
+            --vx-accent-blue: #2563eb;
+        }
+
+        #sidebar {
+            background: linear-gradient(175deg, var(--vx-sidebar-navy) 0%, var(--vx-sidebar-mid) 48%, var(--vx-sidebar-deep) 100%) !important;
+            border-right: 1px solid rgba(148, 163, 184, 0.12);
+            box-shadow: 8px 0 32px rgba(6, 18, 40, 0.35);
         }
 
         .main-shell {
@@ -83,7 +91,7 @@
             min-width: 0;
             max-width: 100%;
             overflow-x: hidden;
-            background-color: #e8ecf1;
+            background-color: #f8fafc;
             isolation: isolate;
             box-sizing: border-box;
         }
@@ -95,9 +103,16 @@
 
         #sidebar nav a.bg-gradient-to-r,
         #sidebar nav a[class*="from-indigo"] {
-            background: linear-gradient(90deg, #152238 0%, #1e3352 100%) !important;
-            border-left-color: var(--premium-brass) !important;
-            box-shadow: 0 2px 12px rgba(12, 25, 41, 0.25) !important;
+            background: rgba(96, 165, 250, 0.22) !important;
+            border-left-color: #60a5fa !important;
+            border: 1px solid rgba(147, 197, 253, 0.35) !important;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 6px 20px rgba(37, 99, 235, 0.2) !important;
+            transform: none !important;
+        }
+
+        #sidebar nav a:not(.bg-gradient-to-r):not([class*="from-indigo"]):hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: #fff !important;
         }
 
         @media (max-width: 1023px) {
