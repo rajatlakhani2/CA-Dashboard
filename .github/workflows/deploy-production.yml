@@ -54,7 +54,8 @@ jobs:
             --exclude='tests' \
             --exclude='.tools' \
             --exclude='*.zip' \
-            .
+            . || test $? -eq 1
+          test -s release.tar.gz
 
       - name: Upload to server
         uses: appleboy/scp-action@v0.1.7
