@@ -50,13 +50,13 @@ class DemoDashboardSeeder extends Seeder
 
         $demoUser->forceFill(['password' => DemoWorkspace::PASSWORD, 'demo_tour_completed_at' => null])->save();
 
-        $priya = User::withoutGlobalScopes()->updateOrCreate(
+        $neha = User::withoutGlobalScopes()->updateOrCreate(
             [
-                'email' => 'priya@demo.vouchex.in',
+                'email' => 'neha@demo.vouchex.in',
                 'organization_id' => $organization->id,
             ],
             [
-                'name' => 'Priya Sharma',
+                'name' => 'Neha Kapoor',
                 'role' => 'associate',
                 'password' => DemoWorkspace::PASSWORD,
                 'mobile' => '919888000101',
@@ -94,11 +94,11 @@ class DemoDashboardSeeder extends Seeder
         );
 
         $taskTitles = [
-            ['title' => 'Client proposal — Acme Corp', 'assignee' => $priya->id, 'days' => 3],
-            ['title' => 'Review contract — Brightline Ltd', 'assignee' => $priya->id, 'days' => 5],
-            ['title' => 'Follow-up call — Nova Systems', 'assignee' => $priya->id, 'days' => 7],
-            ['title' => 'Prepare board deck', 'assignee' => $priya->id, 'days' => 4],
-            ['title' => 'Data cleanup — internal', 'assignee' => $priya->id, 'days' => 2],
+            ['title' => 'Client proposal — Acme Corp', 'assignee' => $neha->id, 'days' => 3],
+            ['title' => 'Review contract — Brightline Ltd', 'assignee' => $neha->id, 'days' => 5],
+            ['title' => 'Follow-up call — Nova Systems', 'assignee' => $neha->id, 'days' => 7],
+            ['title' => 'Prepare board deck', 'assignee' => $neha->id, 'days' => 4],
+            ['title' => 'Data cleanup — internal', 'assignee' => $neha->id, 'days' => 2],
             ['title' => 'Onboarding checklist', 'assignee' => $amit->id, 'days' => 6],
             ['title' => 'Vendor reconciliation', 'assignee' => $amit->id, 'days' => 8],
             ['title' => 'Team stand-up notes', 'assignee' => $amit->id, 'days' => 1],
@@ -129,7 +129,7 @@ class DemoDashboardSeeder extends Seeder
             ],
             [
                 'client_id' => $client->id,
-                'assigned_to' => $priya->id,
+                'assigned_to' => $neha->id,
                 'status' => Task::STATUS_COMPLETED,
                 'priority' => 'Normal',
                 'due_date' => now()->subDays(2),

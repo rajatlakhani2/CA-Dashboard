@@ -5,7 +5,7 @@ The Pulse (Activity Feed)
 @endsection
 
 @section('content')
-<div class="max-w-3xl mx-auto">
+<div class="max-w-3xl mx-auto" data-demo-tour="the-pulse">
     <div class="flow-root">
         <ul role="list" class="-mb-8">
             @forelse($activities as $activity)

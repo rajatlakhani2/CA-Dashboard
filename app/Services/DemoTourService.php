@@ -2,12 +2,15 @@
 
 namespace App\Services;
 
+use App\Models\Client;
 use App\Models\User;
 use App\Support\DemoWorkspace;
 use App\Support\ModuleGate;
 
 class DemoTourService
 {
+    public const DEMO_STAFF_NAME = 'Neha Kapoor';
+
     public function shouldShowWelcome(?User $user): bool
     {
         if (! DemoWorkspace::isDemoUser($user)) {
@@ -32,6 +35,8 @@ class DemoTourService
             return [];
         }
 
+        $client360Url = $this->demoClientShowUrl($user);
+
         $catalog = [
             [
                 'type' => 'modal',
@@ -50,12 +55,21 @@ class DemoTourService
             ],
             [
                 'type' => 'spotlight',
-                'url' => route('dashboard'),
-                'element' => '[data-demo-tour="clients-attention"]',
-                'title' => 'Account health scores',
-                'description' => 'Every account gets a 0–100 health score from overdue work, payments, and open tasks. You know who to call first without digging through five screens.',
-                'side' => 'top',
-                'module' => 'dashboard',
+                'url' => route('tasks.my-day'),
+                'element' => '[data-demo-tour="my-day"]',
+                'title' => 'My Day',
+                'description' => 'Associates and staff get a focused mobile work view — due today, start/done actions, quick notes, and time logging. The same tasks from the morning WhatsApp land here.',
+                'side' => 'bottom',
+                'module' => 'tasks',
+            ],
+            [
+                'type' => 'spotlight',
+                'url' => $client360Url,
+                'element' => '[data-demo-tour="client-360"]',
+                'title' => 'Client 360°',
+                'description' => 'One profile for everything about an account — health score, compliance, finance, documents, tasks, and portal access. No switching between CRM, billing, and file folders.',
+                'side' => 'bottom',
+                'module' => 'clients',
             ],
             [
                 'type' => 'spotlight',
@@ -94,6 +108,15 @@ class DemoTourService
                 'description' => 'CFOs: completed work should not sit unbilled. Select finished tasks, generate an invoice — fees flow from work you already tracked.',
                 'side' => 'top',
                 'module' => 'invoices',
+            ],
+            [
+                'type' => 'spotlight',
+                'url' => route('activity.index'),
+                'element' => '[data-demo-tour="the-pulse"]',
+                'title' => 'The Pulse',
+                'description' => 'A live activity feed for the whole firm — who changed a task, updated a client, raised an invoice. Leadership stays informed without asking for status updates.',
+                'side' => 'left',
+                'module' => 'activity',
             ],
             [
                 'type' => 'spotlight',
@@ -145,14 +168,31 @@ class DemoTourService
                 'subtitle' => 'Whether you are a CEO, CFO, manager, or team member — see how Vouchex keeps work aligned from morning WhatsApp through evening wrap-up.',
                 'bullets' => [
                     'Morning & evening WhatsApp reminders for staff and leadership',
-                    'Mission Control — risks, workload, and accounts at a glance',
-                    'Drag-and-drop scheduling, workload, and billing queue',
+                    'Mission Control, My Day, and Client 360° in one flow',
+                    'Workload, billing queue, and The Pulse activity feed',
                 ],
             ],
+            'staffName' => self::DEMO_STAFF_NAME,
             'dismissUrl' => route('demo-tour.dismiss'),
             'completeUrl' => route('demo-tour.complete'),
             'isDemo' => DemoWorkspace::isDemoUser($user),
-            'version' => 'workflow-v2-20260608',
+            'version' => 'workflow-v3-20260608',
         ];
+    }
+
+    private function demoClientShowUrl(?User $user): string
+    {
+        if (! $user) {
+            return route('clients.index');
+        }
+
+        $client = Client::withoutGlobalScopes()
+            ->where('organization_id', $user->organization_id)
+            ->where('client_code', 'DEMO-ACME')
+            ->first();
+
+        return $client
+            ? route('clients.show', $client)
+            : route('clients.index');
     }
 }

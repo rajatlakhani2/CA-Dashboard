@@ -1,6 +1,7 @@
 @php
     $demoTour = $demoTour ?? ['show' => false, 'isDemo' => false, 'steps' => [], 'welcome' => []];
     $welcome = $demoTour['welcome'] ?? [];
+    $demoStaffName = $demoTour['staffName'] ?? 'Neha Kapoor';
 @endphp
 @if(!empty($demoTour['show']) || !empty($demoTour['isDemo']))
 <div x-data="demoTourWelcome()" x-init="init()" id="demo-tour-root">
@@ -42,7 +43,7 @@
                         <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-200">Morning · 10:00 AM</p>
                         <h3 class="mt-1 text-lg font-black">WhatsApp task reminder</h3>
                         <div class="mt-4 rounded-xl bg-[#075e54] p-3 text-left text-xs leading-relaxed text-white font-mono whitespace-pre-line shadow-inner">*Daily Reminder: Your Upcoming Tasks*
-Hello Priya,
+Hello {{ $demoStaffName }},
 Here are your pending tasks due within the next 7 days:
 
 1. Client proposal — Acme Corp (Due: 08 Jun)
@@ -59,7 +60,7 @@ Please prioritize these tasks. Have a productive day!</div>
                         <h3 class="mt-1 text-lg font-black">End-of-day accountability</h3>
                         <div class="mt-4 rounded-xl bg-[#075e54] p-3 text-left text-xs leading-relaxed text-white font-mono whitespace-pre-line shadow-inner">📋 *Daily Task Digest*
 
-Hi Priya,
+Hi {{ $demoStaffName }},
 • Overdue: 1
 • Due today: 2
 • Due tomorrow: 1

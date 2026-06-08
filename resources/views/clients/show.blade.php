@@ -56,7 +56,7 @@
     $canManageFirm = auth()->user()?->managesFirmModules();
     $canViewClientFinance = $canManageFirm || auth()->user()?->isAssociate();
 @endphp
-<div class="space-y-6" x-data="{ tab: '{{ request('tab', 'work') }}' }">
+<div class="space-y-6" x-data="{ tab: '{{ request('tab', 'work') }}' }" data-demo-tour="client-360">
     @if(session('portal_url'))
     <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm">
         <p class="font-semibold text-emerald-900">Client portal link (copy now — shown once)</p>

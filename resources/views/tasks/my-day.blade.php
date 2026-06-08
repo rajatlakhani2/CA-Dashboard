@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="max-w-lg mx-auto space-y-6 pb-28 lg:pb-6">
-    <div class="bg-gradient-to-br from-indigo-600 to-violet-700 rounded-2xl p-6 text-white shadow-lg">
+    <div class="bg-gradient-to-br from-indigo-600 to-violet-700 rounded-2xl p-6 text-white shadow-lg" data-demo-tour="my-day">
         <p class="text-indigo-200 text-xs font-bold uppercase tracking-widest">Mobile work mode</p>
         <h1 class="text-2xl font-black mt-1">{{ auth()->user()->name }}</h1>
         <p class="text-sm text-indigo-100 mt-2">{{ now()->format('l, d M Y') }}</p>
