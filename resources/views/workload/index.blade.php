@@ -41,7 +41,7 @@
         </div>
     </div>
 
-    <div class="flex gap-4 overflow-x-auto pb-4 snap-x">
+    <div class="flex gap-4 overflow-x-auto pb-4 snap-x" data-demo-tour="workload-board">
         @if($unassigned->isNotEmpty())
         <div class="flex-shrink-0 w-72 snap-start" data-assignee-id="0">
             <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-2">

@@ -15,6 +15,7 @@
         right: 1.25rem;
         z-index: 55;
     }
+    #demo-tour-root [x-cloak] { display: none !important; }
 </style>
 
 @if(!empty($demoTour['isDemo']))

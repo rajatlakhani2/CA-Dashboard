@@ -6,7 +6,7 @@
     $team = $mc['team_workload'] ?? collect();
     $attention = $mc['clients_needing_attention'] ?? collect();
 @endphp
-<section class="mission-control space-y-4 w-full" aria-label="Mission control">
+<section class="mission-control space-y-4 w-full" aria-label="Mission control" data-demo-tour="mission-control">
     <div class="mission-control__panel">
         <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3 mb-4">
             <div class="flex gap-4 items-start min-w-0 flex-1">
@@ -96,7 +96,7 @@
     </div>
 
     @if($attention->isNotEmpty() && auth()->user()?->managesFirmModules())
-    <div class="rounded-xl border border-amber-200 bg-amber-50/40 p-4">
+    <div class="rounded-xl border border-amber-200 bg-amber-50/40 p-4" data-demo-tour="clients-attention">
         <div class="flex justify-between items-center mb-3">
             <p class="text-xs font-bold uppercase tracking-wider text-amber-900">Clients needing attention</p>
             <a href="{{ route('clients.index') }}" class="text-xs font-semibold text-indigo-600">All clients →</a>

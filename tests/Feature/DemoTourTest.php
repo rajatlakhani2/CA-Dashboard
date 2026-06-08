@@ -57,6 +57,10 @@ class DemoTourTest extends TestCase
         $this->assertTrue($payload['show']);
         $this->assertTrue($payload['isDemo']);
         $this->assertNotEmpty($payload['steps']);
+        $this->assertSame('workflow-v2-20260608', $payload['version']);
+        $this->assertSame('modal', $payload['steps'][0]['type']);
+        $this->assertArrayNotHasKey('element', $payload['steps'][0]);
+        $this->assertStringContainsString('mission-control', $payload['steps'][1]['element']);
     }
 
     public function test_demo_tour_hidden_after_completion(): void

@@ -429,7 +429,7 @@
                 </div>
             </div>
             @include('dashboard.partials.calendar-filters')
-            <div id="dashboardCalendar" class="cal-grid-minimal" style="min-height: 580px;"></div>
+            <div id="dashboardCalendar" class="cal-grid-minimal" data-demo-tour="schedule-calendar" style="min-height: 580px;"></div>
         </div>
     </div>
 

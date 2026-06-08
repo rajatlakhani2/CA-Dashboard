@@ -110,7 +110,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" data-demo-tour="renewals-view">
         <div class="lg:col-span-1 space-y-4">
             <div class="glass-tabs flex-wrap">
                 @foreach(['All', 'LIC', 'Loan', 'Medical', 'Other'] as $tab)

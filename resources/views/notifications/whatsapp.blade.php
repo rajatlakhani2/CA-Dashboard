@@ -62,7 +62,7 @@
     <div class="bg-white shadow sm:rounded-lg mb-6 border border-gray-200">
         <div class="px-4 py-5 sm:p-6">
             <h3 class="text-lg leading-6 font-bold text-gray-900 mb-4">Automation Settings</h3>
-            <form action="{{ route('whatsapp.settings') }}" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <form action="{{ route('whatsapp.settings') }}" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-6" data-demo-tour="wa-reminder-settings">
                 @csrf
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Morning Reminder Time</label>

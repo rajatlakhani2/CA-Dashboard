@@ -84,7 +84,7 @@
     <!-- CONTENT: UNBILLED -->
     @if($canManageInvoices && $tab == 'unbilled')
     <p class="text-sm text-gray-600 mb-3">Shows completed tasks that are not yet invoiced or marked FOC — including <strong>unassigned</strong> tasks.</p>
-    <div class="overflow-hidden rounded-lg bg-white shadow border border-gray-200">
+    <div class="overflow-hidden rounded-lg bg-white shadow border border-gray-200" data-demo-tour="unbilled-queue">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
