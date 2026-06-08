@@ -3,6 +3,8 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
+use Illuminate\Session\TokenMismatchException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -17,6 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
         __DIR__ . '/../app/Console/Commands',
     ])
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*');
+
         $middleware->web(append: [
             \App\Http\Middleware\EnforceSessionIdle::class,
         ]);
@@ -28,5 +32,17 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (TokenMismatchException $e, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Your session expired. Refresh the page and try again.',
+                ], 419);
+            }
+
+            return redirect()->route('login')
+                ->withInput($request->except('_token', 'password'))
+                ->withErrors([
+                    'email' => 'Your session expired. Please refresh the page and sign in again.',
+                ]);
+        });
     })->create();

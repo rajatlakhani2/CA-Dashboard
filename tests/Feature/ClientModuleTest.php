@@ -29,7 +29,7 @@ class ClientModuleTest extends TestCase
     {
         $response = $this->get('/clients');
         $response->assertStatus(200);
-        $response->assertSee('RLA DASHBOARD');
+        $response->assertSee('COMMAND CENTRE');
     }
 
     public function test_can_create_client()
@@ -296,7 +296,7 @@ class ClientModuleTest extends TestCase
 
         // Create Pending Due
         $c1->optedServices()->attach($service->id);
-        $startDate = \Carbon\Carbon::now()->addDays(5); // Due in 5 days
+        $startDate = \Carbon\Carbon::today();
         \App\Models\ServiceDue::create([
             'client_service_id' => \App\Models\ClientService::where('client_id', $c1->id)->first()->id,
             'due_date' => $startDate,
@@ -307,15 +307,10 @@ class ClientModuleTest extends TestCase
         $response = $this->get('/dashboard');
         $response->assertStatus(200);
 
-        // 3. Verify Metrics
-        $response->assertSee('Total Clients');
-        $response->assertSee('2'); // Total count
-        // $response->assertSee('Active Clients'); // Removed as not in current UI
-
-        // 4. Verify Upcoming Dues Table
-        $response->assertSee('Upcoming Overview');
+        // 3. Verify Upcoming Dues on dashboard
+        $response->assertSee('Upcoming overview');
         $response->assertSee('Dash Client A');
         $response->assertSee('GSTR-1');
-        $response->assertSee($startDate->format('Y-m-d'));
+        $response->assertSee($startDate->format('d M'));
     }
 }

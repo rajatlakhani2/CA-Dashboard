@@ -13,7 +13,21 @@ class Setting extends Model
 
     public static function get($key, $default = null)
     {
-        $setting = self::where('key', $key)->first();
+        $orgId = \App\Support\OrganizationContext::id();
+
+        if ($orgId) {
+            $setting = self::where('key', $key)
+                ->where('organization_id', $orgId)
+                ->first();
+
+            if ($setting) {
+                return $setting->value;
+            }
+        }
+
+        $setting = self::where('key', $key)
+            ->whereNull('organization_id')
+            ->first();
 
         return $setting ? $setting->value : $default;
     }

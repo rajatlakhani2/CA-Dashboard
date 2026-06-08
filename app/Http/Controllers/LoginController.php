@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Organization;
 use App\Models\User;
+use App\Support\ThemePreset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -13,8 +14,11 @@ class LoginController extends Controller
 {
     public function show()
     {
+        $workspace = old('workspace', session('workspace_slug', request('workspace')));
+
         return view('auth.login', [
-            'workspace' => old('workspace', session('workspace_slug')),
+            'workspace' => $workspace,
+            'themePreset' => ThemePreset::resolveForLogin($workspace),
         ]);
     }
 

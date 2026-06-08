@@ -5,16 +5,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>RLA Dashboard v2.1</title>
+    <title>{{ $dashboardBrandName ?? \App\Support\Branding::dashboardName() }}</title>
 
-    @include('partials.premium-fonts')
+    @include('partials.workspace-theme')
 
     <!-- PWA / mobile install hints -->
-    <meta name="theme-color" content="#0c1f4a">
+    <meta name="theme-color" content="{{ ($themePreset ?? \App\Support\ThemePreset::forWorkspaceType())['theme_color'] }}">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="RLA Dashboard">
+    <meta name="apple-mobile-web-app-title" content="{{ $dashboardBrandName ?? \App\Support\Branding::dashboardName() }}">
     <link rel="apple-touch-icon" href="/favicon.ico">
 
     <!-- Scripts & Styles -->
@@ -71,18 +71,10 @@
             transform: none !important;
         }
 
-        :root {
-            --sidebar-width: clamp(13.5rem, 16vw, 16.5rem);
-            --vx-sidebar-navy: #0c1f4a;
-            --vx-sidebar-mid: #0a1838;
-            --vx-sidebar-deep: #061228;
-            --vx-accent-blue: #2563eb;
-        }
-
         #sidebar {
             background: linear-gradient(175deg, var(--vx-sidebar-navy) 0%, var(--vx-sidebar-mid) 48%, var(--vx-sidebar-deep) 100%) !important;
             border-right: 1px solid rgba(148, 163, 184, 0.12);
-            box-shadow: 8px 0 32px rgba(6, 18, 40, 0.35);
+            box-shadow: 8px 0 32px rgba(0, 0, 0, 0.22);
         }
 
         .main-shell {
@@ -91,7 +83,7 @@
             min-width: 0;
             max-width: 100%;
             overflow-x: hidden;
-            background-color: #f8fafc;
+            background-color: var(--premium-bg);
             isolation: isolate;
             box-sizing: border-box;
         }
@@ -103,10 +95,10 @@
 
         #sidebar nav a.bg-gradient-to-r,
         #sidebar nav a[class*="from-indigo"] {
-            background: rgba(96, 165, 250, 0.22) !important;
-            border-left-color: #60a5fa !important;
-            border: 1px solid rgba(147, 197, 253, 0.35) !important;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 6px 20px rgba(37, 99, 235, 0.2) !important;
+            background: var(--vx-nav-active-bg) !important;
+            border-left-color: var(--vx-nav-active-border) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 6px 20px var(--vx-nav-active-shadow) !important;
             transform: none !important;
         }
 
@@ -168,14 +160,14 @@
     </script>
 </head>
 
-<body class="h-full theme-{{ auth()->user()?->theme ?? 'modern' }}">
+<body class="h-full theme-{{ auth()->user()?->theme ?? 'modern' }} workspace-{{ $workspaceType ?? \App\Support\WorkspaceProfile::current() }}">
     <div class="min-h-full bg-bg-body text-text-main" x-data>
         <div id="sidebar-overlay" class="fixed inset-0 z-40 bg-slate-900/50 lg:hidden" onclick="closeMobileSidebar()" aria-hidden="true"></div>
 
         <!-- Sidebar -->
         <div class="fixed inset-y-0 left-0 z-30 bg-sidebar text-white transition-transform duration-300 ease-in-out transform flex flex-col overflow-hidden lg:translate-x-0 lg:z-20" id="sidebar">
             <div class="flex-shrink-0 flex items-center justify-center h-16 bg-white/10 shadow-md">
-                <h1 class="text-xl font-bold tracking-wider">RLA DASHBOARD</h1>
+                <h1 class="text-lg font-bold tracking-wide text-center px-2 leading-tight">{{ $dashboardBrandName ?? \App\Support\Branding::dashboardName() }}</h1>
             </div>
 
             <nav class="flex-1 mt-5 px-4 space-y-6 overflow-y-auto overflow-x-hidden custom-scrollbar pb-10">
@@ -185,7 +177,7 @@
                     $isPartner = $user?->isPartner();
                     $isArticle = $user?->isArticle();
                     $mod = fn (string $key) => $user?->canAccessModule($key) ?? false;
-                    $showFinance = $mod('billing') || $user?->canViewPortfolioInvoices() || $mod('payments') || $mod('expenses') || $mod('subscriptions');
+                    $showFinance = \App\Support\ModuleGate::hasFinanceModule($user);
                 @endphp
 
                 @if($isArticle)

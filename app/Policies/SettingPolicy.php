@@ -18,12 +18,12 @@ class SettingPolicy
 
     public function updateFirm(User $user): bool
     {
-        return $user->isPartner();
+        return $user->isWorkspaceOwner();
     }
 
     public function manageUsers(User $user): bool
     {
-        return $user->isPartner();
+        return $user->isWorkspaceOwner();
     }
 }
 

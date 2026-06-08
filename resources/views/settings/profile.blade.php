@@ -48,6 +48,19 @@
                 </div>
 
                 <div class="border-t border-gray-200 pt-6">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <h3 class="text-lg font-medium leading-6 text-gray-900">Look & feel</h3>
+                            <p class="mt-1 text-sm text-gray-500">Not happy with the current font or colours? Preview five alternatives side by side.</p>
+                        </div>
+                        <a href="{{ route('demo.themes') }}" target="_blank" rel="noopener"
+                            class="inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 shrink-0">
+                            Open theme gallery →
+                        </a>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 pt-6">
                     <div>
                         <h3 class="text-lg font-medium leading-6 text-gray-900">Interface Settings</h3>
                         <p class="mt-1 text-sm text-gray-500">Customize the look and feel of your dashboard.</p>
@@ -94,6 +107,74 @@
                 </div>
 
                 @can('updateFirm', \App\Models\Setting::class)
+                <div class="border-t border-gray-200 pt-6">
+                    <div>
+                        <h3 class="text-lg font-medium leading-6 text-gray-900">Dashboard name</h3>
+                        <p class="mt-1 text-sm text-gray-500">This name appears in the sidebar, browser tab, and login screen. It is separate from your legal firm name on invoices.</p>
+                    </div>
+                    <div class="grid grid-cols-6 gap-6 mt-6">
+                        <div class="col-span-6 sm:col-span-4">
+                            <label for="dashboard_name" class="block text-sm font-medium text-gray-700">Display name</label>
+                            <input type="text" name="dashboard_name" id="dashboard_name" value="{{ old('dashboard_name', $dashboard_name ?? \App\Support\Branding::DEFAULT_NAME) }}" placeholder="e.g. Vouchex" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <p class="mt-1.5 text-xs text-gray-500">Sidebar preview: <span class="font-semibold text-gray-800">{{ old('dashboard_name', $dashboard_name ?? \App\Support\Branding::DEFAULT_NAME) }}</span></p>
+                        </div>
+                        <div class="col-span-6 sm:col-span-4">
+                            <label for="dashboard_tagline" class="block text-sm font-medium text-gray-700">Login tagline <span class="text-gray-400 font-normal">(optional)</span></label>
+                            <input type="text" name="dashboard_tagline" id="dashboard_tagline" value="{{ old('dashboard_tagline', $dashboard_tagline ?? '') }}" placeholder="e.g. Finance & compliance workspace" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 pt-6">
+                    <div>
+                        <h3 class="text-lg font-medium leading-6 text-gray-900">Workspace Profile</h3>
+                        <p class="mt-1 text-sm text-gray-500">Choose who uses this dashboard. This controls which roles appear when you create users and the recommended module preset.</p>
+                    </div>
+                    <div class="mt-6 space-y-4">
+                        @foreach($workspaceTypes as $typeKey => $typeLabel)
+                        <label class="flex items-start gap-3 rounded-xl border p-4 cursor-pointer transition {{ ($workspaceType ?? 'ca_firm') === $typeKey ? 'border-indigo-400 bg-indigo-50/60' : 'border-gray-200 hover:border-indigo-200' }}">
+                            <input type="radio" name="workspace_type" value="{{ $typeKey }}" class="mt-1 text-indigo-600"
+                                {{ ($workspaceType ?? 'ca_firm') === $typeKey ? 'checked' : '' }}>
+                            <span>
+                                <span class="block text-sm font-semibold text-gray-900">{{ $typeLabel }}</span>
+                                <span class="block text-xs text-gray-500 mt-0.5">{{ $workspaceDescriptions[$typeKey] ?? '' }}</span>
+                                <span class="block text-xs text-indigo-700 mt-1 font-medium">Roles: {{ implode(', ', array_values(\App\Support\WorkspaceProfile::roles($typeKey))) }}</span>
+                            </span>
+                        </label>
+                        @endforeach
+                        <label class="flex items-center gap-2 text-sm text-gray-700">
+                            <input type="checkbox" name="apply_workspace_preset" value="1" checked class="rounded border-gray-300 text-indigo-600">
+                            Apply recommended module preset when saving (you can still fine-tune modules below)
+                        </label>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 pt-6">
+                    <div>
+                        <h3 class="text-lg font-medium leading-6 text-gray-900">Firm Modules</h3>
+                        <p class="mt-1 text-sm text-gray-500">Turn off modules your firm does not use (e.g. hide Invoices for CEO/CFO-only workspaces). Dashboard and Settings always stay on.</p>
+                    </div>
+                    <div class="mt-6 space-y-5">
+                        @foreach($moduleGroups as $groupLabel => $moduleKeys)
+                        <div class="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">{{ $groupLabel }}</p>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                @foreach($moduleKeys as $moduleKey)
+                                @php $locked = in_array($moduleKey, \App\Support\ModuleGate::FIRM_ALWAYS_ON, true); @endphp
+                                <label class="flex items-center gap-2 text-sm text-slate-700 bg-white rounded-lg px-3 py-2 border border-slate-200 {{ $locked ? 'opacity-60' : 'cursor-pointer hover:border-indigo-200' }}">
+                                    <input type="checkbox" name="firm_modules[{{ $moduleKey }}]" value="1"
+                                        {{ ($firmModules[$moduleKey] ?? true) ? 'checked' : '' }}
+                                        {{ $locked ? 'checked disabled' : '' }}
+                                        class="rounded border-slate-300 text-indigo-600">
+                                    <span>{{ \App\Support\ModuleAccess::MODULES[$moduleKey] ?? $moduleKey }}</span>
+                                </label>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+
                 <div class="border-t border-gray-200 pt-6">
                     <div>
                         <h3 class="text-lg font-medium leading-6 text-gray-900">Company Details</h3>

@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Setting;
 use App\Models\User;
+use App\Support\Branding;
 use App\Support\InvoicePdfData;
 use App\Support\ModuleAccess;
+use App\Support\ModuleGate;
+use App\Support\WorkspaceProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -17,7 +20,15 @@ class SettingsController extends Controller
         $this->authorize('view', Setting::class);
 
         return view('settings.profile', array_merge(
-            ['user' => auth()->user()],
+            [
+                'user' => auth()->user(),
+                'firmModules' => ModuleGate::firmModules(),
+                'moduleGroups' => ModuleGate::groups(),
+                'workspaceType' => WorkspaceProfile::current(),
+                'workspaceTypes' => WorkspaceProfile::types(),
+                'workspaceDescriptions' => WorkspaceProfile::descriptions(),
+                'workspaceRoles' => WorkspaceProfile::roles(),
+            ],
             $this->firmSettingDefaults()
         ));
     }
@@ -30,7 +41,15 @@ class SettingsController extends Controller
 
         $profileData = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')
+                    ->where(fn ($q) => $q->where('organization_id', $user->organization_id))
+                    ->ignore($user->id),
+            ],
             'theme' => 'required|in:modern,executive,dense',
             'current_password' => 'nullable|required_with:new_password|current_password',
             'new_password' => 'nullable|min:8|confirmed',
@@ -51,6 +70,21 @@ class SettingsController extends Controller
         if ($request->user()->can('updateFirm', Setting::class)) {
             $firmData = $request->validate($this->firmValidationRules());
             $this->updateFirmSettings($firmData);
+
+            if ($request->has('workspace_type')) {
+                $workspaceData = $request->validate([
+                    'workspace_type' => 'required|in:ca_firm,executive',
+                    'apply_workspace_preset' => 'nullable|boolean',
+                ]);
+                WorkspaceProfile::saveType($workspaceData['workspace_type']);
+                if ($request->boolean('apply_workspace_preset')) {
+                    WorkspaceProfile::applyModulePreset($workspaceData['workspace_type']);
+                }
+            }
+
+            if ($request->has('firm_modules')) {
+                ModuleGate::saveFirmModules($request->input('firm_modules', []));
+            }
         }
 
         return back()->with('success', 'Settings updated successfully.');
@@ -60,11 +94,18 @@ class SettingsController extends Controller
     {
         $this->authorize('manageUsers', Setting::class);
 
-        $users = User::orderBy('name')->get();
+        $users = User::query()
+            ->inOrganization(auth()->user()->organization_id)
+            ->orderBy('name')
+            ->get();
 
         return view('settings.users', [
             'users' => $users,
             'modules' => ModuleAccess::MODULES,
+            'workspaceType' => WorkspaceProfile::current(),
+            'workspaceTypes' => WorkspaceProfile::types(),
+            'workspaceRoles' => WorkspaceProfile::roles(),
+            'workspaceRoleHints' => WorkspaceProfile::roleHints(),
         ]);
     }
 
@@ -72,18 +113,37 @@ class SettingsController extends Controller
     {
         $this->authorize('manageUsers', Setting::class);
 
+        $organizationId = $request->user()->organization_id;
+
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email',
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->where(
+                    fn ($q) => $q->where('organization_id', $organizationId)
+                ),
+            ],
             'mobile' => 'required|string|max:20',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:partner,associate,article,manager,staff,intern',
+            'role' => ['required', Rule::in(array_keys(WorkspaceProfile::roles()))],
             'branch_id' => 'nullable|exists:branches,id',
+        ], [
+            'email.unique' => 'This email is already used in your firm. Check the Staff Directory tab — or use a different address.',
         ]);
 
+        $organization = $request->user()->organization;
+        if ($organization && ! $organization->hasSeatAvailable()) {
+            return back()
+                ->withInput()
+                ->withErrors(['email' => 'Seat limit reached (' . $organization->seat_limit . '). Remove a user or upgrade your plan.']);
+        }
+
         User::create([
+            'organization_id' => $organizationId,
             'name' => $data['name'],
-            'email' => $data['email'],
+            'email' => strtolower($data['email']),
             'mobile' => $data['mobile'],
             'password' => Hash::make($data['password']),
             'role' => $data['role'],
@@ -114,15 +174,16 @@ class SettingsController extends Controller
     {
         $this->authorize('manageUsers', Setting::class);
 
-        if ($user->isPartner()) {
-            return back()->with('error', 'Partner access cannot be restricted.');
+        if ($user->isWorkspaceOwner()) {
+            return back()->with('error', 'Workspace owner access cannot be restricted.');
         }
 
         $previous = $user->module_access ?? [];
 
+        $firmModules = ModuleGate::firmModules();
         $access = [];
         foreach (array_keys(ModuleAccess::MODULES) as $key) {
-            $access[$key] = $request->boolean("modules.{$key}");
+            $access[$key] = ($firmModules[$key] ?? false) && $request->boolean("modules.{$key}");
         }
 
         $user->module_access = $access;
@@ -136,6 +197,8 @@ class SettingsController extends Controller
     private function firmSettingDefaults(): array
     {
         $keys = [
+            'dashboard_name' => Branding::dashboardName(),
+            'dashboard_tagline' => '',
             'company_name' => 'RAJAT LAKHANI & ASSOCIATES',
             'company_tagline' => 'Chartered Accountants',
             'company_address' => "Ahmedabad, Gujarat",
@@ -179,6 +242,8 @@ class SettingsController extends Controller
     private function firmValidationRules(): array
     {
         return [
+            'dashboard_name' => 'nullable|string|max:80',
+            'dashboard_tagline' => 'nullable|string|max:120',
             'company_name' => 'nullable|string|max:255',
             'company_tagline' => 'nullable|string|max:255',
             'company_address' => 'nullable|string',

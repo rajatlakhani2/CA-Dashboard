@@ -1,7 +1,9 @@
 @php
     $fo = $firmOverview ?? [];
 @endphp
+@php $showFinance = $fo['hasFinance'] ?? false; @endphp
 <div class="space-y-6 w-full min-w-0">
+    @if($showFinance)
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 w-full">
         <div class="glass-card p-5 border-l-4 border-[var(--premium-navy-muted)]">
             <p class="kpi-label">MTD Invoiced</p>
@@ -20,6 +22,7 @@
             <p class="kpi-value text-2xl">{{ $fo['unbilledQueue'] ?? 0 }}</p>
         </div>
     </div>
+    @endif
 
     <div class="glass-card p-6 w-full min-w-0">
         <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
@@ -82,14 +85,18 @@
             <h3 class="font-bold text-[var(--premium-text)] mb-4">Risk indicators</h3>
             <ul class="space-y-2 text-sm">
                 <li class="flex justify-between gap-2"><span>Overdue compliance dues</span><strong class="text-red-600">{{ $fo['overdueCompliance'] ?? 0 }}</strong></li>
+                @if($showFinance)
                 <li class="flex justify-between gap-2"><span>Overdue invoices</span><strong class="text-red-600">{{ $fo['overdueInvoices'] ?? 0 }}</strong></li>
+                @endif
                 <li class="flex justify-between gap-2"><span>Open tasks</span><strong>{{ $fo['openTasks'] ?? 0 }}</strong></li>
                 <li class="flex justify-between gap-2"><span>Overdue tasks</span><strong class="text-amber-600">{{ $fo['overdueTasks'] ?? 0 }}</strong></li>
             </ul>
+            @if($showFinance)
             <div class="mt-4 flex flex-wrap gap-3">
                 <a href="{{ route('billing.index') }}" class="text-sm font-medium text-[var(--premium-navy)]">Billing queue →</a>
                 <a href="{{ route('reports.financial') }}" class="text-sm font-medium text-[var(--premium-navy)]">Reports →</a>
             </div>
+            @endif
         </div>
 
         <div class="glass-card p-6 min-w-0">

@@ -65,11 +65,7 @@ class User extends Authenticatable
 
     public function canAccessModule(string $module): bool
     {
-        if ($this->isPartner()) {
-            return true;
-        }
-
-        return (bool) ($this->resolvedModuleAccess()[$module] ?? false);
+        return \App\Support\ModuleGate::allowed($this, $module);
     }
 
     public function tasks()
@@ -121,6 +117,17 @@ class User extends Authenticatable
     {
         return strtolower((string) $this->role) === 'partner';
     }
+
+    public function isCeo(): bool
+    {
+        return strtolower((string) $this->role) === 'ceo';
+    }
+
+    /** Partner (CA firm) or CEO (executive workspace) — full workspace administration. */
+    public function isWorkspaceOwner(): bool
+    {
+        return $this->isPartner() || $this->isCeo();
+    }
     public function isManager(): bool
     {
         return strtolower((string) $this->role) === 'manager';
@@ -152,11 +159,15 @@ class User extends Authenticatable
 
     public function managesFirmModules(): bool
     {
-        return $this->hasRole('partner', 'manager');
+        return $this->hasRole('partner', 'manager', 'ceo');
     }
 
     public function canViewPortfolioInvoices(): bool
     {
+        if (! $this->canAccessModule('invoices')) {
+            return false;
+        }
+
         return $this->managesFirmModules() || $this->isAssociate();
     }
 

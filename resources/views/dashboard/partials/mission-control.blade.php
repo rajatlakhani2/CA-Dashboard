@@ -21,7 +21,7 @@
                     </div>
                 </div>
                 <div class="min-w-0">
-                    <p class="mission-control__eyebrow">Command centre</p>
+                    <p class="mission-control__eyebrow">{{ \App\Support\Branding::dashboardName() }}</p>
                     <h2 class="mission-control__heading">{{ $mc['greeting'] ?? 'Welcome' }}</h2>
                     @if(!empty($positiveThought))
                     <p class="text-sm italic text-[var(--premium-muted)] mt-1.5 max-w-2xl">"{{ $positiveThought }}"</p>
@@ -29,7 +29,7 @@
                     <p class="text-xs text-[var(--premium-muted)] mt-1">Your firm at a glance — {{ now()->format('l, d M Y') }}</p>
                 </div>
             </div>
-            @if(auth()->user()?->managesFirmModules() && isset($mc['revenue']['collected_today']))
+            @if(auth()->user()?->managesFirmModules() && \App\Support\ModuleGate::hasFinanceModule(auth()->user()) && isset($mc['revenue']['collected_today']))
             <div class="rounded-xl border border-[var(--premium-border)] bg-[#f6f8fb] px-4 py-2.5 text-right shrink-0">
                 <p class="text-[10px] font-bold uppercase tracking-wider text-[var(--premium-muted)]">Collected today</p>
                 <p class="text-lg font-bold text-[var(--premium-navy)] tabular-nums">₹ {{ number_format($mc['revenue']['collected_today'], 0) }}</p>

@@ -59,7 +59,7 @@
     </table>
 
     <div class="footer">
-        <p>This is an automated message from your RLA Dashboard.</p>
+        <p>This is an automated message from your Command Centre workspace.</p>
     </div>
 </body>
 

@@ -2,6 +2,16 @@
 
 use Illuminate\Support\Str;
 
+$sessionDomain = env('SESSION_DOMAIN');
+if ($sessionDomain === null || $sessionDomain === '' || strtolower((string) $sessionDomain) === 'null') {
+    $sessionDomain = null;
+}
+
+$sessionSecure = env('SESSION_SECURE_COOKIE');
+if ($sessionSecure === null || $sessionSecure === '') {
+    $sessionSecure = str_starts_with((string) env('APP_URL', ''), 'https://');
+}
+
 return [
 
     /*
@@ -18,7 +28,7 @@ return [
     |
     */
 
-    'driver' => env('SESSION_DRIVER', 'database'),
+    'driver' => env('SESSION_DRIVER', 'file'),
 
     /*
     |--------------------------------------------------------------------------
@@ -156,7 +166,7 @@ return [
     |
     */
 
-    'domain' => env('SESSION_DOMAIN'),
+    'domain' => $sessionDomain,
 
     /*
     |--------------------------------------------------------------------------
@@ -169,7 +179,7 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
+    'secure' => filter_var($sessionSecure, FILTER_VALIDATE_BOOL),
 
     /*
     |--------------------------------------------------------------------------

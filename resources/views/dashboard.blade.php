@@ -1,12 +1,7 @@
 @extends('layouts.app')
 
 @section('header')
-<div class="flex justify-between items-center w-full">
-    <div>
-        <h2 class="font-bold text-lg text-gray-900 tracking-wide">{{ ($workspace['name'] ?? null) ? $workspace['name'] : 'Command Centre' }}</h2>
-        <p class="text-xs text-gray-500 mt-0.5">Multi-user workspace · {{ $workspace['seat_used'] ?? '—' }} team members</p>
-    </div>
-    <div class="flex flex-wrap items-center gap-2">
+<div class="flex justify-end items-center w-full gap-2 flex-wrap">
         @can('create', App\Models\Client::class)
         <a href="{{ route('clients.create') }}" class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:border-indigo-200 hover:bg-indigo-50 transition">
             <svg class="h-4 w-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
@@ -17,13 +12,14 @@
             <svg class="h-4 w-4 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
             <span>Task</span>
         </a>
+        @if(auth()->user()?->canAccessModule('invoices'))
         @can('create', App\Models\Invoice::class)
         <a href="{{ route('invoices.create') }}" class="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3.5 py-2 text-xs font-semibold text-white shadow-md shadow-indigo-600/25 hover:bg-indigo-700 transition">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span>Invoice</span>
         </a>
         @endcan
-    </div>
+        @endif
 </div>
 @endsection
 
@@ -283,7 +279,7 @@
         <button type="button" role="tab" data-dashboard-tab="overview" class="glass-tab {{ $dashboardActiveTab === 'overview' ? 'active' : '' }}">Overview</button>
         <button type="button" role="tab" data-dashboard-tab="calendar" class="glass-tab {{ $dashboardActiveTab === 'calendar' ? 'active' : '' }}">Schedule</button>
         <button type="button" role="tab" data-dashboard-tab="workload" class="glass-tab {{ $dashboardActiveTab === 'workload' ? 'active' : '' }}">Workload</button>
-        @if($canManageFirm)
+        @if(\App\Support\ModuleGate::hasFinanceModule(auth()->user()))
         <button type="button" role="tab" data-dashboard-tab="financials" class="glass-tab {{ $dashboardActiveTab === 'financials' ? 'active' : '' }}">Financials</button>
         @endif
         @if($showFirmOverviewTab ?? false)
@@ -508,7 +504,7 @@
         </div>
     </div>
 
-    @if($canManageFirm)
+    @if(\App\Support\ModuleGate::hasFinanceModule(auth()->user()))
     {{-- ===== FINANCIALS TAB ===== --}}
     <div data-dashboard-panel="financials" class="dashboard-tab-panel {{ $dashboardActiveTab !== 'financials' ? 'hidden' : '' }}">
         @include('dashboard.partials.revenue-command-center')

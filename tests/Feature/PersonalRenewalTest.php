@@ -85,6 +85,32 @@ class PersonalRenewalTest extends TestCase
     }
 
     #[Test]
+    public function it_cannot_reschedule_paid_renewal_from_calendar()
+    {
+        $renewal = PersonalRenewal::create([
+            'user_id' => $this->user->id,
+            'title' => 'Paid Renewal',
+            'category' => 'LIC',
+            'amount' => 1000,
+            'due_date' => '2025-01-01',
+            'status' => PersonalRenewal::STATUS_PAID,
+        ]);
+
+        $response = $this->postJson(route('calendar.update'), [
+            'type' => 'renewal',
+            'id' => $renewal->id,
+            'new_date' => '2025-01-15',
+        ]);
+
+        $response->assertOk()->assertJson(['success' => false]);
+
+        $this->assertDatabaseHas('personal_renewals', [
+            'id' => $renewal->id,
+            'due_date' => '2025-01-01 00:00:00',
+        ]);
+    }
+
+    #[Test]
     public function it_can_reschedule_own_renewal_from_calendar()
     {
         $renewal = PersonalRenewal::create([

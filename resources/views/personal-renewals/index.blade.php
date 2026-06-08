@@ -22,9 +22,16 @@
     .renewals-shell .glass-tab { text-decoration: none; display: inline-block; }
     .renewals-shell .renewal-list-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
     .renewals-shell .renewal-row { border-left: 4px solid transparent; transition: all 0.2s; }
-    .renewals-shell .renewal-row:hover { border-left-color: #6366f1; background: #f5f3ff; }
+    .renewals-shell .renewal-row:hover { border-left-color: var(--vx-accent-blue); background: var(--vx-accent-soft); }
     .renewals-shell .renewal-row.overdue { border-left-color: #ef4444; }
+    .renewals-shell .renewal-row.renewal-draggable { cursor: grab; }
+    .renewals-shell .renewal-row.renewal-draggable:active { cursor: grabbing; }
     .renewals-shell #calendar { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 1rem; }
+    .renewals-shell #calendar .fc-daygrid-day { cursor: pointer; }
+    .renewals-shell #calendar .fc-daygrid-day:hover { background: rgba(99, 102, 241, 0.06); }
+    .renewals-shell #calendar .fc-event { cursor: grab; border-radius: 6px; font-size: 0.7rem; font-weight: 600; }
+    .renewals-shell #calendar .fc-event:active { cursor: grabbing; }
+    .renewals-shell #calendar .fc-event.fc-event-locked { cursor: not-allowed; opacity: 0.75; }
 </style>
 @endpush
 
@@ -43,6 +50,23 @@
 @endif
 
 <div class="renewals-shell w-full space-y-6">
+    <div class="rounded-2xl p-5 sm:p-6 shadow-lg" style="background: linear-gradient(135deg, var(--premium-navy) 0%, var(--premium-navy-soft) 50%, var(--vx-accent-blue) 100%); color: #fff; box-shadow: 0 10px 30px -8px var(--vx-nav-active-shadow);">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+            <div>
+                <p class="text-[10px] font-bold uppercase tracking-widest opacity-80">Personal reminders</p>
+                <h2 class="text-2xl sm:text-3xl font-bold mt-1">Stay ahead of renewals</h2>
+                <p class="text-sm mt-2 opacity-90">LIC, loans, medical policies & family due dates in one calm view.</p>
+            </div>
+            <div class="text-right">
+                <p class="text-[10px] font-bold uppercase tracking-widest opacity-80">Due this month</p>
+                <p class="text-3xl font-extrabold tabular-nums mt-1">{{ $dueThisMonth }}</p>
+                @if($overdueCount > 0)
+                <p class="text-xs text-rose-200 mt-1 font-semibold">{{ $overdueCount }} overdue</p>
+                @endif
+            </div>
+        </div>
+    </div>
+
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div class="kpi-card kpi-violet">
             <div class="flex items-center justify-between mb-3">
@@ -105,12 +129,21 @@
                     <p class="glass-section-title mb-0">{{ request('tab', 'All') === 'All' ? 'Upcoming' : request('tab') }}</p>
                     <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-0.5 rounded-full">{{ $pending->count() }}</span>
                 </div>
-                <ul class="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
+                <ul id="renewal-drag-list" class="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
                     @forelse($pending as $renewal)
-                    <li class="renewal-row px-4 py-4 sm:px-5 group {{ $renewal->due_date->isPast() ? 'overdue' : '' }}">
+                    <li
+                        class="renewal-row px-4 py-4 sm:px-5 group {{ $renewal->due_date->isPast() ? 'overdue' : '' }} {{ $renewal->status === 'Pending' ? 'renewal-draggable' : '' }}"
+                        @if($renewal->status === 'Pending')
+                        data-event-id="renewal_{{ $renewal->id }}"
+                        data-renewal-id="{{ $renewal->id }}"
+                        data-title="{{ $renewal->title }} ({{ $renewal->amount }})"
+                        data-status="{{ $renewal->status }}"
+                        data-color="{{ $renewal->status === 'Paid' ? '#22c55e' : '#ef4444' }}"
+                        @endif
+                    >
                         <div class="flex items-center justify-between mb-1 gap-2">
                             <p class="text-sm font-semibold text-gray-900 truncate">{{ $renewal->title }}</p>
-                            <span class="text-xs font-bold px-2 py-0.5 rounded-lg whitespace-nowrap {{ $renewal->due_date->isPast() ? 'bg-rose-100 text-rose-800' : 'bg-emerald-50 text-emerald-800' }}">
+                            <span class="renewal-date-badge text-xs font-bold px-2 py-0.5 rounded-lg whitespace-nowrap {{ $renewal->due_date->isPast() ? 'bg-rose-100 text-rose-800' : 'bg-emerald-50 text-emerald-800' }}">
                                 {{ $renewal->due_date->format('d M') }}
                             </span>
                         </div>
@@ -173,15 +206,16 @@
 @endsection
 
 @section('scripts')
-<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
 <script>
     var calendar;
 
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
         var events = @json($events);
+        var lockedStatus = 'Paid';
 
-        function getInitialCalendarDate(calendarEvents, lockedStatus) {
+        function getInitialCalendarDate(calendarEvents) {
             if (!calendarEvents.length) {
                 return undefined;
             }
@@ -212,15 +246,81 @@
             return candidates[0] ? candidates[0].start : undefined;
         }
 
+        function formatBadgeDate(dateStr) {
+            var parts = dateStr.split('-');
+            var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return parseInt(parts[2], 10) + ' ' + months[parseInt(parts[1], 10) - 1];
+        }
+
+        function updateListDateBadge(renewalId, dateStr) {
+            var row = document.querySelector('[data-renewal-id="' + renewalId + '"]');
+            if (!row) {
+                return;
+            }
+
+            var badge = row.querySelector('.renewal-date-badge');
+            if (badge) {
+                badge.textContent = formatBadgeDate(dateStr);
+            }
+        }
+
+        function persistRenewalDate(dbId, newDate, onFail) {
+            return fetch('{{ route('calendar.update') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    type: 'renewal',
+                    id: dbId,
+                    new_date: newDate
+                })
+            }).then(function(r) { return r.json(); }).then(function(data) {
+                if (!data.success) {
+                    if (typeof onFail === 'function') {
+                        onFail();
+                    }
+                    alert(data.message || 'Failed to reschedule renewal.');
+                    return false;
+                }
+
+                updateListDateBadge(dbId, newDate);
+                return true;
+            }).catch(function() {
+                if (typeof onFail === 'function') {
+                    onFail();
+                }
+                return false;
+            });
+        }
+
+        function openRenewalModal(info) {
+            window.dispatchEvent(new CustomEvent('open-calendar-modal', {
+                detail: {
+                    id: info.event.id,
+                    title: info.event.extendedProps.details || info.event.title,
+                    title_text: info.event.extendedProps.title_text || info.event.title,
+                    type: info.event.extendedProps.type || 'renewal',
+                    db_id: info.event.extendedProps.db_id,
+                    client_name: info.event.extendedProps.client_name,
+                    status: info.event.extendedProps.status,
+                    start: info.event.startStr
+                }
+            }));
+        }
+
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
-            initialDate: getInitialCalendarDate(events, 'Paid'),
+            initialDate: getInitialCalendarDate(events),
+            firstDay: 1,
             editable: true,
             eventStartEditable: true,
             eventDurationEditable: false,
             eventDragMinDistance: 4,
             longPressDelay: 0,
             eventLongPressDelay: 0,
+            droppable: true,
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
@@ -228,22 +328,15 @@
             },
             events: events,
             height: 600,
+            eventAllow: function(dropInfo, draggedEvent) {
+                return draggedEvent.extendedProps.status !== lockedStatus;
+            },
             eventClick: function(info) {
-                window.dispatchEvent(new CustomEvent('open-calendar-modal', {
-                    detail: {
-                        id: info.event.id,
-                        title: info.event.extendedProps.details || info.event.title,
-                        title_text: info.event.extendedProps.title_text || info.event.title,
-                        type: info.event.extendedProps.type || 'renewal',
-                        db_id: info.event.extendedProps.db_id,
-                        client_name: info.event.extendedProps.client_name,
-                        status: info.event.extendedProps.status,
-                        start: info.event.startStr
-                    }
-                }));
+                info.jsEvent.preventDefault();
+                openRenewalModal(info);
             },
             eventDrop: function(info) {
-                if (info.event.extendedProps.status === 'Paid') {
+                if (info.event.extendedProps.status === lockedStatus) {
                     info.revert();
                     return;
                 }
@@ -253,37 +346,73 @@
                     return;
                 }
 
-                fetch('{{ route('calendar.update') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        type: 'renewal',
-                        id: info.event.extendedProps.db_id,
-                        new_date: info.event.startStr
-                    })
-                }).then(r => r.json()).then(data => {
-                    if (!data.success) {
-                        alert(data.message || 'Failed to reschedule renewal.');
-                        info.revert();
-                    }
-                }).catch(() => {
+                persistRenewalDate(info.event.extendedProps.db_id, info.event.startStr, function() {
                     info.revert();
                 });
             },
-            eventDidMount: function(info) {
-                if (info.event.extendedProps.status !== 'Paid') {
-                    info.el.style.cursor = 'move';
+            eventReceive: function(info) {
+                var dbId = info.event.extendedProps.db_id;
+                var newDate = info.event.startStr;
+
+                if (!dbId || info.event.extendedProps.status === lockedStatus) {
+                    info.revert();
                     return;
                 }
 
-                info.el.style.cursor = 'not-allowed';
-                info.el.style.opacity = '0.75';
+                if (!confirm('Reschedule renewal to ' + newDate + '?')) {
+                    info.revert();
+                    return;
+                }
+
+                persistRenewalDate(dbId, newDate, function() {
+                    info.revert();
+                });
+            },
+            dateClick: function(info) {
+                var modal = document.getElementById('renewalDateClickModal');
+                var dateText = document.getElementById('renewalSelectedDateText');
+                var addLink = document.getElementById('renewalAddOnDateLink');
+
+                if (!modal || !dateText || !addLink) {
+                    return;
+                }
+
+                dateText.textContent = info.dateStr;
+                addLink.href = '{{ route('personal-renewals.create') }}?due_date=' + info.dateStr;
+                modal.classList.remove('hidden');
+            },
+            eventDidMount: function(info) {
+                if (info.event.extendedProps.status === lockedStatus) {
+                    info.el.classList.add('fc-event-locked');
+                }
             }
         });
         calendar.render();
+
+        var listEl = document.getElementById('renewal-drag-list');
+        if (listEl && typeof FullCalendar.Draggable !== 'undefined') {
+            new FullCalendar.Draggable(listEl, {
+                itemSelector: '.renewal-draggable',
+                eventData: function(eventEl) {
+                    return {
+                        id: eventEl.getAttribute('data-event-id'),
+                        title: eventEl.getAttribute('data-title'),
+                        duration: { days: 1 },
+                        backgroundColor: eventEl.getAttribute('data-color') || '#ef4444',
+                        borderColor: eventEl.getAttribute('data-color') || '#ef4444',
+                        textColor: '#ffffff',
+                        extendedProps: {
+                            type: 'renewal',
+                            db_id: parseInt(eventEl.getAttribute('data-renewal-id'), 10),
+                            status: eventEl.getAttribute('data-status'),
+                            client_name: 'Personal Renewal',
+                            details: eventEl.getAttribute('data-title'),
+                            title_text: eventEl.getAttribute('data-title')
+                        }
+                    };
+                }
+            });
+        }
     });
 
     function resizeCalendar(height) {
@@ -291,6 +420,28 @@
             calendar.setOption('height', height);
         }
     }
+
+    function closeRenewalDateModal() {
+        var modal = document.getElementById('renewalDateClickModal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    }
 </script>
 @include('partials.calendar-event-modal')
+
+<div id="renewalDateClickModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-gray-900/50 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 transform transition-all">
+        <h3 class="text-lg font-bold text-gray-900 mb-2">Add renewal</h3>
+        <p class="text-sm text-gray-500 mb-6">Create a personal renewal on <span id="renewalSelectedDateText" class="font-semibold text-indigo-600"></span>.</p>
+        <a id="renewalAddOnDateLink" href="#" class="flex items-center gap-3 w-full p-3 rounded-xl border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 transition">
+            <div class="h-10 w-10 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 text-lg">📅</div>
+            <div class="text-left">
+                <div class="text-sm font-bold text-gray-900">Add renewal</div>
+                <div class="text-xs text-gray-500">LIC, loan, medical or other</div>
+            </div>
+        </a>
+        <button type="button" onclick="closeRenewalDateModal()" class="mt-6 w-full py-2.5 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition">Cancel</button>
+    </div>
+</div>
 @endsection

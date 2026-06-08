@@ -10,6 +10,7 @@ use App\Models\ServiceDue;
 use App\Models\Setting;
 use App\Models\Task;
 use App\Models\User;
+use App\Support\ModuleGate;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Spatie\Activitylog\Models\Activity;
@@ -23,10 +24,11 @@ class DashboardMissionControlService
         $endOfMonth = Carbon::now()->endOfMonth();
         $managesFirm = $user?->managesFirmModules() ?? false;
 
-        $revenue = $this->revenueMetrics($startOfMonth, $endOfMonth);
-        $teamWorkload = $managesFirm ? $this->teamWorkload() : collect();
+        $hasFinance = ModuleGate::hasFinanceModule($user);
+        $revenue = $hasFinance ? $this->revenueMetrics($startOfMonth, $endOfMonth) : [];
+        $teamWorkload = $managesFirm && ModuleGate::allowed($user, 'staff') ? $this->teamWorkload() : collect();
         $todayStrip = $this->todayStrip($user, $today, $managesFirm);
-        $riskAlerts = $this->riskAlerts($today, $managesFirm);
+        $riskAlerts = $this->riskAlerts($user, $today, $managesFirm);
         $aiInsights = $this->aiInsights($user, $today, $managesFirm, $revenue, $teamWorkload);
         $firmPulse = $this->firmPulse($today);
         $clientsNeedingAttention = $managesFirm
@@ -82,16 +84,27 @@ class DashboardMissionControlService
             ? Invoice::where('status', Invoice::STATUS_OVERDUE)->count()
             : 0;
 
-        $strip = [
-            ['label' => 'Tasks due today', 'value' => $tasksDueToday, 'url' => route('tasks.index'), 'tone' => 'amber'],
-            ['label' => 'Tasks overdue', 'value' => $tasksOverdue, 'url' => route('tasks.index'), 'tone' => 'rose'],
-            ['label' => 'Due today', 'value' => $complianceDueToday, 'url' => route('service-dues.index'), 'tone' => 'violet'],
-            ['label' => 'Compliance overdue', 'value' => $complianceOverdue, 'url' => route('service-dues.index'), 'tone' => 'rose'],
-        ];
+        $strip = [];
 
-        if ($managesFirm) {
+        if (ModuleGate::allowed($user, 'tasks')) {
+            $strip[] = ['label' => 'Tasks due today', 'value' => $tasksDueToday, 'url' => route('tasks.index'), 'tone' => 'amber'];
+            $strip[] = ['label' => 'Tasks overdue', 'value' => $tasksOverdue, 'url' => route('tasks.index'), 'tone' => 'rose'];
+        }
+
+        if (ModuleGate::allowed($user, 'service_dues')) {
+            $strip[] = ['label' => 'Due today', 'value' => $complianceDueToday, 'url' => route('service-dues.index'), 'tone' => 'violet'];
+            $strip[] = ['label' => 'Compliance overdue', 'value' => $complianceOverdue, 'url' => route('service-dues.index'), 'tone' => 'rose'];
+        }
+
+        if ($managesFirm && ModuleGate::allowed($user, 'invoices')) {
             $strip[] = ['label' => 'Overdue invoices', 'value' => $collectionsPending, 'url' => route('collections.index'), 'tone' => 'emerald'];
+        }
+
+        if ($managesFirm && ModuleGate::allowed($user, 'clients')) {
             $strip[] = ['label' => 'Total clients', 'value' => Client::count(), 'url' => route('clients.index'), 'tone' => 'blue'];
+        }
+
+        if ($managesFirm && ModuleGate::allowed($user, 'dsc')) {
             $strip[] = ['label' => 'DSC expiring (30d)', 'value' => Dsc::where('status', Dsc::STATUS_ACTIVE)
                 ->whereBetween('expiry_date', [$today, $today->copy()->addDays(30)])
                 ->count(), 'url' => route('dscs.index'), 'tone' => 'amber'];
@@ -100,13 +113,18 @@ class DashboardMissionControlService
         return $strip;
     }
 
-    private function riskAlerts(Carbon $today, bool $managesFirm): array
+    private function riskAlerts(?User $user, Carbon $today, bool $managesFirm): array
     {
         if (! $managesFirm) {
             return [];
         }
 
         $alerts = [];
+
+        if (! ModuleGate::allowed($user, 'service_dues')) {
+            return [];
+        }
+
         $gstOverdue = ServiceDue::query()
             ->where('status', ServiceDue::STATUS_OVERDUE)
             ->whereHas('clientService.service', fn ($q) => $q->where('name', 'like', '%GST%'))
@@ -125,23 +143,27 @@ class DashboardMissionControlService
             $alerts[] = ['label' => 'ITR / income-tax overdue', 'count' => $itrOverdue, 'url' => route('service-dues.index'), 'severity' => 'high'];
         }
 
-        $dscExpiring = Dsc::where('status', Dsc::STATUS_ACTIVE)
-            ->where('expiry_date', '<=', $today->copy()->addDays(30))
-            ->where('expiry_date', '>=', $today)
-            ->count();
-        if ($dscExpiring > 0) {
-            $alerts[] = ['label' => 'DSC expiring soon', 'count' => $dscExpiring, 'url' => route('dscs.index'), 'severity' => 'medium'];
+        if (ModuleGate::allowed($user, 'dsc')) {
+            $dscExpiring = Dsc::where('status', Dsc::STATUS_ACTIVE)
+                ->where('expiry_date', '<=', $today->copy()->addDays(30))
+                ->where('expiry_date', '>=', $today)
+                ->count();
+            if ($dscExpiring > 0) {
+                $alerts[] = ['label' => 'DSC expiring soon', 'count' => $dscExpiring, 'url' => route('dscs.index'), 'severity' => 'medium'];
+            }
         }
 
-        $unbilledCount = 0;
-        if (\Illuminate\Support\Facades\Schema::hasColumn('service_dues', 'billing_status')) {
-            $unbilledCount = ServiceDue::where('status', ServiceDue::STATUS_COMPLETED)
-                ->where('billing_status', ServiceDue::BILLING_STATUS_UNBILLED)
-                ->whereNull('invoice_id')
-                ->count();
-        }
-        if ($unbilledCount > 0) {
-            $alerts[] = ['label' => 'Completed work not billed', 'count' => $unbilledCount, 'url' => route('billing.index'), 'severity' => 'medium'];
+        if (ModuleGate::allowed($user, 'billing')) {
+            $unbilledCount = 0;
+            if (\Illuminate\Support\Facades\Schema::hasColumn('service_dues', 'billing_status')) {
+                $unbilledCount = ServiceDue::where('status', ServiceDue::STATUS_COMPLETED)
+                    ->where('billing_status', ServiceDue::BILLING_STATUS_UNBILLED)
+                    ->whereNull('invoice_id')
+                    ->count();
+            }
+            if ($unbilledCount > 0) {
+                $alerts[] = ['label' => 'Completed work not billed', 'count' => $unbilledCount, 'url' => route('billing.index'), 'severity' => 'medium'];
+            }
         }
 
         return array_slice($alerts, 0, 5);
@@ -163,7 +185,7 @@ class DashboardMissionControlService
             $insights[] = "{$gstClients} client service(s) have overdue GST compliance.";
         }
 
-        if (($revenue['outstanding_amount'] ?? 0) > 0) {
+        if (ModuleGate::hasFinanceModule($user) && ($revenue['outstanding_amount'] ?? 0) > 0) {
             $insights[] = '₹' . number_format($revenue['outstanding_amount'], 0) . ' outstanding across open invoices.';
         }
 
@@ -173,13 +195,15 @@ class DashboardMissionControlService
             $insights[] = "{$overloaded['name']} has {$overloaded['open_tasks']} open tasks (above team average).";
         }
 
-        $threeMonthsAgo = $today->copy()->subMonths(3);
-        $unbilledClients = Client::query()
-            ->whereDoesntHave('invoices', fn ($q) => $q->where('date', '>=', $threeMonthsAgo))
-            ->where('status', Client::STATUS_ACTIVE)
-            ->count();
-        if ($unbilledClients > 0) {
-            $insights[] = "{$unbilledClients} active client(s) with no invoice in the last 3 months.";
+        if (ModuleGate::allowed($user, 'invoices')) {
+            $threeMonthsAgo = $today->copy()->subMonths(3);
+            $unbilledClients = Client::query()
+                ->whereDoesntHave('invoices', fn ($q) => $q->where('date', '>=', $threeMonthsAgo))
+                ->where('status', Client::STATUS_ACTIVE)
+                ->count();
+            if ($unbilledClients > 0) {
+                $insights[] = "{$unbilledClients} active client(s) with no invoice in the last 3 months.";
+            }
         }
 
         return array_slice($insights, 0, 5);

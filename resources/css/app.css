@@ -20,29 +20,10 @@
 }
 
 :root {
-    /* VouchEx-aligned theme tokens */
-    --c-primary-50: #eff6ff;
-    --c-primary-100: #f1f5f9;
-    --c-primary-500: #2563eb;
-    --c-primary-600: #1d4ed8;
-    --c-primary-700: #0c1f4a;
-    --c-bg-body: #f8fafc;
-    --c-bg-card: #ffffff;
-    --c-text-main: #0f172a;
-    --c-sidebar: #0c1f4a;
-    --c-text-secondary: #475569;
-    --c-line: #e2e8f0;
     --radius-card: 0.875rem;
 }
 
-/* Increase Base Font Size for "Premium" Feel */
-html {
-    font-size: 17px;
-    /* Increase base size further */
-}
-
 body {
-    font-family: 'DM Sans', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
     font-size: 1rem;
 }
 

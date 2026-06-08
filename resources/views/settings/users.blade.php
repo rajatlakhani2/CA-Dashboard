@@ -3,13 +3,32 @@
 @section('header', 'Users & Module Access')
 
 @section('content')
-<div class="space-y-8" x-data="{ tab: 'directory' }">
+@php
+    $initialTab = $errors->any() ? 'create' : 'directory';
+    $roleOptions = $workspaceRoles ?? [];
+@endphp
+<div class="space-y-8" x-data="{ tab: '{{ $initialTab }}', role: '{{ old('role', array_key_first($roleOptions)) }}', hints: @json($workspaceRoleHints ?? []) }">
     @if(session('success'))
     <div class="rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">{{ session('success') }}</div>
     @endif
     @if(session('error'))
     <div class="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800">{{ session('error') }}</div>
     @endif
+    @if($errors->any())
+    <div class="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800">
+        <ul class="list-disc pl-5 space-y-1">
+            @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
+    <div class="rounded-xl border border-indigo-100 bg-indigo-50/50 px-4 py-3 text-sm text-indigo-900">
+        <strong>Workspace:</strong> {{ $workspaceTypes[$workspaceType] ?? 'CA Firm' }} —
+        create users with roles suited to this profile ({{ implode(', ', array_values($roleOptions)) }}).
+        Change profile in <a href="{{ route('settings.index') }}" class="font-semibold underline">Settings</a>.
+    </div>
 
     <div class="flex flex-wrap gap-2">
         <button type="button" @click="tab = 'directory'"
@@ -26,28 +45,30 @@
     <!-- Create user -->
     <div x-show="tab === 'create'" x-cloak class="bg-white rounded-3xl shadow-sm border border-slate-100 p-8">
         <h3 class="text-lg font-black text-slate-900">Create login account</h3>
-        <p class="text-sm text-slate-500 mt-1">Email, password, and mobile are required. Mobile is used for daily task WhatsApp reminders.</p>
+        <p class="text-sm text-slate-500 mt-1">Email, password, and mobile are required. Role options match your workspace profile.</p>
         <form action="{{ route('users.store') }}" method="POST" class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
             @csrf
             <div>
                 <label class="block text-sm font-medium text-slate-700">Full name</label>
-                <input type="text" name="name" required class="mt-1 w-full rounded-lg border-slate-300">
+                <input type="text" name="name" value="{{ old('name') }}" required class="mt-1 w-full rounded-lg border-slate-300">
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700">Email</label>
-                <input type="email" name="email" required class="mt-1 w-full rounded-lg border-slate-300">
+                <input type="email" name="email" value="{{ old('email') }}" required class="mt-1 w-full rounded-lg border-slate-300 @error('email') border-red-400 @enderror">
+                @error('email')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700">Mobile (WhatsApp)</label>
-                <input type="text" name="mobile" required placeholder="919876543210" class="mt-1 w-full rounded-lg border-slate-300">
+                <input type="text" name="mobile" value="{{ old('mobile') }}" required placeholder="919876543210" class="mt-1 w-full rounded-lg border-slate-300">
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700">Role</label>
-                <select name="role" required class="mt-1 w-full rounded-lg border-slate-300">
-                    @foreach(['partner' => 'Partner', 'associate' => 'Associate', 'article' => 'Article', 'manager' => 'Manager', 'staff' => 'Staff', 'intern' => 'Intern'] as $v => $l)
-                    <option value="{{ $v }}">{{ $l }}</option>
+                <select name="role" required x-model="role" class="mt-1 w-full rounded-lg border-slate-300">
+                    @foreach($roleOptions as $value => $label)
+                    <option value="{{ $value }}" {{ old('role') === $value ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
                 </select>
+                <p class="mt-1 text-xs text-slate-500" x-show="hints[role]" x-text="hints[role]"></p>
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700">Password</label>
@@ -66,7 +87,7 @@
     <!-- Module access -->
     <div x-show="tab === 'access'" x-cloak class="space-y-6">
         @foreach($users as $user)
-        @if(!$user->isPartner())
+        @if(!$user->isWorkspaceOwner())
         <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
             <div class="flex items-center justify-between mb-4">
                 <div>
@@ -77,12 +98,15 @@
             <form action="{{ route('users.update-module-access', $user) }}" method="POST">
                 @csrf @method('PATCH')
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                    @php $firmModules = \App\Support\ModuleGate::firmModules(); @endphp
                     @foreach($modules as $key => $label)
-                    <label class="flex items-center gap-2 text-sm text-slate-700 bg-slate-50 rounded-lg px-3 py-2 cursor-pointer hover:bg-indigo-50">
+                    @php $firmOn = $firmModules[$key] ?? true; @endphp
+                    <label class="flex items-center gap-2 text-sm text-slate-700 rounded-lg px-3 py-2 {{ $firmOn ? 'bg-slate-50 cursor-pointer hover:bg-indigo-50' : 'bg-slate-100 opacity-50 cursor-not-allowed' }}">
                         <input type="checkbox" name="modules[{{ $key }}]" value="1"
-                            {{ ($user->resolvedModuleAccess()[$key] ?? false) ? 'checked' : '' }}
+                            {{ ($user->resolvedModuleAccess()[$key] ?? false) && $firmOn ? 'checked' : '' }}
+                            {{ $firmOn ? '' : 'disabled' }}
                             class="rounded border-slate-300 text-indigo-600">
-                        <span>{{ $label }}</span>
+                        <span>{{ $label }}@unless($firmOn) <span class="text-xs text-slate-400">(off firm-wide)</span>@endunless</span>
                     </label>
                     @endforeach
                 </div>
@@ -91,7 +115,7 @@
         </div>
         @endif
         @endforeach
-        <p class="text-sm text-slate-500">Rajat (partner) always has full access and is not listed here.</p>
+        <p class="text-sm text-slate-500">Workspace owners (Partner or CEO/CFO) are not listed here. Their access follows firm-wide module toggles in Settings.</p>
     </div>
 
     <!-- Directory -->
@@ -110,6 +134,12 @@
                 </thead>
                 <tbody class="divide-y divide-slate-50">
                     @foreach($users as $user)
+                    @php
+                        $directoryRoles = $roleOptions;
+                        if (! isset($directoryRoles[$user->role])) {
+                            $directoryRoles[$user->role] = ucfirst((string) $user->role) . ' (legacy)';
+                        }
+                    @endphp
                     <tr class="hover:bg-indigo-50/30">
                         <td class="px-8 py-5">
                             <div class="font-black text-slate-900">{{ $user->name }}</div>
@@ -120,9 +150,9 @@
                                 @csrf @method('PATCH')
                                 <input type="text" name="mobile" value="{{ $user->mobile }}" required placeholder="Mobile *"
                                     class="rounded-lg border-slate-200 text-sm w-36">
-                                <select name="role" onchange="this.form.submit()" class="rounded-lg border-slate-200 text-sm font-bold">
-                                    @foreach(['partner', 'associate', 'article', 'manager', 'staff', 'intern'] as $r)
-                                    <option value="{{ $r }}" {{ strtolower((string)$user->role) === $r ? 'selected' : '' }}>{{ ucfirst($r) }}</option>
+                                <select name="role" onchange="this.form.submit()" class="rounded-lg border-slate-200 text-sm font-bold" {{ $user->isWorkspaceOwner() ? 'disabled' : '' }}>
+                                    @foreach($directoryRoles as $r => $label)
+                                    <option value="{{ $r }}" {{ strtolower((string)$user->role) === $r ? 'selected' : '' }}>{{ $label }}</option>
                                     @endforeach
                                 </select>
                             </form>

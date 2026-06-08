@@ -32,7 +32,7 @@ class ModuleAccess
         $all = array_fill_keys(array_keys(self::MODULES), true);
 
         return match (strtolower($role)) {
-            'partner', 'manager' => $all,
+            'partner', 'manager', 'ceo' => $all,
             'associate' => array_merge($all, [
                 'billing' => false,
                 'payments' => false,

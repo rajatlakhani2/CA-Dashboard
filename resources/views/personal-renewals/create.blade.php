@@ -39,7 +39,7 @@
 
         <div>
             <label for="due_date" class="block text-sm font-medium text-text-main">Due Date</label>
-            <input type="date" name="due_date" id="due_date" required class="mt-1 block w-full rounded-md border-line bg-bg-body text-text-main shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            <input type="date" name="due_date" id="due_date" value="{{ old('due_date', request('due_date')) }}" required class="mt-1 block w-full rounded-md border-line bg-bg-body text-text-main shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
         </div>
 
         <div>

@@ -40,7 +40,7 @@ class DashboardController extends Controller
             session(['welcome_shown' => true]);
         }
 
-        $isPartner = $user?->isPartner() ?? false;
+        $isPartner = $user?->isWorkspaceOwner() ?? false;
 
         return view('dashboard', array_merge($data, [
             'calendarEvents' => $calendarEvents,
@@ -53,9 +53,9 @@ class DashboardController extends Controller
             'notificationGroups' => $notificationSummary->groups(),
             'onboarding' => $onboarding->forUser($user),
             'initialDashboardTab' => $this->initialDashboardTab($request, $isPartner),
-            'firmOverview' => $isPartner ? app(PartnerFirmOverviewService::class)->build() : null,
+            'firmOverview' => $isPartner ? app(PartnerFirmOverviewService::class)->build($user) : null,
             'showFirmOverviewTab' => $isPartner,
-            'dashboardBuildId' => 'tabs-v2-20260604',
+            'dashboardBuildId' => 'modules-v1-20260606',
         ]));
     }
 
@@ -135,7 +135,9 @@ class DashboardController extends Controller
                 }
             } elseif ($validated['type'] == 'renewal') {
                 $item = PersonalRenewal::find($validated['id']);
-                if ($item && $item->user_id == auth()->id()) {
+                if ($item
+                    && $item->user_id == auth()->id()
+                    && $item->status !== PersonalRenewal::STATUS_PAID) {
                     $item->due_date = $validated['new_date'];
                     $item->save();
 

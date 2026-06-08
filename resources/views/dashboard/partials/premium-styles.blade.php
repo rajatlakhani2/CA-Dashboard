@@ -1,18 +1,6 @@
 <style>
-    /* VouchEx-aligned palette — colours only, same CA layout */
+    /* Palette tokens come from partials/workspace-theme.blade.php per workspace profile */
     :root {
-        --premium-navy: #0c1f4a;
-        --premium-navy-soft: #0a1838;
-        --premium-navy-muted: #061228;
-        --premium-accent: #2563eb;
-        --premium-accent-teal: #0d9488;
-        --premium-accent-light: #60a5fa;
-        --premium-surface: #ffffff;
-        --premium-bg: #f8fafc;
-        --premium-text: #0f172a;
-        --premium-muted: #64748b;
-        --premium-border: #e2e8f0;
-        --premium-radius: 14px;
         --content-pad: clamp(1rem, 2.5vw, 2.25rem);
         --vx-shadow-card: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 8px 24px -8px rgba(15, 23, 42, 0.1);
     }
@@ -21,9 +9,7 @@
     body.theme-executive,
     body.theme-dense,
     body.theme-glass {
-        font-family: 'Plus Jakarta Sans', 'DM Sans', ui-sans-serif, system-ui, sans-serif;
         background: var(--premium-bg) !important;
-        -webkit-font-smoothing: antialiased;
     }
 
     .font-display {
