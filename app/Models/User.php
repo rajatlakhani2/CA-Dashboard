@@ -182,13 +182,18 @@ class User extends Authenticatable
     /** Hide legacy demo accounts from team/workload UIs. */
     public function scopeVisibleInTeam(Builder $query): Builder
     {
-        return $query->where(function (Builder $q) {
-            $q->whereNotIn('email', ['nilesh@rlassociates.in', 'nilesh@rla.local'])
-                ->whereRaw('LOWER(name) NOT LIKE ?', ['%nilesh%'])
-                ->where(function (Builder $inner) {
-                    $inner->where('role', '!=', 'article')
-                        ->orWhereRaw('LOWER(email) = ?', ['article@rlassociates.in']);
-                });
-        });
+        return $query
+            ->whereNotIn('email', ['nilesh@rlassociates.in', 'nilesh@rla.local'])
+            ->whereRaw('LOWER(name) NOT LIKE ?', ['%nilesh%'])
+            ->whereRaw('LOWER(name) != ?', ['article clerk'])
+            ->where(function (Builder $q) {
+                $q->where('role', '!=', 'article')
+                    ->orWhereRaw('LOWER(email) = ?', ['article@rlassociates.in']);
+            })
+            ->where(function (Builder $q) {
+                $q->where('role', '!=', 'associate')
+                    ->orWhereRaw('LOWER(name) != ?', ['firm associate'])
+                    ->orWhereRaw('LOWER(email) = ?', ['associate@rlassociates.in']);
+            });
     }
 }

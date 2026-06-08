@@ -33,6 +33,7 @@ class WorkloadPlannerBuilder
             ->orderBy('name');
 
         $this->scopeMembers($membersQuery, $actor, $branchId);
+        $this->scopeToOrganization($membersQuery, $actor);
 
         $memberIds = (clone $membersQuery)->pluck('id');
 
@@ -91,6 +92,7 @@ class WorkloadPlannerBuilder
             ->visibleInTeam()
             ->whereIn('role', ['manager', 'staff', 'associate', 'article', 'intern']);
         $this->scopeMembers($query, $actor, $branchId);
+        $this->scopeToOrganization($query, $actor);
 
         return $query->pluck('id')->all();
     }
@@ -98,6 +100,13 @@ class WorkloadPlannerBuilder
     protected function loadScore(int $open, int $overdue): int
     {
         return ($open * 2) + ($overdue * 5);
+    }
+
+    protected function scopeToOrganization(Builder $query, User $actor): void
+    {
+        if ($actor->organization_id) {
+            $query->where('organization_id', $actor->organization_id);
+        }
     }
 
     protected function scopeMembers(Builder $query, User $actor, ?int $branchId): void

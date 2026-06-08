@@ -65,8 +65,9 @@ class FirmTeamSeeder extends Seeder
         }
 
         $this->removeLegacyNamedSeedUsers($organization->id);
-        $this->renameLegacyArticleClerkUsers($organization->id);
         $this->removeDuplicateArticleUsers($organization->id);
+        $this->removeDuplicateAssociateUsers($organization->id);
+        $this->renameLegacyArticleClerkUsers($organization->id);
     }
 
     private function renameLegacyArticleClerkUsers(int $organizationId): void
@@ -83,6 +84,15 @@ class FirmTeamSeeder extends Seeder
             ->where('organization_id', $organizationId)
             ->where('role', 'article')
             ->whereRaw('LOWER(email) != ?', ['article@rlassociates.in'])
+            ->delete();
+    }
+
+    private function removeDuplicateAssociateUsers(int $organizationId): void
+    {
+        User::withoutGlobalScopes()
+            ->where('organization_id', $organizationId)
+            ->where('role', 'associate')
+            ->whereRaw('LOWER(email) != ?', ['associate@rlassociates.in'])
             ->delete();
     }
 
