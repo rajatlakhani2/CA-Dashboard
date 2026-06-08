@@ -99,7 +99,7 @@ class FirmRolesTest extends TestCase
 
     public function test_article_clerk_can_only_update_assigned_task_status(): void
     {
-        $article = User::factory()->create(['role' => 'article', 'name' => 'Article Clerk']);
+        $article = User::factory()->create(['role' => 'article', 'name' => 'Articles']);
         $other = User::factory()->create(['role' => 'staff']);
 
         $ownTask = Task::create([
@@ -176,7 +176,7 @@ class FirmRolesTest extends TestCase
     public function test_article_submits_client_for_rajat_approval(): void
     {
         $rajat = User::factory()->create(['role' => 'partner', 'name' => 'Rajat Lakhani']);
-        $article = User::factory()->create(['role' => 'article', 'name' => 'Article Clerk']);
+        $article = User::factory()->create(['role' => 'article', 'name' => 'Articles']);
 
         $this->actingAs($article)->get(route('clients.index'))->assertRedirect(route('tasks.index'));
         $this->actingAs($article)->get(route('clients.create'))->assertOk();

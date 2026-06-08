@@ -104,7 +104,7 @@
             <ul class="space-y-2 text-sm">
                 @forelse(($fo['staffLoad'] ?? collect()) as $member)
                 <li class="flex justify-between gap-2">
-                    <span class="truncate">{{ $member->name }} <span class="text-[var(--premium-muted)]">({{ $member->role }})</span></span>
+                    <span class="truncate">{{ $member->name }} <span class="text-[var(--premium-muted)]">({{ \App\Support\WorkspaceProfile::roles()[$member->role] ?? $member->role }})</span></span>
                     <strong class="tabular-nums">{{ $member->open_tasks_count }}</strong>
                 </li>
                 @empty

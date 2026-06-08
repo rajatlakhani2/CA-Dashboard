@@ -66,7 +66,7 @@ class WorkspaceProfile
         return [
             'partner' => 'Full firm access including billing, users, and settings.',
             'manager' => 'Runs the team — tasks, clients, compliance, and reports.',
-            'article' => 'Clerk workflow — clients and tasks only.',
+            'article' => 'Article workflow — clients and tasks only.',
             'ceo' => 'Workspace owner — oversight, compliance, reminders; finance modules follow firm toggles.',
             'manager' => 'Runs day-to-day work — tasks, clients, compliance, and reports.',
         ];

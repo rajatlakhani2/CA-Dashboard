@@ -31,7 +31,7 @@ class FirmTeamSeeder extends Seeder
                 'mobile' => '919999000002',
             ],
             [
-                'name' => 'Article Clerk',
+                'name' => 'Articles',
                 'email' => 'article@rlassociates.in',
                 'role' => 'article',
                 'mobile' => '919999000003',
@@ -65,6 +65,15 @@ class FirmTeamSeeder extends Seeder
         }
 
         $this->removeLegacyNamedSeedUsers($organization->id);
+        $this->renameLegacyArticleClerkUsers($organization->id);
+    }
+
+    private function renameLegacyArticleClerkUsers(int $organizationId): void
+    {
+        User::withoutGlobalScopes()
+            ->where('organization_id', $organizationId)
+            ->whereRaw('LOWER(name) = ?', ['article clerk'])
+            ->update(['name' => 'Articles']);
     }
 
     /** Drop old firm-specific demo users (SaaS uses generic roles only). */

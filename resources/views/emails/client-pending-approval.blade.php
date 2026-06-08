@@ -1,6 +1,6 @@
 <p>Hello,</p>
 
-<p>A new client was submitted by <strong>{{ $client->createdBy?->name ?? 'an article clerk' }}</strong> and needs your approval before it appears firm-wide.</p>
+<p>A new client was submitted by <strong>{{ $client->createdBy?->name ?? 'a team member' }}</strong> and needs your approval before it appears firm-wide.</p>
 
 <ul>
     <li><strong>Name:</strong> {{ $client->name }}</li>

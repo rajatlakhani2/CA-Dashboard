@@ -63,7 +63,7 @@
                 <div class="flex justify-between items-start gap-2">
                     <div>
                         <h3 class="font-bold text-slate-900 text-sm">{{ $member->user->name }}</h3>
-                        <p class="text-xs text-slate-500 capitalize">{{ $member->user->role }}
+                        <p class="text-xs text-slate-500">{{ \App\Support\WorkspaceProfile::roles()[$member->user->role] ?? ucfirst($member->user->role) }}
                             @if($member->user->branch) · {{ $member->user->branch->name }} @endif
                         </p>
                     </div>
