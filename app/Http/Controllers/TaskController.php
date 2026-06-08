@@ -72,7 +72,15 @@ class TaskController extends Controller
         $defaultAssignTo = $request->old('assigned_to', $request->input('assign_to_me') ? (string) $request->user()->id : '');
 
         $clientsForPicker = $clients->map(fn (Client $c) => ['id' => $c->id, 'name' => $c->name])->values();
-        $usersForPicker = $users->map(fn (User $u) => ['id' => $u->id, 'name' => $u->name])->values();
+        $usersForPicker = $users
+            ->reject(fn (User $u) => $u->isSeedPlaceholder())
+            ->map(fn (User $u) => [
+                'id' => $u->id,
+                'name' => $u->name,
+                'role' => \App\Support\WorkspaceProfile::roles()[$u->role] ?? ucfirst((string) $u->role),
+            ])
+            ->values();
+        $recentClientsForPicker = $clientsForPicker->take(5)->values();
 
         return view('tasks.create', compact(
             'clients',
@@ -81,6 +89,7 @@ class TaskController extends Controller
             'defaultAssignTo',
             'clientsForPicker',
             'usersForPicker',
+            'recentClientsForPicker',
         ));
     }
 
