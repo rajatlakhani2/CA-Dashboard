@@ -31,6 +31,7 @@ use App\Policies\StaffPolicy;
 use App\Policies\SubscriptionPolicy;
 use App\Policies\TaskPolicy;
 use App\Policies\TdsEntryPolicy;
+use App\Services\DashboardHelpChatService;
 use App\Services\DemoTourService;
 use App\Services\NotificationSummaryService;
 use App\Support\Branding;
@@ -128,6 +129,11 @@ class AppServiceProvider extends ServiceProvider
             if ($user) {
                 $view->with('notificationGroups', app(NotificationSummaryService::class)->groups());
                 $view->with('demoTour', app(DemoTourService::class)->payloadFor($user));
+                $view->with('dashboardHelp', [
+                    'chatUrl' => route('dashboard.help-chat'),
+                    'quickPrompts' => app(DashboardHelpChatService::class)->quickPrompts($user),
+                    'brandName' => Branding::dashboardName(),
+                ]);
             }
         });
     }

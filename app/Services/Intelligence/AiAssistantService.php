@@ -60,6 +60,14 @@ class AiAssistantService
     /**
      * @return array{ok: bool, text: ?string, error: ?string}
      */
+    public function answerHelp(string $systemPrompt, string $userPrompt): array
+    {
+        return $this->complete($systemPrompt, $userPrompt);
+    }
+
+    /**
+     * @return array{ok: bool, text: ?string, error: ?string}
+     */
     protected function complete(string $systemPrompt, string $userPrompt): array
     {
         if (! $this->isEnabled()) {
