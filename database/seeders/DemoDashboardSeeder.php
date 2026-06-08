@@ -51,10 +51,14 @@ class DemoDashboardSeeder extends Seeder
         $demoUser->forceFill(['password' => DemoWorkspace::PASSWORD, 'demo_tour_completed_at' => null])->save();
 
         $client = Client::withoutGlobalScopes()->firstOrCreate(
-            ['name' => 'ABC Technologies Pvt Ltd'],
             [
+                'organization_id' => $organization->id,
+                'name' => 'ABC Technologies Pvt Ltd',
+            ],
+            [
+                'client_code' => 'DEMO-ABC',
                 'status' => Client::STATUS_ACTIVE,
-                'email' => 'contact@abctech.demo',
+                'primary_contact_email' => 'contact@abctech.demo',
             ]
         );
 
