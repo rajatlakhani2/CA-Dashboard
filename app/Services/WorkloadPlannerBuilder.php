@@ -27,6 +27,7 @@ class WorkloadPlannerBuilder
         $hoursSince = $today->copy()->subDays(30);
 
         $membersQuery = User::query()
+            ->visibleInTeam()
             ->with('branch')
             ->whereIn('role', ['manager', 'staff', 'associate', 'article', 'intern'])
             ->orderBy('name');
@@ -86,7 +87,9 @@ class WorkloadPlannerBuilder
 
     public function assignableMemberIds(User $actor, ?int $branchId = null): array
     {
-        $query = User::query()->whereIn('role', ['manager', 'staff', 'associate', 'article', 'intern']);
+        $query = User::query()
+            ->visibleInTeam()
+            ->whereIn('role', ['manager', 'staff', 'associate', 'article', 'intern']);
         $this->scopeMembers($query, $actor, $branchId);
 
         return $query->pluck('id')->all();

@@ -68,13 +68,9 @@ class OrganizationWorkspaceService
         return $letters ?: '?';
     }
 
-    /** Hide legacy demo users from workspace UI (DB row may remain until seeder runs). */
     private function visibleTeamQuery()
     {
-        return User::query()->where(function ($query) {
-            $query->whereNotIn('email', ['nilesh@rlassociates.in', 'nilesh@rla.local'])
-                ->whereRaw('LOWER(name) NOT LIKE ?', ['%nilesh%']);
-        });
+        return User::query()->visibleInTeam();
     }
 
     private function legacyWorkspace(?User $user): array

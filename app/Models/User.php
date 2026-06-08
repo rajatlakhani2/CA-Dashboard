@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -176,5 +177,18 @@ class User extends Authenticatable
         $normalizedRoles = array_map('strtolower', $roles);
 
         return in_array(strtolower((string) $this->role), $normalizedRoles, true);
+    }
+
+    /** Hide legacy demo accounts from team/workload UIs. */
+    public function scopeVisibleInTeam(Builder $query): Builder
+    {
+        return $query->where(function (Builder $q) {
+            $q->whereNotIn('email', ['nilesh@rlassociates.in', 'nilesh@rla.local'])
+                ->whereRaw('LOWER(name) NOT LIKE ?', ['%nilesh%'])
+                ->where(function (Builder $inner) {
+                    $inner->where('role', '!=', 'article')
+                        ->orWhereRaw('LOWER(email) = ?', ['article@rlassociates.in']);
+                });
+        });
     }
 }
