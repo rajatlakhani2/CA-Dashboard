@@ -57,12 +57,14 @@ class DemoTourTest extends TestCase
         $this->assertTrue($payload['show']);
         $this->assertTrue($payload['isDemo']);
         $this->assertNotEmpty($payload['steps']);
-        $this->assertSame('workflow-v3-20260608', $payload['version']);
+        $this->assertSame('workflow-v4-20260608', $payload['version']);
         $this->assertSame('modal', $payload['steps'][0]['type']);
         $this->assertArrayNotHasKey('element', $payload['steps'][0]);
+        $this->assertSame('📱', $payload['steps'][0]['emoji']);
         $this->assertStringContainsString('mission-control', $payload['steps'][1]['element']);
         $this->assertSame('My Day', $payload['steps'][2]['title']);
         $this->assertSame('Client 360°', $payload['steps'][3]['title']);
+        $this->assertTrue(collect($payload['steps'])->pluck('title')->contains('Send invoice by email & WhatsApp'));
         $this->assertTrue(collect($payload['steps'])->contains('title', 'The Pulse'));
         $this->assertSame('Neha Kapoor', $payload['staffName']);
     }

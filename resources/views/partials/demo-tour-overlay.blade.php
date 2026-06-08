@@ -11,21 +11,25 @@
         <div class="fixed inset-0 z-10 flex items-center justify-center p-4 pointer-events-none">
             <div class="demo-welcome-card pointer-events-auto w-full max-w-lg rounded-2xl shadow-2xl p-8 relative overflow-hidden" @click.stop>
                 <div class="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-white/10"></div>
-                <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-200">Welcome to Vouchex</p>
-                <h2 class="mt-2 text-2xl font-black leading-tight">{{ $welcome['title'] ?? 'Run your business from one workspace' }}</h2>
-                <p class="mt-3 text-sm text-indigo-100 leading-relaxed">
+                <p class="demo-welcome-emoji">{{ $welcome['emoji'] ?? '✨' }}</p>
+                <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-200 mt-2">Welcome to Vouchex</p>
+                @if(!empty($welcome['tagline']))
+                <p class="demo-welcome-tagline mt-2">{{ $welcome['tagline'] }}</p>
+                @endif
+                <h2 class="demo-welcome-title mt-2">{{ $welcome['title'] ?? 'Run your business from one workspace' }}</h2>
+                <p class="demo-welcome-subtitle mt-3 text-indigo-100">
                     {{ $welcome['subtitle'] ?? 'A guided walkthrough of real workflows — from morning WhatsApp to evening wrap-up.' }}
                 </p>
-                <ul class="mt-5 space-y-2 text-sm text-indigo-50">
+                <ul class="demo-welcome-bullets mt-5 space-y-2.5 text-indigo-50">
                     @foreach(($welcome['bullets'] ?? []) as $bullet)
-                    <li class="flex gap-2"><span>✓</span> {{ $bullet }}</li>
+                    <li class="flex gap-2 items-start">{{ $bullet }}</li>
                     @endforeach
                 </ul>
                 <div class="mt-8 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
-                    <button type="button" @click="skip()" class="text-sm font-semibold text-indigo-200 hover:text-white underline underline-offset-2">
+                    <button type="button" @click="skip()" class="text-base font-semibold text-indigo-200 hover:text-white underline underline-offset-2">
                         Skip — explore on my own
                     </button>
-                    <button type="button" @click="startTour()" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-bold text-indigo-900 shadow-lg hover:bg-indigo-50">
+                    <button type="button" @click="startTour()" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-base font-bold text-indigo-900 shadow-lg hover:bg-indigo-50">
                         Start demo →
                     </button>
                 </div>
@@ -37,11 +41,13 @@
     <div x-show="modalOpen" x-cloak class="fixed inset-0 z-[210]" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm"></div>
         <div class="fixed inset-0 z-10 flex items-center justify-center p-4">
-            <div class="demo-welcome-card w-full max-w-md rounded-2xl shadow-2xl p-6 relative" @click.stop>
+            <div class="demo-welcome-card w-full max-w-lg rounded-2xl shadow-2xl p-7 relative" @click.stop>
+                <p class="demo-modal-emoji" x-text="modalEmoji()"></p>
+                <p class="text-xs font-bold uppercase tracking-wider text-emerald-200 mt-2" x-text="modalEyebrow()"></p>
+                <p class="demo-modal-tagline mt-1" x-text="modalTagline()"></p>
+                <h3 class="demo-modal-title mt-1" x-text="modalTitle()"></h3>
                 <template x-if="activeModal === 'whatsapp-morning'">
-                    <div>
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-200">Morning · 10:00 AM</p>
-                        <h3 class="mt-1 text-lg font-black">WhatsApp task reminder</h3>
+                    <div class="mt-3">
                         <div class="mt-4 rounded-xl bg-[#075e54] p-3 text-left text-xs leading-relaxed text-white font-mono whitespace-pre-line shadow-inner">*Daily Reminder: Your Upcoming Tasks*
 Hello {{ $demoStaffName }},
 Here are your pending tasks due within the next 7 days:
@@ -51,13 +57,11 @@ Here are your pending tasks due within the next 7 days:
 3. Follow-up call — Nova Systems (Due: 12 Jun)
 
 Please prioritize these tasks. Have a productive day!</div>
-                        <p class="mt-3 text-xs text-indigo-100">CEOs and managers receive a firm-wide summary with every team member's list.</p>
+                        <p class="mt-3 text-sm text-indigo-100">CEOs and managers receive a firm-wide summary with every team member's list.</p>
                     </div>
                 </template>
                 <template x-if="activeModal === 'whatsapp-evening'">
-                    <div>
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-200">Evening · 6:00 PM + 7:00 PM digest</p>
-                        <h3 class="mt-1 text-lg font-black">End-of-day accountability</h3>
+                    <div class="mt-3">
                         <div class="mt-4 rounded-xl bg-[#075e54] p-3 text-left text-xs leading-relaxed text-white font-mono whitespace-pre-line shadow-inner">📋 *Daily Task Digest*
 
 Hi {{ $demoStaffName }},
@@ -66,14 +70,14 @@ Hi {{ $demoStaffName }},
 • Due tomorrow: 1
 
 Open My Day: app.kuhu.org.in/my-day</div>
-                        <p class="mt-3 text-xs text-indigo-100">Morning and evening reminder times are configurable in automation settings.</p>
+                        <p class="mt-3 text-sm text-indigo-100">Morning and evening reminder times are configurable in automation settings.</p>
                     </div>
                 </template>
                 <div class="mt-6 flex justify-between items-center gap-3">
-                    <button type="button" @click="skip()" class="text-xs font-semibold text-indigo-200 hover:text-white underline">Skip tour</button>
+                    <button type="button" @click="skip()" class="text-sm font-semibold text-indigo-200 hover:text-white underline">Skip tour</button>
                     <div class="flex items-center gap-2">
-                        <span class="text-[10px] text-indigo-200" x-text="progressLabel()"></span>
-                        <button type="button" @click="nextFromModal()" class="rounded-xl bg-white px-4 py-2 text-sm font-bold text-indigo-900 hover:bg-indigo-50" x-text="modalNextLabel()"></button>
+                        <span class="text-xs text-indigo-200" x-text="progressLabel()"></span>
+                        <button type="button" @click="nextFromModal()" class="rounded-xl bg-white px-5 py-2.5 text-base font-bold text-indigo-900 hover:bg-indigo-50" x-text="modalNextLabel()"></button>
                     </div>
                 </div>
             </div>
@@ -120,6 +124,32 @@ function demoTourWelcome() {
 
         modalNextLabel() {
             return this.stepIndex >= steps.length - 1 ? 'Finish' : 'Next →';
+        },
+        currentStep() {
+            return steps[this.stepIndex] || {};
+        },
+        modalEmoji() {
+            return this.currentStep().emoji || '📱';
+        },
+        modalTitle() {
+            return this.currentStep().title || 'Demo step';
+        },
+        modalTagline() {
+            return this.currentStep().tagline || '';
+        },
+        modalEyebrow() {
+            if (this.activeModal === 'whatsapp-evening') return 'Evening · 6:00 PM + 7:00 PM digest';
+            return 'Morning · 10:00 AM';
+        },
+        stepTitle(step) {
+            const emoji = step.emoji ? step.emoji + ' ' : '';
+            return emoji + (step.title || '');
+        },
+        stepDescription(step) {
+            const tagline = step.tagline
+                ? '<span class="demo-tour-tagline">' + step.tagline + '</span>'
+                : '';
+            return tagline + (step.description || '');
         },
 
         restartTour() {
@@ -233,12 +263,18 @@ function demoTourWelcome() {
                 steps: [{
                     element: step.element,
                     popover: {
-                        title: step.title,
-                        description: step.description,
+                        title: this.stepTitle(step),
+                        description: this.stepDescription(step),
                         side: step.side || 'bottom',
                         align: 'start',
                     },
                 }],
+                onPopoverRender: (popover) => {
+                    const desc = popover.description;
+                    if (desc && step.tagline) {
+                        desc.innerHTML = this.stepDescription(step);
+                    }
+                },
                 onNextClick: () => {
                     driverInstance?.destroy();
                     this.nextStep();

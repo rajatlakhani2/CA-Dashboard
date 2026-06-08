@@ -45,6 +45,14 @@ if command -v composer >/dev/null 2>&1; then
   composer install --no-dev --optimize-autoloader --no-interaction
 fi
 
+if command -v npm >/dev/null 2>&1 && [ -f package.json ]; then
+  echo "==> Building frontend assets (npm run build)..."
+  npm ci --omit=dev 2>/dev/null || npm install --omit=dev 2>/dev/null || true
+  npm run build 2>/dev/null || echo "WARN: npm build skipped — using committed public/build if present"
+elif [ ! -f public/build/manifest.json ]; then
+  echo "WARN: public/build/manifest.json missing — deploy committed build or install Node on server"
+fi
+
 php artisan migrate --force
 php artisan optimize:clear
 php artisan view:clear

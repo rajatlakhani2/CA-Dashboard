@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Client;
+use App\Models\Invoice;
 use App\Models\Organization;
 use App\Models\PersonalRenewal;
 use App\Models\Setting;
@@ -146,6 +147,26 @@ class DemoDashboardSeeder extends Seeder
                 'amount' => 25000,
                 'frequency' => 'Annual',
                 'status' => PersonalRenewal::STATUS_PENDING,
+            ]
+        );
+
+        Invoice::withoutGlobalScopes()->updateOrCreate(
+            [
+                'organization_id' => $organization->id,
+                'invoice_number' => 'DEMO-INV-001',
+            ],
+            [
+                'client_id' => $client->id,
+                'date' => now()->subDays(10),
+                'due_date' => now()->addDays(5),
+                'status' => Invoice::STATUS_OVERDUE,
+                'subtotal' => 45000,
+                'tax' => 8100,
+                'cgst' => 4050,
+                'sgst' => 4050,
+                'igst' => 0,
+                'total_amount' => 53100,
+                'notes' => 'Demo invoice — quarterly advisory services',
             ]
         );
 
