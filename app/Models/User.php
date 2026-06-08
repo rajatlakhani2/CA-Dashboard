@@ -13,6 +13,20 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    /** Demo logins from FirmTeamSeeder — not shown on workload until real staff are added. */
+    public const SEED_PLACEHOLDER_EMAILS = [
+        'associate@rlassociates.in',
+        'article@rlassociates.in',
+        'associate@rla.local',
+        'article@rla.local',
+    ];
+
+    public const SEED_PLACEHOLDER_NAMES = [
+        'articles',
+        'firm associate',
+        'article clerk',
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -194,6 +208,34 @@ class User extends Authenticatable
                 $q->where('role', '!=', 'associate')
                     ->orWhereRaw('LOWER(name) != ?', ['firm associate'])
                     ->orWhereRaw('LOWER(email) = ?', ['associate@rlassociates.in']);
+            });
+    }
+
+    public function isSeedPlaceholder(): bool
+    {
+        $email = strtolower(trim((string) $this->email));
+        if (in_array($email, self::SEED_PLACEHOLDER_EMAILS, true)) {
+            return true;
+        }
+
+        return in_array(strtolower(trim((string) $this->name)), self::SEED_PLACEHOLDER_NAMES, true);
+    }
+
+    /** Staff columns on workload — real team members only, not seeded demo logins. */
+    public function scopeForWorkload(Builder $query): Builder
+    {
+        return $query
+            ->whereNotIn('email', ['nilesh@rlassociates.in', 'nilesh@rla.local'])
+            ->whereRaw('LOWER(name) NOT LIKE ?', ['%nilesh%'])
+            ->where(function (Builder $q) {
+                foreach (self::SEED_PLACEHOLDER_EMAILS as $email) {
+                    $q->whereRaw('LOWER(email) != ?', [$email]);
+                }
+            })
+            ->where(function (Builder $q) {
+                foreach (self::SEED_PLACEHOLDER_NAMES as $name) {
+                    $q->whereRaw('LOWER(name) != ?', [$name]);
+                }
             });
     }
 }

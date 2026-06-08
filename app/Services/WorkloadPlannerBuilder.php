@@ -27,7 +27,7 @@ class WorkloadPlannerBuilder
         $hoursSince = $today->copy()->subDays(30);
 
         $membersQuery = User::query()
-            ->visibleInTeam()
+            ->forWorkload()
             ->with('branch')
             ->whereIn('role', ['manager', 'staff', 'associate', 'article', 'intern'])
             ->orderBy('name');
@@ -71,7 +71,10 @@ class WorkloadPlannerBuilder
                 'load_score' => $this->loadScore($userTasks->count(), $overdue),
                 'tasks' => $userTasks->values(),
             ];
-        })->sortByDesc('load_score')->values();
+        })
+            ->filter(fn ($row) => ! $row->user->isSeedPlaceholder())
+            ->sortByDesc('load_score')
+            ->values();
 
         $unassigned = $tasks->filter(fn (Task $t) => empty($t->assigned_to))->values();
 
@@ -89,7 +92,7 @@ class WorkloadPlannerBuilder
     public function assignableMemberIds(User $actor, ?int $branchId = null): array
     {
         $query = User::query()
-            ->visibleInTeam()
+            ->forWorkload()
             ->whereIn('role', ['manager', 'staff', 'associate', 'article', 'intern']);
         $this->scopeMembers($query, $actor, $branchId);
         $this->scopeToOrganization($query, $actor);

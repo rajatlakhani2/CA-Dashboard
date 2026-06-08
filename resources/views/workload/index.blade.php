@@ -57,6 +57,15 @@
         </div>
         @endif
 
+        @if($members->isEmpty() && $unassigned->isEmpty())
+        <div class="flex-shrink-0 w-full max-w-lg snap-start">
+            <div class="bg-white border border-dashed border-slate-200 rounded-xl p-8 text-center">
+                <p class="text-sm font-semibold text-slate-800">No team workload yet</p>
+                <p class="text-xs text-slate-500 mt-2">Add staff in Settings or the Staff Directory. Their columns appear here once team members are on board.</p>
+            </div>
+        </div>
+        @endif
+
         @foreach($members as $member)
         <div class="flex-shrink-0 w-72 snap-start" data-assignee-id="{{ $member->user->id }}">
             <div class="bg-white border border-slate-200 rounded-xl p-3 mb-2 shadow-sm">
