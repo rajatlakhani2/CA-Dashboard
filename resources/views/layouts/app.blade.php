@@ -214,7 +214,7 @@
                 <div class="space-y-1">
                     <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">Command Centre</p>
                     @if($mod('dashboard'))
-                    <a href="{{ route('dashboard') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                    <a href="{{ route('dashboard') }}" data-tour="nav-dashboard" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
                         <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('dashboard') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                         </svg>
@@ -231,7 +231,7 @@
                         Clients
                     </p>
                     @if($mod('clients'))
-                    <a href="{{ route('clients.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('clients.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                    <a href="{{ route('clients.index') }}" data-tour="nav-clients" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('clients.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
                         <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('clients.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
@@ -274,7 +274,7 @@
                         <svg class="mr-3 flex-shrink-0 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                         My Day
                     </a>
-                    <a href="{{ route('tasks.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('tasks.index') || request()->routeIs('tasks.create') || request()->routeIs('tasks.edit') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                    <a href="{{ route('tasks.index') }}" data-tour="nav-tasks" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('tasks.index') || request()->routeIs('tasks.create') || request()->routeIs('tasks.edit') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
                         <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('tasks.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                         </svg>
@@ -290,7 +290,7 @@
                     </a>
                     @endif
                     @if($canManageFirm && $mod('tasks'))
-                    <a href="{{ route('workload.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('workload.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                    <a href="{{ route('workload.index') }}" data-tour="nav-workload" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('workload.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
                         <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('workload.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 0v10" />
                         </svg>
@@ -323,7 +323,7 @@
                         Compliance
                     </p>
                     @if($mod('service_dues'))
-                    <a href="{{ route('service-dues.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('service-dues.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                    <a href="{{ route('service-dues.index') }}" data-tour="nav-reminders" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('service-dues.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
                         <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('service-dues.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -331,7 +331,7 @@
                     </a>
                     @endif
                     @if($mod('personal_renewals'))
-                    <a href="{{ route('personal-renewals.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('personal-renewals.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                    <a href="{{ route('personal-renewals.index') }}" data-tour="nav-personal-renewals" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('personal-renewals.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
                         <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('personal-renewals.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
@@ -364,7 +364,7 @@
                     </a>
                     @endif
                     @if($mod('invoices') || auth()->user()?->canViewPortfolioInvoices())
-                    <a href="{{ route('invoices.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('invoices.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                    <a href="{{ route('invoices.index') }}" data-tour="nav-invoices" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('invoices.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
                         <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('invoices.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
@@ -515,9 +515,10 @@
                         </h2>
                     </div>
                     <div class="flex items-center space-x-4">
+                        @include('partials.demo-tour')
                         <!-- Search Trigger -->
                         <div class="hidden md:flex items-center mr-2" x-data @click="$dispatch('keydown.window.prevent.ctrl.k')">
-                            <div class="relative cursor-text group">
+                            <div class="relative cursor-text group" data-tour="quick-search">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <svg class="h-5 w-5 text-gray-400 group-hover:text-indigo-500 transition-colors" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                         <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
@@ -625,7 +626,7 @@
                                     <p class="text-xs text-gray-500 capitalize">{{ $user?->role }}</p>
                                 </div>
                                 @if($mod('settings'))
-                                <a href="{{ route('settings.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Profile &amp; settings</a>
+                                <a href="{{ route('settings.index') }}" data-tour="nav-settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Profile &amp; settings</a>
                                 @endif
                                 <form method="POST" action="{{ route('logout') }}" class="border-t border-gray-100">
                                     @csrf
@@ -749,6 +750,7 @@
 
     @include('partials.mobile-bottom-nav')
     @include('partials.search-modal')
+    @include('partials.demo-tour-overlay')
 
     <script>
         function openMobileSidebar() {

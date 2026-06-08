@@ -42,6 +42,7 @@ class User extends Authenticatable
         'branch_id',
         'module_access',
         'organization_id',
+        'demo_tour_completed_at',
     ];
 
     /**
@@ -65,6 +66,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'module_access' => 'array',
+            'demo_tour_completed_at' => 'datetime',
         ];
     }
 

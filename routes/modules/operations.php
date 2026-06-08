@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 
 Route::post('/onboarding/dismiss', [\App\Http\Controllers\WorkspaceOnboardingController::class, 'dismiss'])->name('onboarding.dismiss');
+Route::post('/demo-tour/dismiss', [\App\Http\Controllers\DemoTourController::class, 'dismiss'])->name('demo-tour.dismiss');
+Route::post('/demo-tour/complete', [\App\Http\Controllers\DemoTourController::class, 'complete'])->name('demo-tour.complete');
+Route::post('/demo-tour/reset', [\App\Http\Controllers\DemoTourController::class, 'reset'])->name('demo-tour.reset');
 Route::get('/partner-dashboard', [\App\Http\Controllers\PartnerDashboardController::class, 'index'])->middleware('role:partner')->name('partner.dashboard');
 
 Route::middleware('role:partner,manager')->group(function () {

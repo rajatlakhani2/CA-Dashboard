@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Organization;
 use App\Models\User;
+use App\Support\DemoWorkspace;
 use App\Support\ThemePreset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -52,6 +53,12 @@ class LoginController extends Controller
         Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
         $request->session()->put('workspace_slug', $organization->slug);
+
+        if (DemoWorkspace::isDemoOrganization($organization)) {
+            $user->forceFill(['demo_tour_completed_at' => null])->save();
+            $request->session()->forget('demo_tour_dismissed');
+            $request->session()->put('demo_tour_pending', true);
+        }
 
         if ($user->prefersMyDayHome() && $user->canAccessModule('tasks')) {
             return redirect()->intended(route('tasks.my-day'));

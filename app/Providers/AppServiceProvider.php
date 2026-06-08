@@ -31,6 +31,7 @@ use App\Policies\StaffPolicy;
 use App\Policies\SubscriptionPolicy;
 use App\Policies\TaskPolicy;
 use App\Policies\TdsEntryPolicy;
+use App\Services\DemoTourService;
 use App\Services\NotificationSummaryService;
 use App\Support\Branding;
 use App\Support\ThemePreset;
@@ -126,6 +127,7 @@ class AppServiceProvider extends ServiceProvider
             $user = auth()->user();
             if ($user) {
                 $view->with('notificationGroups', app(NotificationSummaryService::class)->groups());
+                $view->with('demoTour', app(DemoTourService::class)->payloadFor($user));
             }
         });
     }
