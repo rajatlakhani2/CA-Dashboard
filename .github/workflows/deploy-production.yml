@@ -79,6 +79,7 @@ jobs:
             tar -xzf release.tar.gz
             rm -f release.tar.gz
             php artisan migrate --force
+            php artisan demo:ensure-dashboard --no-interaction || true
             php artisan optimize:clear
             php artisan view:clear
             rm -f bootstrap/cache/routes-v7.php 2>/dev/null || true
