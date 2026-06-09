@@ -57,7 +57,8 @@ class DemoTourTest extends TestCase
         $this->assertTrue($payload['show']);
         $this->assertTrue($payload['isDemo']);
         $this->assertNotEmpty($payload['steps']);
-        $this->assertSame('workflow-v6-live-20260609', $payload['version']);
+        $this->assertSame('workflow-v7-autoplay-20260609', $payload['version']);
+        $this->assertTrue($payload['autoPlay']);
         $this->assertSame('modal', $payload['steps'][0]['type']);
         $this->assertArrayNotHasKey('element', $payload['steps'][0]);
         $this->assertSame('📱', $payload['steps'][0]['emoji']);

@@ -86,17 +86,19 @@ class DemoTourService
             ],
             [
                 'type' => 'spotlight',
-                'url' => route('dashboard', ['tab' => 'calendar']),
+                'url' => route('dashboard'),
                 'element' => '[data-demo-tour="schedule-calendar"]',
                 'waitFor' => '#dashboardCalendar .cal-event-dot',
                 'play' => 'calendar-day-click',
                 'spotlightAfterPlay' => '#dateClickModal',
+                'scrollTo' => '#dashboard-schedule',
                 'emoji' => '📅',
                 'title' => 'Click a day to schedule',
                 'tagline' => 'Drag deadlines, skip the forms',
                 'description' => 'We click tomorrow on the calendar — the add-to-schedule menu opens instantly. No forms buried in menus.',
                 'side' => 'top',
                 'tab' => 'calendar',
+                'dwellMs' => 9000,
                 'module' => 'dashboard',
             ],
             [
@@ -113,16 +115,18 @@ class DemoTourService
             ],
             [
                 'type' => 'spotlight',
-                'url' => route('dashboard', ['tab' => 'calendar']),
+                'url' => route('dashboard'),
                 'element' => '[data-demo-tour="schedule-calendar"]',
                 'waitFor' => '#dashboardCalendar .cal-event-dot',
                 'play' => 'calendar-after-create',
+                'scrollTo' => '#dashboard-schedule',
                 'emoji' => '📅',
                 'title' => 'Task on the calendar',
                 'tagline' => 'Every deadline visible',
                 'description' => 'The task you just created shows as a dot. Drag any dot to reschedule — the due date updates in the database.',
                 'side' => 'top',
                 'tab' => 'calendar',
+                'dwellMs' => 8000,
                 'module' => 'dashboard',
             ],
             [
@@ -242,13 +246,14 @@ class DemoTourService
                 'emoji' => '✨',
                 'title' => 'Run your business from one workspace',
                 'tagline' => 'From morning WhatsApp to evening wrap-up',
-                'subtitle' => 'Whether you are a CEO, CFO, manager, or team member — see how Vouchex keeps work, clients, and collections in sync.',
+                'subtitle' => 'Sit back — the demo plays automatically. Clicks, typing, and navigation happen on screen so you can just watch.',
                 'bullets' => [
+                    '▶ Auto-plays every workflow — no clicking Next',
                     '📱 Morning & evening WhatsApp for staff and leadership',
-                    '🔄 Mission Control, My Day, and Client 360°',
-                    '📧 Invoice by email & WhatsApp — collect faster',
+                    '📅 Calendar, tasks, billing & quick search — all live',
                 ],
             ],
+            'autoPlay' => true,
             'staffName' => self::DEMO_STAFF_NAME,
             'clientName' => 'Acme Corp',
             'waTaskDates' => [
@@ -259,7 +264,7 @@ class DemoTourService
             'dismissUrl' => route('demo-tour.dismiss'),
             'completeUrl' => route('demo-tour.complete'),
             'isDemo' => DemoWorkspace::isDemoUser($user),
-            'version' => 'workflow-v6-live-20260609',
+            'version' => 'workflow-v7-autoplay-20260609',
         ];
     }
 

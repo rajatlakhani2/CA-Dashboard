@@ -252,6 +252,14 @@ window.DemoTourPlay = (function () {
         },
 
         'calendar-day-click': async function () {
+            const schedule = document.getElementById('dashboard-schedule');
+            if (schedule) {
+                schedule.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                await sleep(500);
+            }
+            if (window.calendar) {
+                window.calendar.updateSize();
+            }
             const dateStr = tomorrowDateStr();
             let cell = document.querySelector('.fc-daygrid-day[data-date="' + dateStr + '"]');
             if (!cell && window.calendar) {
@@ -286,7 +294,7 @@ window.DemoTourPlay = (function () {
             const form = document.querySelector('[data-demo-tour="task-create-form"]');
             const title = 'Board meeting prep — ' + ctx.clientName;
             const titleInput = document.getElementById('title');
-            await typeInto(titleInput, title, 42);
+            await typeInto(titleInput, title, 58);
             await sleep(300);
 
             const clientChip = Array.from(document.querySelectorAll('.chip-btn')).find(function (btn) {
@@ -355,7 +363,7 @@ window.DemoTourPlay = (function () {
             await sleep(350);
             const input = document.getElementById('command-palette-input');
             if (input) {
-                await typeInto(input, 'Acme', 65);
+                await typeInto(input, 'Acme', 82);
                 await sleep(700);
             }
             return { spotlight: '#command-palette-modal' };

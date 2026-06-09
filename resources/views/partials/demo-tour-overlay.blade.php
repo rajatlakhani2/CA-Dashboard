@@ -3,9 +3,17 @@
     $welcome = $demoTour['welcome'] ?? [];
     $demoStaffName = $demoTour['staffName'] ?? 'Neha Kapoor';
     $waDates = $demoTour['waTaskDates'] ?? [];
+    $autoPlay = $demoTour['autoPlay'] ?? true;
 @endphp
 @if(!empty($demoTour['show']) || !empty($demoTour['isDemo']))
 <div x-data="demoTourWelcome()" x-init="init()" id="demo-tour-root">
+    <div x-show="cinemaActive" x-cloak class="demo-tour-cinema-bar" role="status">
+        <span class="demo-tour-cinema-pulse"></span>
+        <span>Demo playing automatically</span>
+        <span class="text-indigo-200" x-text="progressLabel()"></span>
+        <button type="button" @click="skip()" class="ml-2 text-xs font-semibold text-indigo-200 hover:text-white underline underline-offset-2">Skip</button>
+    </div>
+
     @if(!empty($demoTour['show']))
     <div x-show="welcomeOpen" x-cloak class="fixed inset-0 z-[200]" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm" @click="skip()"></div>
@@ -26,13 +34,20 @@
                     <li class="flex gap-2 items-start">{{ $bullet }}</li>
                     @endforeach
                 </ul>
-                <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
+                <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-3">
                     <button type="button" @click="skip()" class="text-sm font-semibold text-indigo-200 hover:text-white underline underline-offset-2">
                         Skip — explore on my own
                     </button>
+                    @if($autoPlay)
+                    <div class="flex items-center gap-3">
+                        <p class="text-sm font-semibold text-indigo-100">Starting in</p>
+                        <span class="demo-tour-countdown" x-text="countdown"></span>
+                    </div>
+                    @else
                     <button type="button" @click="startTour()" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-indigo-900 shadow-lg hover:bg-indigo-50">
                         Start demo →
                     </button>
+                    @endif
                 </div>
             </div>
         </div>
@@ -78,7 +93,11 @@ Open My Day: app.kuhu.org.in/my-day</div>
                     <button type="button" @click="skip()" class="text-sm font-semibold text-indigo-200 hover:text-white underline">Skip tour</button>
                     <div class="flex items-center gap-2">
                         <span class="text-xs text-indigo-200" x-text="progressLabel()"></span>
+                        @if($autoPlay)
+                        <span class="text-xs font-semibold text-emerald-200 animate-pulse">Playing…</span>
+                        @else
                         <button type="button" @click="nextFromModal()" class="rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-indigo-900 hover:bg-indigo-50" x-text="modalNextLabel()"></button>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -104,10 +123,13 @@ function demoTourWelcome() {
     const dismissUrl = @json($demoTour['dismissUrl'] ?? '');
     const completeUrl = @json($demoTour['completeUrl'] ?? '');
     const autoShow = @json(!empty($demoTour['show']));
+    const AUTO_PLAY = @json($autoPlay);
     const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
     const ACTIVE_KEY = 'vouchex_demo_tour_active';
     const STEP_KEY = 'vouchex_demo_tour_step';
     let driverInstance = null;
+    let autoAdvanceTimer = null;
+    let countdownInterval = null;
 
     return {
         welcomeOpen: autoShow,
@@ -115,18 +137,65 @@ function demoTourWelcome() {
         loadingOpen: false,
         activeModal: null,
         stepIndex: 0,
+        countdown: 3,
+        cinemaActive: false,
 
         init() {
+            if (AUTO_PLAY) {
+                document.body.classList.add('demo-tour-autoplay');
+            }
+
             const resumeFromFlash = @json(session('demo_tour_resume_step'));
             if (resumeFromFlash !== null && resumeFromFlash !== '') {
                 sessionStorage.setItem(ACTIVE_KEY, '1');
                 sessionStorage.setItem(STEP_KEY, String(resumeFromFlash));
             }
-            if (sessionStorage.getItem(ACTIVE_KEY) !== '1') return;
-            const idx = parseInt(sessionStorage.getItem(STEP_KEY) || '0', 10);
-            this.stepIndex = idx;
-            this.welcomeOpen = false;
-            setTimeout(() => this.runStep(idx), 850);
+
+            if (sessionStorage.getItem(ACTIVE_KEY) === '1') {
+                const idx = parseInt(sessionStorage.getItem(STEP_KEY) || '0', 10);
+                this.stepIndex = idx;
+                this.welcomeOpen = false;
+                this.cinemaActive = true;
+                setTimeout(() => this.runStep(idx), 850);
+                return;
+            }
+
+            if (autoShow && AUTO_PLAY) {
+                this.startWelcomeCountdown();
+            }
+        },
+
+        startWelcomeCountdown() {
+            this.countdown = 3;
+            if (countdownInterval) clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                this.countdown -= 1;
+                if (this.countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                    this.startTour();
+                }
+            }, 1000);
+        },
+
+        clearAutoAdvance() {
+            if (autoAdvanceTimer) {
+                clearTimeout(autoAdvanceTimer);
+                autoAdvanceTimer = null;
+            }
+        },
+
+        scheduleAutoAdvance(fn, ms) {
+            this.clearAutoAdvance();
+            if (!AUTO_PLAY) return;
+            autoAdvanceTimer = setTimeout(fn, ms);
+        },
+
+        dwellMs(step) {
+            if (step.dwellMs) return step.dwellMs;
+            if (step.play) return 7500;
+            if (step.type === 'modal') return 7000;
+            return 5200;
         },
 
         progressLabel() {
@@ -164,26 +233,37 @@ function demoTourWelcome() {
         },
 
         restartTour() {
+            this.clearAutoAdvance();
+            if (countdownInterval) clearInterval(countdownInterval);
             window.DemoTourPlay?.clearAllPlayDone?.();
             sessionStorage.setItem(ACTIVE_KEY, '1');
             sessionStorage.setItem(STEP_KEY, '0');
             this.stepIndex = 0;
+            this.cinemaActive = false;
             this.welcomeOpen = true;
+            if (AUTO_PLAY) {
+                this.startWelcomeCountdown();
+            }
         },
 
         startTour() {
+            if (countdownInterval) clearInterval(countdownInterval);
             window.DemoTourPlay?.clearAllPlayDone?.();
             sessionStorage.setItem(ACTIVE_KEY, '1');
             sessionStorage.setItem(STEP_KEY, '0');
             this.stepIndex = 0;
             this.welcomeOpen = false;
+            this.cinemaActive = true;
             this.runStep(0);
         },
 
         skip() {
+            this.clearAutoAdvance();
+            if (countdownInterval) clearInterval(countdownInterval);
             this.welcomeOpen = false;
             this.modalOpen = false;
             this.loadingOpen = false;
+            this.cinemaActive = false;
             this.destroyDriver();
             sessionStorage.removeItem(ACTIVE_KEY);
             sessionStorage.removeItem(STEP_KEY);
@@ -194,8 +274,10 @@ function demoTourWelcome() {
         },
 
         finishTour(completed = true) {
+            this.clearAutoAdvance();
             this.modalOpen = false;
             this.loadingOpen = false;
+            this.cinemaActive = false;
             this.destroyDriver();
             sessionStorage.removeItem(ACTIVE_KEY);
             sessionStorage.removeItem(STEP_KEY);
@@ -221,6 +303,14 @@ function demoTourWelcome() {
             this.nextStep();
         },
 
+        scrollToSelector(selector) {
+            if (!selector) return;
+            const el = document.querySelector(selector);
+            if (el) {
+                el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+            }
+        },
+
         activateDashboardTab(tab) {
             if (typeof window.showDashboardTab === 'function') {
                 window.showDashboardTab(tab);
@@ -231,7 +321,7 @@ function demoTourWelcome() {
         },
 
         tabDelay(tab) {
-            return tab === 'calendar' ? 700 : 420;
+            return tab === 'calendar' ? 800 : 420;
         },
 
         runStep(index) {
@@ -243,12 +333,14 @@ function demoTourWelcome() {
 
             this.stepIndex = index;
             sessionStorage.setItem(STEP_KEY, String(index));
+            this.cinemaActive = true;
 
             if (step.type === 'modal') {
                 this.destroyDriver();
                 this.loadingOpen = false;
                 this.activeModal = step.modal;
                 this.modalOpen = true;
+                this.scheduleAutoAdvance(() => this.nextFromModal(), this.dwellMs(step));
                 return;
             }
 
@@ -260,6 +352,9 @@ function demoTourWelcome() {
             }
 
             const beginSpotlight = () => {
+                if (step.scrollTo) {
+                    this.scrollToSelector(step.scrollTo);
+                }
                 const waitSelector = step.waitFor || step.element;
                 const maxAttempts = step.waitAttempts || (step.tab === 'calendar' ? 90 : 65);
                 this.loadingOpen = true;
@@ -336,7 +431,7 @@ function demoTourWelcome() {
                 progressText: '@{{current}} of @{{total}}',
                 nextBtnText: this.stepIndex >= steps.length - 1 ? 'Finish' : 'Next →',
                 prevBtnText: '← Back',
-                showButtons: ['next', 'close'],
+                showButtons: AUTO_PLAY ? ['close'] : ['next', 'close'],
                 popoverClass: 'demo-tour-popover',
                 stagePadding: 8,
                 overlayOpacity: 0.65,
@@ -354,13 +449,24 @@ function demoTourWelcome() {
                     if (desc && step.tagline) {
                         desc.innerHTML = this.stepDescription(step);
                     }
+                    if (AUTO_PLAY) {
+                        const footer = popover.footer;
+                        if (footer && !footer.querySelector('.demo-tour-auto-hint')) {
+                            const hint = document.createElement('span');
+                            hint.className = 'demo-tour-auto-hint text-xs font-semibold text-indigo-500';
+                            hint.textContent = 'Advancing automatically…';
+                            footer.appendChild(hint);
+                        }
+                    }
                 },
                 onNextClick: () => {
+                    this.clearAutoAdvance();
                     driverInstance?.destroy();
                     this.nextStep();
                 },
                 onCloseClick: () => {
                     closed = true;
+                    this.clearAutoAdvance();
                     driverInstance?.destroy();
                     this.skip();
                 },
@@ -371,6 +477,11 @@ function demoTourWelcome() {
             });
 
             driverInstance.drive();
+
+            this.scheduleAutoAdvance(() => {
+                this.destroyDriver();
+                this.nextStep();
+            }, this.dwellMs(step));
         },
 
         destroyDriver() {

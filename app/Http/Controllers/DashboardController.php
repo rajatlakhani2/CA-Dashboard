@@ -55,7 +55,7 @@ class DashboardController extends Controller
             'initialDashboardTab' => $this->initialDashboardTab($request, $isPartner),
             'firmOverview' => $isPartner ? app(PartnerFirmOverviewService::class)->build($user) : null,
             'showFirmOverviewTab' => $isPartner,
-            'dashboardBuildId' => 'demo-tour-workflow-v6-live-20260609',
+            'dashboardBuildId' => 'demo-tour-workflow-v7-autoplay-20260609',
         ]));
     }
 
@@ -91,7 +91,7 @@ class DashboardController extends Controller
         }
 
         if (in_array($tab, ['calendar', 'schedule'], true)) {
-            return 'calendar';
+            return 'overview';
         }
 
         if (in_array($tab, ['workload', 'financials', 'overview'], true)) {

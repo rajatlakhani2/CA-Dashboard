@@ -69,6 +69,46 @@
         font-size: 0.95rem;
     }
     #demo-tour-root [x-cloak] { display: none !important; }
+    body.demo-tour-autoplay .driver-popover.demo-tour-popover .driver-popover-footer button.driver-popover-next-btn,
+    body.demo-tour-autoplay .driver-popover.demo-tour-popover .driver-popover-footer button.driver-popover-prev-btn {
+        display: none !important;
+    }
+    .demo-tour-cinema-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 204;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(90deg, #312e81, #4338ca);
+        color: #fff;
+        font-size: 0.8rem;
+        font-weight: 700;
+        box-shadow: 0 4px 16px rgba(49, 46, 129, 0.35);
+    }
+    .demo-tour-cinema-bar .demo-tour-cinema-pulse {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #34d399;
+        animation: demo-tour-cinema-pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes demo-tour-cinema-pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(0.85); }
+    }
+    .demo-tour-countdown {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: #fff;
+        line-height: 1;
+        min-width: 3rem;
+        text-align: center;
+    }
 </style>
 
 @if(!empty($demoTour['isDemo']))
