@@ -94,25 +94,45 @@ class DemoDashboardSeeder extends Seeder
             ]
         );
 
-        $taskTitles = [
-            ['title' => 'Client proposal — Acme Corp', 'assignee' => $neha->id, 'days' => 3],
-            ['title' => 'Review contract — Brightline Ltd', 'assignee' => $neha->id, 'days' => 5],
-            ['title' => 'Follow-up call — Nova Systems', 'assignee' => $neha->id, 'days' => 7],
-            ['title' => 'Prepare board deck', 'assignee' => $neha->id, 'days' => 4],
-            ['title' => 'Data cleanup — internal', 'assignee' => $neha->id, 'days' => 2],
-            ['title' => 'Onboarding checklist', 'assignee' => $amit->id, 'days' => 6],
-            ['title' => 'Vendor reconciliation', 'assignee' => $amit->id, 'days' => 8],
-            ['title' => 'Team stand-up notes', 'assignee' => $amit->id, 'days' => 1],
+        $taskRows = [
+            ['title' => 'Client proposal — Acme Corp', 'assignee' => $neha->id, 'days' => 3, 'client' => true],
+            ['title' => 'Review contract — Brightline Ltd', 'assignee' => $neha->id, 'days' => 5, 'client' => false],
+            ['title' => 'Follow-up call — Nova Systems', 'assignee' => $neha->id, 'days' => 7, 'client' => false],
+            ['title' => 'Prepare board deck', 'assignee' => $neha->id, 'days' => 4, 'client' => false],
+            ['title' => 'Data cleanup — internal', 'assignee' => $neha->id, 'days' => 2, 'client' => false],
+            ['title' => 'Onboarding checklist', 'assignee' => $amit->id, 'days' => 6, 'client' => false],
+            ['title' => 'Vendor reconciliation', 'assignee' => $amit->id, 'days' => 8, 'client' => false],
+            ['title' => 'Team stand-up notes', 'assignee' => $amit->id, 'days' => 1, 'client' => false],
+            ['title' => 'Quarterly compliance review', 'assignee' => $neha->id, 'days' => 10, 'client' => true],
+            ['title' => 'Board meeting prep', 'assignee' => $amit->id, 'days' => 12, 'client' => false],
+            ['title' => 'Client onboarding — Acme Corp', 'assignee' => $neha->id, 'days' => 0, 'client' => true],
+            ['title' => 'Payment follow-up — Acme Corp', 'assignee' => $neha->id, 'days' => 14, 'client' => true],
         ];
 
-        foreach ($taskTitles as $row) {
+        Task::withoutGlobalScopes()->updateOrCreate(
+            [
+                'organization_id' => $organization->id,
+                'title' => 'Review client proposal — Acme Corp',
+            ],
+            [
+                'client_id' => $client->id,
+                'assigned_to' => $demoUser->id,
+                'status' => Task::STATUS_PENDING,
+                'priority' => 'High',
+                'due_date' => now(),
+                'created_by' => $demoUser->id,
+                'is_billed' => false,
+            ]
+        );
+
+        foreach ($taskRows as $row) {
             Task::withoutGlobalScopes()->updateOrCreate(
                 [
                     'organization_id' => $organization->id,
                     'title' => $row['title'],
                 ],
                 [
-                    'client_id' => str_contains($row['title'], 'Acme') ? $client->id : null,
+                    'client_id' => ($row['client'] ?? false) ? $client->id : null,
                     'assigned_to' => $row['assignee'],
                     'status' => Task::STATUS_PENDING,
                     'priority' => 'High',

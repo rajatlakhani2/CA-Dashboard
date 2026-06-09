@@ -2,6 +2,7 @@
     $demoTour = $demoTour ?? ['show' => false, 'isDemo' => false, 'steps' => [], 'welcome' => []];
     $welcome = $demoTour['welcome'] ?? [];
     $demoStaffName = $demoTour['staffName'] ?? 'Neha Kapoor';
+    $waDates = $demoTour['waTaskDates'] ?? [];
 @endphp
 @if(!empty($demoTour['show']) || !empty($demoTour['isDemo']))
 <div x-data="demoTourWelcome()" x-init="init()" id="demo-tour-root">
@@ -9,7 +10,7 @@
     <div x-show="welcomeOpen" x-cloak class="fixed inset-0 z-[200]" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm" @click="skip()"></div>
         <div class="fixed inset-0 z-10 flex items-center justify-center p-4 pointer-events-none">
-            <div class="demo-welcome-card pointer-events-auto w-full max-w-lg rounded-2xl shadow-2xl p-8 relative overflow-hidden" @click.stop>
+            <div class="demo-welcome-card demo-tour-modal-card pointer-events-auto rounded-2xl shadow-2xl p-6 sm:p-7 relative overflow-hidden" @click.stop>
                 <div class="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-white/10"></div>
                 <p class="demo-welcome-emoji">{{ $welcome['emoji'] ?? '✨' }}</p>
                 <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-200 mt-2">Welcome to Vouchex</p>
@@ -20,16 +21,16 @@
                 <p class="demo-welcome-subtitle mt-3 text-indigo-100">
                     {{ $welcome['subtitle'] ?? 'A guided walkthrough of real workflows — from morning WhatsApp to evening wrap-up.' }}
                 </p>
-                <ul class="demo-welcome-bullets mt-5 space-y-2.5 text-indigo-50">
+                <ul class="demo-welcome-bullets mt-4 space-y-2 text-indigo-50">
                     @foreach(($welcome['bullets'] ?? []) as $bullet)
                     <li class="flex gap-2 items-start">{{ $bullet }}</li>
                     @endforeach
                 </ul>
-                <div class="mt-8 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
-                    <button type="button" @click="skip()" class="text-base font-semibold text-indigo-200 hover:text-white underline underline-offset-2">
+                <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
+                    <button type="button" @click="skip()" class="text-sm font-semibold text-indigo-200 hover:text-white underline underline-offset-2">
                         Skip — explore on my own
                     </button>
-                    <button type="button" @click="startTour()" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-base font-bold text-indigo-900 shadow-lg hover:bg-indigo-50">
+                    <button type="button" @click="startTour()" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-indigo-900 shadow-lg hover:bg-indigo-50">
                         Start demo →
                     </button>
                 </div>
@@ -41,28 +42,28 @@
     <div x-show="modalOpen" x-cloak class="fixed inset-0 z-[210]" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm"></div>
         <div class="fixed inset-0 z-10 flex items-center justify-center p-4">
-            <div class="demo-welcome-card w-full max-w-lg rounded-2xl shadow-2xl p-7 relative" @click.stop>
+            <div class="demo-tour-modal-card rounded-2xl shadow-2xl p-6 relative" @click.stop>
                 <p class="demo-modal-emoji" x-text="modalEmoji()"></p>
                 <p class="text-xs font-bold uppercase tracking-wider text-emerald-200 mt-2" x-text="modalEyebrow()"></p>
                 <p class="demo-modal-tagline mt-1" x-text="modalTagline()"></p>
                 <h3 class="demo-modal-title mt-1" x-text="modalTitle()"></h3>
                 <template x-if="activeModal === 'whatsapp-morning'">
                     <div class="mt-3">
-                        <div class="mt-4 rounded-xl bg-[#075e54] p-3 text-left text-xs leading-relaxed text-white font-mono whitespace-pre-line shadow-inner">*Daily Reminder: Your Upcoming Tasks*
+                        <div class="demo-wa-bubble rounded-xl bg-[#075e54] text-left text-white font-mono whitespace-pre-line shadow-inner">*Daily Reminder: Your Upcoming Tasks*
 Hello {{ $demoStaffName }},
 Here are your pending tasks due within the next 7 days:
 
-1. Client proposal — Acme Corp (Due: 08 Jun)
-2. Review contract — Brightline Ltd (Due: 10 Jun)
-3. Follow-up call — Nova Systems (Due: 12 Jun)
+1. Client proposal — Acme Corp (Due: {{ $waDates['proposal'] ?? '—' }})
+2. Review contract — Brightline Ltd (Due: {{ $waDates['contract'] ?? '—' }})
+3. Follow-up call — Nova Systems (Due: {{ $waDates['followup'] ?? '—' }})
 
 Please prioritize these tasks. Have a productive day!</div>
-                        <p class="mt-3 text-sm text-indigo-100">CEOs and managers receive a firm-wide summary with every team member's list.</p>
+                        <p class="demo-modal-caption mt-3 text-indigo-100">CEOs and managers receive a firm-wide summary with every team member's list.</p>
                     </div>
                 </template>
                 <template x-if="activeModal === 'whatsapp-evening'">
                     <div class="mt-3">
-                        <div class="mt-4 rounded-xl bg-[#075e54] p-3 text-left text-xs leading-relaxed text-white font-mono whitespace-pre-line shadow-inner">📋 *Daily Task Digest*
+                        <div class="demo-wa-bubble rounded-xl bg-[#075e54] text-left text-white font-mono whitespace-pre-line shadow-inner">📋 *Daily Task Digest*
 
 Hi {{ $demoStaffName }},
 • Overdue: 1
@@ -70,18 +71,22 @@ Hi {{ $demoStaffName }},
 • Due tomorrow: 1
 
 Open My Day: app.kuhu.org.in/my-day</div>
-                        <p class="mt-3 text-sm text-indigo-100">Morning and evening reminder times are configurable in automation settings.</p>
+                        <p class="demo-modal-caption mt-3 text-indigo-100">Morning and evening reminder times are configurable in automation settings.</p>
                     </div>
                 </template>
-                <div class="mt-6 flex justify-between items-center gap-3">
+                <div class="mt-5 flex justify-between items-center gap-3">
                     <button type="button" @click="skip()" class="text-sm font-semibold text-indigo-200 hover:text-white underline">Skip tour</button>
                     <div class="flex items-center gap-2">
                         <span class="text-xs text-indigo-200" x-text="progressLabel()"></span>
-                        <button type="button" @click="nextFromModal()" class="rounded-xl bg-white px-5 py-2.5 text-base font-bold text-indigo-900 hover:bg-indigo-50" x-text="modalNextLabel()"></button>
+                        <button type="button" @click="nextFromModal()" class="rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-indigo-900 hover:bg-indigo-50" x-text="modalNextLabel()"></button>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div x-show="loadingOpen" x-cloak class="fixed bottom-24 left-1/2 -translate-x-1/2 z-[205] rounded-full bg-slate-900/90 px-4 py-2 text-sm font-semibold text-white shadow-lg">
+        Loading demo screen…
     </div>
 
     @if(!empty($demoTour['isDemo']))
@@ -107,15 +112,21 @@ function demoTourWelcome() {
     return {
         welcomeOpen: autoShow,
         modalOpen: false,
+        loadingOpen: false,
         activeModal: null,
         stepIndex: 0,
 
         init() {
+            const resumeFromFlash = @json(session('demo_tour_resume_step'));
+            if (resumeFromFlash !== null && resumeFromFlash !== '') {
+                sessionStorage.setItem(ACTIVE_KEY, '1');
+                sessionStorage.setItem(STEP_KEY, String(resumeFromFlash));
+            }
             if (sessionStorage.getItem(ACTIVE_KEY) !== '1') return;
             const idx = parseInt(sessionStorage.getItem(STEP_KEY) || '0', 10);
             this.stepIndex = idx;
             this.welcomeOpen = false;
-            setTimeout(() => this.runStep(idx), 400);
+            setTimeout(() => this.runStep(idx), 850);
         },
 
         progressLabel() {
@@ -153,6 +164,7 @@ function demoTourWelcome() {
         },
 
         restartTour() {
+            window.DemoTourPlay?.clearAllPlayDone?.();
             sessionStorage.setItem(ACTIVE_KEY, '1');
             sessionStorage.setItem(STEP_KEY, '0');
             this.stepIndex = 0;
@@ -160,6 +172,7 @@ function demoTourWelcome() {
         },
 
         startTour() {
+            window.DemoTourPlay?.clearAllPlayDone?.();
             sessionStorage.setItem(ACTIVE_KEY, '1');
             sessionStorage.setItem(STEP_KEY, '0');
             this.stepIndex = 0;
@@ -170,6 +183,7 @@ function demoTourWelcome() {
         skip() {
             this.welcomeOpen = false;
             this.modalOpen = false;
+            this.loadingOpen = false;
             this.destroyDriver();
             sessionStorage.removeItem(ACTIVE_KEY);
             sessionStorage.removeItem(STEP_KEY);
@@ -181,6 +195,7 @@ function demoTourWelcome() {
 
         finishTour(completed = true) {
             this.modalOpen = false;
+            this.loadingOpen = false;
             this.destroyDriver();
             sessionStorage.removeItem(ACTIVE_KEY);
             sessionStorage.removeItem(STEP_KEY);
@@ -206,6 +221,19 @@ function demoTourWelcome() {
             this.nextStep();
         },
 
+        activateDashboardTab(tab) {
+            if (typeof window.showDashboardTab === 'function') {
+                window.showDashboardTab(tab);
+                return;
+            }
+            const tabBtn = document.querySelector('[data-dashboard-tab="' + tab + '"]');
+            if (tabBtn) tabBtn.click();
+        },
+
+        tabDelay(tab) {
+            return tab === 'calendar' ? 700 : 420;
+        },
+
         runStep(index) {
             const step = steps[index];
             if (!step) {
@@ -218,22 +246,73 @@ function demoTourWelcome() {
 
             if (step.type === 'modal') {
                 this.destroyDriver();
+                this.loadingOpen = false;
                 this.activeModal = step.modal;
                 this.modalOpen = true;
                 return;
             }
 
             if (step.url && !this.onPage(step.url)) {
+                sessionStorage.setItem(ACTIVE_KEY, '1');
+                sessionStorage.setItem(STEP_KEY, String(index));
                 window.location.href = step.url;
                 return;
             }
 
+            const beginSpotlight = () => {
+                const waitSelector = step.waitFor || step.element;
+                const maxAttempts = step.waitAttempts || (step.tab === 'calendar' ? 90 : 65);
+                this.loadingOpen = true;
+
+                this.waitForElement(
+                    waitSelector,
+                    (el) => {
+                        this.runPlayThenSpotlight(step, index, el);
+                    },
+                    0,
+                    maxAttempts,
+                    () => {
+                        this.loadingOpen = false;
+                        const fallback = document.querySelector(step.element);
+                        if (fallback) {
+                            this.runPlayThenSpotlight(step, index, fallback);
+                            return;
+                        }
+                        setTimeout(() => {
+                            this.waitForElement(step.element, () => this.runPlayThenSpotlight(step, index), 0, 40);
+                        }, 800);
+                    }
+                );
+            };
+
             if (step.tab) {
-                const tabBtn = document.querySelector('[data-dashboard-tab="' + step.tab + '"]');
-                if (tabBtn) tabBtn.click();
+                this.activateDashboardTab(step.tab);
+                setTimeout(beginSpotlight, this.tabDelay(step.tab));
+            } else {
+                beginSpotlight();
+            }
+        },
+
+        async runPlayThenSpotlight(step, index, el) {
+            this.loadingOpen = false;
+            let spotlightStep = Object.assign({}, step);
+
+            if (step.play && window.DemoTourPlay) {
+                const playResult = await window.DemoTourPlay.run(step.play, index, { stepIndex: index });
+                if (playResult.reload) {
+                    return;
+                }
+                const afterEl = playResult.spotlight || step.spotlightAfterPlay;
+                if (afterEl) {
+                    spotlightStep = Object.assign({}, step, { element: afterEl });
+                }
             }
 
-            this.waitForElement(step.element, () => this.spotlight(step));
+            const target = document.querySelector(spotlightStep.element) || el;
+            if (target && target.scrollIntoView) {
+                target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            }
+            setTimeout(() => this.spotlight(spotlightStep), 300);
         },
 
         spotlight(step) {
@@ -244,7 +323,8 @@ function demoTourWelcome() {
 
             const el = document.querySelector(step.element);
             if (!el) {
-                this.nextStep();
+                this.loadingOpen = true;
+                this.waitForElement(step.element, () => this.spotlight(step), 0, 30);
                 return;
             }
 
@@ -313,17 +393,18 @@ function demoTourWelcome() {
             }
         },
 
-        waitForElement(selector, callback, attempts = 0) {
+        waitForElement(selector, callback, attempts = 0, maxAttempts = 65, onTimeout = null) {
             const el = document.querySelector(selector);
             if (el) {
-                callback();
+                callback(el);
                 return;
             }
-            if (attempts > 40) {
-                this.nextStep();
+            if (attempts >= maxAttempts) {
+                if (onTimeout) onTimeout();
+                else callback(null);
                 return;
             }
-            setTimeout(() => this.waitForElement(selector, callback, attempts + 1), 150);
+            setTimeout(() => this.waitForElement(selector, callback, attempts + 1, maxAttempts, onTimeout), 150);
         },
     };
 }

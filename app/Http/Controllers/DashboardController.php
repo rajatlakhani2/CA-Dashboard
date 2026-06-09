@@ -55,7 +55,7 @@ class DashboardController extends Controller
             'initialDashboardTab' => $this->initialDashboardTab($request, $isPartner),
             'firmOverview' => $isPartner ? app(PartnerFirmOverviewService::class)->build($user) : null,
             'showFirmOverviewTab' => $isPartner,
-            'dashboardBuildId' => 'demo-tour-workflow-v2-20260608',
+            'dashboardBuildId' => 'demo-tour-workflow-v6-live-20260609',
         ]));
     }
 

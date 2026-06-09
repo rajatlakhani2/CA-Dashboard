@@ -51,7 +51,7 @@
 @endpush
 
 @section('content')
-<div class="task-create-shell px-1 pb-16" x-data="taskCreateForm()" x-cloak>
+<div class="task-create-shell px-1 pb-16" x-data="taskCreateForm()" x-cloak data-demo-tour="task-create-form">
 
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="flex items-center gap-3">
@@ -235,7 +235,7 @@
                 </p>
                 <div class="flex gap-2">
                     <a href="{{ route('tasks.index') }}" class="px-4 py-2.5 rounded-xl border border-gray-300 text-sm font-semibold text-gray-700 hover:bg-white text-center">Cancel</a>
-                    <button type="submit"
+                    <button type="submit" data-demo-tour="task-create-submit"
                         class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all"
                         :class="canSubmit() ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'bg-gray-200 text-gray-500 cursor-not-allowed'"
                         :disabled="!canSubmit()">

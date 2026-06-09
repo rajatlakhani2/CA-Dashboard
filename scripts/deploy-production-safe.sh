@@ -54,6 +54,7 @@ elif [ ! -f public/build/manifest.json ]; then
 fi
 
 php artisan migrate --force
+php artisan demo:ensure-dashboard --no-interaction 2>/dev/null || true
 php artisan optimize:clear
 php artisan view:clear
 rm -f bootstrap/cache/routes-v7.php bootstrap/cache/routes*.php 2>/dev/null || true

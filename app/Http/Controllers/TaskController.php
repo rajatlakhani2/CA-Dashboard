@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\WhatsAppService;
+use App\Support\DemoWorkspace;
 use Illuminate\Database\Eloquent\Builder;
 
 class TaskController extends Controller
@@ -118,6 +119,15 @@ class TaskController extends Controller
                 $whatsAppService = app(WhatsAppService::class);
                 $whatsAppService->sendMessage($assignee->mobile, $message);
             }
+        }
+
+        if (DemoWorkspace::isDemoUser($request->user()) && $request->boolean('demo_tour')) {
+            $resumeStep = (int) $request->input('demo_tour_step', 0);
+
+            return redirect()
+                ->route('dashboard', ['tab' => 'calendar'])
+                ->with('success', 'Task created — see it on the calendar.')
+                ->with('demo_tour_resume_step', $resumeStep);
         }
 
         return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
