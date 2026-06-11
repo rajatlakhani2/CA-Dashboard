@@ -35,7 +35,15 @@ class TaskController extends Controller
         $query = Task::with(['client', 'assignee']);
         $this->scopeVisibleTasks($query, $request->user());
 
-        // Filters
+        if ($request->filled('q')) {
+            $term = '%'.$request->string('q')->trim().'%';
+            $query->where(function (Builder $query) use ($term) {
+                $query->where('title', 'like', $term)
+                    ->orWhereHas('client', fn (Builder $client) => $client->where('name', 'like', $term))
+                    ->orWhereHas('assignee', fn (Builder $user) => $user->where('name', 'like', $term));
+            });
+        }
+
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
@@ -47,15 +55,21 @@ class TaskController extends Controller
         }
 
         $view = $request->input('view', 'list');
+        $sort = $request->input('sort', 'due');
+
+        if ($sort === 'priority') {
+            $query->orderByRaw("CASE priority WHEN 'High' THEN 1 WHEN 'Medium' THEN 2 WHEN 'Normal' THEN 3 WHEN 'Low' THEN 4 ELSE 5 END");
+            $query->orderBy('due_date');
+        } elseif ($sort === 'title') {
+            $query->orderBy('title');
+        } else {
+            $query->orderBy('due_date', 'asc');
+        }
 
         if ($view === 'board') {
-            // For board, we need all tasks to organize them columns. 
-            // In a real app we might paginate per column or use infinite scroll.
-            // For now, let's limit to recent 100 to avoid overloading.
-            $tasks = $query->orderBy('due_date', 'asc')->limit(100)->get();
+            $tasks = $query->limit(100)->get();
         } else {
-            // Sorting: Due Date Ascending (so overdue/soonest tasks are first)
-            $tasks = $query->orderBy('due_date', 'asc')->paginate(10);
+            $tasks = $query->paginate(15)->withQueryString();
         }
 
         $users = $this->assignableUsers($request->user())->get();

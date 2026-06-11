@@ -40,7 +40,7 @@ class DemoDashboardSeeder extends Seeder
                 'organization_id' => $organization->id,
             ],
             [
-                'name' => 'Demo Partner',
+                'name' => 'Rajat Lakhani',
                 'role' => 'partner',
                 'password' => DemoWorkspace::PASSWORD,
                 'mobile' => '919999000099',
@@ -71,7 +71,7 @@ class DemoDashboardSeeder extends Seeder
                 'organization_id' => $organization->id,
             ],
             [
-                'name' => 'Amit Verma',
+                'name' => 'Ajay Dalki',
                 'role' => 'associate',
                 'password' => DemoWorkspace::PASSWORD,
                 'mobile' => '919888000102',
@@ -91,8 +91,88 @@ class DemoDashboardSeeder extends Seeder
                 'primary_contact_email' => 'contact@acme.demo',
                 'primary_contact_phone' => '9876543210',
                 'category' => 'A',
+                'industry' => 'Advisory',
             ]
         );
+
+        $abc = Client::withoutGlobalScopes()->updateOrCreate(
+            ['organization_id' => $organization->id, 'client_code' => 'DEMO-ABC'],
+            [
+                'name' => 'ABC Pvt Ltd',
+                'status' => Client::STATUS_ACTIVE,
+                'approval_status' => Client::APPROVAL_APPROVED,
+                'category' => 'A',
+                'industry' => 'GST',
+                'gst_applicable' => true,
+            ]
+        );
+
+        $xyz = Client::withoutGlobalScopes()->updateOrCreate(
+            ['organization_id' => $organization->id, 'client_code' => 'DEMO-XYZ'],
+            [
+                'name' => 'XYZ LLP',
+                'status' => Client::STATUS_ACTIVE,
+                'approval_status' => Client::APPROVAL_APPROVED,
+                'category' => 'B',
+                'industry' => 'TDS',
+            ]
+        );
+
+        $pqr = Client::withoutGlobalScopes()->updateOrCreate(
+            ['organization_id' => $organization->id, 'client_code' => 'DEMO-PQR'],
+            [
+                'name' => 'PQR Ltd',
+                'status' => Client::STATUS_ACTIVE,
+                'approval_status' => Client::APPROVAL_APPROVED,
+                'category' => 'B',
+                'industry' => 'ROC',
+            ]
+        );
+
+        $showcaseTasks = [
+            [
+                'title' => 'GSTR-3B Filing',
+                'client_id' => $abc->id,
+                'assigned_to' => $demoUser->id,
+                'priority' => 'High',
+                'status' => Task::STATUS_IN_PROGRESS,
+                'due_date' => now()->toDateString(),
+            ],
+            [
+                'title' => 'TDS Return',
+                'client_id' => $xyz->id,
+                'assigned_to' => $amit->id,
+                'priority' => 'Medium',
+                'status' => Task::STATUS_PENDING,
+                'due_date' => now()->addDays(5)->toDateString(),
+            ],
+            [
+                'title' => 'ROC Filing',
+                'client_id' => $pqr->id,
+                'assigned_to' => null,
+                'priority' => 'Normal',
+                'status' => Task::STATUS_PENDING,
+                'due_date' => now()->addDays(10)->toDateString(),
+            ],
+        ];
+
+        foreach ($showcaseTasks as $row) {
+            Task::withoutGlobalScopes()->updateOrCreate(
+                [
+                    'organization_id' => $organization->id,
+                    'title' => $row['title'],
+                ],
+                [
+                    'client_id' => $row['client_id'],
+                    'assigned_to' => $row['assigned_to'],
+                    'status' => $row['status'],
+                    'priority' => $row['priority'],
+                    'due_date' => $row['due_date'],
+                    'created_by' => $demoUser->id,
+                    'is_billed' => false,
+                ]
+            );
+        }
 
         $taskRows = [
             ['title' => 'Client proposal — Acme Corp', 'assignee' => $neha->id, 'days' => 3, 'client' => true],
