@@ -19,30 +19,49 @@
     border-radius: 1rem;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
-.task-create-table { border-collapse: collapse; }
+.task-create-table-wrap {
+    border: 1px solid #d1d5db;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background: #fff;
+}
+.task-create-table { border-collapse: collapse; width: 100%; }
 .task-create-table th {
-    width: 7.5rem;
-    min-width: 6.5rem;
+    width: 6.5rem;
+    min-width: 5.5rem;
     vertical-align: top;
-    padding: 0.875rem 0.75rem 0.875rem 1rem;
+    padding: 0.9rem 0.75rem 0.9rem 1rem;
     text-align: left;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #374151;
-    background: #f9fafb;
-    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #475569;
+    background: #f1f5f9;
+    border-bottom: 1px solid #d1d5db;
+    border-right: 1px solid #e2e8f0;
     white-space: nowrap;
 }
 .task-create-table td {
-    padding: 0.875rem 1rem;
-    border-bottom: 1px solid #e5e7eb;
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid #e2e8f0;
     vertical-align: top;
     min-width: 0;
+    background: #fff;
 }
 .task-create-table tr:last-child th,
 .task-create-table tr:last-child td { border-bottom: none; }
+.task-create-table tr:hover td { background: #fafbff; }
+.client-chips-scroll {
+    display: flex;
+    gap: 0.375rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+    scrollbar-width: thin;
+}
+.client-chips-scroll .chip-btn { flex-shrink: 0; max-width: 9rem; }
 @media (min-width: 640px) {
-    .task-create-table th { width: 9.5rem; padding-left: 1.25rem; }
+    .task-create-table th { width: 8.5rem; padding-left: 1.25rem; }
     .task-create-table td { padding: 1rem 1.25rem; }
 }
 .assign-chip {
@@ -76,7 +95,7 @@
 @endpush
 
 @section('content')
-<div class="task-create-shell px-1 pb-16" x-data="taskCreateForm()" x-cloak data-demo-tour="task-create-form">
+<div class="task-create-shell px-1 pb-16" x-data="taskCreateForm()" data-demo-tour="task-create-form">
 
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="flex items-center gap-3">
@@ -85,7 +104,7 @@
             </a>
             <div>
                 <h1 class="font-display text-xl font-bold text-gray-900">Create a new task</h1>
-                <p class="text-sm text-gray-500">All fields in one table — preview updates as you type.</p>
+                <p class="text-sm text-gray-500">One table for every field — preview updates live on the right.</p>
             </div>
         </div>
         <div class="hidden sm:flex items-center gap-2 text-xs text-gray-500">
@@ -108,8 +127,8 @@
 
         <div class="xl:col-span-3 space-y-4 min-w-0">
 
-            <section class="task-section overflow-hidden">
-                <table class="task-create-table w-full">
+            <div class="task-create-table-wrap">
+                <table class="task-create-table">
                     <tbody>
                         <tr>
                             <th>Task title <span class="text-red-500">*</span></th>
@@ -135,30 +154,32 @@
                         </tr>
                         <tr>
                             <th>Client</th>
-                            <td class="space-y-2">
-                                @if($recentClientsForPicker->isNotEmpty())
-                                <div class="flex flex-wrap gap-1.5">
-                                    <button type="button" @click="clientClear()"
-                                        class="chip-btn"
-                                        :class="!clientId ? 'active' : ''">Internal</button>
-                                    @foreach($recentClientsForPicker as $client)
-                                    <button type="button" @click="clientSelect({ id: {{ $client['id'] }}, name: @js($client['name']) })"
-                                        class="chip-btn max-w-[11rem] truncate"
-                                        :class="String(clientId) === '{{ $client['id'] }}' ? 'active' : ''"
-                                        title="{{ $client['name'] }}">{{ $client['name'] }}</button>
-                                    @endforeach
-                                </div>
-                                @endif
+                            <td class="space-y-2.5">
                                 @include('tasks.partials.searchable-picker', [
                                     'name' => 'client_id',
                                     'label' => 'Client',
-                                    'placeholder' => 'Type to search clients…',
+                                    'placeholder' => 'Search client name…',
                                     'prefix' => 'client',
                                     'tableCell' => true,
-                                    'hint' => 'Leave empty for internal / office tasks.',
                                 ])
-                                <p class="text-[11px] text-gray-500" x-show="!clientId">Leave empty for internal tasks.</p>
-                                <div x-show="clientId" x-transition class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 border border-emerald-200 px-2.5 py-1.5 text-xs font-semibold text-emerald-900">
+                                @if($recentClientsForPicker->isNotEmpty())
+                                <div>
+                                    <p class="text-[10px] font-bold uppercase tracking-wide text-gray-400 mb-1.5">Quick pick</p>
+                                    <div class="client-chips-scroll">
+                                        <button type="button" @click="clientClear()"
+                                            class="chip-btn"
+                                            :class="!clientId ? 'active' : ''">Internal</button>
+                                        @foreach($recentClientsForPicker as $client)
+                                        <button type="button" @click="clientSelect({ id: {{ $client['id'] }}, name: @js($client['name']) })"
+                                            class="chip-btn truncate"
+                                            :class="String(clientId) === '{{ $client['id'] }}' ? 'active' : ''"
+                                            title="{{ $client['name'] }}">{{ $client['name'] }}</button>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                @endif
+                                <p class="text-[11px] text-gray-500" x-show="!clientId">Optional — leave empty for internal tasks.</p>
+                                <div x-show="clientId" x-cloak x-transition class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 border border-emerald-200 px-2.5 py-1.5 text-xs font-semibold text-emerald-900">
                                     <svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                     <span x-text="clientLabel"></span>
                                 </div>
@@ -232,7 +253,7 @@
                         </tr>
                     </tbody>
                 </table>
-            </section>
+            </div>
 
             <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
                 <p class="text-[11px] text-gray-500">

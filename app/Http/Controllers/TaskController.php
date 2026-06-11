@@ -95,7 +95,29 @@ class TaskController extends Controller
                 'role' => \App\Support\WorkspaceProfile::roles()[$u->role] ?? ucfirst((string) $u->role),
             ])
             ->values();
-        $recentClientsForPicker = $clientsForPicker->take(5)->values();
+        $recentClientIds = Task::query()
+            ->whereNotNull('client_id')
+            ->orderByDesc('updated_at')
+            ->limit(30)
+            ->pluck('client_id')
+            ->unique()
+            ->take(4)
+            ->values();
+
+        $recentClientsForPicker = $clientsForPicker
+            ->filter(fn (array $c) => $recentClientIds->contains($c['id']))
+            ->values();
+
+        if ($recentClientsForPicker->isEmpty()) {
+            $recentClientsForPicker = $clientsForPicker->take(4)->values();
+        }
+
+        if (DemoWorkspace::isDemoUser($request->user())) {
+            $demoNames = ['Acme Corp', 'ABC Pvt Ltd', 'XYZ LLP', 'PQR Ltd'];
+            $recentClientsForPicker = $clientsForPicker
+                ->filter(fn (array $c) => in_array($c['name'], $demoNames, true))
+                ->values();
+        }
 
         return view('tasks.create', compact(
             'clients',
