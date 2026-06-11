@@ -81,6 +81,29 @@
 
     .dashboard-tab-panel.hidden { display: none !important; }
 
+    .dashboard-widget { position: relative; }
+    .dashboard-drag-handle {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        z-index: 5;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        border: 1px solid #e2e8f0;
+        background: rgba(255,255,255,0.92);
+        color: #64748b;
+        font-size: 0.65rem;
+        font-weight: 700;
+        cursor: grab;
+        user-select: none;
+    }
+    .dashboard-drag-handle:active { cursor: grabbing; }
+    .dashboard-widget-ghost { opacity: 0.45; }
+    .dashboard-widget-drag { box-shadow: 0 16px 40px rgba(15,23,42,0.12); }
+
     @media (max-width: 639px) {
         .glass-tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
         .glass-tab { flex-shrink: 0; }
@@ -263,7 +286,12 @@
 
     @include('dashboard.partials.onboarding-banner')
 
-    @include('dashboard.partials.mission-control')
+    <div id="dashboard-mission-sortable">
+        <div class="dashboard-widget" data-dashboard-widget="mission-control">
+            <span class="dashboard-drag-handle" title="Drag to reorder">⋮⋮ Drag</span>
+            @include('dashboard.partials.mission-control')
+        </div>
+    </div>
 
     <div class="flex flex-wrap items-center justify-end gap-3 -mb-2">
         <p class="text-[10px] text-gray-400" title="If this does not say tabs-v2, the server still has an old dashboard file">
@@ -289,61 +317,27 @@
 
     {{-- ===== OVERVIEW TAB ===== --}}
     <div data-dashboard-panel="overview" class="dashboard-tab-panel {{ $dashboardActiveTab !== 'overview' ? 'hidden' : '' }}">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <p class="text-xs text-gray-500 mb-3 flex items-center gap-1.5">
+            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/></svg>
+            Drag sections by the handle to arrange your dashboard.
+        </p>
+        <div id="dashboard-overview-sortable" class="space-y-6">
 
-            {{-- Pending Tasks --}}
-            <div class="lg:col-span-2 glass-card p-6 h-full">
-                <div class="flex flex-wrap justify-between items-center gap-2 mb-5">
-                    <div>
-                        <p class="glass-section-title mb-0">Today's priority queue</p>
-                        <p class="text-xs text-gray-500 mt-0.5">Your open tasks, soonest due first</p>
-                    </div>
-                    <a href="{{ route('tasks.index') }}" class="text-indigo-600 text-xs font-semibold hover:text-indigo-800">View all →</a>
-                </div>
-                <ul class="space-y-2">
-                    @forelse($myPendingTasks->take(8) as $task)
-                    <li class="rounded-xl border border-gray-100 bg-gray-50/80 px-4 py-3 hover:border-indigo-200 hover:bg-indigo-50/50 transition">
-                        <div class="flex items-center justify-between gap-3">
-                            <div class="flex items-center gap-3 flex-1 min-w-0">
-                                <div class="h-2.5 w-2.5 rounded-full flex-shrink-0 {{ $task->due_date->isPast() ? 'bg-rose-500' : 'bg-indigo-500' }}"></div>
-                                <div class="min-w-0">
-                                    <div class="text-gray-900 text-sm font-semibold truncate">{{ $task->client?->name ?? 'Internal' }}</div>
-                                    <a href="{{ route('tasks.edit', $task) }}" class="text-gray-600 text-xs hover:text-indigo-600 truncate block">{{ $task->title }}</a>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2 flex-shrink-0">
-                                @if(isset($task->client->primary_contact_phone) && $task->client->primary_contact_phone)
-                                @php
-                                $phone = preg_replace('/[^0-9]/', '', $task->client->primary_contact_phone);
-                                if(strlen($phone) == 10) $phone = '91' . $phone;
-                                $msg = "Hi " . ($task->client?->name ?? 'Client') . ", a gentle reminder regarding '" . $task->title . "' which is due on " . $task->due_date->format('d M') . ".";
-                                $waLink = "https://wa.me/" . $phone . "?text=" . urlencode($msg);
-                                @endphp
-                                <a href="{{ $waLink }}" target="_blank" class="text-emerald-600 hover:text-emerald-700" title="WhatsApp reminder">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 2C6.502 2 2 6.516 2 12.067c0 1.83.487 3.633 1.414 5.23L2.007 22l4.897-1.28c1.55.845 3.302 1.29 5.127 1.29h.005c5.53 0 10.031-4.515 10.031-10.067C22.063 6.52 17.561 2 12.031 2z"/></svg>
-                                </a>
-                                @endif
-                                <span class="text-xs px-2.5 py-1 rounded-full font-semibold {{ $task->due_date->isPast() ? 'bg-rose-100 text-rose-800' : 'bg-white text-gray-600 border border-gray-200' }}">
-                                    {{ $task->due_date->format('d M') }}
-                                </span>
-                            </div>
-                        </div>
-                    </li>
-                    @empty
-                    <li class="dash-empty">
-                        <p class="text-3xl mb-2">✓</p>
-                        <p class="text-gray-700 text-sm font-semibold">All caught up</p>
-                        <p class="text-gray-500 text-xs mt-1 mb-4">No pending tasks on your queue.</p>
-                        <a href="{{ route('tasks.create') }}" class="inline-flex items-center gap-1 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">+ Create a task</a>
-                    </li>
-                    @endforelse
-                </ul>
+            @if(auth()->user()?->canAccessModule('tasks'))
+            <div class="dashboard-widget" data-dashboard-widget="my-day">
+                <span class="dashboard-drag-handle" title="Drag to reorder">⋮⋮ Drag</span>
+                @include('tasks.partials.my-day-panel', [
+                    'tasksToday' => $myDayTasksToday ?? collect(),
+                    'tasksUpcoming' => $myDayTasksUpcoming ?? collect(),
+                ])
             </div>
+            @endif
 
-            {{-- Upcoming Deadlines --}}
             @php
                 $upcomingOverview = $alerts->take(4);
             @endphp
+            <div class="dashboard-widget" data-dashboard-widget="upcoming">
+                <span class="dashboard-drag-handle" title="Drag to reorder">⋮⋮ Drag</span>
             <div class="glass-card p-6 flex flex-col">
                 <div class="flex justify-between items-center mb-4">
                     <p class="glass-section-title mb-0">Upcoming overview</p>
@@ -410,9 +404,13 @@
                 </div>
                 @endif
             </div>
-        </div>
+            </div>
 
-        @include('dashboard.partials.schedule-calendar')
+            <div class="dashboard-widget" data-dashboard-widget="calendar">
+                <span class="dashboard-drag-handle" title="Drag to reorder">⋮⋮ Drag</span>
+                @include('dashboard.partials.schedule-calendar')
+            </div>
+        </div>
     </div>
 
     {{-- ===== WORKLOAD TAB ===== --}}
@@ -524,11 +522,13 @@
     @include('partials.welcome-modal')
 
     @include('dashboard.partials.tabs-script')
+    @include('dashboard.partials.layout-script')
     @includeIf('dashboard.partials.error-reporter', ['dashboardBuildId' => $dashboardBuildId ?? 'unknown'])
 </div>
 @endsection
 
 @section('scripts')
+@include('tasks.partials.my-day-status-script')
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 <script>
 function calendarFilterBar() {

@@ -61,7 +61,11 @@ class LoginController extends Controller
             $request->session()->flash('demo_tour_fresh_start', true);
         }
 
-        if ($user->prefersMyDayHome() && $user->canAccessModule('tasks')) {
+        if (DemoWorkspace::isDemoOrganization($organization)) {
+            return redirect()->intended(route('dashboard'));
+        }
+
+        if ($user->canAccessModule('tasks')) {
             return redirect()->intended(route('tasks.my-day'));
         }
 

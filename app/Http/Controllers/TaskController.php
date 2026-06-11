@@ -226,11 +226,16 @@ class TaskController extends Controller
         return response()->json(['success' => true, 'message' => $message]);
     }
 
-    public function destroy(Task $task)
+    public function destroy(Request $request, Task $task)
     {
         $this->authorize('delete', $task);
 
         $task->delete();
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'message' => 'Task deleted.']);
+        }
+
         return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');
     }
 

@@ -41,8 +41,11 @@ class DashboardController extends Controller
         }
 
         $isPartner = $user?->isWorkspaceOwner() ?? false;
+        $myDay = $this->myDayTasksFor($user);
 
         return view('dashboard', array_merge($data, [
+            'myDayTasksToday' => $myDay['today'],
+            'myDayTasksUpcoming' => $myDay['upcoming'],
             'calendarEvents' => $calendarEvents,
             'calendarFilters' => $calendarFilters,
             'calendarFilterOptions' => $calendarFilterOptions,
@@ -80,6 +83,25 @@ class DashboardController extends Controller
             'tab_root_marker' => str_contains($content, 'dashboard-tab-root'),
             'controller_deploy_probe' => true,
         ]);
+    }
+
+    /** @return array{today: \Illuminate\Support\Collection, upcoming: \Illuminate\Support\Collection} */
+    private function myDayTasksFor(?\App\Models\User $user): array
+    {
+        if (! $user) {
+            return ['today' => collect(), 'upcoming' => collect()];
+        }
+
+        $query = Task::with(['client'])
+            ->whereNotIn('status', Task::TERMINAL_STATUSES)
+            ->where('assigned_to', $user->id);
+
+        $today = now()->startOfDay();
+
+        return [
+            'today' => (clone $query)->whereDate('due_date', '<=', $today)->orderBy('due_date')->get(),
+            'upcoming' => (clone $query)->whereDate('due_date', '>', $today)->orderBy('due_date')->limit(10)->get(),
+        ];
     }
 
     private function initialDashboardTab(Request $request, bool $isPartner): string

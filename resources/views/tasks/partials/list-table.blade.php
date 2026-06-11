@@ -45,7 +45,8 @@
                     <th>Task</th>
                     <th>Client</th>
                     <th>Assignee</th>
-                    <th class="due-cell pr-4">Due</th>
+                    <th class="due-cell">Due</th>
+                    <th class="w-28 pr-4 text-right">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -58,7 +59,7 @@
                     $assignee = TaskListDisplay::assigneeLabel($task);
                     $dueUrgent = $task->due_date && $task->due_date->isPast() || $dueContext === 'Due Today';
                 @endphp
-                <tr class="group cursor-pointer" onclick="window.location='{{ route('tasks.edit', $task) }}'">
+                <tr class="group">
                     <td class="priority-cell pl-4">
                         <div class="flex items-stretch gap-2 min-h-[2.75rem]">
                             <span class="tasks-priority-bar {{ $tone['bar'] }}"></span>
@@ -67,7 +68,7 @@
                             </span>
                         </div>
                     </td>
-                    <td>
+                    <td class="cursor-pointer" onclick="window.location='{{ route('tasks.edit', $task) }}'">
                         <p class="text-sm font-bold text-gray-900 group-hover:text-indigo-700 transition-colors">{{ $task->title }}</p>
                         <p class="text-xs mt-0.5 {{ $dueUrgent ? 'text-rose-600 font-semibold' : 'text-gray-500' }}">
                             {{ $dueContext ?: ($task->status) }}
@@ -86,10 +87,22 @@
                             <span class="text-[10px] font-bold text-indigo-600 tabular-nums">{{ $progress }}%</span>
                         </div>
                     </td>
-                    <td class="due-cell pr-4">
+                    <td class="due-cell cursor-pointer" onclick="window.location='{{ route('tasks.edit', $task) }}'">
                         <span class="text-sm font-bold {{ $dueUrgent ? 'text-rose-600' : 'text-gray-700' }}">
                             {{ $task->due_date ? $task->due_date->format('d M') : '—' }}
                         </span>
+                    </td>
+                    <td class="pr-4 text-right" onclick="event.stopPropagation()">
+                        <div class="flex items-center justify-end gap-1">
+                            <a href="{{ route('tasks.edit', $task) }}" class="rounded-lg px-2 py-1 text-xs font-semibold text-indigo-600 hover:bg-indigo-50">Edit</a>
+                            @can('delete', $task)
+                            <form action="{{ route('tasks.destroy', $task) }}" method="POST" class="inline" onsubmit="return confirm('Delete this task?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="rounded-lg px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-50">Delete</button>
+                            </form>
+                            @endcan
+                        </div>
                     </td>
                 </tr>
                 @endforeach
