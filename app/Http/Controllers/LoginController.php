@@ -58,6 +58,7 @@ class LoginController extends Controller
             $user->forceFill(['demo_tour_completed_at' => null])->save();
             $request->session()->forget('demo_tour_dismissed');
             $request->session()->put('demo_tour_pending', true);
+            $request->session()->flash('demo_tour_fresh_start', true);
         }
 
         if ($user->prefersMyDayHome() && $user->canAccessModule('tasks')) {

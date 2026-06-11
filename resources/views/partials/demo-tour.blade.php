@@ -63,11 +63,17 @@
     }
     .demo-tour-fab {
         position: fixed;
-        bottom: 1.25rem;
+        bottom: 5.5rem;
         right: 1.25rem;
-        z-index: 55;
+        z-index: 220;
         font-size: 0.95rem;
     }
+    @media (min-width: 1024px) {
+        .demo-tour-fab { bottom: 1.25rem; }
+    }
+    @if(!empty($demoTour['show']))
+    #demo-tour-welcome:not([data-alpine-ready]) { display: flex !important; }
+    @endif
     #demo-tour-root [x-cloak] { display: none !important; }
     body.demo-tour-autoplay .driver-popover.demo-tour-popover .driver-popover-footer button.driver-popover-next-btn,
     body.demo-tour-autoplay .driver-popover.demo-tour-popover .driver-popover-footer button.driver-popover-prev-btn {

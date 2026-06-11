@@ -38,6 +38,7 @@ class DemoTourController extends Controller
         $user->forceFill(['demo_tour_completed_at' => null])->save();
         $request->session()->forget('demo_tour_dismissed');
         $request->session()->put('demo_tour_pending', true);
+        $request->session()->flash('demo_tour_fresh_start', true);
 
         return redirect()->route('dashboard')->with('success', 'Product tour ready — welcome screen will appear now.');
     }

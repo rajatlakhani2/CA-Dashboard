@@ -15,7 +15,7 @@
     </div>
 
     @if(!empty($demoTour['show']))
-    <div x-show="welcomeOpen" x-cloak class="fixed inset-0 z-[200]" role="dialog" aria-modal="true">
+    <div id="demo-tour-welcome" x-show="welcomeOpen" class="fixed inset-0 z-[200]" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm" @click="skip()"></div>
         <div class="fixed inset-0 z-10 flex items-center justify-center p-4 pointer-events-none">
             <div class="demo-welcome-card demo-tour-modal-card pointer-events-auto rounded-2xl shadow-2xl p-6 sm:p-7 relative overflow-hidden" @click.stop>
@@ -141,8 +141,16 @@ function demoTourWelcome() {
         cinemaActive: false,
 
         init() {
+            const welcomeEl = document.getElementById('demo-tour-welcome');
+            if (welcomeEl) welcomeEl.setAttribute('data-alpine-ready', '1');
+
             if (AUTO_PLAY) {
                 document.body.classList.add('demo-tour-autoplay');
+            }
+
+            const freshStart = @json(session('demo_tour_fresh_start'));
+            if (freshStart) {
+                this.clearTourStorage();
             }
 
             const resumeFromFlash = @json(session('demo_tour_resume_step'));
@@ -157,12 +165,35 @@ function demoTourWelcome() {
                 this.welcomeOpen = false;
                 this.cinemaActive = true;
                 setTimeout(() => this.runStep(idx), 850);
+                this.scheduleResumeRecovery();
                 return;
             }
 
             if (autoShow && AUTO_PLAY) {
                 this.startWelcomeCountdown();
             }
+        },
+
+        clearTourStorage() {
+            sessionStorage.removeItem(ACTIVE_KEY);
+            sessionStorage.removeItem(STEP_KEY);
+            window.DemoTourPlay?.clearAllPlayDone?.();
+        },
+
+        scheduleResumeRecovery() {
+            this.clearAutoAdvance();
+            autoAdvanceTimer = setTimeout(() => {
+                if (!this.welcomeOpen && !this.modalOpen && !driverInstance && !this.loadingOpen) {
+                    this.clearTourStorage();
+                    this.welcomeOpen = autoShow;
+                    this.cinemaActive = false;
+                    if (autoShow && AUTO_PLAY) {
+                        this.startWelcomeCountdown();
+                    } else if (window.DemoTourPlay?.toast) {
+                        window.DemoTourPlay.toast('Demo paused — tap “Take a tour” to restart.');
+                    }
+                }
+            }, 12000);
         },
 
         startWelcomeCountdown() {
@@ -235,9 +266,7 @@ function demoTourWelcome() {
         restartTour() {
             this.clearAutoAdvance();
             if (countdownInterval) clearInterval(countdownInterval);
-            window.DemoTourPlay?.clearAllPlayDone?.();
-            sessionStorage.setItem(ACTIVE_KEY, '1');
-            sessionStorage.setItem(STEP_KEY, '0');
+            this.clearTourStorage();
             this.stepIndex = 0;
             this.cinemaActive = false;
             this.welcomeOpen = true;
@@ -248,7 +277,7 @@ function demoTourWelcome() {
 
         startTour() {
             if (countdownInterval) clearInterval(countdownInterval);
-            window.DemoTourPlay?.clearAllPlayDone?.();
+            this.clearTourStorage();
             sessionStorage.setItem(ACTIVE_KEY, '1');
             sessionStorage.setItem(STEP_KEY, '0');
             this.stepIndex = 0;
