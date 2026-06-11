@@ -224,11 +224,15 @@ window.DemoTourPlay = (function () {
         },
 
         'my-day-start': async function () {
-            const startBtn = document.querySelector('.max-w-lg.mx-auto button[type="submit"]');
-            const card = document.querySelector('.max-w-lg.mx-auto .bg-white.rounded-xl.border');
+            const startBtn = Array.from(document.querySelectorAll('[data-my-day-status-form] button[type="submit"]')).find(function (btn) {
+                return (btn.textContent || '').indexOf('Start') !== -1;
+            }) || document.querySelector('.max-w-lg.mx-auto button[type="submit"]');
+            const card = startBtn?.closest('[data-my-day-task-card]') || document.querySelector('.max-w-lg.mx-auto .bg-white.rounded-xl.border');
             if (startBtn && (startBtn.textContent || '').indexOf('Start') !== -1) {
                 await cursorClick(startBtn);
-                return { reload: true };
+                toast('Task moved to In Progress — same list from the morning WhatsApp.');
+                await sleep(1800);
+                return;
             }
             if (card) {
                 card.classList.add('demo-tour-flash-pulse');

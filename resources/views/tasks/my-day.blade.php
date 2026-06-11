@@ -14,7 +14,7 @@
     <section>
         <h2 class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">Due today & overdue</h2>
         @forelse($tasksToday as $task)
-        <div class="bg-white rounded-xl border border-gray-200 p-4 mb-3 shadow-sm" x-data="{ showNote: false, showTime: false }">
+        <div class="bg-white rounded-xl border border-gray-200 p-4 mb-3 shadow-sm" data-my-day-task-card x-data="{ showNote: false, showTime: false }">
             <div class="flex justify-between items-start gap-2">
                 <div class="min-w-0 flex-1">
                     <p class="font-semibold text-gray-900">{{ $task->title }}</p>
@@ -23,7 +23,7 @@
                         Due {{ $task->due_date?->format('d M Y') ?? '—' }} · {{ $task->priority }}
                     </p>
                 </div>
-                <span class="shrink-0 text-[10px] font-bold uppercase px-2 py-1 rounded bg-gray-100 text-gray-600">{{ $task->status }}</span>
+                <span class="shrink-0 text-[10px] font-bold uppercase px-2 py-1 rounded bg-gray-100 text-gray-600" data-my-day-status>{{ $task->status }}</span>
             </div>
 
             @if($task->description)
@@ -32,14 +32,14 @@
 
             <div class="mt-3 flex gap-2">
                 @if($task->status !== \App\Models\Task::STATUS_IN_PROGRESS)
-                <form action="{{ route('tasks.update-status', $task) }}" method="POST" class="flex-1">
+                <form action="{{ route('tasks.update-status', $task) }}" method="POST" class="flex-1" data-my-day-status-form data-status-label="{{ \App\Models\Task::STATUS_IN_PROGRESS }}">
                     @csrf
                     @method('PATCH')
                     <input type="hidden" name="status" value="{{ \App\Models\Task::STATUS_IN_PROGRESS }}">
                     <button type="submit" class="w-full py-2.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-sm font-bold">Start</button>
                 </form>
                 @endif
-                <form action="{{ route('tasks.update-status', $task) }}" method="POST" class="flex-1">
+                <form action="{{ route('tasks.update-status', $task) }}" method="POST" class="flex-1" data-my-day-status-form data-status-label="{{ \App\Models\Task::STATUS_COMPLETED }}">
                     @csrf
                     @method('PATCH')
                     <input type="hidden" name="status" value="{{ \App\Models\Task::STATUS_COMPLETED }}">
@@ -93,3 +93,73 @@
     @endif
 </div>
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    var csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+
+    function toast(message) {
+        if (window.DemoTourPlay?.toast) {
+            window.DemoTourPlay.toast(message, 2200);
+            return;
+        }
+        var el = document.getElementById('my-day-status-toast');
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'my-day-status-toast';
+            el.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 z-50 max-w-sm px-4 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold shadow-lg opacity-0 transition-opacity';
+            document.body.appendChild(el);
+        }
+        el.textContent = message;
+        el.style.opacity = '1';
+        setTimeout(function () { el.style.opacity = '0'; }, 2200);
+    }
+
+    document.querySelectorAll('[data-my-day-status-form]').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            var btn = form.querySelector('button[type="submit"]');
+            if (!btn || btn.disabled) return;
+            btn.disabled = true;
+
+            var card = form.closest('[data-my-day-task-card]');
+            var statusEl = card?.querySelector('[data-my-day-status]');
+            var statusLabel = form.getAttribute('data-status-label') || '';
+            var body = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrf,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: body,
+            })
+                .then(function (res) {
+                    if (!res.ok) throw new Error('Status update failed');
+                    return res.json();
+                })
+                .then(function (data) {
+                    if (statusEl && statusLabel) {
+                        statusEl.textContent = statusLabel;
+                    }
+                    if (statusLabel === @json(\App\Models\Task::STATUS_IN_PROGRESS)) {
+                        form.remove();
+                    }
+                    card?.classList.add('demo-tour-flash-pulse');
+                    setTimeout(function () { card?.classList.remove('demo-tour-flash-pulse'); }, 1200);
+                    toast(data.message || 'Task status updated.');
+                })
+                .catch(function () {
+                    toast('Could not update task. Try again.');
+                })
+                .finally(function () {
+                    btn.disabled = false;
+                });
+        });
+    });
+})();
+</script>
+@endpush

@@ -19,7 +19,32 @@
     border-radius: 1rem;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
-.task-section:focus-within { border-color: #c7d2fe; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
+.task-create-table { border-collapse: collapse; }
+.task-create-table th {
+    width: 7.5rem;
+    min-width: 6.5rem;
+    vertical-align: top;
+    padding: 0.875rem 0.75rem 0.875rem 1rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #374151;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+}
+.task-create-table td {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: top;
+    min-width: 0;
+}
+.task-create-table tr:last-child th,
+.task-create-table tr:last-child td { border-bottom: none; }
+@media (min-width: 640px) {
+    .task-create-table th { width: 9.5rem; padding-left: 1.25rem; }
+    .task-create-table td { padding: 1rem 1.25rem; }
+}
 .assign-chip {
     border-radius: 0.75rem;
     border: 1px solid #e5e7eb;
@@ -60,7 +85,7 @@
             </a>
             <div>
                 <h1 class="font-display text-xl font-bold text-gray-900">Create a new task</h1>
-                <p class="text-sm text-gray-500">Details update live in the preview as you type.</p>
+                <p class="text-sm text-gray-500">All fields in one table — preview updates as you type.</p>
             </div>
         </div>
         <div class="hidden sm:flex items-center gap-2 text-xs text-gray-500">
@@ -83,150 +108,130 @@
 
         <div class="xl:col-span-3 space-y-4 min-w-0">
 
-            {{-- What --}}
-            <section class="task-section p-5 space-y-4">
-                <div class="flex items-center gap-2">
-                    <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700 text-xs font-bold">1</span>
-                    <h2 class="text-sm font-bold text-gray-900">What needs to be done?</h2>
-                </div>
-
-                <div>
-                    <label for="title" class="block text-xs font-semibold text-gray-700 mb-1.5">Task title <span class="text-red-500">*</span></label>
-                    <input type="text" name="title" id="title" x-model="title" required autofocus maxlength="255"
-                        placeholder="e.g. GSTR-3B filing, Bank reconciliation, DSC renewal…"
-                        class="block w-full rounded-xl border-gray-300 py-2.5 px-3.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                        :class="titleError ? 'border-red-300 ring-2 ring-red-100' : ''"
-                        @input="titleError = false">
-                    <div class="mt-1 flex items-center justify-between text-[11px]">
-                        <p class="text-red-600 font-medium" x-show="titleError" x-cloak>Title is required</p>
-                        <span class="ml-auto text-gray-400" :class="title.length > 220 ? 'text-amber-600 font-semibold' : ''" x-text="title.length + ' / 255'"></span>
-                    </div>
-                </div>
-
-                <div>
-                    <label for="description" class="block text-xs font-semibold text-gray-700 mb-1.5">Notes <span class="font-normal text-gray-400">(optional)</span></label>
-                    <textarea name="description" id="description" x-model="description" rows="3"
-                        placeholder="Scope, documents needed, checklist, links…"
-                        class="block w-full rounded-xl border-gray-300 text-sm py-2.5 px-3.5 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
-                </div>
-            </section>
-
-            {{-- Who --}}
-            <section class="task-section p-5 space-y-4">
-                <div class="flex items-center gap-2">
-                    <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700 text-xs font-bold">2</span>
-                    <h2 class="text-sm font-bold text-gray-900">Who is it for?</h2>
-                </div>
-
-                @if($recentClientsForPicker->isNotEmpty())
-                <div>
-                    <p class="text-xs font-semibold text-gray-600 mb-2">Recent clients</p>
-                    <div class="flex flex-wrap gap-1.5">
-                        <button type="button" @click="clientClear()"
-                            class="chip-btn"
-                            :class="!clientId ? 'active' : ''">Internal</button>
-                        @foreach($recentClientsForPicker as $client)
-                        <button type="button" @click="clientSelect({ id: {{ $client['id'] }}, name: @js($client['name']) })"
-                            class="chip-btn"
-                            :class="String(clientId) === '{{ $client['id'] }}' ? 'active' : ''">{{ $client['name'] }}</button>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
-
-                @include('tasks.partials.searchable-picker', [
-                    'name' => 'client_id',
-                    'label' => 'Client',
-                    'placeholder' => 'Search all clients…',
-                    'prefix' => 'client',
-                    'hint' => 'Leave empty for internal / office tasks.',
-                ])
-
-                <div x-show="clientId" x-transition class="flex items-center gap-2 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 text-sm text-emerald-900">
-                    <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                    <span class="font-semibold" x-text="clientLabel"></span>
-                </div>
-            </section>
-
-            {{-- When & priority --}}
-            <section class="task-section p-5 space-y-5">
-                <div class="flex items-center gap-2">
-                    <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700 text-xs font-bold">3</span>
-                    <h2 class="text-sm font-bold text-gray-900">When & how urgent?</h2>
-                </div>
-
-                <div>
-                    <p class="text-xs font-semibold text-gray-700 mb-2">Assign to</p>
-                    <div class="flex flex-wrap gap-2 mb-2">
-                        <button type="button" @click="setAssignmentMode('me')" class="assign-chip" :class="assignmentMode === 'me' ? 'active' : ''">
-                            Me ({{ auth()->user()->name }})
-                        </button>
-                        <button type="button" @click="setAssignmentMode('team')" class="assign-chip" :class="assignmentMode === 'team' ? 'active' : ''">
-                            Team member
-                        </button>
-                        <button type="button" @click="setAssignmentMode('unassigned')" class="assign-chip" :class="assignmentMode === 'unassigned' ? 'active' : ''">
-                            Unassigned
-                        </button>
-                    </div>
-                    <p class="text-xs text-gray-500 mb-3" x-text="assigneeHint()"></p>
-
-                    <div x-show="assignmentMode === 'team'" x-transition class="space-y-2">
-                        @if($usersForPicker->isEmpty())
-                        <p class="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                            No team members yet. <a href="{{ route('users.index') }}" class="font-semibold underline">Add staff in Settings</a> first.
-                        </p>
-                        @else
-                        <div class="flex flex-wrap gap-1.5 mb-2">
-                            <template x-for="opt in assigneeOptions.filter(o => o.id)" :key="opt.id">
-                                <button type="button" @click="assigneeSelect(opt)"
-                                    class="chip-btn"
-                                    :class="String(assigneeId) === String(opt.id) ? 'active' : ''">
-                                    <span x-text="opt.name"></span>
-                                    <span class="text-[10px] opacity-70" x-text="' · ' + (opt.role || '')"></span>
-                                </button>
-                            </template>
-                        </div>
-                        @include('tasks.partials.searchable-picker', [
-                            'name' => null,
-                            'label' => 'Or search',
-                            'placeholder' => 'Search staff name…',
-                            'prefix' => 'assignee',
-                            'compact' => true,
-                            'hint' => null,
-                        ])
-                        @endif
-                    </div>
-                </div>
-
-                <div>
-                    <p class="text-xs font-semibold text-gray-700 mb-2">Due date</p>
-                    <div class="flex flex-wrap gap-1.5 mb-2">
-                        <template x-for="preset in duePresets" :key="preset.days">
-                            <button type="button" @click="setDueDate(preset.days)"
-                                class="chip-btn"
-                                :class="duePresetActive(preset.days) ? 'active' : ''"
-                                x-text="preset.label"></button>
-                        </template>
-                    </div>
-                    <label for="due_date" class="text-xs text-gray-500">Custom date</label>
-                    <input type="date" name="due_date" id="due_date" x-model="dueDate"
-                        class="mt-1 block w-full max-w-xs rounded-xl border-gray-300 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                    <p class="mt-1 text-xs font-medium text-indigo-700" x-text="dueRelativeLabel()" x-show="dueDate"></p>
-                </div>
-
-                <div>
-                    <p class="text-xs font-semibold text-gray-700 mb-2">Priority</p>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        <template x-for="p in priorities" :key="p.value">
-                            <button type="button" @click="priority = p.value"
-                                class="rounded-xl border py-2.5 text-sm font-bold transition-all flex items-center justify-center gap-1.5"
-                                :class="priority === p.value ? p.activeClass : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-indigo-300'">
-                                <span x-text="p.icon"></span>
-                                <span x-text="p.label"></span>
-                            </button>
-                        </template>
-                    </div>
-                </div>
+            <section class="task-section overflow-hidden">
+                <table class="task-create-table w-full">
+                    <tbody>
+                        <tr>
+                            <th>Task title <span class="text-red-500">*</span></th>
+                            <td>
+                                <input type="text" name="title" id="title" x-model="title" required autofocus maxlength="255"
+                                    placeholder="e.g. GSTR-3B filing, Bank reconciliation, DSC renewal…"
+                                    class="block w-full rounded-lg border-gray-300 py-2 px-3 text-sm shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                                    :class="titleError ? 'border-red-300 ring-2 ring-red-100' : ''"
+                                    @input="titleError = false">
+                                <div class="mt-1 flex items-center justify-between text-[11px]">
+                                    <p class="text-red-600 font-medium" x-show="titleError" x-cloak>Title is required</p>
+                                    <span class="ml-auto text-gray-400" :class="title.length > 220 ? 'text-amber-600 font-semibold' : ''" x-text="title.length + ' / 255'"></span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Notes</th>
+                            <td>
+                                <textarea name="description" id="description" x-model="description" rows="2"
+                                    placeholder="Scope, documents needed, checklist, links…"
+                                    class="block w-full rounded-lg border-gray-300 text-sm py-2 px-3 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Client</th>
+                            <td class="space-y-2">
+                                @if($recentClientsForPicker->isNotEmpty())
+                                <div class="flex flex-wrap gap-1.5">
+                                    <button type="button" @click="clientClear()"
+                                        class="chip-btn"
+                                        :class="!clientId ? 'active' : ''">Internal</button>
+                                    @foreach($recentClientsForPicker as $client)
+                                    <button type="button" @click="clientSelect({ id: {{ $client['id'] }}, name: @js($client['name']) })"
+                                        class="chip-btn max-w-[11rem] truncate"
+                                        :class="String(clientId) === '{{ $client['id'] }}' ? 'active' : ''"
+                                        title="{{ $client['name'] }}">{{ $client['name'] }}</button>
+                                    @endforeach
+                                </div>
+                                @endif
+                                @include('tasks.partials.searchable-picker', [
+                                    'name' => 'client_id',
+                                    'label' => 'Client',
+                                    'placeholder' => 'Type to search clients…',
+                                    'prefix' => 'client',
+                                    'tableCell' => true,
+                                    'hint' => 'Leave empty for internal / office tasks.',
+                                ])
+                                <p class="text-[11px] text-gray-500" x-show="!clientId">Leave empty for internal tasks.</p>
+                                <div x-show="clientId" x-transition class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 border border-emerald-200 px-2.5 py-1.5 text-xs font-semibold text-emerald-900">
+                                    <svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    <span x-text="clientLabel"></span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Assign to</th>
+                            <td class="space-y-2">
+                                <div class="flex flex-wrap gap-1.5">
+                                    <button type="button" @click="setAssignmentMode('me')" class="assign-chip" :class="assignmentMode === 'me' ? 'active' : ''">
+                                        Me
+                                    </button>
+                                    <button type="button" @click="setAssignmentMode('team')" class="assign-chip" :class="assignmentMode === 'team' ? 'active' : ''">
+                                        Team
+                                    </button>
+                                    <button type="button" @click="setAssignmentMode('unassigned')" class="assign-chip" :class="assignmentMode === 'unassigned' ? 'active' : ''">
+                                        Unassigned
+                                    </button>
+                                </div>
+                                <p class="text-[11px] text-gray-500" x-text="assigneeHint()"></p>
+                                <div x-show="assignmentMode === 'team'" x-transition>
+                                    @if($usersForPicker->isEmpty())
+                                    <p class="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                                        No team members yet. <a href="{{ route('users.index') }}" class="font-semibold underline">Add staff</a> first.
+                                    </p>
+                                    @else
+                                    @include('tasks.partials.searchable-picker', [
+                                        'name' => null,
+                                        'label' => 'Team member',
+                                        'placeholder' => 'Search by name or role…',
+                                        'prefix' => 'assignee',
+                                        'tableCell' => true,
+                                        'showRole' => true,
+                                    ])
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Due date</th>
+                            <td class="space-y-2">
+                                <div class="flex flex-wrap gap-1.5">
+                                    <template x-for="preset in duePresets" :key="preset.days">
+                                        <button type="button" @click="setDueDate(preset.days)"
+                                            class="chip-btn"
+                                            :class="duePresetActive(preset.days) ? 'active' : ''"
+                                            x-text="preset.label"></button>
+                                    </template>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-3">
+                                    <input type="date" name="due_date" id="due_date" x-model="dueDate"
+                                        class="block w-full max-w-[11rem] rounded-lg border-gray-300 py-2 px-3 text-sm shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20">
+                                    <p class="text-xs font-semibold text-indigo-700" x-text="dueRelativeLabel()" x-show="dueDate"></p>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Priority</th>
+                            <td>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                                    <template x-for="p in priorities" :key="p.value">
+                                        <button type="button" @click="priority = p.value"
+                                            class="rounded-lg border py-2 text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1"
+                                            :class="priority === p.value ? p.activeClass : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-indigo-300'">
+                                            <span x-text="p.icon"></span>
+                                            <span x-text="p.label"></span>
+                                        </button>
+                                    </template>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </section>
 
             <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
@@ -418,8 +423,33 @@ function taskCreateForm() {
         },
         clientFiltered() {
             const q = this.clientSearch.toLowerCase().trim();
-            if (!q) return this.clientOptions;
-            return this.clientOptions.filter(o => o.name.toLowerCase().includes(q));
+            const list = q
+                ? this.clientOptions.filter(o => o.name.toLowerCase().includes(q))
+                : this.clientOptions;
+            return list.slice(0, 30);
+        },
+        clientOnFocus() {
+            this.clientOpen = true;
+            this.clientHighlightIndex = 0;
+            if (this.clientId && this.clientSearch === this.clientLabel) {
+                this.clientSearch = '';
+            }
+        },
+        clientOnInput() {
+            this.clientOpen = true;
+            this.clientHighlightIndex = 0;
+            if (this.clientId && this.clientSearch !== this.clientLabel) {
+                this.clientId = '';
+                this.clientLabel = '';
+            }
+        },
+        clientToggleOpen() {
+            this.clientOpen = !this.clientOpen;
+            if (this.clientOpen) this.clientHighlightIndex = 0;
+        },
+        clientDropdownHint() {
+            const q = this.clientSearch.trim();
+            return q ? ('Results for “' + q + '”') : 'Recent & all clients — type to filter';
         },
         clientSelect(opt) {
             this.clientId = opt.id === '' ? '' : String(opt.id);
@@ -443,8 +473,38 @@ function taskCreateForm() {
         },
         assigneeFiltered() {
             const q = this.assigneeSearch.toLowerCase().trim();
-            if (!q) return this.assigneeOptions;
-            return this.assigneeOptions.filter(o => o.name.toLowerCase().includes(q));
+            const list = q
+                ? this.assigneeOptions.filter(o => {
+                    const name = (o.name || '').toLowerCase();
+                    const role = (o.role || '').toLowerCase();
+                    return name.includes(q) || role.includes(q);
+                })
+                : this.assigneeOptions.filter(o => o.id);
+            return list.slice(0, 25);
+        },
+        assigneeOnFocus() {
+            this.assigneeOpen = true;
+            this.assigneeHighlightIndex = 0;
+            if (this.assigneeId && this.assigneeSearch === this.assigneeLabel) {
+                this.assigneeSearch = '';
+            }
+        },
+        assigneeOnInput() {
+            this.assigneeOpen = true;
+            this.assigneeHighlightIndex = 0;
+            if (this.assigneeId && this.assigneeSearch !== this.assigneeLabel) {
+                this.assigneeId = '';
+                this.assigneeLabel = '';
+                this.assignToMe = false;
+            }
+        },
+        assigneeToggleOpen() {
+            this.assigneeOpen = !this.assigneeOpen;
+            if (this.assigneeOpen) this.assigneeHighlightIndex = 0;
+        },
+        assigneeDropdownHint() {
+            const q = this.assigneeSearch.trim();
+            return q ? ('Results for “' + q + '”') : 'Team members — type name or role';
         },
         assigneeSelect(opt) {
             this.assigneeId = opt.id === '' ? '' : String(opt.id);
