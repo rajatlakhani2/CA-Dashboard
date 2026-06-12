@@ -211,6 +211,155 @@
         box-shadow: 0 4px 14px rgba(37, 99, 235, 0.12);
     }
 
+    .mc-strip-item--alert {
+        border-color: #fecaca;
+        background: rgba(254, 242, 242, 0.85);
+    }
+
+    .mc-strip-item--alert:hover {
+        border-color: #f87171;
+    }
+
+    .exec-summary__card {
+        border: 1px solid var(--premium-border);
+        border-radius: var(--premium-radius);
+        background: rgba(255, 255, 255, 0.72);
+        padding: 0.85rem 1rem;
+        box-shadow: var(--vx-shadow-card);
+    }
+
+    .exec-summary__card--flat {
+        background: rgba(248, 250, 252, 0.9);
+    }
+
+    .exec-summary__label {
+        font-size: 0.625rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--premium-muted);
+    }
+
+    .exec-summary__row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.45rem 0.6rem;
+        border-radius: 0.5rem;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        font-size: 0.8125rem;
+        color: #0f172a;
+        text-decoration: none;
+        transition: border-color 0.15s;
+    }
+
+    .exec-summary__row:hover {
+        border-color: #93c5fd;
+    }
+
+    .exec-summary__row--risk {
+        border-color: #fecaca;
+        background: #fffbfb;
+        color: #881337;
+    }
+
+    .exec-summary__insight {
+        display: flex;
+        gap: 0.4rem;
+        font-size: 0.8125rem;
+        color: #4c1d95;
+        padding: 0.15rem 0.25rem;
+    }
+
+    .exec-summary__chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        border-radius: 0.5rem;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: #334155;
+    }
+
+    .exec-summary__chip--hot {
+        border-color: #fecaca;
+        background: #fef2f2;
+        color: #9f1239;
+    }
+
+    .exec-summary__chip--cool {
+        border-color: #bbf7d0;
+        background: #f0fdf4;
+        color: #166534;
+    }
+
+    .exec-summary__score {
+        width: 1.75rem;
+        height: 1.75rem;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.6875rem;
+        font-weight: 800;
+        flex-shrink: 0;
+    }
+
+    .exec-summary__score--green { background: #d1fae5; color: #065f46; }
+    .exec-summary__score--amber { background: #fef3c7; color: #92400e; }
+    .exec-summary__score--rose { background: #ffe4e6; color: #9f1239; }
+
+    .exec-summary__deadline {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.15rem;
+        padding: 0.55rem 0.35rem;
+        border-radius: 0.65rem;
+        border: 1px solid transparent;
+        text-decoration: none;
+        transition: transform 0.15s;
+    }
+
+    .exec-summary__deadline:hover { transform: translateY(-1px); }
+    .exec-summary__deadline--7 { background: #fff1f2; border-color: #fecdd3; color: #9f1239; }
+    .exec-summary__deadline--15 { background: #fffbeb; border-color: #fde68a; color: #92400e; }
+    .exec-summary__deadline--30 { background: #fefce8; border-color: #fef08a; color: #854d0e; }
+
+    .cal-preset {
+        border-radius: 9999px;
+        border: 1px solid #cbd5e1;
+        background: #fff;
+        padding: 0.25rem 0.65rem;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: #475569;
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+
+    .cal-preset:hover {
+        border-color: #818cf8;
+        color: #3730a3;
+    }
+
+    .cal-preset--active {
+        color: #fff;
+        border-color: transparent;
+        background: linear-gradient(135deg, #2563eb, #0d9488);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .cal-preset--alert.cal-preset--active {
+        background: linear-gradient(135deg, #e11d48, #be123c);
+        box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25);
+    }
+
     .mc-strip-item p:first-child {
         font-size: 0.625rem;
         font-weight: 600;

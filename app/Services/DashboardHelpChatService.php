@@ -77,7 +77,7 @@ class DashboardHelpChatService
 
         $topics = [
             [
-                'keys' => ['mission control', 'command centre', 'command center', 'dashboard overview', 'firm at a glance'],
+                'keys' => ['mission control', 'command centre', 'command center', 'executive summary', 'dashboard overview', 'firm at a glance'],
                 'text' => "🎯 Mission Control is your {$brand} home screen — today's deadlines, risk alerts, team workload, and accounts needing attention in one view.",
                 'url' => $user && ModuleGate::allowed($user, 'dashboard') ? route('dashboard') : null,
                 'module' => 'dashboard',

@@ -13,7 +13,7 @@ class ModuleGate
     public static function groups(): array
     {
         return [
-            'Command Centre' => ['dashboard'],
+            'Executive Summary' => ['dashboard'],
             'Clients & Documents' => ['clients', 'credentials', 'smart_documents'],
             'Work' => ['tasks', 'staff'],
             'Compliance' => ['service_dues', 'personal_renewals', 'compliance', 'dsc', 'tds'],

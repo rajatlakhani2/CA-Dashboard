@@ -87,8 +87,23 @@ class DashboardMissionControlService
         $strip = [];
 
         if (ModuleGate::allowed($user, 'tasks')) {
-            $strip[] = ['label' => 'Tasks due today', 'value' => $tasksDueToday, 'url' => route('tasks.index'), 'tone' => 'amber'];
-            $strip[] = ['label' => 'Tasks overdue', 'value' => $tasksOverdue, 'url' => route('tasks.index'), 'tone' => 'rose'];
+            $strip[] = [
+                'label' => 'Tasks due today',
+                'value' => $tasksDueToday,
+                'url' => route('tasks.index', ['due' => 'due_today']),
+                'tone' => 'amber',
+            ];
+            $strip[] = [
+                'label' => 'Tasks overdue',
+                'value' => $tasksOverdue,
+                'url' => route('dashboard', [
+                    'tab' => 'calendar',
+                    'show_tasks' => 1,
+                    'show_dues' => 0,
+                    'due_status' => 'overdue',
+                ]),
+                'tone' => 'rose',
+            ];
         }
 
         if (ModuleGate::allowed($user, 'service_dues')) {

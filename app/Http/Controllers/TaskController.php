@@ -44,6 +44,18 @@ class TaskController extends Controller
             });
         }
 
+        if ($request->filled('due')) {
+            $today = now()->startOfDay();
+            $due = $request->string('due')->toString();
+            if ($due === 'overdue') {
+                $query->whereNotIn('status', Task::TERMINAL_STATUSES)
+                    ->whereDate('due_date', '<', $today);
+            } elseif ($due === 'due_today') {
+                $query->whereNotIn('status', Task::TERMINAL_STATUSES)
+                    ->whereDate('due_date', $today);
+            }
+        }
+
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }

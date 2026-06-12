@@ -289,7 +289,13 @@
     <div id="dashboard-mission-sortable">
         <div class="dashboard-widget" data-dashboard-widget="mission-control">
             <span class="dashboard-drag-handle" title="Drag to reorder">⋮⋮ Drag</span>
-            @include('dashboard.partials.mission-control')
+            @include('dashboard.partials.mission-control', [
+                'upcomingCounts' => $upcomingCounts ?? [],
+                'deadline7Url' => $deadline7Url ?? '#',
+                'deadline15Url' => $deadline15Url ?? '#',
+                'deadline30Url' => $deadline30Url ?? '#',
+                'canManageFirm' => $canManageFirm ?? false,
+            ])
         </div>
     </div>
 
@@ -332,79 +338,6 @@
                 ])
             </div>
             @endif
-
-            @php
-                $upcomingOverview = $alerts->take(4);
-            @endphp
-            <div class="dashboard-widget" data-dashboard-widget="upcoming">
-                <span class="dashboard-drag-handle" title="Drag to reorder">⋮⋮ Drag</span>
-            <div class="glass-card p-6 flex flex-col">
-                <div class="flex justify-between items-center mb-4">
-                    <p class="glass-section-title mb-0">Upcoming overview</p>
-                    @if($canManageFirm)
-                    <a href="{{ route('reports.due-date') }}" class="text-indigo-600 text-xs font-semibold hover:text-indigo-800">Report →</a>
-                    @else
-                    <a href="{{ route('service-dues.index') }}" class="text-indigo-600 text-xs font-semibold hover:text-indigo-800">Reminders →</a>
-                    @endif
-                </div>
-                <div class="space-y-2 mb-6">
-                    @forelse($upcomingOverview as $alert)
-                    <div class="rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
-                        <div class="flex items-start justify-between gap-3">
-                            <div class="min-w-0">
-                                <p class="text-sm font-semibold text-gray-900 truncate">{{ $alert->clientService?->client?->name ?? 'Internal' }}</p>
-                                <p class="text-xs text-gray-500 truncate">{{ $alert->clientService?->service?->name ?? 'Service due' }}</p>
-                            </div>
-                            <span class="text-xs font-bold text-gray-700 whitespace-nowrap bg-gray-100 px-2 py-1 rounded-lg">{{ \Carbon\Carbon::parse($alert->due_date)->format('d M') }}</span>
-                        </div>
-                    </div>
-                    @empty
-                    <div class="dash-empty py-8">
-                        <p class="text-sm font-medium text-gray-600">No urgent dues</p>
-                        <p class="text-xs text-gray-500 mt-1">Compliance queue is clear for now.</p>
-                    </div>
-                    @endforelse
-                </div>
-                <p class="glass-section-title">Upcoming deadlines</p>
-                <div class="space-y-3 flex-1">
-                    <a href="{{ $deadline7Url }}" class="deadline-pill deadline-pill-7">
-                        <div>
-                            <div class="text-rose-800 font-bold text-sm">Next 7 days</div>
-                            <div class="text-rose-600/80 text-xs mt-0.5">Critical window</div>
-                        </div>
-                        <div class="text-rose-700 text-3xl font-black">{{ $upcomingCounts['7_days'] }}</div>
-                    </a>
-                    <a href="{{ $deadline15Url }}" class="deadline-pill deadline-pill-15">
-                        <div>
-                            <div class="text-amber-800 font-bold text-sm">7 – 15 days</div>
-                            <div class="text-amber-700/80 text-xs mt-0.5">Plan ahead</div>
-                        </div>
-                        <div class="text-amber-700 text-3xl font-black">{{ $upcomingCounts['15_days'] - $upcomingCounts['7_days'] }}</div>
-                    </a>
-                    <a href="{{ $deadline30Url }}" class="deadline-pill deadline-pill-30">
-                        <div>
-                            <div class="text-yellow-800 font-bold text-sm">15 – 30 days</div>
-                            <div class="text-yellow-700/80 text-xs mt-0.5">On the horizon</div>
-                        </div>
-                        <div class="text-yellow-700 text-3xl font-black">{{ $upcomingCounts['30_days'] - $upcomingCounts['15_days'] }}</div>
-                    </a>
-                </div>
-
-                @if($highRiskClients->count() > 0)
-                <div class="mt-6 pt-5 border-t border-gray-100">
-                    <p class="glass-section-title">High-risk clients</p>
-                    <ul class="space-y-2">
-                        @foreach($highRiskClients->take(4) as $client)
-                        <li class="flex justify-between items-center rounded-lg bg-rose-50 px-3 py-2 border border-rose-100">
-                            <span class="text-gray-800 text-sm font-medium truncate">{{ $client->name }}</span>
-                            <a href="{{ route('clients.show', $client) }}" class="text-indigo-600 text-xs font-semibold ml-2 flex-shrink-0">View</a>
-                        </li>
-                        @endforeach
-                    </ul>
-                </div>
-                @endif
-            </div>
-            </div>
 
             <div class="dashboard-widget" data-dashboard-widget="calendar">
                 <span class="dashboard-drag-handle" title="Drag to reorder">⋮⋮ Drag</span>
@@ -533,7 +466,22 @@
 <script>
 function calendarFilterBar() {
     var initial = @json($calendarFilters->toQueryArray());
-    return {
+    function detectPreset(state) {
+        if (state.showTasks && !state.showDues && state.dueStatus === 'overdue') {
+            return 'tasks_overdue';
+        }
+        if (state.showTasks && !state.showDues) {
+            return 'tasks';
+        }
+        if (!state.showTasks && state.showDues) {
+            return 'dues';
+        }
+        if (state.showTasks && state.showDues && state.dueStatus === 'active') {
+            return 'all';
+        }
+        return 'custom';
+    }
+    var state = {
         showTasks: initial.show_tasks !== '0',
         showDues: initial.show_dues !== '0',
         dueStatus: initial.due_status || 'active',
@@ -541,6 +489,40 @@ function calendarFilterBar() {
         assignedTo: initial.assigned_to ? String(initial.assigned_to) : '',
         branchId: initial.branch_id ? String(initial.branch_id) : '',
         category: initial.category || '',
+    };
+    return {
+        showTasks: state.showTasks,
+        showDues: state.showDues,
+        dueStatus: state.dueStatus,
+        serviceId: state.serviceId,
+        assignedTo: state.assignedTo,
+        branchId: state.branchId,
+        category: state.category,
+        preset: detectPreset(state),
+        syncPreset() {
+            this.preset = detectPreset(this);
+        },
+        setPreset(preset) {
+            this.preset = preset;
+            if (preset === 'all') {
+                this.showTasks = true;
+                this.showDues = true;
+                this.dueStatus = 'active';
+            } else if (preset === 'tasks') {
+                this.showTasks = true;
+                this.showDues = false;
+                this.dueStatus = 'active';
+            } else if (preset === 'dues') {
+                this.showTasks = false;
+                this.showDues = true;
+                this.dueStatus = 'active';
+            } else if (preset === 'tasks_overdue') {
+                this.showTasks = true;
+                this.showDues = false;
+                this.dueStatus = 'overdue';
+            }
+            this.apply();
+        },
         queryParams() {
             var p = new URLSearchParams();
             p.set('show_tasks', this.showTasks ? '1' : '0');
@@ -564,9 +546,7 @@ function calendarFilterBar() {
             });
         },
         reset() {
-            this.showTasks = true;
-            this.showDues = true;
-            this.dueStatus = 'active';
+            this.setPreset('all');
             this.serviceId = '';
             this.assignedTo = '';
             this.branchId = '';

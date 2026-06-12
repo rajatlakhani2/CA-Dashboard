@@ -29,7 +29,7 @@ class ClientModuleTest extends TestCase
     {
         $response = $this->get('/clients');
         $response->assertStatus(200);
-        $response->assertSee('COMMAND CENTRE');
+        $response->assertSee('Executive Summary');
     }
 
     public function test_can_create_client()

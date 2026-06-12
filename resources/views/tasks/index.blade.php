@@ -6,7 +6,14 @@
 <div class="space-y-4 max-w-6xl mx-auto" x-data="{ filtersOpen: false }">
     {{-- Toolbar: title row + search / filter / sort --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <h2 class="text-xl font-bold text-gray-900">Tasks</h2>
+        <div class="flex flex-wrap items-center gap-2">
+            <h2 class="text-xl font-bold text-gray-900">Tasks</h2>
+            @if(request('due') === 'overdue')
+            <span class="inline-flex items-center rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-bold text-rose-800">Overdue only</span>
+            @elseif(request('due') === 'due_today')
+            <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-900">Due today</span>
+            @endif
+        </div>
         @can('create', App\Models\Task::class)
         <a href="{{ route('tasks.create') }}"
             class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-indigo-700 transition-colors shrink-0">
@@ -17,6 +24,9 @@
 
     <form method="GET" action="{{ route('tasks.index') }}" class="flex flex-col sm:flex-row gap-2 sm:items-center">
         <input type="hidden" name="view" value="{{ $view }}">
+        @if(request('due'))
+        <input type="hidden" name="due" value="{{ request('due') }}">
+        @endif
         <div class="relative flex-1 min-w-0">
             <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             <input type="search" name="q" value="{{ request('q') }}"
@@ -43,6 +53,7 @@
             <input type="hidden" name="view" value="{{ $view }}">
             <input type="hidden" name="q" value="{{ request('q') }}">
             <input type="hidden" name="sort" value="{{ request('sort', 'due') }}">
+            <input type="hidden" name="due" value="{{ request('due') }}">
             <div>
                 <label for="status" class="block text-xs font-semibold text-gray-600 mb-1">Status</label>
                 <select name="status" id="status" class="block w-full rounded-lg border-gray-200 text-sm" onchange="this.form.submit()">
