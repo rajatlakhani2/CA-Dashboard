@@ -20,6 +20,8 @@ class ClientCredential extends Model
 
     public const CATEGORY_TAN = 'TAN';
 
+    public const CATEGORY_TRACES = 'TRACES';
+
     public const CATEGORY_BANK = 'Bank';
 
     public const CATEGORY_PF = 'PF';
@@ -33,6 +35,7 @@ class ClientCredential extends Model
         self::CATEGORY_IT,
         self::CATEGORY_MCA,
         self::CATEGORY_TAN,
+        self::CATEGORY_TRACES,
         self::CATEGORY_BANK,
         self::CATEGORY_PF,
         self::CATEGORY_ESIC,
