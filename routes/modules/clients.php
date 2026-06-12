@@ -65,6 +65,13 @@ Route::middleware('role:partner,manager')->group(function () {
 });
 
 Route::middleware(['role:partner,manager', 'module:credentials'])->group(function () {
+    Route::get('/gov-portals/{portal}/clients', [\App\Http\Controllers\GovernmentPortalController::class, 'clients'])
+        ->whereIn('portal', \App\Support\GovernmentPortals::ids())
+        ->name('gov-portals.clients');
+    Route::get('/gov-portals/{portal}/launch/{credential}', [\App\Http\Controllers\GovernmentPortalController::class, 'launch'])
+        ->whereIn('portal', \App\Support\GovernmentPortals::ids())
+        ->name('gov-portals.launch');
+
     Route::get('/credentials', [\App\Http\Controllers\ClientCredentialController::class, 'index'])->name('credentials.index');
     Route::post('/credentials', [\App\Http\Controllers\ClientCredentialController::class, 'store'])->name('credentials.store');
     Route::post('/credentials/{credential}/audit', [\App\Http\Controllers\ClientCredentialController::class, 'audit'])->name('credentials.audit');

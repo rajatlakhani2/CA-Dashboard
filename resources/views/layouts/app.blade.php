@@ -508,6 +508,10 @@
                         </h2>
                     </div>
                     <div class="flex items-center space-x-4">
+                        @can('viewAny', App\Models\ClientCredential::class)
+                        @include('partials.government-portal-buttons')
+                        @endcan
+                        @include('partials.demo-tour')
                         <!-- Search Trigger -->
                         <div class="hidden md:flex items-center mr-2" x-data @click="$dispatch('keydown.window.prevent.ctrl.k')">
                             <div class="relative cursor-text group">
