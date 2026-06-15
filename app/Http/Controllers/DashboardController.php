@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateCalendarDateRequest;
+use App\Models\Client;
 use App\Models\PersonalRenewal;
 use App\Models\ServiceDue;
 use App\Models\Task;
+use Illuminate\Database\Eloquent\Builder;
 use App\Services\DashboardCalendarBuilder;
 use App\Services\DashboardCalendarFilters;
 use App\Services\DashboardMetricsService;
@@ -42,10 +44,13 @@ class DashboardController extends Controller
 
         $isPartner = $user?->isWorkspaceOwner() ?? false;
         $myDay = $this->myDayTasksFor($user);
+        $dueTomorrow = $this->dueTomorrowFor($user);
 
         return view('dashboard', array_merge($data, [
             'myDayTasksToday' => $myDay['today'],
             'myDayTasksUpcoming' => $myDay['upcoming'],
+            'dueTomorrowTasks' => $dueTomorrow['tasks'],
+            'dueTomorrowDues' => $dueTomorrow['dues'],
             'calendarEvents' => $calendarEvents,
             'calendarFilters' => $calendarFilters,
             'calendarFilterOptions' => $calendarFilterOptions,
@@ -58,7 +63,7 @@ class DashboardController extends Controller
             'initialDashboardTab' => $this->initialDashboardTab($request, $isPartner),
             'firmOverview' => $isPartner ? app(PartnerFirmOverviewService::class)->build($user) : null,
             'showFirmOverviewTab' => $isPartner,
-            'dashboardBuildId' => 'executive-summary-v1-20260612',
+            'dashboardBuildId' => 'executive-summary-v5-gridfix-20260612',
         ]));
     }
 
@@ -102,6 +107,53 @@ class DashboardController extends Controller
             'today' => (clone $query)->whereDate('due_date', '<=', $today)->orderBy('due_date')->get(),
             'upcoming' => (clone $query)->whereDate('due_date', '>', $today)->orderBy('due_date')->limit(10)->get(),
         ];
+    }
+
+    /** @return array{tasks: \Illuminate\Support\Collection, dues: \Illuminate\Support\Collection<int, array<string, mixed>>} */
+    private function dueTomorrowFor(?\App\Models\User $user): array
+    {
+        if (! $user) {
+            return ['tasks' => collect(), 'dues' => collect()];
+        }
+
+        $tomorrow = now()->addDay()->startOfDay();
+        $managesFirm = $user->managesFirmModules();
+        $tasks = collect();
+        $dues = collect();
+
+        if ($user->canAccessModule('tasks')) {
+            $tasks = Task::with(['client'])
+                ->whereNotIn('status', Task::TERMINAL_STATUSES)
+                ->when(! $managesFirm, fn ($q) => $q->where('assigned_to', $user->id))
+                ->whereDate('due_date', $tomorrow)
+                ->orderBy('title')
+                ->get();
+        }
+
+        if ($user->canAccessModule('service_dues')) {
+            $dueQuery = ServiceDue::query()
+                ->with(['clientService.client', 'clientService.service'])
+                ->whereDate('due_date', $tomorrow)
+                ->where('status', ServiceDue::STATUS_PENDING);
+
+            if ($user->isManager() && $user->branch_id) {
+                $dueQuery->whereHas('clientService.client', fn (Builder $c) => $c->where('branch_id', $user->branch_id));
+            } elseif (! $user->hasRole('partner', 'manager')) {
+                $visibleIds = Client::visibleTo($user)->pluck('id');
+                $dueQuery->whereHas('clientService', fn (Builder $q) => $q->whereIn('client_id', $visibleIds));
+            }
+
+            $dues = $dueQuery->get()->map(fn (ServiceDue $due) => [
+                'id' => $due->id,
+                'client_name' => $due->clientService?->client?->name ?? 'Client',
+                'service_name' => $due->clientService?->service?->name ?? 'Service',
+                'url' => $due->clientService?->client
+                    ? route('clients.show', $due->clientService->client_id)
+                    : route('service-dues.index'),
+            ])->values();
+        }
+
+        return ['tasks' => $tasks, 'dues' => $dues];
     }
 
     private function initialDashboardTab(Request $request, bool $isPartner): string

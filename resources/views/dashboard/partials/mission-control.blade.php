@@ -1,144 +1,87 @@
 @php
     $mc = $missionControl ?? [];
-    $strip = $mc['today_strip'] ?? [];
-    $risks = $mc['risk_alerts'] ?? [];
-    $insights = $mc['ai_insights'] ?? [];
-    $team = $mc['team_workload'] ?? collect();
-    $attention = $mc['clients_needing_attention'] ?? collect();
+    $kpis = $mc['executive_kpis'] ?? ($mc['today_strip'] ?? []);
+    $showMyDay = auth()->user()?->canAccessModule('tasks') ?? false;
+    $showDuesTomorrow = auth()->user()?->canAccessModule('service_dues') ?? false;
+    $showTomorrow = $showMyDay || $showDuesTomorrow;
+    $showExecFirm = ($managesFirm ?? auth()->user()?->managesFirmModules()) || ($showFirmOverviewTab ?? false);
     $managesFirm = auth()->user()?->managesFirmModules() ?? false;
-    $hasActionItems = count($risks) > 0 || count($insights) > 0;
-    $hasPeopleColumn = ($team->isNotEmpty() && $managesFirm) || ($attention->isNotEmpty() && $managesFirm);
-    $showDeadlines = \App\Support\ModuleGate::allowed(auth()->user(), 'service_dues')
-        && ! empty($upcomingCounts ?? null);
+    $dueTomorrowTasks = $dueTomorrowTasks ?? collect();
+    $dueTomorrowDues = $dueTomorrowDues ?? collect();
+    $dueTomorrowTotal = $dueTomorrowTasks->count() + $dueTomorrowDues->count();
 @endphp
-<section class="mission-control executive-summary space-y-3 w-full" aria-label="Executive summary" data-demo-tour="mission-control">
-    <div class="mission-control__panel">
-        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3 mb-3">
-            <div class="flex gap-3 items-start min-w-0 flex-1">
-                <div class="dashboard-brand-icon shrink-0" aria-hidden="true">
-                    <div class="dashboard-brand-icon__circle">
-                        <span class="text-2xl leading-none">🕉️</span>
-                    </div>
-                </div>
-                <div class="min-w-0">
-                    <p class="mission-control__eyebrow">Executive Summary</p>
-                    <h2 class="mission-control__heading">{{ $mc['greeting'] ?? 'Welcome' }}</h2>
-                    <p class="text-xs text-[var(--premium-muted)] mt-0.5">{{ now()->format('l, d M Y') }} · {{ \App\Support\Branding::dashboardName() }}</p>
-                </div>
-            </div>
-            @if($managesFirm && \App\Support\ModuleGate::hasFinanceModule(auth()->user()) && isset($mc['revenue']['collected_today']))
-            <div class="rounded-xl border border-[var(--premium-border)] bg-[#f6f8fb] px-4 py-2 text-right shrink-0">
-                <p class="text-[10px] font-bold uppercase tracking-wider text-[var(--premium-muted)]">Collected today</p>
-                <p class="text-lg font-bold text-[var(--premium-navy)] tabular-nums">₹ {{ number_format($mc['revenue']['collected_today'], 0) }}</p>
-            </div>
-            @endif
+<section class="mission-control executive-summary executive-summary--customizable w-full" aria-label="Executive summary" data-demo-tour="mission-control">
+    <div class="mission-control__panel executive-summary__header mb-3">
+        <div class="min-w-0 flex-1">
+            <p class="mission-control__eyebrow">Executive Summary</p>
+            <h2 class="mission-control__heading text-xl sm:text-2xl">{{ $mc['greeting'] ?? 'Welcome' }}</h2>
+            <p class="text-[11px] text-[var(--premium-muted)]">{{ now()->format('l, d M Y') }} · {{ \App\Support\Branding::dashboardName() }}</p>
         </div>
-
-        <div class="mc-strip">
-            @foreach($strip as $item)
-            <a href="{{ $item['url'] }}" class="mc-strip-item {{ ($item['tone'] ?? '') === 'rose' ? 'mc-strip-item--alert' : '' }}">
-                <p>{{ $item['label'] }}</p>
-                <p>{{ $item['value'] }}</p>
-            </a>
-            @endforeach
-        </div>
+        <p class="executive-summary__layout-hint text-[10px] text-gray-500 shrink-0 hidden sm:block">Drag · ▼ collapse · drag ⤡ corner to resize</p>
     </div>
 
-    @if($hasActionItems || $hasPeopleColumn)
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        @if($hasActionItems)
-        <div class="exec-summary__card">
-            <div class="flex items-center justify-between gap-2 mb-2">
-                <p class="exec-summary__label">Action needed</p>
-                @if(count($insights) > 0)
-                <a href="{{ route('activity.index') }}" class="text-[10px] font-semibold text-indigo-600 hover:underline">The Pulse →</a>
-                @endif
-            </div>
-            <ul class="space-y-1.5">
-                @foreach($risks as $alert)
-                <li>
-                    <a href="{{ $alert['url'] }}" class="exec-summary__row exec-summary__row--risk">
-                        <span class="truncate">{{ $alert['label'] }}</span>
-                        <span class="font-black tabular-nums shrink-0">{{ $alert['count'] }}</span>
-                    </a>
-                </li>
-                @endforeach
-                @foreach(array_slice($insights, 0, 3) as $line)
-                <li class="exec-summary__insight">
-                    <span class="text-violet-500 shrink-0">•</span>
-                    <span>{{ $line }}</span>
-                </li>
-                @endforeach
-            </ul>
-        </div>
+    <div id="executive-summary-sortable" class="executive-summary__sortable">
+        @if($showMyDay)
+        <x-executive-widget id="exec-my-day" title="☀️ My Day" :subtitle="auth()->user()->name . ' · ' . now()->format('l, d M Y')">
+            @include('tasks.partials.my-day-panel', [
+                'tasksToday' => $myDayTasksToday ?? collect(),
+                'tasksUpcoming' => $myDayTasksUpcoming ?? collect(),
+                'compact' => true,
+                'hideUpcoming' => true,
+                'hideChrome' => true,
+            ])
+        </x-executive-widget>
         @endif
 
-        @if($hasPeopleColumn)
-        <div class="exec-summary__card" data-demo-tour="clients-attention">
-            @if($team->isNotEmpty())
-            <div class="flex justify-between items-center mb-2">
-                <p class="exec-summary__label">Team workload</p>
-                <a href="{{ route('workload.index') }}" class="text-[10px] font-semibold text-indigo-600">Planner →</a>
-            </div>
-            <div class="flex flex-wrap gap-1.5 mb-3">
-                @foreach($team->take(5) as $member)
-                <div class="exec-summary__chip {{ $member['status'] === 'overloaded' ? 'exec-summary__chip--hot' : ($member['status'] === 'idle' ? 'exec-summary__chip--cool' : '') }}">
-                    <span class="truncate max-w-[5.5rem]">{{ $member['name'] }}</span>
-                    <span class="font-black tabular-nums">{{ $member['open_tasks'] }}</span>
-                </div>
-                @endforeach
-            </div>
-            @endif
+        @if($showTomorrow)
+        <x-executive-widget id="exec-due-tomorrow" :title="'Due tomorrow (' . $dueTomorrowTotal . ')'" subtitle="Tasks and compliance dues due next working day">
+            @include('dashboard.partials.due-tomorrow-panel', [
+                'dueTomorrowTasks' => $dueTomorrowTasks,
+                'dueTomorrowDues' => $dueTomorrowDues,
+                'hideHeader' => true,
+            ])
+        </x-executive-widget>
+        @endif
 
-            @if($attention->isNotEmpty())
-            <div class="flex justify-between items-center mb-2 {{ $team->isNotEmpty() ? 'pt-2 border-t border-slate-100' : '' }}">
-                <p class="exec-summary__label">Clients needing attention</p>
-                <a href="{{ route('clients.index') }}" class="text-[10px] font-semibold text-indigo-600">All →</a>
-            </div>
-            <ul class="space-y-1.5">
-                @foreach($attention->take(3) as $row)
-                @php $c = $row['client']; @endphp
-                <li>
-                    <a href="{{ route('clients.show', $c) }}" class="exec-summary__row">
-                        <span class="exec-summary__score exec-summary__score--{{ $row['tone'] }}">{{ $row['score'] }}</span>
-                        <span class="min-w-0 flex-1">
-                            <span class="block text-sm font-semibold text-gray-900 truncate">{{ $c->name }}</span>
-                            <span class="block text-[10px] text-gray-500">{{ $row['label'] }}</span>
-                        </span>
-                    </a>
-                </li>
+        <x-executive-widget id="exec-kpis" title="At a glance" subtitle="Key counts across tasks, compliance, billing, and clients">
+            <div class="exec-kpi-grid">
+                @foreach($kpis as $item)
+                <a href="{{ $item['url'] }}" class="exec-kpi-card exec-kpi-card--{{ $item['tone'] ?? 'slate' }}">
+                    <span class="exec-kpi-card__label">{{ $item['label'] }}</span>
+                    <span class="exec-kpi-card__value">{{ $item['value'] }}</span>
+                </a>
                 @endforeach
-            </ul>
-            @endif
-        </div>
+            </div>
+        </x-executive-widget>
+
+        <x-executive-widget id="exec-calendar" title="📅 Schedule & Deadlines" subtitle="Drag events to reschedule · resize with corner or edges">
+            <div class="executive-summary__calendar exec-calendar-fill min-w-0">
+                @include('dashboard.partials.schedule-calendar', ['embedded' => true, 'resizable' => true, 'hideHeader' => true])
+            </div>
+        </x-executive-widget>
+
+        <x-executive-widget id="exec-pulse" title="Firm pulse" subtitle="Action needed, workload, clients, and upcoming deadlines">
+            @include('dashboard.partials.executive-pulse-panels', ['mc' => $mc])
+        </x-executive-widget>
+
+        @if(\App\Support\ModuleGate::hasFinanceModule(auth()->user()))
+        <x-executive-widget id="exec-finance" title="Finance" subtitle="Tap a card to reveal figures">
+            @include('dashboard.partials.executive-finance', ['hideHeader' => true])
+        </x-executive-widget>
+        @endif
+
+        @if($showExecFirm)
+        <x-executive-widget id="exec-firm" title="Firm overview" subtitle="Alerts, workload, compliance rollups & partner metrics" :defaultCollapsed="true">
+            @include('dashboard.partials.executive-firm-section')
+        </x-executive-widget>
+        @endif
+
+        @if(! $showMyDay && ! $showTomorrow)
+        <x-executive-widget id="exec-empty-hint" title="Your day" subtitle="Enable Tasks or Service Dues in settings">
+            <p class="text-xs text-gray-500 text-center py-6">Enable Tasks or Service Dues to see your day here.</p>
+        </x-executive-widget>
         @endif
     </div>
-    @endif
-
-    @if($showDeadlines)
-    <div class="exec-summary__card exec-summary__card--flat">
-        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-            <p class="exec-summary__label mb-0">Compliance deadlines</p>
-            @if($canManageFirm ?? false)
-            <a href="{{ route('reports.due-date') }}" class="text-[10px] font-semibold text-indigo-600">Report →</a>
-            @else
-            <a href="{{ route('service-dues.index') }}" class="text-[10px] font-semibold text-indigo-600">Reminders →</a>
-            @endif
-        </div>
-        <div class="grid grid-cols-3 gap-2">
-            <a href="{{ $deadline7Url ?? '#' }}" class="exec-summary__deadline exec-summary__deadline--7">
-                <span class="text-[10px] font-bold uppercase tracking-wide">7 days</span>
-                <span class="text-xl font-black tabular-nums">{{ $upcomingCounts['7_days'] ?? 0 }}</span>
-            </a>
-            <a href="{{ $deadline15Url ?? '#' }}" class="exec-summary__deadline exec-summary__deadline--15">
-                <span class="text-[10px] font-bold uppercase tracking-wide">7–15 days</span>
-                <span class="text-xl font-black tabular-nums">{{ ($upcomingCounts['15_days'] ?? 0) - ($upcomingCounts['7_days'] ?? 0) }}</span>
-            </a>
-            <a href="{{ $deadline30Url ?? '#' }}" class="exec-summary__deadline exec-summary__deadline--30">
-                <span class="text-[10px] font-bold uppercase tracking-wide">15–30 days</span>
-                <span class="text-xl font-black tabular-nums">{{ ($upcomingCounts['30_days'] ?? 0) - ($upcomingCounts['15_days'] ?? 0) }}</span>
-            </a>
-        </div>
-    </div>
-    @endif
 </section>
+
+@include('dashboard.partials.executive-summary-script')

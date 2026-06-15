@@ -20,6 +20,18 @@
         </a>
         @endcan
         @endif
+        @if(auth()->user()?->canAccessModule('compliance'))
+        <a href="{{ route('compliance.index') }}" class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:border-teal-200 hover:bg-teal-50 transition">
+            <svg class="h-4 w-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+            <span>360°</span>
+        </a>
+        @endif
+        @if(auth()->user()?->canAccessModule('personal_renewals'))
+        <a href="{{ route('personal-renewals.index') }}" class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:border-amber-200 hover:bg-amber-50 transition">
+            <svg class="h-4 w-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span>Renewals</span>
+        </a>
+        @endif
 </div>
 @endsection
 
@@ -113,21 +125,33 @@
     .glass-list-item { padding: 0.75rem 0; border-bottom: 1px solid #f3f4f6; }
     .glass-list-item:last-child { border-bottom: none; }
 
-    /* ===== Minimal month grid calendar (dot indicators) ===== */
-    #dashboardCalendar.cal-grid-minimal { background: #f3f4f6; border-radius: 16px; padding: 12px; }
+    /* ===== Month grid calendar with client / task labels ===== */
+    #dashboardCalendar.cal-grid-labels,
+    #dashboardCalendar.cal-grid-minimal {
+        background: linear-gradient(145deg, rgba(255,255,255,0.92), rgba(248,250,252,0.85));
+        border-radius: 16px;
+        padding: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.25);
+    }
     #dashboardCalendar .fc { color: #374151; }
     #dashboardCalendar .fc-theme-standard .fc-scrollgrid { border: none !important; }
     #dashboardCalendar .fc-theme-standard td,
     #dashboardCalendar .fc-theme-standard th { border: none !important; }
-    #dashboardCalendar .fc-col-header { background: #f3f4f6; }
+    #dashboardCalendar .fc-col-header { background: transparent; }
+    #dashboardCalendar .fc-col-header-cell:nth-child(1) .fc-col-header-cell-cushion { color: #be123c; }
+    #dashboardCalendar .fc-col-header-cell:nth-child(2) .fc-col-header-cell-cushion { color: #c2410c; }
+    #dashboardCalendar .fc-col-header-cell:nth-child(3) .fc-col-header-cell-cushion { color: #a16207; }
+    #dashboardCalendar .fc-col-header-cell:nth-child(4) .fc-col-header-cell-cushion { color: #15803d; }
+    #dashboardCalendar .fc-col-header-cell:nth-child(5) .fc-col-header-cell-cushion { color: #0369a1; }
+    #dashboardCalendar .fc-col-header-cell:nth-child(6) .fc-col-header-cell-cushion { color: #4338ca; }
+    #dashboardCalendar .fc-col-header-cell:nth-child(7) .fc-col-header-cell-cushion { color: #7e22ce; }
     #dashboardCalendar .fc-col-header-cell {
         background: #f3f4f6 !important;
         padding: 8px 4px 12px !important;
     }
     #dashboardCalendar .fc-col-header-cell-cushion {
-        color: #6b7280 !important;
         font-size: 0.8rem !important;
-        font-weight: 600 !important;
+        font-weight: 700 !important;
         text-transform: capitalize;
     }
     #dashboardCalendar .fc-daygrid-body { background: #f3f4f6; }
@@ -139,19 +163,27 @@
         background: #ffffff;
         border: 1px solid #e5e7eb;
         border-radius: 12px;
-        min-height: 92px;
+        min-height: 108px;
         display: flex;
         flex-direction: column;
         overflow: hidden;
         transition: box-shadow 0.15s, border-color 0.15s;
     }
+    #dashboardCalendar .fc-day-mon .fc-daygrid-day-frame { background: linear-gradient(180deg, #fff1f2, #fff); }
+    #dashboardCalendar .fc-day-tue .fc-daygrid-day-frame { background: linear-gradient(180deg, #fff7ed, #fff); }
+    #dashboardCalendar .fc-day-wed .fc-daygrid-day-frame { background: linear-gradient(180deg, #fefce8, #fff); }
+    #dashboardCalendar .fc-day-thu .fc-daygrid-day-frame { background: linear-gradient(180deg, #f0fdf4, #fff); }
+    #dashboardCalendar .fc-day-fri .fc-daygrid-day-frame { background: linear-gradient(180deg, #f0f9ff, #fff); }
+    #dashboardCalendar .fc-day-sat .fc-daygrid-day-frame { background: linear-gradient(180deg, #eef2ff, #fff); }
+    #dashboardCalendar .fc-day-sun .fc-daygrid-day-frame { background: linear-gradient(180deg, #faf5ff, #fff); }
     #dashboardCalendar .fc-daygrid-day:hover .fc-daygrid-day-frame {
         border-color: #c7d2fe;
         box-shadow: 0 2px 8px rgba(79, 70, 229, 0.08);
     }
     #dashboardCalendar .fc-day-today .fc-daygrid-day-frame {
-        border-color: #a5b4fc !important;
-        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+        border-color: #6366f1 !important;
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.28), 0 8px 18px rgba(99, 102, 241, 0.12);
+        background: linear-gradient(180deg, #eef2ff, #fff) !important;
     }
     #dashboardCalendar .fc-daygrid-day-top {
         flex-direction: row !important;
@@ -169,21 +201,35 @@
     #dashboardCalendar .fc-day-other .fc-daygrid-day-frame { background: #fafafa; }
     #dashboardCalendar .fc-day-other .fc-daygrid-day-number { color: #9ca3af !important; }
     #dashboardCalendar .fc-daygrid-day-events {
-        margin: auto 0 0 0 !important;
-        min-height: 28px;
+        margin: 0 !important;
+        min-height: 36px;
         display: flex !important;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: center;
-        gap: 5px;
-        padding: 6px 8px 10px !important;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 3px;
+        padding: 4px 6px 8px !important;
     }
-    #dashboardCalendar .fc-daygrid-event-harness { margin: 0 !important; }
+    #dashboardCalendar .fc-daygrid-event-harness { margin: 0 !important; width: 100% !important; }
     #dashboardCalendar .fc-daygrid-event {
         background: transparent !important;
         border: none !important;
         margin: 0 !important;
         padding: 0 !important;
+    }
+    #dashboardCalendar .cal-event-chip {
+        display: block;
+        width: 100%;
+        border-radius: 6px;
+        padding: 2px 6px;
+        font-size: 0.625rem;
+        font-weight: 600;
+        line-height: 1.25;
+        color: #fff;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
     #dashboardCalendar .cal-event-dot {
         width: 9px;
@@ -287,16 +333,7 @@
     @include('dashboard.partials.onboarding-banner')
 
     <div id="dashboard-mission-sortable">
-        <div class="dashboard-widget" data-dashboard-widget="mission-control">
-            <span class="dashboard-drag-handle" title="Drag to reorder">⋮⋮ Drag</span>
-            @include('dashboard.partials.mission-control', [
-                'upcomingCounts' => $upcomingCounts ?? [],
-                'deadline7Url' => $deadline7Url ?? '#',
-                'deadline15Url' => $deadline15Url ?? '#',
-                'deadline30Url' => $deadline30Url ?? '#',
-                'canManageFirm' => $canManageFirm ?? false,
-            ])
-        </div>
+        @include('dashboard.partials.mission-control')
     </div>
 
     <div class="flex flex-wrap items-center justify-end gap-3 -mb-2">
@@ -328,20 +365,16 @@
             Drag sections by the handle to arrange your dashboard.
         </p>
         <div id="dashboard-overview-sortable" class="space-y-6">
-
-            @if(auth()->user()?->canAccessModule('tasks'))
-            <div class="dashboard-widget" data-dashboard-widget="my-day">
-                <span class="dashboard-drag-handle" title="Drag to reorder">⋮⋮ Drag</span>
-                @include('tasks.partials.my-day-panel', [
-                    'tasksToday' => $myDayTasksToday ?? collect(),
-                    'tasksUpcoming' => $myDayTasksUpcoming ?? collect(),
-                ])
-            </div>
-            @endif
-
-            <div class="dashboard-widget" data-dashboard-widget="calendar">
-                <span class="dashboard-drag-handle" title="Drag to reorder">⋮⋮ Drag</span>
-                @include('dashboard.partials.schedule-calendar')
+            <div class="glass-card p-5">
+                <p class="glass-section-title mb-1">More on your dashboard</p>
+                <p class="text-sm text-gray-500 mb-4">My Day, calendar, and KPIs live in the Executive Summary above. Use the tabs for workload, financials, and firm overview.</p>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" data-dashboard-tab="workload" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-indigo-300 hover:text-indigo-700">Workload →</button>
+                    @if(\App\Support\ModuleGate::hasFinanceModule(auth()->user()))
+                    <button type="button" data-dashboard-tab="financials" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-indigo-300 hover:text-indigo-700">Financials →</button>
+                    @endif
+                    <button type="button" data-dashboard-tab="calendar" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-indigo-300 hover:text-indigo-700">Jump to calendar →</button>
+                </div>
             </div>
         </div>
     </div>
@@ -613,13 +646,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 return null;
             }
             var clientName = arg.event.extendedProps.client_name || '';
-            var details = arg.event.extendedProps.details || arg.event.title;
-            var dot = document.createElement('span');
-            dot.className = 'cal-event-dot';
-            dot.style.backgroundColor = arg.event.backgroundColor || arg.event.borderColor || '#6366f1';
-            dot.setAttribute('title', clientName + ': ' + details);
-            dot.setAttribute('aria-label', details);
-            return { domNodes: [dot] };
+            var details = arg.event.extendedProps.details || arg.event.title || '';
+            var label = clientName ? (clientName + ' · ' + details) : details;
+            if (label.length > 42) {
+                label = label.slice(0, 40) + '…';
+            }
+            var chip = document.createElement('span');
+            chip.className = 'cal-event-chip';
+            chip.style.backgroundColor = arg.event.backgroundColor || arg.event.borderColor || '#6366f1';
+            chip.textContent = label;
+            chip.setAttribute('title', (clientName ? clientName + ': ' : '') + details);
+            chip.setAttribute('aria-label', label);
+            return { domNodes: [chip] };
         },
         eventDrop: function(info) {
             var newDate = info.event.startStr;
