@@ -9,15 +9,6 @@
     </a>
     <span>Edit Task</span>
 
-    @can('delete', $task)
-    <div class="ml-auto">
-        <form action="{{ route('tasks.destroy', $task) }}" method="POST" onsubmit="return confirm('Delete this task?');">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="text-red-600 hover:text-red-800 text-sm">Delete Task</button>
-        </form>
-    </div>
-    @endcan
 </div>
 @endsection
 
@@ -97,7 +88,8 @@
                     <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 font-medium text-amber-800">Completed — shows in Invoices → Unbilled until invoiced or FOC</span>
                 @endif
             </div>
-            <div class="flex flex-wrap gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+                @include('tasks.partials.delete-button', ['task' => $task])
                 @can('markFoc', $task)
                 @if(! $task->is_billed && in_array($task->status, \App\Models\Task::TERMINAL_STATUSES, true))
                 <form action="{{ route('tasks.mark-foc', $task) }}" method="POST" onsubmit="return confirm('Mark as Free of Cost?');">

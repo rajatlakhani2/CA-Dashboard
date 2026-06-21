@@ -68,7 +68,15 @@ class TaskPolicy
 
     public function delete(User $user, Task $task): bool
     {
-        return $this->canManageAllTasks($user);
+        if ($task->is_billed || $task->invoice_id) {
+            return $this->canManageAllTasks($user);
+        }
+
+        if ($this->canManageAllTasks($user)) {
+            return true;
+        }
+
+        return (int) $task->created_by === (int) $user->id;
     }
 
     public function markFoc(User $user, Task $task): bool

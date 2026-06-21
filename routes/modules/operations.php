@@ -32,6 +32,20 @@ Route::middleware('module:settings')->group(function () {
     Route::get('/settings', [\App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
     Route::put('/settings', [\App\Http\Controllers\SettingsController::class, 'update'])->name('settings.update');
     Route::get('/demo/themes', [\App\Http\Controllers\ThemeGalleryController::class, 'index'])->name('demo.themes');
+    Route::get('/demo/portal-error', function () {
+        $presenter = app(\App\Support\PortalErrorPresenter::class);
+        $request = request();
+        $exception = new \Illuminate\Database\QueryException(
+            'mysql',
+            'update organizations set country = ?',
+            [null],
+            new \Exception("SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'country' cannot be null")
+        );
+
+        return redirect()
+            ->route('settings.index')
+            ->with('portal_error', $presenter->fromThrowable($exception, $request));
+    })->name('demo.portal-error');
 });
 
 Route::get('/search/palette', [\App\Http\Controllers\SearchController::class, 'palette'])->name('search.palette');

@@ -762,6 +762,7 @@
     @include('partials.dashboard-help-chat')
     @include('partials.demo-tour-play')
     @include('partials.demo-tour-overlay')
+    @include('partials.portal-error-modal')
 
     <script>
         function openMobileSidebar() {

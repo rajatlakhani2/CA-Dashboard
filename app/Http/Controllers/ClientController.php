@@ -317,6 +317,11 @@ class ClientController extends Controller
             ->get();
 
         $clientHealth = app(\App\Services\ClientHealthScoreService::class)->forClient($client);
+        $complianceChips = app(\App\Services\ClientComplianceStatusService::class)->chips($client);
+        $lastPayment = \App\Models\Payment::query()
+            ->whereHas('invoice', fn ($q) => $q->where('client_id', $client->id))
+            ->latest('payment_date')
+            ->first();
 
         $activePortalToken = \App\Models\ClientPortalToken::query()
             ->where('client_id', $client->id)
@@ -338,6 +343,8 @@ class ClientController extends Controller
             'complianceRisks',
             'documentChecklists',
             'clientHealth',
+            'complianceChips',
+            'lastPayment',
             'activePortalToken',
         ));
     }

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Client;
+use App\Models\Organization;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -12,10 +13,24 @@ class TaskPolicyTest extends TestCase
 {
     use RefreshDatabase;
 
+    private Organization $firm;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->firm = Organization::create([
+            'name' => 'Task Test Firm',
+            'slug' => 'task-test-'.fake()->unique()->numerify('####'),
+            'plan' => 'starter',
+            'seat_limit' => 10,
+        ]);
+    }
+
     public function test_staff_only_sees_assigned_or_created_tasks(): void
     {
-        $staff = User::factory()->create(['role' => 'staff', 'name' => 'Staff One']);
-        $otherStaff = User::factory()->create(['role' => 'staff', 'name' => 'Staff Two']);
+        $staff = $this->firmUser(['role' => 'staff', 'name' => 'Staff One']);
+        $otherStaff = $this->firmUser(['role' => 'staff', 'name' => 'Staff Two']);
 
         $ownTask = $this->createTask([
             'title' => 'Visible Staff Task',
@@ -37,8 +52,8 @@ class TaskPolicyTest extends TestCase
 
     public function test_staff_cannot_edit_another_staff_task(): void
     {
-        $staff = User::factory()->create(['role' => 'staff']);
-        $otherStaff = User::factory()->create(['role' => 'staff']);
+        $staff = $this->firmUser(['role' => 'staff']);
+        $otherStaff = $this->firmUser(['role' => 'staff']);
         $task = $this->createTask([
             'assigned_to' => $otherStaff->id,
             'created_by' => $otherStaff->id,
@@ -51,7 +66,7 @@ class TaskPolicyTest extends TestCase
 
     public function test_staff_can_update_own_task_status(): void
     {
-        $staff = User::factory()->create(['role' => 'staff']);
+        $staff = $this->firmUser(['role' => 'staff']);
         $task = $this->createTask([
             'assigned_to' => $staff->id,
             'created_by' => $staff->id,
@@ -68,10 +83,25 @@ class TaskPolicyTest extends TestCase
         ]);
     }
 
+    public function test_staff_can_delete_task_they_created(): void
+    {
+        $staff = $this->firmUser(['role' => 'staff']);
+        $task = $this->createTask([
+            'assigned_to' => $staff->id,
+            'created_by' => $staff->id,
+        ]);
+
+        $this->actingAs($staff)
+            ->delete(route('tasks.destroy', $task))
+            ->assertRedirect(route('tasks.index'));
+
+        $this->assertSoftDeleted('tasks', ['id' => $task->id]);
+    }
+
     public function test_staff_cannot_update_or_delete_another_staff_task(): void
     {
-        $staff = User::factory()->create(['role' => 'staff']);
-        $otherStaff = User::factory()->create(['role' => 'staff']);
+        $staff = $this->firmUser(['role' => 'staff']);
+        $otherStaff = $this->firmUser(['role' => 'staff']);
         $task = $this->createTask([
             'assigned_to' => $otherStaff->id,
             'created_by' => $otherStaff->id,
@@ -94,8 +124,8 @@ class TaskPolicyTest extends TestCase
 
     public function test_staff_cannot_assign_tasks_to_other_users_or_mark_foc(): void
     {
-        $staff = User::factory()->create(['role' => 'staff']);
-        $otherStaff = User::factory()->create(['role' => 'staff']);
+        $staff = $this->firmUser(['role' => 'staff']);
+        $otherStaff = $this->firmUser(['role' => 'staff']);
         $task = $this->createTask([
             'assigned_to' => $staff->id,
             'created_by' => $staff->id,
@@ -117,8 +147,8 @@ class TaskPolicyTest extends TestCase
 
     public function test_manager_can_see_manage_assign_and_mark_foc_tasks(): void
     {
-        $manager = User::factory()->create(['role' => 'manager']);
-        $staff = User::factory()->create(['role' => 'staff']);
+        $manager = $this->firmUser(['role' => 'manager']);
+        $staff = $this->firmUser(['role' => 'staff']);
         $task = $this->createTask([
             'title' => 'Team Wide Task',
             'assigned_to' => $staff->id,
@@ -154,17 +184,27 @@ class TaskPolicyTest extends TestCase
         ]);
     }
 
+    private function firmUser(array $attrs = []): User
+    {
+        return User::factory()->create(array_merge([
+            'organization_id' => $this->firm->id,
+        ], $attrs));
+    }
+
     private function createTask(array $overrides = []): Task
     {
         $client = Client::create([
+            'organization_id' => $this->firm->id,
             'name' => fake()->company(),
             'client_code' => fake()->unique()->bothify('TASK-###'),
             'pan' => fake()->unique()->regexify('[A-Z]{5}[0-9]{4}[A-Z]'),
             'status' => 'Active',
             'category' => 'A',
+            'approval_status' => Client::APPROVAL_APPROVED,
         ]);
 
         return Task::create(array_merge([
+            'organization_id' => $this->firm->id,
             'title' => fake()->sentence(3),
             'client_id' => $client->id,
             'priority' => 'Normal',

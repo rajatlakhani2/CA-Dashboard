@@ -1,10 +1,14 @@
 <?php
 
+use App\Support\PortalErrorPresenter;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -39,10 +43,63 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 419);
             }
 
-            return redirect()->route('login')
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login', [
+                'workspace' => $request->input('workspace'),
+            ])
                 ->withInput($request->except('_token', 'password'))
+                ->with('session_expired', true)
                 ->withErrors([
-                    'email' => 'Your session expired. Please refresh the page and sign in again.',
+                    'email' => 'Your session expired. Please sign in again.',
                 ]);
+        });
+
+        $exceptions->render(function (ValidationException $e, Request $request) {
+            if (! $request->expectsJson()) {
+                return null;
+            }
+
+            $presenter = app(PortalErrorPresenter::class);
+
+            return response()->json([
+                'message' => $e->getMessage(),
+                'errors' => $e->errors(),
+                'portal_error' => $presenter->fromMessageBag($e->validator->errors(), $request),
+            ], 422);
+        });
+
+        $exceptions->render(function (\Throwable $e, Request $request) {
+            if ($e instanceof ValidationException || $e instanceof TokenMismatchException) {
+                return null;
+            }
+
+            if ($e instanceof \Illuminate\Auth\AuthenticationException || $e instanceof \Illuminate\Auth\Access\AuthorizationException) {
+                return null;
+            }
+
+            if ($e instanceof HttpExceptionInterface && $e->getStatusCode() < 500) {
+                return null;
+            }
+
+            if ($request->expectsJson()) {
+                $presenter = app(PortalErrorPresenter::class);
+                $status = $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500;
+
+                return response()->json([
+                    'message' => $status >= 500 ? 'Server error' : $e->getMessage(),
+                    'portal_error' => $presenter->fromThrowable($e, $request),
+                ], $status);
+            }
+
+            if (config('app.debug') || ! in_array($request->method(), ['POST', 'PUT', 'PATCH', 'DELETE'], true)) {
+                return null;
+            }
+
+            $presenter = app(PortalErrorPresenter::class);
+
+            return redirect()->back()
+                ->withInput($request->except('password', 'password_confirmation', '_token'))
+                ->with('portal_error', $presenter->fromThrowable($e, $request));
         });
     })->create();

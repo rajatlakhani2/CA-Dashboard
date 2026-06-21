@@ -58,6 +58,10 @@ class ClientPolicy
 
     private function canAccessClient(User $user, Client $client): bool
     {
+        if ((int) $user->organization_id !== (int) $client->organization_id) {
+            return false;
+        }
+
         if ($user->isArticle()) {
             return false;
         }
@@ -96,6 +100,10 @@ class ClientPolicy
 
     private function canManageClient(User $user, Client $client): bool
     {
+        if ((int) $user->organization_id !== (int) $client->organization_id) {
+            return false;
+        }
+
         if ($user->isPartner()) {
             return true;
         }

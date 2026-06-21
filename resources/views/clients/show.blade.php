@@ -76,7 +76,16 @@
     </div>
     @endif
 
-    @include('clients.partials.health-score', ['clientHealth' => $clientHealth])
+    @include('clients.partials.executive-profile', [
+        'client' => $client,
+        'clientHealth' => $clientHealth,
+        'complianceChips' => $complianceChips,
+        'totalOutstanding' => $totalOutstanding,
+        'lastInvoice' => $lastInvoice,
+        'lastPayment' => $lastPayment,
+        'nextDue' => $nextDue,
+        'timeline' => $timeline,
+    ])
 
     <!-- Summary strip -->
     <div class="rounded-xl border border-slate-200 bg-white shadow-sm divide-y divide-slate-100 sm:divide-y-0 sm:divide-x sm:flex">

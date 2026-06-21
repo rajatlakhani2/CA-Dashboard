@@ -76,10 +76,15 @@ jobs:
           script: |
             set -e
             cd "${{ secrets.DEPLOY_PATH }}"
+            cp -f .env /tmp/ca-dashboard-prod.env.backup 2>/dev/null || true
             tar -xzf release.tar.gz
             rm -f release.tar.gz
+            cp -f /tmp/ca-dashboard-prod.env.backup .env 2>/dev/null || true
             php artisan migrate --force
             php artisan demo:ensure-dashboard --no-interaction || true
+            if [ -f scripts/fix-production-mysql-connections.sh ]; then
+              bash scripts/fix-production-mysql-connections.sh
+            fi
             php artisan optimize:clear
             php artisan view:clear
             rm -f bootstrap/cache/routes-v7.php 2>/dev/null || true

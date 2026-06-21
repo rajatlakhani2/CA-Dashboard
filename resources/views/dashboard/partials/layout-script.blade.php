@@ -295,10 +295,40 @@
         });
     }
 
+    function initKeyboardWidgetReorder(containerId) {
+        var container = document.getElementById(containerId);
+        if (!container) return;
+
+        container.addEventListener('keydown', function (e) {
+            if (!e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
+            var handle = e.target.closest('.dashboard-drag-handle');
+            if (!handle) return;
+            var widget = handle.closest('[data-dashboard-widget]');
+            if (!widget) return;
+            e.preventDefault();
+            var sibling = e.key === 'ArrowUp' ? widget.previousElementSibling : widget.nextElementSibling;
+            if (!sibling || !sibling.hasAttribute('data-dashboard-widget')) return;
+            if (e.key === 'ArrowUp') {
+                container.insertBefore(widget, sibling);
+            } else {
+                container.insertBefore(sibling, widget);
+            }
+            var order = Array.from(container.querySelectorAll('[data-dashboard-widget]')).map(function (el) {
+                return el.getAttribute('data-dashboard-widget');
+            });
+            scheduleSave(function (state) {
+                state[containerId] = filterOrder(order);
+            });
+            refreshCalendar();
+            handle.focus();
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         initSortable('dashboard-overview-sortable');
         initSortable('dashboard-mission-sortable');
         initSortable('executive-summary-sortable');
+        initKeyboardWidgetReorder('executive-summary-sortable');
         applySavedColSpans('executive-summary-sortable');
         initExecutiveCollapse();
     });

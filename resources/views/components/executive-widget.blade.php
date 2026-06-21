@@ -11,7 +11,7 @@
     @if($defaultCollapsed) data-default-collapsed="1" @endif
 >
     <div class="exec-widget__chrome">
-        <button type="button" class="dashboard-drag-handle exec-widget__drag" title="Drag to reorder" aria-label="Drag to reorder">
+        <button type="button" class="dashboard-drag-handle exec-widget__drag" title="Drag to reorder (Alt+↑↓ when focused)" aria-label="Drag to reorder" tabindex="0">
             <span aria-hidden="true">⋮⋮</span>
             <span class="exec-widget__drag-label">Drag</span>
         </button>

@@ -13,8 +13,12 @@ use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
-    public function show()
+    public function show(Request $request)
     {
+        if (session('session_expired')) {
+            $request->session()->regenerateToken();
+        }
+
         $workspace = old('workspace', session('workspace_slug', request('workspace')));
 
         return view('auth.login', [

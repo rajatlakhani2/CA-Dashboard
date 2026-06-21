@@ -12,6 +12,10 @@
             <span class="inline-flex items-center rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-bold text-rose-800">Overdue only</span>
             @elseif(request('due') === 'due_today')
             <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-900">Due today</span>
+            @elseif(request('due') === 'next_7')
+            <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-900">Next 7 days</span>
+            @elseif(request('due') === 'next_15')
+            <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-900">Next 15 days</span>
             @endif
         </div>
         @can('create', App\Models\Task::class)

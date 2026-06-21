@@ -89,7 +89,13 @@
                 <h2 class="text-xl font-bold text-slate-900">Sign in</h2>
                 <p class="mt-1 text-sm text-slate-500">Workspace ID + your account email</p>
 
-                <form class="mt-6 space-y-4" action="{{ route('login') }}" method="POST">
+                @if(session('session_expired') || session('status'))
+                <div class="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                    {{ session('status') ?: 'Your session expired. The form was refreshed — please sign in again.' }}
+                </div>
+                @endif
+
+                <form class="mt-6 space-y-4" action="{{ route('login') }}" method="POST" id="login-form">
                     @csrf
 
                     <div>
@@ -133,5 +139,19 @@
             </div>
         </div>
     </div>
+    <script>
+        (function () {
+            var openedAt = Date.now();
+            var maxIdleMs = {{ (int) config('session.lifetime', 120) * 60 * 1000 }};
+            var form = document.getElementById('login-form');
+            if (!form) return;
+            form.addEventListener('submit', function (e) {
+                if (Date.now() - openedAt > maxIdleMs - 60000) {
+                    e.preventDefault();
+                    window.location.reload();
+                }
+            });
+        })();
+    </script>
 </body>
 </html>

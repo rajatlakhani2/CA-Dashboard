@@ -53,6 +53,12 @@ class TaskController extends Controller
             } elseif ($due === 'due_today') {
                 $query->whereNotIn('status', Task::TERMINAL_STATUSES)
                     ->whereDate('due_date', $today);
+            } elseif ($due === 'next_7') {
+                $query->whereNotIn('status', Task::TERMINAL_STATUSES)
+                    ->whereBetween('due_date', [$today, $today->copy()->addDays(7)]);
+            } elseif ($due === 'next_15') {
+                $query->whereNotIn('status', Task::TERMINAL_STATUSES)
+                    ->whereBetween('due_date', [$today, $today->copy()->addDays(15)]);
             }
         }
 
