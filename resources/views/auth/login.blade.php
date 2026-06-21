@@ -114,7 +114,10 @@
                     </div>
 
                     <div>
-                        <label for="password" class="block text-xs font-semibold text-slate-600 mb-1.5">Password</label>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label for="password" class="block text-xs font-semibold text-slate-600">Password</label>
+                            <a href="{{ route('password.request', ['workspace' => old('workspace', $workspace ?? '')]) }}" class="text-xs font-semibold login-link hover:opacity-80">Forgot password?</a>
+                        </div>
                         <input id="password" name="password" type="password" required autocomplete="current-password"
                             class="login-input">
                     </div>

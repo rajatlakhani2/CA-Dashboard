@@ -116,6 +116,13 @@ class User extends Authenticatable
         return $this->belongsTo(Organization::class);
     }
 
+    public function sendPasswordResetNotification($token, ?string $workspace = null): void
+    {
+        $workspace ??= (string) ($this->organization?->slug ?? '');
+
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token, $workspace));
+    }
+
     public function scopeInOrganization($query, ?int $organizationId)
     {
         if ($organizationId) {

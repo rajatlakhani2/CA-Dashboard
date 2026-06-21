@@ -9,6 +9,11 @@ Route::get('/unregister-pwa', fn () => redirect('/clear-app-cache'));
 Route::get('/login', [\App\Http\Controllers\LoginController::class, 'show'])->name('login');
 Route::post('/login', [\App\Http\Controllers\LoginController::class, 'login']);
 
+Route::get('/password/forgot', [\App\Http\Controllers\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/password/email', [\App\Http\Controllers\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/password/reset/{token}', [\App\Http\Controllers\ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/password/reset', [\App\Http\Controllers\ForgotPasswordController::class, 'reset'])->name('password.update');
+
 Route::get('/register', [\App\Http\Controllers\RegisterOrganizationController::class, 'show'])->name('register.organization');
 Route::post('/register', [\App\Http\Controllers\RegisterOrganizationController::class, 'store']);
 
