@@ -11,6 +11,7 @@ use App\Models\Setting;
 use App\Models\Task;
 use App\Models\User;
 use App\Support\ModuleGate;
+use App\Support\UserTimezone;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Spatie\Activitylog\Models\Activity;
@@ -19,7 +20,8 @@ class DashboardMissionControlService
 {
     public function build(?User $user): array
     {
-        $today = Carbon::today();
+        $tz = UserTimezone::for($user);
+        $today = Carbon::now($tz)->startOfDay();
         $startOfMonth = Carbon::now()->startOfMonth();
         $endOfMonth = Carbon::now()->endOfMonth();
         $managesFirm = $user?->managesFirmModules() ?? false;
@@ -34,10 +36,13 @@ class DashboardMissionControlService
         $clientsNeedingAttention = $managesFirm
             ? $this->clientsNeedingAttention($user, 6)
             : collect();
+        $monthlyDeadlines = app(DashboardDeadlineOverviewService::class)->monthlyServiceDeadlines($user);
 
         return [
             'greeting' => $this->greeting($user),
             'today_strip' => $todayStrip,
+            'executive_kpis' => $this->executiveKpis($user, $today, $managesFirm),
+            'monthly_deadlines' => $monthlyDeadlines,
             'risk_alerts' => $riskAlerts,
             'ai_insights' => $aiInsights,
             'firm_pulse' => $firmPulse,
@@ -104,10 +109,59 @@ class DashboardMissionControlService
                 ]),
                 'tone' => 'rose',
             ];
+            $strip[] = [
+                'label' => 'Tasks next 7 days',
+                'value' => Task::query()
+                    ->whereNotIn('status', Task::TERMINAL_STATUSES)
+                    ->when(! $managesFirm && $userId, fn ($q) => $q->where('assigned_to', $userId))
+                    ->whereBetween('due_date', [$today, $today->copy()->addDays(7)])
+                    ->count(),
+                'url' => route('tasks.index', ['due' => 'next_7']),
+                'tone' => 'blue',
+            ];
+            $strip[] = [
+                'label' => 'Tasks next 15 days',
+                'value' => Task::query()
+                    ->whereNotIn('status', Task::TERMINAL_STATUSES)
+                    ->when(! $managesFirm && $userId, fn ($q) => $q->where('assigned_to', $userId))
+                    ->whereBetween('due_date', [$today, $today->copy()->addDays(15)])
+                    ->count(),
+                'url' => route('tasks.index', ['due' => 'next_15']),
+                'tone' => 'blue',
+            ];
         }
 
         if (ModuleGate::allowed($user, 'service_dues')) {
+            $dueNext7 = ServiceDue::query()
+                ->whereIn('status', [ServiceDue::STATUS_PENDING, ServiceDue::STATUS_OVERDUE])
+                ->whereBetween('due_date', [$today, $today->copy()->addDays(7)])
+                ->count();
+
+            $dueNext15 = ServiceDue::query()
+                ->whereIn('status', [ServiceDue::STATUS_PENDING, ServiceDue::STATUS_OVERDUE])
+                ->whereBetween('due_date', [$today, $today->copy()->addDays(15)])
+                ->count();
+
             $strip[] = ['label' => 'Due today', 'value' => $complianceDueToday, 'url' => route('service-dues.index'), 'tone' => 'violet'];
+            $dueWindowUrl = fn (int $days) => $managesFirm
+                ? route('reports.due-date', [
+                    'start_date' => $today->format('Y-m-d'),
+                    'end_date' => $today->copy()->addDays($days)->format('Y-m-d'),
+                ])
+                : route('service-dues.index');
+
+            $strip[] = [
+                'label' => 'Due next 7 days',
+                'value' => $dueNext7,
+                'url' => $dueWindowUrl(7),
+                'tone' => 'amber',
+            ];
+            $strip[] = [
+                'label' => 'Due next 15 days',
+                'value' => $dueNext15,
+                'url' => $dueWindowUrl(15),
+                'tone' => 'amber',
+            ];
             $strip[] = ['label' => 'Compliance overdue', 'value' => $complianceOverdue, 'url' => route('service-dues.index'), 'tone' => 'rose'];
         }
 
@@ -126,6 +180,103 @@ class DashboardMissionControlService
         }
 
         return $strip;
+    }
+
+    /** Ordered KPI grid for the executive summary right column. */
+    private function executiveKpis(?User $user, Carbon $today, bool $managesFirm): array
+    {
+        $userId = $user?->id;
+        $tomorrow = $today->copy()->addDay();
+        $kpis = [];
+
+        if (ModuleGate::allowed($user, 'tasks')) {
+            $taskQuery = fn () => Task::query()
+                ->whereNotIn('status', Task::TERMINAL_STATUSES)
+                ->when(! $managesFirm && $userId, fn ($q) => $q->where('assigned_to', $userId));
+
+            $kpis[] = [
+                'label' => 'Tasks due today',
+                'value' => $taskQuery()->whereDate('due_date', $today)->count(),
+                'url' => route('tasks.index', ['due' => 'due_today']),
+                'tone' => 'amber',
+            ];
+            $overdueCount = $taskQuery()->whereDate('due_date', '<', $today)->count();
+            $kpis[] = [
+                'label' => 'Tasks overdue',
+                'value' => $overdueCount,
+                'url' => route('dashboard', [
+                    'tab' => 'calendar',
+                    'show_tasks' => 1,
+                    'show_dues' => 0,
+                    'due_status' => 'overdue',
+                ]),
+                'tone' => $overdueCount > 0 ? 'rose' : 'sky',
+            ];
+            $kpis[] = [
+                'label' => 'Tasks next 7 days',
+                'value' => $taskQuery()->whereBetween('due_date', [$today, $today->copy()->addDays(7)])->count(),
+                'url' => route('tasks.index', ['due' => 'next_7']),
+                'tone' => 'sky',
+            ];
+            $kpis[] = [
+                'label' => 'Tasks next 15 days',
+                'value' => $taskQuery()->whereBetween('due_date', [$today, $today->copy()->addDays(15)])->count(),
+                'url' => route('tasks.index', ['due' => 'next_15']),
+                'tone' => 'indigo',
+            ];
+        }
+
+        if (ModuleGate::allowed($user, 'service_dues')) {
+            $kpis[] = [
+                'label' => 'Compliance overdue',
+                'value' => ServiceDue::query()->where('status', ServiceDue::STATUS_OVERDUE)->count(),
+                'url' => route('service-dues.index'),
+                'tone' => 'rose',
+            ];
+        }
+
+        if ($managesFirm && ModuleGate::allowed($user, 'invoices')) {
+            $kpis[] = [
+                'label' => 'Overdue invoices',
+                'value' => Invoice::where('status', Invoice::STATUS_OVERDUE)->count(),
+                'url' => route('collections.index'),
+                'tone' => 'emerald',
+            ];
+        }
+
+        if ($managesFirm && ModuleGate::allowed($user, 'clients')) {
+            $kpis[] = [
+                'label' => 'Total clients',
+                'value' => Client::count(),
+                'url' => route('clients.index'),
+                'tone' => 'blue',
+            ];
+        }
+
+        if (ModuleGate::allowed($user, 'service_dues')) {
+            $kpis[] = [
+                'label' => 'Due tomorrow',
+                'value' => ServiceDue::query()
+                    ->whereDate('due_date', $tomorrow)
+                    ->where('status', ServiceDue::STATUS_PENDING)
+                    ->count(),
+                'url' => route('service-dues.index'),
+                'tone' => 'violet',
+            ];
+        } elseif (ModuleGate::allowed($user, 'tasks')) {
+            $kpis[] = [
+                'label' => 'Due tomorrow',
+                'value' => Task::query()
+                    ->whereNotIn('status', Task::TERMINAL_STATUSES)
+                    ->when(! $managesFirm && $userId, fn ($q) => $q->where('assigned_to', $userId))
+                    ->whereDate('due_date', $tomorrow)
+                    ->count(),
+                'url' => route('tasks.index', ['due' => 'next_7']),
+                'tone' => 'violet',
+            ];
+        }
+
+        return $kpis;
     }
 
     private function riskAlerts(?User $user, Carbon $today, bool $managesFirm): array
@@ -326,8 +477,29 @@ class DashboardMissionControlService
             ->limit(40)
             ->get()
             ->map(fn (Client $c) => array_merge(['client' => $c], $health->forClient($c)))
+            ->filter(fn (array $row) => array_key_exists('score', $row) && $row['score'] !== null)
             ->sortBy('score')
             ->take($limit)
             ->values();
+    }
+
+    /** Masked executive finance widget — fetch on reveal via dashboard.finance-snapshot. */
+    public function executiveFinanceSnapshot(?User $user): array
+    {
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
+        $rev = $this->revenueMetrics($startOfMonth, $endOfMonth);
+        $summary = app(DashboardMetricsService::class)->build($user)['summary'];
+
+        return [
+            'target' => $rev['target_formatted'] ?? '—',
+            'achieved' => $rev['achieved_formatted'] ?? '₹ 0',
+            'efficiency' => ($rev['collection_efficiency'] ?? 0) . '%',
+            'outstanding' => $rev['outstanding_formatted'] ?? '₹ 0',
+            'collected_mtd' => '₹ ' . number_format($rev['collected_mtd'] ?? 0, 0),
+            'overdue' => $summary['overdue_collections'] ?? '₹ 0',
+            'collected_today' => '₹ ' . number_format($rev['collected_today'] ?? 0, 0),
+            'progress_percent' => $rev['progress_percent'],
+        ];
     }
 }

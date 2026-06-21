@@ -307,10 +307,12 @@ class ClientModuleTest extends TestCase
         $response = $this->get('/dashboard');
         $response->assertStatus(200);
 
-        // 3. Verify Upcoming Dues on dashboard
-        $response->assertSee('Upcoming overview');
-        $response->assertSee('Dash Client A');
-        $response->assertSee('GSTR-1');
-        $response->assertSee($startDate->format('d M'));
+        // 3. Verify executive summary layout and calendar payload include the due
+        $response->assertSee('Executive Summary');
+        $response->assertSee('At a glance');
+        $response->assertSee('Schedule &amp; Deadlines', false);
+        $response->assertSee('Dash Client A', false);
+        $response->assertSee('GSTR-1', false);
+        $response->assertSee($startDate->format('Y-m-d'), false);
     }
 }

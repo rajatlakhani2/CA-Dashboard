@@ -2,8 +2,15 @@
     $tasksToday = $tasksToday ?? collect();
     $tasksUpcoming = $tasksUpcoming ?? collect();
     $compact = $compact ?? false;
+    $hideUpcoming = $hideUpcoming ?? false;
+    $hideChrome = $hideChrome ?? false;
 @endphp
-<div class="glass-card p-6 {{ $compact ? '' : 'h-full' }}" data-demo-tour="my-day">
+<div class="{{ $hideChrome ? 'exec-widget__inner' : 'glass-card p-6 ' . ($compact ? '' : 'h-full') }}" data-demo-tour="my-day">
+    @if($hideChrome)
+    <div class="flex justify-end mb-2">
+        <a href="{{ route('tasks.my-day') }}" class="text-indigo-600 text-xs font-semibold hover:text-indigo-800">Full view →</a>
+    </div>
+    @else
     <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
         <div>
             <p class="glass-section-title mb-0">☀️ My Day</p>
@@ -11,6 +18,7 @@
         </div>
         <a href="{{ route('tasks.my-day') }}" class="text-indigo-600 text-xs font-semibold hover:text-indigo-800">Full view →</a>
     </div>
+    @endif
     <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Due today & overdue ({{ $tasksToday->count() }})</p>
     <div class="space-y-2 mb-4">
         @forelse($tasksToday->take($compact ? 4 : 8) as $task)
@@ -50,7 +58,7 @@
         <p class="text-sm text-gray-500 rounded-xl border border-dashed border-gray-200 p-4 text-center">Nothing due today — you're caught up.</p>
         @endforelse
     </div>
-    @if($tasksUpcoming->isNotEmpty())
+    @if(! $hideUpcoming && $tasksUpcoming->isNotEmpty())
     <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Coming up</p>
     <ul class="space-y-1.5">
         @foreach($tasksUpcoming->take(4) as $task)

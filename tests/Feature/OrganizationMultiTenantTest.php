@@ -12,7 +12,7 @@ class OrganizationMultiTenantTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_dashboard_shows_saas_workspace_for_authenticated_user(): void
+    public function test_dashboard_loads_for_organization_partner(): void
     {
         $org = Organization::create([
             'name' => 'RL Associates',
@@ -29,9 +29,8 @@ class OrganizationMultiTenantTest extends TestCase
         $response = $this->actingAs($user)->get(route('dashboard'));
 
         $response->assertOk();
-        $response->assertSee('SaaS Workspace');
-        $response->assertSee('RL Associates');
-        $response->assertSee('Manage users');
+        $response->assertSee('Executive Summary', false);
+        $response->assertSee('data-dashboard-widget="exec-kpis"', false);
     }
 
     public function test_middleware_sets_organization_context_for_authenticated_requests(): void

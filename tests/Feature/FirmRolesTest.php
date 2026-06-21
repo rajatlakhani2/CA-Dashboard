@@ -140,11 +140,22 @@ class FirmRolesTest extends TestCase
 
     public function test_login_redirects_article_to_tasks(): void
     {
-        $article = User::factory()->create(['role' => 'article']);
+        $org = \App\Models\Organization::create([
+            'name' => 'Test Firm',
+            'slug' => 'testfirm',
+            'plan' => 'professional',
+            'seat_limit' => 10,
+        ]);
+
+        $article = User::factory()->create([
+            'role' => 'article',
+            'organization_id' => $org->id,
+        ]);
 
         $article->forceFill(['password' => \Illuminate\Support\Facades\Hash::make('password')])->save();
 
         $this->post(route('login'), [
+            'workspace' => 'testfirm',
             'email' => $article->email,
             'password' => 'password',
         ])->assertRedirect(route('tasks.my-day'));
@@ -158,7 +169,7 @@ class FirmRolesTest extends TestCase
 
         $response = $this->actingAs($associate)->post(route('clients.store'), [
             'name' => 'New Associate Corp',
-            'pan' => 'NILENEW01A',
+            'pan' => 'NILEN1234A',
             'category' => 'A',
             'status' => Client::STATUS_ACTIVE,
         ]);
@@ -183,7 +194,7 @@ class FirmRolesTest extends TestCase
 
         $this->actingAs($article)->post(route('clients.store'), [
             'name' => 'Pending Article Client',
-            'pan' => 'ARTPEND01A',
+            'pan' => 'ARTPE1234A',
             'category' => 'B',
             'status' => Client::STATUS_ACTIVE,
         ])->assertRedirect(route('tasks.index'));
@@ -200,7 +211,7 @@ class FirmRolesTest extends TestCase
         $rajatIndex->assertOk();
         $rajatIndex->assertSee('Pending Article Client');
 
-        $client = Client::where('pan', 'ARTPEND01A')->first();
+        $client = Client::where('pan', 'ARTPE1234A')->first();
         $this->actingAs($rajat)->post(route('clients.approve', $client))
             ->assertRedirect(route('clients.index'));
 

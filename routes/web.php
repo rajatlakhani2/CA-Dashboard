@@ -32,6 +32,9 @@ Route::middleware([
     Route::get('/dashboard-build-probe', [DashboardController::class, 'deployProbe'])
         ->middleware(['module:dashboard', 'role:partner,manager'])
         ->name('dashboard.build-probe');
+    Route::get('/dashboard/finance-snapshot', [DashboardController::class, 'financeSnapshot'])
+        ->middleware('module:dashboard')
+        ->name('dashboard.finance-snapshot');
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->middleware('module:dashboard')
         ->name('dashboard');

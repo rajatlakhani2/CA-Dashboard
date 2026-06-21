@@ -18,6 +18,10 @@ class DemoTourService
             return false;
         }
 
+        if (filter_var(env('QA_SKIP_TOUR', false), FILTER_VALIDATE_BOOLEAN)) {
+            return false;
+        }
+
         if (session('demo_tour_pending')) {
             return true;
         }

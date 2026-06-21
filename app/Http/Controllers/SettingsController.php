@@ -51,6 +51,7 @@ class SettingsController extends Controller
                     ->ignore($user->id),
             ],
             'theme' => 'required|in:modern,executive,dense',
+            'timezone' => ['nullable', 'string', 'max:64', Rule::in(timezone_identifiers_list())],
             'current_password' => 'nullable|required_with:new_password|current_password',
             'new_password' => 'nullable|min:8|confirmed',
             'mobile' => 'required|string|max:20',
@@ -59,6 +60,7 @@ class SettingsController extends Controller
         $user->name = $profileData['name'];
         $user->email = $profileData['email'];
         $user->theme = $profileData['theme'];
+        $user->timezone = $profileData['timezone'] ?? null;
         $user->mobile = $profileData['mobile'];
 
         if ($request->filled('new_password')) {
