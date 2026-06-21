@@ -55,7 +55,10 @@
                     <p class="px-5 py-8 text-sm text-slate-500 text-center">Loading clients…</p>
                 </template>
                 <template x-if="!loading && filteredClients().length === 0">
-                    <p class="px-5 py-8 text-sm text-slate-500 text-center">No clients with {{ portalLabel }} credentials found.<br>Add them under Client Passwords &amp; Credentials.</p>
+                    <p class="px-5 py-8 text-sm text-slate-500 text-center">
+                        <span x-text="'No clients with ' + portalLabel + ' credentials found.'"></span><br>
+                        Add them under Client Passwords &amp; Credentials.
+                    </p>
                 </template>
                 <template x-for="client in filteredClients()" :key="client.credential_id">
                     <button

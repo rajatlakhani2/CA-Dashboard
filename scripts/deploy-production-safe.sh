@@ -55,6 +55,13 @@ fi
 
 php artisan migrate --force
 php artisan demo:ensure-dashboard --no-interaction 2>/dev/null || true
+
+if [ -f scripts/fix-production-mysql-connections.sh ]; then
+  bash scripts/fix-production-mysql-connections.sh
+elif [ -f scripts/fix-production-session-419.sh ]; then
+  bash scripts/fix-production-session-419.sh
+fi
+
 php artisan optimize:clear
 php artisan view:clear
 rm -f bootstrap/cache/routes-v7.php bootstrap/cache/routes*.php 2>/dev/null || true
