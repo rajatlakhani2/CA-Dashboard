@@ -16,7 +16,7 @@ class UpdateCalendarDateRequest extends FormRequest
         return [
             'type' => 'required|in:task,due,renewal',
             'id' => 'required|integer',
-            'new_date' => 'required|date',
+            'new_date' => 'required|date|after_or_equal:today',
         ];
     }
 }

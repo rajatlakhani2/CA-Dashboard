@@ -16,6 +16,8 @@ use App\Services\NotificationSummaryService;
 use App\Services\OrganizationWorkspaceService;
 use App\Services\PartnerFirmOverviewService;
 use App\Services\WorkspaceOnboardingService;
+use App\Support\ExecutiveSummaryWidgets;
+use App\Support\UserTimezone;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -63,8 +65,19 @@ class DashboardController extends Controller
             'initialDashboardTab' => $this->initialDashboardTab($request, $isPartner),
             'firmOverview' => $isPartner ? app(PartnerFirmOverviewService::class)->build($user) : null,
             'showFirmOverviewTab' => $isPartner,
-            'dashboardBuildId' => 'executive-summary-v5-gridfix-20260612',
+            'allowedExecutiveWidgets' => ExecutiveSummaryWidgets::allowed($user),
+            'dashboardBuildId' => 'executive-summary-v5-hardening-20260612',
         ]));
+    }
+
+    /** JSON finance figures for executive summary tap-to-reveal (not embedded in HTML). */
+    public function financeSnapshot(Request $request, DashboardMissionControlService $missionControl)
+    {
+        $user = $request->user();
+        abort_unless($user?->canAccessModule('dashboard'), 403);
+        abort_unless(\App\Support\ModuleGate::hasFinanceModule($user), 403);
+
+        return response()->json($missionControl->executiveFinanceSnapshot($user));
     }
 
     /** JSON probe for live deploy verification (partner/manager only). */
@@ -101,7 +114,7 @@ class DashboardController extends Controller
             ->whereNotIn('status', Task::TERMINAL_STATUSES)
             ->where('assigned_to', $user->id);
 
-        $today = now()->startOfDay();
+        $today = now(UserTimezone::for($user))->startOfDay();
 
         return [
             'today' => (clone $query)->whereDate('due_date', '<=', $today)->orderBy('due_date')->get(),
@@ -116,7 +129,7 @@ class DashboardController extends Controller
             return ['tasks' => collect(), 'dues' => collect()];
         }
 
-        $tomorrow = now()->addDay()->startOfDay();
+        $tomorrow = now(UserTimezone::for($user))->addDay()->startOfDay();
         $managesFirm = $user->managesFirmModules();
         $tasks = collect();
         $dues = collect();

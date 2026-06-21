@@ -489,6 +489,7 @@
 
     @include('dashboard.partials.tabs-script')
     @include('dashboard.partials.layout-script')
+    @include('dashboard.partials.executive-summary-script')
     @includeIf('dashboard.partials.error-reporter', ['dashboardBuildId' => $dashboardBuildId ?? 'unknown'])
 </div>
 @endsection
@@ -660,6 +661,14 @@ document.addEventListener('DOMContentLoaded', function() {
             return { domNodes: [chip] };
         },
         eventDrop: function(info) {
+            var dropped = info.event.start;
+            var today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (dropped && dropped < today) {
+                info.revert();
+                alert('Cannot reschedule to a past date.');
+                return;
+            }
             var newDate = info.event.startStr;
             var type = info.event.extendedProps.type;
             var dbId = info.event.extendedProps.db_id;
@@ -668,9 +677,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
                 body: JSON.stringify({type: type, id: dbId, new_date: newDate})
-            }).then(r => r.json()).then(data => {
-                if (!data.success) { alert('Failed to update date'); info.revert(); }
-            }).catch(() => { info.revert(); });
+            }).then(function(r) {
+                if (!r.ok) throw new Error('server');
+                return r.json();
+            }).then(function(data) {
+                if (!data.success) {
+                    alert('Failed to update date');
+                    info.revert();
+                }
+            }).catch(function() {
+                alert('Reschedule failed. Please try again.');
+                info.revert();
+            });
         },
         eventClick: function(info) {
             window.dispatchEvent(new CustomEvent('open-calendar-modal', {

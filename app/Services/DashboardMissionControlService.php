@@ -11,6 +11,7 @@ use App\Models\Setting;
 use App\Models\Task;
 use App\Models\User;
 use App\Support\ModuleGate;
+use App\Support\UserTimezone;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Spatie\Activitylog\Models\Activity;
@@ -19,7 +20,8 @@ class DashboardMissionControlService
 {
     public function build(?User $user): array
     {
-        $today = Carbon::today();
+        $tz = UserTimezone::for($user);
+        $today = Carbon::now($tz)->startOfDay();
         $startOfMonth = Carbon::now()->startOfMonth();
         $endOfMonth = Carbon::now()->endOfMonth();
         $managesFirm = $user?->managesFirmModules() ?? false;
@@ -198,16 +200,17 @@ class DashboardMissionControlService
                 'url' => route('tasks.index', ['due' => 'due_today']),
                 'tone' => 'amber',
             ];
+            $overdueCount = $taskQuery()->whereDate('due_date', '<', $today)->count();
             $kpis[] = [
                 'label' => 'Tasks overdue',
-                'value' => $taskQuery()->whereDate('due_date', '<', $today)->count(),
+                'value' => $overdueCount,
                 'url' => route('dashboard', [
                     'tab' => 'calendar',
                     'show_tasks' => 1,
                     'show_dues' => 0,
                     'due_status' => 'overdue',
                 ]),
-                'tone' => 'rose',
+                'tone' => $overdueCount > 0 ? 'rose' : 'sky',
             ];
             $kpis[] = [
                 'label' => 'Tasks next 7 days',
@@ -474,8 +477,29 @@ class DashboardMissionControlService
             ->limit(40)
             ->get()
             ->map(fn (Client $c) => array_merge(['client' => $c], $health->forClient($c)))
+            ->filter(fn (array $row) => array_key_exists('score', $row) && $row['score'] !== null)
             ->sortBy('score')
             ->take($limit)
             ->values();
+    }
+
+    /** Masked executive finance widget — fetch on reveal via dashboard.finance-snapshot. */
+    public function executiveFinanceSnapshot(?User $user): array
+    {
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
+        $rev = $this->revenueMetrics($startOfMonth, $endOfMonth);
+        $summary = app(DashboardMetricsService::class)->build($user)['summary'];
+
+        return [
+            'target' => $rev['target_formatted'] ?? '—',
+            'achieved' => $rev['achieved_formatted'] ?? '₹ 0',
+            'efficiency' => ($rev['collection_efficiency'] ?? 0) . '%',
+            'outstanding' => $rev['outstanding_formatted'] ?? '₹ 0',
+            'collected_mtd' => '₹ ' . number_format($rev['collected_mtd'] ?? 0, 0),
+            'overdue' => $summary['overdue_collections'] ?? '₹ 0',
+            'collected_today' => '₹ ' . number_format($rev['collected_today'] ?? 0, 0),
+            'progress_percent' => $rev['progress_percent'],
+        ];
     }
 }

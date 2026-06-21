@@ -7,6 +7,10 @@
         "dev": "vite",
         "start": "concurrently \"php artisan serve\" \"npm run dev\"",
         "test:browser": "node browser-live-qa.cjs",
+        "test:executive-summary": "node executive-summary-browser-qa.cjs",
+        "test:executive-summary:live": "node executive-summary-live-qa.cjs",
+        "test:executive-summary:watch": "node executive-summary-live-qa.cjs",
+        "test:demo-check": "node demo-feature-check.cjs",
         "test:production": "node production-smoke.cjs"
     },
     "devDependencies": {

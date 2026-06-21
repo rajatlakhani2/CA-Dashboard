@@ -45,6 +45,19 @@
                         </select>
                         <p class="mt-2 text-sm text-gray-500">Select your preferred color scheme and density.</p>
                     </div>
+
+                    <div class="col-span-6 sm:col-span-4">
+                        <label for="timezone" class="block text-sm font-medium text-gray-700">Timezone</label>
+                        <select id="timezone" name="timezone" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <option value="" @selected(old('timezone', $user->timezone) === null || old('timezone', $user->timezone) === '')>
+                                Firm default ({{ config('app.timezone') ?: 'Asia/Kolkata' }})
+                            </option>
+                            @foreach(\App\Support\UserTimezone::selectOptions() as $tzId => $tzLabel)
+                            <option value="{{ $tzId }}" @selected(old('timezone', $user->timezone) === $tzId)>{{ $tzLabel }}</option>
+                            @endforeach
+                        </select>
+                        <p class="mt-2 text-sm text-gray-500">Used for “due today”, “due tomorrow”, and calendar KPIs on your dashboard.</p>
+                    </div>
                 </div>
 
                 <div class="border-t border-gray-200 pt-6">

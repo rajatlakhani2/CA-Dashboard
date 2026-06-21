@@ -20,7 +20,7 @@
         <p class="executive-summary__layout-hint text-[10px] text-gray-500 shrink-0 hidden sm:block">Drag · ▼ collapse · drag ⤡ corner to resize</p>
     </div>
 
-    <div id="executive-summary-sortable" class="executive-summary__sortable">
+    <div id="executive-summary-sortable" class="executive-summary__sortable" data-allowed-widgets="@json(array_keys($allowedExecutiveWidgets ?? []))">
         @if($showMyDay)
         <x-executive-widget id="exec-my-day" title="☀️ My Day" :subtitle="auth()->user()->name . ' · ' . now()->format('l, d M Y')">
             @include('tasks.partials.my-day-panel', [
@@ -46,10 +46,17 @@
         <x-executive-widget id="exec-kpis" title="At a glance" subtitle="Key counts across tasks, compliance, billing, and clients">
             <div class="exec-kpi-grid">
                 @foreach($kpis as $item)
+                @if(!empty($item['url']))
                 <a href="{{ $item['url'] }}" class="exec-kpi-card exec-kpi-card--{{ $item['tone'] ?? 'slate' }}">
                     <span class="exec-kpi-card__label">{{ $item['label'] }}</span>
                     <span class="exec-kpi-card__value">{{ $item['value'] }}</span>
                 </a>
+                @else
+                <div class="exec-kpi-card exec-kpi-card--{{ $item['tone'] ?? 'slate' }}">
+                    <span class="exec-kpi-card__label">{{ $item['label'] }}</span>
+                    <span class="exec-kpi-card__value">{{ $item['value'] }}</span>
+                </div>
+                @endif
                 @endforeach
             </div>
         </x-executive-widget>
@@ -83,5 +90,3 @@
         @endif
     </div>
 </section>
-
-@include('dashboard.partials.executive-summary-script')
