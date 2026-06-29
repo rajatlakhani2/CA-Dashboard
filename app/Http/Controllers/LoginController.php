@@ -69,8 +69,16 @@ class LoginController extends Controller
             return redirect()->intended(route('dashboard'));
         }
 
+        if ($user->isArticle() && $user->canAccessModule('tasks')) {
+            return redirect()->intended(route('tasks.index'));
+        }
+
+        if ($user->canAccessModule('dashboard')) {
+            return redirect()->intended(route('dashboard'));
+        }
+
         if ($user->canAccessModule('tasks')) {
-            return redirect()->intended(route('tasks.my-day'));
+            return redirect()->intended(route('tasks.index'));
         }
 
         return redirect()->intended(route('dashboard'));

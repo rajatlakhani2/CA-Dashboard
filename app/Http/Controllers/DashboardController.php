@@ -66,8 +66,22 @@ class DashboardController extends Controller
             'firmOverview' => $isPartner ? app(PartnerFirmOverviewService::class)->build($user) : null,
             'showFirmOverviewTab' => $isPartner,
             'allowedExecutiveWidgets' => ExecutiveSummaryWidgets::allowed($user),
-            'dashboardBuildId' => 'executive-summary-v5-hardening-20260612',
+            'dashboardBuildId' => $this->dashboardBuildId(),
         ]));
+    }
+
+    /** Live deploy stamp (public/dashboard-build.txt) or code fallback. */
+    private function dashboardBuildId(): string
+    {
+        $file = public_path('dashboard-build.txt');
+        if (is_readable($file)) {
+            $stamp = trim((string) file_get_contents($file));
+            if ($stamp !== '') {
+                return $stamp;
+            }
+        }
+
+        return 'executive-summary-v5-hardening-20260612';
     }
 
     /** JSON finance figures for executive summary tap-to-reveal (not embedded in HTML). */
@@ -92,7 +106,7 @@ class DashboardController extends Controller
         $buildStamp = is_readable($buildFile) ? trim((string) file_get_contents($buildFile)) : null;
 
         return response()->json([
-            'build' => 'tabs-v2-20260604',
+            'build' => $this->dashboardBuildId(),
             'deploy_stamp' => $buildStamp,
             'view_path' => $path,
             'view_mtime' => is_readable($path) ? date('c', filemtime($path)) : null,

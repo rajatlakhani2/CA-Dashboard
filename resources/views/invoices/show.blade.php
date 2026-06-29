@@ -49,6 +49,10 @@
                 </div>
             </div>
             <div class="text-right">
+                @php $logoUrl = \App\Support\Branding::companyLogoUrl(); @endphp
+                @if($logoUrl)
+                <img src="{{ $logoUrl }}" alt="Firm logo" class="max-h-16 max-w-[180px] ml-auto mb-3 object-contain">
+                @endif
                 <div class="text-right">
                     <h2 class="text-xl font-bold text-gray-700">{{ \App\Models\Setting::get('company_name', 'RLA Dashboard Corp') }}</h2>
                     <p class="text-gray-500 text-sm mt-1 whitespace-pre-line">{{ \App\Models\Setting::get('company_address', "123 Business Street\nTech City, TC 90210") }}</p>

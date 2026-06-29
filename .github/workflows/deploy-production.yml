@@ -87,5 +87,11 @@ jobs:
             fi
             php artisan optimize:clear
             php artisan view:clear
-            rm -f bootstrap/cache/routes-v7.php 2>/dev/null || true
+            php artisan route:clear 2>/dev/null || true
+            php artisan config:clear 2>/dev/null || true
+            rm -rf storage/framework/views/* 2>/dev/null || true
+            rm -f bootstrap/cache/routes-v7.php bootstrap/cache/config.php 2>/dev/null || true
+            STAMP="deploy-$(date -u +%Y%m%d-%H%M%S)"
+            echo "$STAMP" > public/dashboard-build.txt
+            printf '%s\n' "{\"build\":\"${STAMP}\",\"deploy_stamp\":\"$STAMP\",\"ok\":true}" > public/build-status.json
             chmod -R 775 storage bootstrap/cache

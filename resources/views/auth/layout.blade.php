@@ -71,7 +71,7 @@
     <div class="login-shell">
         <div class="login-brand">
             <p class="text-[10px] font-bold uppercase tracking-[0.2em] muted">Secure workspace</p>
-            <h1 class="mt-3 text-3xl sm:text-4xl font-bold tracking-tight">{{ \App\Support\Branding::DEFAULT_NAME }}</h1>
+            <h1 class="mt-3 text-3xl sm:text-4xl font-bold tracking-tight">{{ $dashboardBrandName ?? \App\Support\Branding::dashboardName() }}</h1>
             <p class="mt-3 text-sm muted max-w-md leading-relaxed">Account recovery for your firm workspace.</p>
         </div>
         <div class="login-form-wrap">

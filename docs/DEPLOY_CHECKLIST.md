@@ -90,6 +90,47 @@ Default passwords are `password` — change in **Settings → Users** after firs
 - Restore DB backup from **System Health** or hosting panel
 - Redeploy previous `public/build` and code snapshot
 
+## 9. Site still shows old UI after deploy
+
+`scripts/deploy-production-safe.sh` downloads **GitHub `master` zip** — not your local PC. If you did not push, production stays on the last GitHub commit.
+
+**On your PC (before deploy):**
+
+```powershell
+git push origin master
+npm run build
+git add public/build
+git commit -m "Build assets for production"
+git push origin master
+```
+
+**On cPanel now (one-shot fix):**
+
+```bash
+cd ~/public_html/app.kuhu.org.in
+bash scripts/deploy-production-safe.sh
+# Then in browser: https://app.kuhu.org.in/clear-app-cache → Incognito login
+```
+
+**Emergency (dashboard only, from GitHub raw files):**
+
+```bash
+cd ~/public_html/app.kuhu.org.in
+bash scripts/force-dashboard-deploy.sh
+```
+
+**Verify live:**
+
+| URL | Expected |
+|-----|----------|
+| `/ping.php` | JSON with `tabs_v2_marker: true` |
+| `/dashboard` footer | `Build: deploy-YYYYMMDD-HHMMSS` (matches deploy stamp) |
+| `/dashboard/deploy-probe` | JSON `deploy_stamp` matches `public/dashboard-build.txt` |
+
+**cPanel / LiteSpeed:** CLI `opcache_reset()` does not always clear PHP-FPM workers. The deploy script hits `/.opcache-flush.php` via `APP_URL`. If still stale: cPanel → **LiteSpeed Web Cache** → Purge All, or **System Health → Clear & Rebuild Cache**.
+
+`public/build` is **committed** (not gitignored) so servers without Node still get Vite assets from the zip.
+
 ---
 
 **Verification baseline (2026-05-30):** 272 PHPUnit tests, 72 Playwright browser checks (`browser-live-qa.cjs`). See [GO_LIVE_QA_REPORT.md](./GO_LIVE_QA_REPORT.md).

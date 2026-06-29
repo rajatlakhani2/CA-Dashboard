@@ -309,12 +309,9 @@
 {{-- Gradient background layer --}}
 <div id="glass-bg"></div>
 
-{{-- dashboard-tabs-v2: vanilla JS tabs (no Alpine dependency) --}}
-@php $dashboardActiveTab = $initialDashboardTab ?? 'overview'; @endphp
+{{-- dashboard-tabs-v2: executive summary widgets only (legacy bottom tabs removed) --}}
 <div
     id="dashboard-tab-root"
-    data-initial-tab="{{ $dashboardActiveTab }}"
-    data-firm-tab="{{ ($showFirmOverviewTab ?? false) ? '1' : '0' }}"
     class="w-full min-w-0 max-w-none space-y-6 dashboard-shell"
 >
 
@@ -345,149 +342,8 @@
         </button>
     </div>
 
-    {{-- ===== TAB NAVIGATION ===== --}}
-    <div class="glass-tabs" role="tablist">
-        <button type="button" role="tab" data-dashboard-tab="overview" class="glass-tab {{ $dashboardActiveTab === 'overview' ? 'active' : '' }}">Overview</button>
-        <button type="button" role="tab" data-dashboard-tab="calendar" class="glass-tab {{ $dashboardActiveTab === 'calendar' ? 'active' : '' }}">Schedule</button>
-        <button type="button" role="tab" data-dashboard-tab="workload" class="glass-tab {{ $dashboardActiveTab === 'workload' ? 'active' : '' }}">Workload</button>
-        @if(\App\Support\ModuleGate::hasFinanceModule(auth()->user()))
-        <button type="button" role="tab" data-dashboard-tab="financials" class="glass-tab {{ $dashboardActiveTab === 'financials' ? 'active' : '' }}">Financials</button>
-        @endif
-        @if($showFirmOverviewTab ?? false)
-        <button type="button" role="tab" data-dashboard-tab="firm" class="glass-tab {{ $dashboardActiveTab === 'firm' ? 'active' : '' }}">Firm overview</button>
-        @endif
-    </div>
-
-    {{-- ===== OVERVIEW TAB ===== --}}
-    <div data-dashboard-panel="overview" class="dashboard-tab-panel {{ $dashboardActiveTab !== 'overview' ? 'hidden' : '' }}">
-        <p class="text-xs text-gray-500 mb-3 flex items-center gap-1.5">
-            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/></svg>
-            Drag sections by the handle to arrange your dashboard.
-        </p>
-        <div id="dashboard-overview-sortable" class="space-y-6">
-            <div class="glass-card p-5">
-                <p class="glass-section-title mb-1">More on your dashboard</p>
-                <p class="text-sm text-gray-500 mb-4">My Day, calendar, and KPIs live in the Executive Summary above. Use the tabs for workload, financials, and firm overview.</p>
-                <div class="flex flex-wrap gap-2">
-                    <button type="button" data-dashboard-tab="workload" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-indigo-300 hover:text-indigo-700">Workload →</button>
-                    @if(\App\Support\ModuleGate::hasFinanceModule(auth()->user()))
-                    <button type="button" data-dashboard-tab="financials" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-indigo-300 hover:text-indigo-700">Financials →</button>
-                    @endif
-                    <button type="button" data-dashboard-tab="calendar" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-indigo-300 hover:text-indigo-700">Jump to calendar →</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- ===== WORKLOAD TAB ===== --}}
-    <div data-dashboard-panel="workload" class="dashboard-tab-panel {{ $dashboardActiveTab !== 'workload' ? 'hidden' : '' }}">
-        <div class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="glass-card p-6">
-                    <p class="glass-section-title">Pending Tasks</p>
-                    <p class="text-4xl font-black text-gray-900">{{ \App\Models\Task::where('assigned_to', auth()->id())->whereNotIn('status',['Completed','Done','Closed'])->count() }}</p>
-                    <p class="text-gray-500 text-xs mt-1">assigned to me</p>
-                </div>
-                <div class="glass-card p-6">
-                    <p class="glass-section-title">Services Due Now</p>
-                    <p class="text-4xl font-black text-rose-300">{{ $summary['services_due_month'] }}</p>
-                    <p class="text-gray-500 text-xs mt-1">this month</p>
-                </div>
-                <div class="glass-card p-6">
-                    <p class="glass-section-title">Completion Rate</p>
-                    @php
-                        $total = $complianceStats['Pending'] + $complianceStats['Completed'] + $complianceStats['Overdue'];
-                        $rate = $total > 0 ? round(($complianceStats['Completed'] / $total) * 100) : 0;
-                    @endphp
-                    <p class="text-4xl font-black text-emerald-300">{{ $rate }}%</p>
-                    <p class="text-gray-500 text-xs mt-1">this month</p>
-                    <div class="mt-3 h-1.5 bg-gray-50 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-1000" style="width: {{ $rate }}%"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {{-- Task Queue --}}
-                <div class="glass-card p-6">
-                    <p class="glass-section-title">My Task Queue</p>
-                    <ul>
-                        @forelse($myPendingTasks as $task)
-                        <li class="glass-list-item">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <p class="text-gray-900 font-semibold text-sm">{{ $task->title }}</p>
-                                    <p class="text-gray-500 text-xs mt-0.5">{{ $task->client?->name ?? 'Internal' }}</p>
-                                </div>
-                                <span class="text-gray-400 text-xs">{{ $task->due_date->format('M d') }}</span>
-                            </div>
-                        </li>
-                        @empty
-                        <li class="dash-empty py-6 text-sm text-gray-500">No pending tasks.</li>
-                        @endforelse
-                    </ul>
-                </div>
-
-                {{-- Deadline breakdown --}}
-                <div class="glass-card p-6">
-                    <p class="glass-section-title">Upcoming Deadlines Breakdown</p>
-                    <div class="space-y-3">
-                        <a href="{{ $deadline7Url }}" class="deadline-pill deadline-pill-7">
-                            <span class="text-rose-800 font-semibold text-sm">Next 7 days</span>
-                            <span class="text-rose-700 text-2xl font-black">{{ $upcomingCounts['7_days'] }}</span>
-                        </a>
-                        <a href="{{ $deadline15Url }}" class="deadline-pill deadline-pill-15">
-                            <span class="text-amber-800 font-semibold text-sm">7 – 15 days</span>
-                            <span class="text-amber-700 text-2xl font-black">{{ $upcomingCounts['15_days'] - $upcomingCounts['7_days'] }}</span>
-                        </a>
-                        <a href="{{ $deadline30Url }}" class="deadline-pill deadline-pill-30">
-                            <span class="text-yellow-800 font-semibold text-sm">15 – 30 days</span>
-                            <span class="text-yellow-700 text-2xl font-black">{{ $upcomingCounts['30_days'] - $upcomingCounts['15_days'] }}</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    @if(\App\Support\ModuleGate::hasFinanceModule(auth()->user()))
-    {{-- ===== FINANCIALS TAB ===== --}}
-    <div data-dashboard-panel="financials" class="dashboard-tab-panel {{ $dashboardActiveTab !== 'financials' ? 'hidden' : '' }}">
-        @include('dashboard.partials.revenue-command-center')
-        <div class="space-y-6 mt-6">
-            {{-- Recent Clients --}}
-            <div class="glass-card p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <p class="glass-section-title mb-0">Recently Updated Clients</p>
-                    <a href="{{ route('clients.index') }}" class="text-indigo-600 text-xs font-semibold hover:text-indigo-800">View all →</a>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    @foreach($recentClients as $client)
-                    <a href="{{ route('clients.edit', $client) }}" class="flex items-center gap-3 p-3 rounded-xl bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 transition">
-                        <div class="h-9 w-9 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-700 font-bold text-sm flex-shrink-0">
-                            {{ substr($client->name, 0, 2) }}
-                        </div>
-                        <div class="min-w-0">
-                            <p class="text-gray-900 text-sm font-semibold truncate">{{ $client->name }}</p>
-                            <p class="text-gray-400 text-xs">{{ $client->updated_at->diffForHumans() }}</p>
-                        </div>
-                    </a>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
-
-    @if($showFirmOverviewTab ?? false)
-    <div data-dashboard-panel="firm" class="dashboard-tab-panel {{ $dashboardActiveTab !== 'firm' ? 'hidden' : '' }}">
-        @include('dashboard.partials.firm-overview', ['firmOverview' => $firmOverview])
-    </div>
-    @endif
-
     @include('partials.welcome-modal')
 
-    @include('dashboard.partials.tabs-script')
     @include('dashboard.partials.layout-script')
     @include('dashboard.partials.executive-summary-script')
     @includeIf('dashboard.partials.error-reporter', ['dashboardBuildId' => $dashboardBuildId ?? 'unknown'])

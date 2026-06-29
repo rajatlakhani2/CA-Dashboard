@@ -51,7 +51,11 @@ class ClientCredentialController extends Controller
 
         $credential = ClientCredential::create($validated);
 
-        return back()->with('success', 'Credential added successfully.');
+        $client = Client::findOrFail($validated['client_id']);
+
+        return redirect()
+            ->route('clients.edit', $client)
+            ->with('success', 'Credential added successfully.');
     }
 
     public function audit(\App\Http\Requests\CredentialAuditRequest $request, ClientCredential $credential)

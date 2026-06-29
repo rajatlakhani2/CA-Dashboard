@@ -15,23 +15,71 @@
 
 @push('head_styles')
 @include('dashboard.partials.premium-styles')
+@include('partials.calendar-premium-styles')
 <style>
     body { background: var(--premium-bg, #e8ecf1) !important; }
     .renewals-shell .kpi-card { cursor: default; }
-    .renewals-shell .glass-tabs { margin-bottom: 0; }
-    .renewals-shell .glass-tab { text-decoration: none; display: inline-block; }
-    .renewals-shell .renewal-list-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+    .renewal-cat-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.55rem 1rem;
+        border-radius: 9999px;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        border: 2px solid transparent;
+        transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+        text-decoration: none;
+    }
+    .renewal-cat-chip:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08); }
+    .renewal-cat-chip.active { box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12); transform: translateY(-1px); }
+    .renewal-cat-chip--all { background: #f8fafc; color: #334155; border-color: #e2e8f0; }
+    .renewal-cat-chip--all.active { background: linear-gradient(135deg, #475569, #334155); color: #fff; border-color: transparent; }
+    .renewal-cat-chip--lic { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+    .renewal-cat-chip--lic.active { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border-color: transparent; }
+    .renewal-cat-chip--loan { background: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
+    .renewal-cat-chip--loan.active { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; border-color: transparent; }
+    .renewal-cat-chip--medical { background: #fce7f3; color: #9d174d; border-color: #fbcfe8; }
+    .renewal-cat-chip--medical.active { background: linear-gradient(135deg, #ec4899, #db2777); color: #fff; border-color: transparent; }
+    .renewal-cat-chip--other { background: #ede9fe; color: #5b21b6; border-color: #ddd6fe; }
+    .renewal-cat-chip--other.active { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: #fff; border-color: transparent; }
+    .renewal-cat-chip__count {
+        min-width: 1.35rem;
+        text-align: center;
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 0.1rem 0.35rem;
+        border-radius: 9999px;
+        background: rgba(255,255,255,0.55);
+    }
+    .renewal-cat-chip.active .renewal-cat-chip__count { background: rgba(255,255,255,0.25); }
+    .renewals-shell .renewal-list-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: var(--vx-shadow-card, 0 8px 24px rgba(15, 23, 42, 0.06));
+        position: relative;
+    }
     .renewals-shell .renewal-row { border-left: 4px solid transparent; transition: all 0.2s; }
-    .renewals-shell .renewal-row:hover { border-left-color: var(--vx-accent-blue); background: var(--vx-accent-soft); }
+    .renewals-shell .renewal-row:hover { border-left-color: var(--vx-accent-blue, #6366f1); background: var(--vx-accent-soft, #eef2ff); }
     .renewals-shell .renewal-row.overdue { border-left-color: #ef4444; }
     .renewals-shell .renewal-row.renewal-draggable { cursor: grab; }
     .renewals-shell .renewal-row.renewal-draggable:active { cursor: grabbing; }
-    .renewals-shell #calendar { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 1rem; }
-    .renewals-shell #calendar .fc-daygrid-day { cursor: pointer; }
-    .renewals-shell #calendar .fc-daygrid-day:hover { background: rgba(99, 102, 241, 0.06); }
-    .renewals-shell #calendar .fc-event { cursor: grab; border-radius: 6px; font-size: 0.7rem; font-weight: 600; }
-    .renewals-shell #calendar .fc-event:active { cursor: grabbing; }
-    .renewals-shell #calendar .fc-event.fc-event-locked { cursor: not-allowed; opacity: 0.75; }
+    .renewals-shell #renewal-drag-list {
+        overflow-y: auto;
+        max-height: var(--renewal-list-h, 480px);
+        transition: max-height 0.05s linear;
+    }
+    .renewal-list-resize {
+        height: 10px;
+        cursor: ns-resize;
+        background: linear-gradient(180deg, transparent, rgba(99, 102, 241, 0.2));
+        border-top: 1px dashed #c7d2fe;
+    }
+    .renewal-list-resize:hover { background: linear-gradient(180deg, transparent, rgba(99, 102, 241, 0.35)); }
+    .renewals-shell #calendar.cal-grid-labels { background: transparent; border: none; padding: 0; }
+    .renewal-list-sortable-ghost { opacity: 0.4; background: #eef2ff; }
 </style>
 @endpush
 
@@ -112,24 +160,40 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" data-demo-tour="renewals-view">
         <div class="lg:col-span-1 space-y-4">
-            <div class="glass-tabs flex-wrap">
+            @php
+                $activeTab = request('tab', 'All');
+                $chipMeta = [
+                    'All' => ['slug' => 'all', 'icon' => '⊞'],
+                    'LIC' => ['slug' => 'lic', 'icon' => '🛡'],
+                    'Loan' => ['slug' => 'loan', 'icon' => '🏦'],
+                    'Medical' => ['slug' => 'medical', 'icon' => '⚕'],
+                    'Other' => ['slug' => 'other', 'icon' => '📋'],
+                ];
+            @endphp
+            <div class="flex flex-wrap gap-2">
                 @foreach(['All', 'LIC', 'Loan', 'Medical', 'Other'] as $tab)
                 @php
-                $isActive = (request('tab', 'All') === $tab);
-                $query = request()->all();
-                $query['tab'] = $tab;
-                $link = route('personal-renewals.index', $query);
+                    $isActive = $activeTab === $tab;
+                    $query = request()->all();
+                    $query['tab'] = $tab;
+                    $meta = $chipMeta[$tab];
+                    $count = $categoryCounts[$tab] ?? 0;
                 @endphp
-                <a href="{{ $link }}" class="glass-tab {{ $isActive ? 'active' : '' }}">{{ $tab }}</a>
+                <a href="{{ route('personal-renewals.index', $query) }}"
+                    class="renewal-cat-chip renewal-cat-chip--{{ $meta['slug'] }} {{ $isActive ? 'active' : '' }}">
+                    <span aria-hidden="true">{{ $meta['icon'] }}</span>
+                    <span>{{ $tab }}</span>
+                    <span class="renewal-cat-chip__count">{{ $count }}</span>
+                </a>
                 @endforeach
             </div>
 
-            <div class="renewal-list-card">
-                <div class="px-4 py-3 border-b border-gray-100 bg-gray-50/80 flex justify-between items-center">
-                    <p class="glass-section-title mb-0">{{ request('tab', 'All') === 'All' ? 'Upcoming' : request('tab') }}</p>
+            <div id="renewal-list-panel" class="renewal-list-card" style="--renewal-list-h: 480px">
+                <div class="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-slate-50 to-indigo-50/50 flex justify-between items-center">
+                    <p class="glass-section-title mb-0">{{ $activeTab === 'All' ? 'Upcoming' : $activeTab }}</p>
                     <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-0.5 rounded-full">{{ $pending->count() }}</span>
                 </div>
-                <ul id="renewal-drag-list" class="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
+                <ul id="renewal-drag-list" class="divide-y divide-gray-100">
                     @forelse($pending as $renewal)
                     <li
                         class="renewal-row px-4 py-4 sm:px-5 group {{ $renewal->due_date->isPast() ? 'overdue' : '' }} {{ $renewal->status === 'Pending' ? 'renewal-draggable' : '' }}"
@@ -182,6 +246,7 @@
                     <li class="px-4 py-10 text-center text-sm text-gray-500">No pending renewals in this view.</li>
                     @endforelse
                 </ul>
+                <div class="renewal-list-resize" role="separator" aria-label="Drag to resize list" title="Drag to resize list"></div>
             </div>
         </div>
 
@@ -198,7 +263,7 @@
                         <button type="button" onclick="resizeCalendar(800)" class="text-xs px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 font-medium text-gray-700">Large</button>
                     </div>
                 </div>
-                <div id="calendar"></div>
+                <div id="calendar" class="cal-grid-labels"></div>
             </div>
         </div>
     </div>
@@ -210,7 +275,39 @@
 <script>
     var calendar;
 
+    function initRenewalListResize() {
+        var panel = document.getElementById('renewal-list-panel');
+        var handle = panel && panel.querySelector('.renewal-list-resize');
+        var list = document.getElementById('renewal-drag-list');
+        if (!panel || !handle || !list) return;
+
+        var stored = parseInt(localStorage.getItem('renewal_list_h') || '480', 10);
+        panel.style.setProperty('--renewal-list-h', stored + 'px');
+
+        handle.addEventListener('mousedown', function (e) {
+            e.preventDefault();
+            var startY = e.clientY;
+            var startH = list.offsetHeight;
+
+            function onMove(ev) {
+                var next = Math.min(900, Math.max(200, startH + (ev.clientY - startY)));
+                panel.style.setProperty('--renewal-list-h', next + 'px');
+            }
+
+            function onUp() {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+                localStorage.setItem('renewal_list_h', parseInt(getComputedStyle(panel).getPropertyValue('--renewal-list-h'), 10) || list.offsetHeight);
+            }
+
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
+        initRenewalListResize();
+
         var calendarEl = document.getElementById('calendar');
         var events = @json($events);
         var lockedStatus = 'Paid';

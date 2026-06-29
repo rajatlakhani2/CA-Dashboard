@@ -54,7 +54,7 @@ class FullApplicationCatalogTest extends TestCase
         ]);
 
         $this->post(route('login'), ['email' => $article->email, 'password' => 'pass'])
-            ->assertRedirect(route('tasks.my-day'));
+            ->assertRedirect(route('tasks.index'));
     }
 
     public function test_partner_can_load_full_get_route_catalog(): void

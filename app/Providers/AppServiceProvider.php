@@ -85,7 +85,7 @@ class AppServiceProvider extends ServiceProvider
             $model::addGlobalScope(new OrganizationScope);
         }
 
-        View::composer(['layouts.app', 'auth.register', 'welcome', 'demo.theme-gallery'], function ($view) {
+        View::composer(['layouts.app', 'auth.register', 'auth.layout', 'welcome', 'demo.theme-gallery'], function ($view) {
             $view->with([
                 'dashboardBrandName' => Branding::dashboardName(),
                 'dashboardBrandTagline' => Branding::dashboardTagline(),

@@ -162,7 +162,7 @@ class CommandPaletteBuilder
             'category' => 'Tasks',
             'title' => $task->title,
             'subtitle' => $task->client?->name ?? 'No client',
-            'url' => $user->isArticle() ? route('tasks.my-day') : route('tasks.edit', $task),
+            'url' => $user->isArticle() ? route('tasks.index') : route('tasks.edit', $task),
             'icon' => 'clipboard-check',
         ])->all();
     }
@@ -256,7 +256,6 @@ class CommandPaletteBuilder
             $pages[] = ['title' => 'Firm overview', 'url' => route('dashboard', ['tab' => 'firm']), 'icon' => 'chart-bar', 'module' => 'dashboard'];
         }
         if ($user->canAccessModule('tasks')) {
-            $pages[] = ['title' => 'My Day', 'url' => route('tasks.my-day'), 'icon' => 'sun', 'module' => 'tasks'];
             $pages[] = ['title' => 'Tasks', 'url' => route('tasks.index'), 'icon' => 'check-circle', 'module' => 'tasks'];
         }
         if ($user->canAccessModule('clients')) {
@@ -308,8 +307,8 @@ class CommandPaletteBuilder
         if ($user->canAccessModule('payments') && $user->managesFirmModules()) {
             $actions[] = ['title' => 'Log Payment', 'url' => route('payments.create'), 'icon' => 'cash', 'gate' => 'create_payment'];
         }
-        if ($user->canAccessModule('tasks')) {
-            $actions[] = ['title' => 'Open My Day', 'url' => route('tasks.my-day'), 'icon' => 'sun', 'gate' => 'my_day'];
+        if ($user->canAccessModule('dashboard')) {
+            $actions[] = ['title' => 'Open Executive Summary', 'url' => route('dashboard'), 'icon' => 'home', 'gate' => 'dashboard'];
         }
         if ($user->managesFirmModules() && $user->canAccessModule('payments')) {
             $actions[] = ['title' => 'Collections Center', 'url' => route('collections.index'), 'icon' => 'phone', 'gate' => 'collections'];
@@ -325,7 +324,7 @@ class CommandPaletteBuilder
             'create_task' => $user->can('create', Task::class),
             'create_invoice' => $user->can('create', Invoice::class),
             'create_payment', 'collections' => $user->canAccessModule('payments') && $user->managesFirmModules(),
-            'my_day' => $user->canAccessModule('tasks'),
+            'dashboard' => $user->canAccessModule('dashboard'),
             default => false,
         };
     }

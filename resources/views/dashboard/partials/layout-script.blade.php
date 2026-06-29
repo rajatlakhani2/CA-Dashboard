@@ -48,21 +48,22 @@
         return filtered.length ? filtered : defaultOrder();
     }
 
-    function pixelToColSpan(px) {
-        if (px <= 300) return 3;
-        if (px <= 400) return 4;
-        if (px <= 600) return 6;
-        if (px <= 800) return 8;
-        return 12;
+    function colToWidth(col, container) {
+        if (!container || !container.clientWidth) return null;
+        var colW = container.clientWidth / 12;
+        return Math.round(colW * col);
     }
 
     function migratePixelSizes(sizes) {
         if (!sizes || typeof sizes !== 'object') return {};
+        var container = document.getElementById('executive-summary-sortable');
         var migrated = {};
         Object.keys(sizes).forEach(function (id) {
             var size = sizes[id] || {};
-            if (size.w && !size.col) {
-                migrated[id] = { col: pixelToColSpan(size.w), h: size.h };
+            if (size.w) {
+                migrated[id] = { w: size.w, h: size.h };
+            } else if (size.col) {
+                migrated[id] = { w: colToWidth(size.col, container), h: size.h };
             } else {
                 migrated[id] = size;
             }
@@ -202,19 +203,34 @@
 
     var COL_SPANS = [3, 4, 6, 8, 12];
 
-    function setWidgetColSpan(widget, span) {
+    function clearWidgetWidthClasses(widget) {
         COL_SPANS.forEach(function (col) {
             widget.classList.remove('exec-widget--col-' + col);
         });
-        widget.style.width = '';
+    }
+
+    function setWidgetWidth(widget, widthPx) {
+        clearWidgetWidthClasses(widget);
+        if (!widthPx) {
+            widget.style.removeProperty('--exec-widget-w');
+            widget.classList.remove('exec-widget--sized-width');
+            return;
+        }
+        widget.style.setProperty('--exec-widget-w', Math.round(widthPx) + 'px');
+        widget.classList.add('exec-widget--sized-width');
+    }
+
+    function setWidgetColSpan(widget, span) {
+        clearWidgetWidthClasses(widget);
         widget.classList.remove('exec-widget--sized-width');
+        widget.style.removeProperty('--exec-widget-w');
         if (span && span < 12) {
             widget.classList.add('exec-widget--col-' + span);
             widget.classList.add('exec-widget--sized-width');
         }
     }
 
-    function applySavedColSpans(containerId) {
+    function applySavedSizes(containerId) {
         var container = document.getElementById(containerId);
         if (!container) return;
 
@@ -222,10 +238,24 @@
         container.querySelectorAll('.exec-widget').forEach(function (widget) {
             var id = widget.getAttribute('data-dashboard-widget');
             var size = sizes[id];
-            if (size && size.col) {
+            if (!size) return;
+            if (size.w) {
+                setWidgetWidth(widget, size.w);
+            } else if (size.col) {
                 setWidgetColSpan(widget, size.col);
             }
+            if (size.h) {
+                var body = widget.querySelector('.exec-widget__body');
+                if (body) {
+                    body.style.setProperty('--exec-widget-h', size.h + 'px');
+                    body.classList.add('exec-widget__body--sized');
+                }
+            }
         });
+    }
+
+    function applySavedColSpans(containerId) {
+        applySavedSizes(containerId);
     }
 
     window.VouchexExecLayout = {
@@ -234,7 +264,8 @@
         storageKey: storageKey,
         sizesKey: sizesKey,
         migratePixelSizes: migratePixelSizes,
-        applySavedColSpans: applySavedColSpans,
+        applySavedSizes: applySavedSizes,
+        setWidgetWidth: setWidgetWidth,
         notifyLayoutSaveFailed: notifyLayoutSaveFailed,
     };
 
@@ -279,10 +310,18 @@
         }
 
         new Sortable(container, {
-            animation: 180,
+            animation: 220,
+            easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
             handle: '.dashboard-drag-handle',
             ghostClass: 'dashboard-widget-ghost',
             dragClass: 'dashboard-widget-drag',
+            forceFallback: true,
+            fallbackTolerance: 4,
+            swapThreshold: 0.55,
+            invertSwap: true,
+            delay: 80,
+            delayOnTouchOnly: true,
+            touchStartThreshold: 4,
             onEnd: function () {
                 var order = Array.from(container.querySelectorAll('[data-dashboard-widget]')).map(function (el) {
                     return el.getAttribute('data-dashboard-widget');

@@ -20,7 +20,7 @@
         </a>
         @endif
         @if($navMod('tasks'))
-        <a href="{{ route('tasks.my-day') }}"
+        <a href="{{ $navUser->isArticle() ? route('tasks.my-day') : route('tasks.index') }}"
             class="flex flex-col items-center justify-center flex-1 min-w-0 px-1 text-[10px] font-semibold {{ request()->routeIs('tasks.*') ? 'text-indigo-600' : 'text-slate-500' }}">
             <svg class="h-5 w-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
             Tasks

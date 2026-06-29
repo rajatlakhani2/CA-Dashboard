@@ -17,7 +17,18 @@ class PersonalRenewalController extends Controller
 
         $renewals = $query->orderBy('due_date', 'asc')->get();
 
-        // For Calendar
+        $pendingAll = PersonalRenewal::where('user_id', auth()->id())
+            ->where('status', PersonalRenewal::STATUS_PENDING)
+            ->get();
+
+        $categoryCounts = [
+            'All' => $pendingAll->count(),
+            'LIC' => $pendingAll->where('category', 'LIC')->count(),
+            'Loan' => $pendingAll->where('category', 'Loan')->count(),
+            'Medical' => $pendingAll->where('category', 'Medical')->count(),
+            'Other' => $pendingAll->where('category', 'Other')->count(),
+        ];
+
         $events = $renewals->map(function ($renewal) {
             $clientName = $renewal->client?->name ?? 'Personal Renewal';
             $color = $renewal->status === PersonalRenewal::STATUS_PAID ? '#22c55e' : '#ef4444';
@@ -41,7 +52,7 @@ class PersonalRenewalController extends Controller
             ];
         })->values()->all();
 
-        return view('personal-renewals.index', compact('renewals', 'events'));
+        return view('personal-renewals.index', compact('renewals', 'events', 'categoryCounts'));
     }
 
     public function create()

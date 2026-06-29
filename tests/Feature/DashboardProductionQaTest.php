@@ -215,7 +215,7 @@ class DashboardProductionQaTest extends TestCase
 
         $html = $this->actingAs($user)->get(route('dashboard'))->getContent();
 
-        $this->assertStringContainsString('grid-auto-flow: row dense', $html);
+        $this->assertStringContainsString('flex-wrap: wrap', $html);
         $this->assertStringContainsString('exec-widget--col-6', $html);
         $this->assertStringContainsString('exec-widget--col-4', $html);
     }
@@ -228,7 +228,8 @@ class DashboardProductionQaTest extends TestCase
         $html = $this->actingAs($user)->get(route('dashboard'))->getContent();
 
         $this->assertStringContainsString('@media (max-width: 639px)', $html);
-        $this->assertStringContainsString('grid-column: span 12', $html);
+        $this->assertStringContainsString('flex: 1 1 100%', $html);
+        $this->assertStringContainsString('width: 100% !important', $html);
     }
 
     /** TC-022–TC-025 Resize constraints in script */
@@ -238,8 +239,8 @@ class DashboardProductionQaTest extends TestCase
 
         $html = $this->actingAs($user)->get(route('dashboard'))->getContent();
 
-        $this->assertStringContainsString('MIN_H = 72', $html);
-        $this->assertStringContainsString('MAX_H = 720', $html);
+        $this->assertStringContainsString('MIN_H = 56', $html);
+        $this->assertStringContainsString('MAX_H = 960', $html);
         $this->assertStringContainsString('COL_SPANS = [3, 4, 6, 8, 12]', $html);
         $this->assertStringContainsString('resetWidgetSize', $html);
     }

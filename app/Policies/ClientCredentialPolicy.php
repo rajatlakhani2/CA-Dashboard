@@ -10,48 +10,49 @@ class ClientCredentialPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('partner', 'manager');
+        return $user->hasRole('partner', 'manager') && $user->canAccessModule('credentials');
     }
 
     public function create(User $user): bool
     {
-        return $user->hasRole('partner', 'manager');
+        return $user->canAccessModule('credentials')
+            && $user->hasRole('partner', 'manager', 'associate');
     }
 
     public function createForClient(User $user, Client $client): bool
     {
-        return $this->canAccessClient($user, $client);
+        if (! $this->create($user)) {
+            return false;
+        }
+
+        return app(ClientPolicy::class)->update($user, $client);
     }
 
     public function view(User $user, ClientCredential $credential): bool
     {
-        return $this->canAccessClient($user, $credential->client);
+        return $this->canAccessCredential($user, $credential);
     }
 
     public function update(User $user, ClientCredential $credential): bool
     {
-        return $this->canAccessClient($user, $credential->client);
+        return $this->canAccessCredential($user, $credential);
     }
 
     public function delete(User $user, ClientCredential $credential): bool
     {
-        return $this->canAccessClient($user, $credential->client);
+        return $this->canAccessCredential($user, $credential);
     }
 
-    private function canAccessClient(User $user, ?Client $client): bool
+    private function canAccessCredential(User $user, ClientCredential $credential): bool
     {
-        if ($user->isPartner()) {
-            return true;
-        }
-
-        if (! $user->isManager() || ! $client) {
+        if (! $user->canAccessModule('credentials')) {
             return false;
         }
 
-        if (! $user->branch_id || ! $client->branch_id) {
-            return true;
+        if ($user->hasRole('partner', 'manager')) {
+            return app(ClientPolicy::class)->view($user, $credential->client);
         }
 
-        return (int) $user->branch_id === (int) $client->branch_id;
+        return app(ClientPolicy::class)->update($user, $credential->client);
     }
 }

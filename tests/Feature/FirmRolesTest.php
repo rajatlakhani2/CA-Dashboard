@@ -158,7 +158,7 @@ class FirmRolesTest extends TestCase
             'workspace' => 'testfirm',
             'email' => $article->email,
             'password' => 'password',
-        ])->assertRedirect(route('tasks.my-day'));
+        ])->assertRedirect(route('tasks.index'));
     }
 
     public function test_associate_can_create_client_in_own_portfolio(): void

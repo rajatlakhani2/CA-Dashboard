@@ -70,7 +70,15 @@ class SettingsController extends Controller
         $user->save();
 
         if ($request->user()->can('updateFirm', Setting::class)) {
-            $firmData = $request->validate($this->firmValidationRules());
+            $firmRules = $this->firmValidationRules();
+            if ($request->hasFile('company_logo')) {
+                $firmRules['company_logo'] = 'nullable|image|max:2048';
+            }
+            $firmData = $request->validate($firmRules);
+            if ($request->hasFile('company_logo')) {
+                $stored = $request->file('company_logo')->store('firm-logos', 'public');
+                $firmData['company_logo_path'] = 'storage/'.$stored;
+            }
             $this->updateFirmSettings($firmData);
 
             if ($request->has('workspace_type')) {

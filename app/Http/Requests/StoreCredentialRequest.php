@@ -24,4 +24,16 @@ class StoreCredentialRequest extends FormRequest
             'notes' => 'nullable|string',
         ];
     }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            $username = trim((string) $this->input('username', ''));
+            $password = trim((string) $this->input('password', ''));
+
+            if ($username === '' && $password === '') {
+                $validator->errors()->add('username', 'Enter a user ID or password (or both).');
+            }
+        });
+    }
 }

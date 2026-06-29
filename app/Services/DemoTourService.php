@@ -66,8 +66,8 @@ class DemoTourService
             ],
             [
                 'type' => 'spotlight',
-                'url' => route('tasks.my-day'),
-                'element' => '[data-demo-tour="my-day"]',
+                'url' => route('dashboard'),
+                'element' => '[data-dashboard-widget="exec-my-day"]',
                 'play' => 'my-day-start',
                 'emoji' => '☀️',
                 'title' => 'My Day',

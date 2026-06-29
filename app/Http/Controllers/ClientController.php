@@ -358,6 +358,8 @@ class ClientController extends Controller
 
         $services = \App\Models\Service::all();
         $optedServices = $client->optedServices()->get()->keyBy('id');
+        $client->load('credentials');
+
         return view('clients.edit', compact('client', 'services', 'optedServices'));
     }
 

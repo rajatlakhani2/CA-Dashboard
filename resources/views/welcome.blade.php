@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ \App\Support\Branding::DEFAULT_NAME }}</title>
+    <title>{{ \App\Support\Branding::pageTitle() }}</title>
     <script>
         window.location.href = "/login";
     </script>

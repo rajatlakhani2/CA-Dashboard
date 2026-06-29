@@ -6,17 +6,12 @@
     $hideChrome = $hideChrome ?? false;
 @endphp
 <div class="{{ $hideChrome ? 'exec-widget__inner' : 'glass-card p-6 ' . ($compact ? '' : 'h-full') }}" data-demo-tour="my-day">
-    @if($hideChrome)
-    <div class="flex justify-end mb-2">
-        <a href="{{ route('tasks.my-day') }}" class="text-indigo-600 text-xs font-semibold hover:text-indigo-800">Full view →</a>
-    </div>
-    @else
+    @if(! $hideChrome)
     <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
         <div>
             <p class="glass-section-title mb-0">☀️ My Day</p>
             <p class="text-xs text-gray-500 mt-0.5">{{ auth()->user()->name }} · {{ now()->format('l, d M Y') }}</p>
         </div>
-        <a href="{{ route('tasks.my-day') }}" class="text-indigo-600 text-xs font-semibold hover:text-indigo-800">Full view →</a>
     </div>
     @endif
     <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Due today & overdue ({{ $tasksToday->count() }})</p>

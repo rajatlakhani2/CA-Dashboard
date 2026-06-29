@@ -13,17 +13,28 @@ class MobileWorkModeTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_staff_login_redirects_to_my_day(): void
+    public function test_staff_login_redirects_to_dashboard(): void
     {
+        $org = \App\Models\Organization::create([
+            'name' => 'Test Firm',
+            'slug' => 'testfirm',
+            'plan' => 'professional',
+            'seat_limit' => 10,
+        ]);
+
         $staff = User::factory()->create([
             'role' => 'staff',
+            'organization_id' => $org->id,
             'module_access' => ['tasks' => true, 'dashboard' => true],
         ]);
 
+        $staff->forceFill(['password' => \Illuminate\Support\Facades\Hash::make('password')])->save();
+
         $this->post(route('login'), [
+            'workspace' => 'testfirm',
             'email' => $staff->email,
             'password' => 'password',
-        ])->assertRedirect(route('tasks.my-day'));
+        ])->assertRedirect(route('dashboard'));
     }
 
     public function test_staff_can_append_note_on_assigned_task(): void

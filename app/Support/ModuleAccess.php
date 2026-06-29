@@ -39,7 +39,6 @@ class ModuleAccess
                 'expenses' => false,
                 'reports' => false,
                 'staff' => false,
-                'credentials' => false,
                 'compliance' => false,
                 'dsc' => false,
                 'tds' => false,

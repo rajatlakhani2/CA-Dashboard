@@ -28,4 +28,15 @@ class Branding
 
         return $suffix ? "{$suffix} — {$base}" : $base;
     }
+
+    public static function companyLogoUrl(): ?string
+    {
+        $path = trim((string) Setting::get('company_logo_path', ''));
+
+        if ($path === '' || ! file_exists(public_path($path))) {
+            return null;
+        }
+
+        return asset($path);
+    }
 }

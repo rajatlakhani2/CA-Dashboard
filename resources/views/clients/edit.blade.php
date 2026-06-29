@@ -36,9 +36,11 @@
             <button type="button" onclick="switchTab('personal')" class="tab-btn border-transparent text-text-secondary hover:border-line hover:text-text-main whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium" id="tab-personal">
                 Personal Reminders
             </button>
+            @if(auth()->user()?->canAccessModule('credentials'))
             <button type="button" onclick="switchTab('credentials')" class="tab-btn border-transparent text-text-secondary hover:border-line hover:text-text-main whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium" id="tab-credentials">
                 Passwords & Credentials
             </button>
+            @endif
         </nav>
     </div>
 
@@ -448,15 +450,20 @@
     </div>
 </div>
     <!-- Tab 6: Credentials -->
+    @if(auth()->user()?->canAccessModule('credentials'))
     <div id="panel-credentials" class="tab-panel hidden p-6 space-y-6">
         <div class="flex justify-between items-center border-b border-gray-200 pb-4">
             <div>
                 <h3 class="text-base font-semibold leading-6 text-gray-900">Passwords & Credentials</h3>
                 <p class="mt-2 text-sm text-gray-500">Store and manage portal logins like Income Tax, GST, TAN, MCA etc. securely.</p>
             </div>
-            <button onclick="document.getElementById('addCredentialModal').classList.remove('hidden')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow text-sm">
+            @can('create', App\Models\ClientCredential::class)
+            <button type="button" onclick="document.getElementById('addCredentialModal').classList.remove('hidden')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow text-sm">
                 + Add Password
             </button>
+            @else
+            <p class="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">You do not have permission to add passwords for this client. Ask a partner or manager if you need vault access.</p>
+            @endcan
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -515,6 +522,7 @@
     </div>
 
     <!-- Add Credential Modal -->
+    @can('create', App\Models\ClientCredential::class)
     <div id="addCredentialModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="document.getElementById('addCredentialModal').classList.add('hidden')"></div>
@@ -566,6 +574,8 @@
             </div>
         </div>
     </div>
+    @endcan
+    @endif
 </div>
 
 @endsection
@@ -606,7 +616,7 @@
         let activeTab = sessionStorage.getItem('activeClientTab') || 'basic';
         
         // If there are validation errors, we can intelligently switch to the tab with errors
-        @if($errors->has('portal_name') || $errors->has('username') || session('success') == 'Credential added successfully.')
+        @if($errors->has('portal_name') || $errors->has('username') || $errors->has('password') || session('success') == 'Credential added successfully.')
             activeTab = 'credentials';
         @endif
         @if($errors->has('title') || $errors->has('category') || session('success') == 'Reminder added successfully.')
