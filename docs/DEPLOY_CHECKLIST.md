@@ -28,6 +28,7 @@ Full template: [`.env.production.example`](../.env.production.example) · Steps:
 - Database credentials (MySQL on cPanel)
 - `APP_ALLOW_DANGEROUS_SYSTEM=false` (blocks migrate from UI in production)
 - WhatsApp / mail keys if using notifications
+- **MAIL_HOST must be a real SMTP host** (cPanel Email Accounts → Connect Devices). Leaving `mail.your-domain.com` breaks forgot-password with a connection timeout. After editing `.env`, run `php artisan config:clear`.
 
 ## 3. Server commands
 

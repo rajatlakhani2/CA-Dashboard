@@ -8,9 +8,11 @@ use App\Support\ThemePreset;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password as PasswordRule;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 class ForgotPasswordController extends Controller
 {
@@ -51,12 +53,27 @@ class ForgotPasswordController extends Controller
             ->first();
 
         if ($user) {
-            Password::broker()->sendResetLink(
-                ['email' => $user->email],
-                function (User $user, string $token) use ($organization): void {
-                    $user->sendPasswordResetNotification($token, $organization->slug);
-                }
-            );
+            try {
+                Password::broker()->sendResetLink(
+                    ['email' => $user->email],
+                    function (User $user, string $token) use ($organization): void {
+                        $user->sendPasswordResetNotification($token, $organization->slug);
+                    }
+                );
+            } catch (TransportExceptionInterface $e) {
+                Log::error('Password reset email failed', [
+                    'workspace' => $slug,
+                    'email' => $user->email,
+                    'mail_host' => config('mail.mailers.smtp.host'),
+                    'message' => $e->getMessage(),
+                ]);
+
+                return back()
+                    ->withInput($request->only('workspace', 'email'))
+                    ->withErrors([
+                        'email' => 'We could not send the reset email. The mail server is not configured correctly. Ask your firm admin to set MAIL_HOST / MAIL_USERNAME / MAIL_PASSWORD in production .env (not mail.your-domain.com), then run php artisan config:clear.',
+                    ]);
+            }
         }
 
         return back()

@@ -5,10 +5,12 @@ namespace Tests\Feature;
 use App\Models\Organization;
 use App\Models\User;
 use App\Notifications\ResetPasswordNotification;
+use Illuminate\Contracts\Notifications\Dispatcher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
+use Symfony\Component\Mailer\Exception\TransportException;
 use Tests\TestCase;
 
 class ForgotPasswordTest extends TestCase
@@ -44,6 +46,37 @@ class ForgotPasswordTest extends TestCase
         ])->assertSessionHas('status');
 
         Notification::assertSentTo($user, ResetPasswordNotification::class);
+    }
+
+    public function test_mail_transport_failure_shows_friendly_error(): void
+    {
+        $org = Organization::create([
+            'name' => 'Reset Firm',
+            'slug' => 'reset-mail-fail',
+            'plan' => 'starter',
+            'seat_limit' => 5,
+        ]);
+
+        User::factory()->create([
+            'organization_id' => $org->id,
+            'email' => 'partner@reset.test',
+        ]);
+
+        $this->mock(Dispatcher::class, function ($mock) {
+            $mock->shouldReceive('send')
+                ->once()
+                ->andThrow(new TransportException(
+                    'Connection could not be established with host "mail.your-domain.com:587"'
+                ));
+        });
+
+        $this->from(route('password.request'))
+            ->post(route('password.email'), [
+                'workspace' => $org->slug,
+                'email' => 'partner@reset.test',
+            ])
+            ->assertRedirect()
+            ->assertSessionHasErrors('email');
     }
 
     public function test_user_can_reset_password_with_token(): void
