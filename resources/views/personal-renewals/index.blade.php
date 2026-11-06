@@ -4,7 +4,7 @@
 <div class="flex justify-between items-center w-full">
     <div>
         <h2 class="font-bold text-lg text-gray-900 tracking-wide">Personal Renewals</h2>
-        <p class="text-xs text-gray-500 mt-0.5">LIC, loans, medical policies & family due dates</p>
+        <p class="text-xs text-gray-500 mt-0.5">LIC, health, vehicle & term insurance, loans and family due dates</p>
     </div>
     <a href="{{ route('personal-renewals.create') }}" class="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3.5 py-2 text-xs font-semibold text-white shadow-md shadow-indigo-600/25 hover:bg-indigo-700 transition">
         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -103,7 +103,7 @@
             <div>
                 <p class="text-[10px] font-bold uppercase tracking-widest opacity-80">Personal reminders</p>
                 <h2 class="text-2xl sm:text-3xl font-bold mt-1">Stay ahead of renewals</h2>
-                <p class="text-sm mt-2 opacity-90">LIC, loans, medical policies & family due dates in one calm view.</p>
+                <p class="text-sm mt-2 opacity-90">LIC, health, vehicle & term insurance, loans and family due dates in one calm view.</p>
             </div>
             <div class="text-right">
                 <p class="text-[10px] font-bold uppercase tracking-widest opacity-80">Due this month</p>
@@ -166,12 +166,12 @@
                     'All' => ['slug' => 'all', 'icon' => '⊞'],
                     'LIC' => ['slug' => 'lic', 'icon' => '🛡'],
                     'Loan' => ['slug' => 'loan', 'icon' => '🏦'],
-                    'Medical' => ['slug' => 'medical', 'icon' => '⚕'],
+                    'Insurance' => ['slug' => 'medical', 'icon' => '⚕'],
                     'Other' => ['slug' => 'other', 'icon' => '📋'],
                 ];
             @endphp
             <div class="flex flex-wrap gap-2">
-                @foreach(['All', 'LIC', 'Loan', 'Medical', 'Other'] as $tab)
+                @foreach(['All', 'LIC', 'Insurance', 'Loan', 'Other'] as $tab)
                 @php
                     $isActive = $activeTab === $tab;
                     $query = request()->all();
@@ -213,7 +213,10 @@
                         </div>
                         <div class="flex justify-between items-end gap-2">
                             <div>
-                                <p class="text-xs text-gray-500">{{ $renewal->category }}@if($renewal->frequency) · {{ $renewal->frequency }}@endif</p>
+                                <p class="text-xs text-gray-500">{{ $renewal->categoryLabel() }}@if($renewal->frequency) · {{ $renewal->frequency }}@endif</p>
+                                @if($renewal->insured_person || $renewal->policy_number)
+                                <p class="text-[11px] text-gray-400">{{ collect([$renewal->insured_person, $renewal->policy_number ? 'Policy '.$renewal->policy_number : null])->filter()->implode(' · ') }}</p>
+                                @endif
                                 <p class="text-sm font-bold text-gray-900 mt-0.5">₹ {{ number_format($renewal->amount) }}</p>
                             </div>
                             <div class="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">

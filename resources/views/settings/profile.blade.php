@@ -347,16 +347,34 @@
                 <div x-show="tab === 'notifications'" x-cloak class="space-y-6">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900">WhatsApp reminders</h3>
-                        <p class="mt-1 text-sm text-gray-500">Daily task digests go to each team member&apos;s mobile at the times below. Partners also get a firm-wide summary.</p>
+                        <p class="mt-1 text-sm text-gray-500">One message every morning: partners get the firm summary by priority, each team member gets their own tasks (High first), and clients who agreed get their upcoming compliance dues. Your LIC &amp; insurance premiums are added to your own message.</p>
                     </div>
                     <div class="grid grid-cols-6 gap-6">
-                        <div class="col-span-6 sm:col-span-3">
-                            <label for="reminder_time_1" class="block text-sm font-medium text-gray-700">Morning reminder</label>
-                            <input type="time" name="reminder_time_1" id="reminder_time_1" value="{{ old('reminder_time_1', $reminder_time_1 ?? '10:00') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        <div class="col-span-6">
+                            <input type="hidden" name="whatsapp_daily_enabled" value="0">
+                            <label class="inline-flex items-center gap-2 text-sm font-medium text-gray-800">
+                                <input type="checkbox" name="whatsapp_daily_enabled" value="1" class="rounded border-gray-300 text-indigo-600" @checked(old('whatsapp_daily_enabled', $whatsapp_daily_enabled ?? '1') === '1')>
+                                Send the daily WhatsApp reminder
+                            </label>
                         </div>
                         <div class="col-span-6 sm:col-span-3">
-                            <label for="reminder_time_2" class="block text-sm font-medium text-gray-700">Evening reminder</label>
-                            <input type="time" name="reminder_time_2" id="reminder_time_2" value="{{ old('reminder_time_2', $reminder_time_2 ?? '18:00') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            <label for="whatsapp_daily_time" class="block text-sm font-medium text-gray-700">Send at (India time)</label>
+                            <input type="time" name="whatsapp_daily_time" id="whatsapp_daily_time" value="{{ old('whatsapp_daily_time', $whatsapp_daily_time ?? '09:00') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                            <label for="reminder_days_ahead" class="block text-sm font-medium text-gray-700">Team: include tasks due within (days)</label>
+                            <input type="number" min="1" max="30" name="reminder_days_ahead" id="reminder_days_ahead" value="{{ old('reminder_days_ahead', $reminder_days_ahead ?? '7') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                            <input type="hidden" name="whatsapp_client_daily_enabled" value="0">
+                            <label class="inline-flex items-center gap-2 text-sm font-medium text-gray-800 mt-6">
+                                <input type="checkbox" name="whatsapp_client_daily_enabled" value="1" class="rounded border-gray-300 text-indigo-600" @checked(old('whatsapp_client_daily_enabled', $whatsapp_client_daily_enabled ?? '1') === '1')>
+                                Also remind clients (only those marked "agreed to WhatsApp reminders")
+                            </label>
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                            <label for="client_reminder_days_ahead" class="block text-sm font-medium text-gray-700">Clients: remind when due within (days)</label>
+                            <input type="number" min="1" max="15" name="client_reminder_days_ahead" id="client_reminder_days_ahead" value="{{ old('client_reminder_days_ahead', $client_reminder_days_ahead ?? '3') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
                         </div>
                     </div>
                     <div class="rounded-xl border border-emerald-200 bg-emerald-50/80 p-5 space-y-3">
@@ -365,7 +383,7 @@
                             <li>Set <code class="text-xs bg-white/80 px-1 rounded">WHATSAPP_TOKEN</code> and <code class="text-xs bg-white/80 px-1 rounded">WHATSAPP_PHONE_NUMBER_ID</code> in your server <code class="text-xs bg-white/80 px-1 rounded">.env</code>.</li>
                             <li>Ensure every user has a mobile with country code in Profile → Mobile.</li>
                             <li>Open the <a href="{{ route('whatsapp.index') }}" class="font-semibold underline">WhatsApp test page</a> and send a template to a client.</li>
-                            <li>Run <code class="text-xs bg-white/80 px-1 rounded">php artisan tasks:send-reminders</code> on the server to simulate the scheduled digest.</li>
+                            <li>Run <code class="text-xs bg-white/80 px-1 rounded">php artisan whatsapp:daily-reminders --dry-run</code> on the server to preview today&apos;s messages without sending.</li>
                             <li>Production cron must run <code class="text-xs bg-white/80 px-1 rounded">php artisan schedule:run</code> every minute (times use these settings).</li>
                         </ol>
                         <a href="{{ route('whatsapp.index') }}" class="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">

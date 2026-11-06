@@ -38,6 +38,10 @@ return [
     'whatsapp' => [
         'token' => env('WHATSAPP_TOKEN'),
         'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
+        // Approved Meta template for the daily reminder, body: "Hello {{1}}, {{2}}".
+        // Needed because WhatsApp blocks plain text to people who haven't messaged you in 24h.
+        'daily_template' => env('WHATSAPP_DAILY_TEMPLATE'),
+        'template_language' => env('WHATSAPP_TEMPLATE_LANGUAGE', 'en'),
     ],
 
 ];

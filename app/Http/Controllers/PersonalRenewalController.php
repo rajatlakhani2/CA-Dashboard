@@ -11,7 +11,9 @@ class PersonalRenewalController extends Controller
     {
         $query = PersonalRenewal::where('user_id', auth()->id());
 
-        if ($request->has('tab') && $request->tab !== 'All') {
+        if ($request->tab === 'Insurance') {
+            $query->whereIn('category', PersonalRenewal::INSURANCE_CATEGORIES);
+        } elseif ($request->filled('tab') && $request->tab !== 'All') {
             $query->where('category', $request->tab);
         }
 
@@ -24,8 +26,8 @@ class PersonalRenewalController extends Controller
         $categoryCounts = [
             'All' => $pendingAll->count(),
             'LIC' => $pendingAll->where('category', 'LIC')->count(),
+            'Insurance' => $pendingAll->whereIn('category', PersonalRenewal::INSURANCE_CATEGORIES)->count(),
             'Loan' => $pendingAll->where('category', 'Loan')->count(),
-            'Medical' => $pendingAll->where('category', 'Medical')->count(),
             'Other' => $pendingAll->where('category', 'Other')->count(),
         ];
 
@@ -46,7 +48,7 @@ class PersonalRenewalController extends Controller
                     'db_id' => $renewal->id,
                     'status' => $renewal->status,
                     'client_name' => $clientName,
-                    'details' => $renewal->category . ' • ₹' . number_format($renewal->amount, 2),
+                    'details' => $renewal->categoryLabel() . ' • ₹' . number_format($renewal->amount, 2),
                     'title_text' => $renewal->title,
                 ],
             ];
@@ -63,14 +65,8 @@ class PersonalRenewalController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'category' => 'required|in:LIC,Loan,Medical,Other',
-            'due_date' => 'required|date',
-            'amount' => 'required|numeric|min:0',
-            'frequency' => 'nullable|string',
-            'notes' => 'nullable|string',
+            ...$this->policyRules(),
             'client_id' => 'nullable|exists:clients,id',
-            'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB max
         ]);
 
         $validated['user_id'] = auth()->id();
@@ -90,20 +86,18 @@ class PersonalRenewalController extends Controller
 
     public function edit(PersonalRenewal $personalRenewal)
     {
+        $this->ensureOwner($personalRenewal);
+
         return view('personal-renewals.edit', compact('personalRenewal'));
     }
 
     public function update(Request $request, PersonalRenewal $personalRenewal)
     {
+        $this->ensureOwner($personalRenewal);
+
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'category' => 'required|in:LIC,Loan,Medical,Other',
-            'due_date' => 'required|date',
-            'amount' => 'required|numeric|min:0',
-            'frequency' => 'nullable|string',
+            ...$this->policyRules(),
             'status' => 'required|in:' . implode(',', [PersonalRenewal::STATUS_PENDING, PersonalRenewal::STATUS_PAID]),
-            'notes' => 'nullable|string',
-            'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
         if ($request->hasFile('document')) {
@@ -144,6 +138,13 @@ class PersonalRenewalController extends Controller
                 'category' => $personalRenewal->category,
                 'amount' => $personalRenewal->amount,
                 'frequency' => $personalRenewal->frequency,
+                'policy_number' => $personalRenewal->policy_number,
+                'insurer' => $personalRenewal->insurer,
+                'insured_person' => $personalRenewal->insured_person,
+                'sum_assured' => $personalRenewal->sum_assured,
+                'maturity_date' => $personalRenewal->maturity_date,
+                'remind_days_before' => $personalRenewal->remind_days_before,
+                'whatsapp_reminder' => $personalRenewal->whatsapp_reminder,
                 'due_date' => $nextDate,
                 'status' => PersonalRenewal::STATUS_PENDING,
                 'notes' => 'Auto-generated renewal',
@@ -162,6 +163,8 @@ class PersonalRenewalController extends Controller
 
     public function destroy(PersonalRenewal $personalRenewal)
     {
+        $this->ensureOwner($personalRenewal);
+
         if ($personalRenewal->document_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($personalRenewal->document_path)) {
             \Illuminate\Support\Facades\Storage::disk('public')->delete($personalRenewal->document_path);
         }
@@ -175,6 +178,8 @@ class PersonalRenewalController extends Controller
 
     public function sendWhatsApp(PersonalRenewal $personalRenewal, \App\Services\WhatsAppService $whatsapp)
     {
+        $this->ensureOwner($personalRenewal);
+
         // Use the new template
         $template = $whatsapp->getTemplates()['personal_renewal'];
 
@@ -190,5 +195,31 @@ class PersonalRenewalController extends Controller
         $whatsapp->sendMessage($mobile, $message);
 
         return back()->with('success', 'WhatsApp reminder sent successfully!');
+    }
+
+    private function policyRules(): array
+    {
+        return [
+            'title' => 'required|string|max:255',
+            'category' => 'required|in:'.implode(',', array_keys(PersonalRenewal::CATEGORIES)),
+            'due_date' => 'required|date',
+            'amount' => 'required|numeric|min:0',
+            'frequency' => 'nullable|in:'.implode(',', PersonalRenewal::FREQUENCIES),
+            'notes' => 'nullable|string',
+            'policy_number' => 'nullable|string|max:100',
+            'insurer' => 'nullable|string|max:150',
+            'insured_person' => 'nullable|string|max:150',
+            'sum_assured' => 'nullable|numeric|min:0',
+            'maturity_date' => 'nullable|date',
+            'remind_days_before' => 'nullable|integer|in:3,7,15,30',
+            'whatsapp_reminder' => 'nullable|boolean',
+            'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        ];
+    }
+
+    /** Personal renewals are private to the person who added them. */
+    private function ensureOwner(PersonalRenewal $renewal): void
+    {
+        abort_unless((int) $renewal->user_id === (int) auth()->id(), 403);
     }
 }

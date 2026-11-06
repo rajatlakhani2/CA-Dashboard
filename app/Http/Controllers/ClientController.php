@@ -40,7 +40,10 @@ class ClientController extends Controller
                     ->orWhere('group_name', 'like', "%{$search}%")
                     ->orWhere('pan', 'like', "%{$search}%")
                     ->orWhere('client_code', 'like', "%{$search}%")
-                    ->orWhere('gstin', 'like', "%{$search}%");
+                    ->orWhere('gstin', 'like', "%{$search}%")
+                    ->orWhere('primary_contact_phone', 'like', "%{$search}%")
+                    ->orWhere('whatsapp_number', 'like', "%{$search}%")
+                    ->orWhere('city', 'like', "%{$search}%");
             });
         }
 
@@ -323,6 +326,16 @@ class ClientController extends Controller
             ->latest('payment_date')
             ->first();
 
+        // Client 360: every task for this client, open first then by priority & deadline.
+        $allTasks = $client->tasks()
+            ->with('assignee')
+            ->orderByRaw("CASE WHEN status IN ('Completed','Done','Closed') THEN 1 ELSE 0 END")
+            ->orderByRaw("CASE priority WHEN 'High' THEN 1 WHEN 'Medium' THEN 2 WHEN 'Normal' THEN 2 WHEN 'Low' THEN 3 ELSE 4 END")
+            ->orderByRaw('due_date IS NULL')
+            ->orderBy('due_date')
+            ->limit(200)
+            ->get();
+
         $activePortalToken = \App\Models\ClientPortalToken::query()
             ->where('client_id', $client->id)
             ->where('expires_at', '>', now())
@@ -346,6 +359,7 @@ class ClientController extends Controller
             'complianceChips',
             'lastPayment',
             'activePortalToken',
+            'allTasks',
         ));
     }
 

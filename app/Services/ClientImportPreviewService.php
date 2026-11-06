@@ -203,6 +203,13 @@ class ClientImportPreviewService
                 'primary_contact_name' => $this->stringOrNull($data['primary_contact_name'] ?? null),
                 'phone' => $this->stringOrNull($data['phone'] ?? null),
                 'email' => $this->stringOrNull($data['email'] ?? null),
+                'date_of_birth' => $this->dateOrNull($data['date_of_birth'] ?? null),
+                'whatsapp_number' => $this->stringOrNull($data['whatsapp_number'] ?? null),
+                'whatsapp_opt_in' => $this->boolOrNull($data['whatsapp_opt_in'] ?? null),
+                'city' => $this->stringOrNull($data['city'] ?? null),
+                'state' => $this->stringOrNull($data['state'] ?? null),
+                'pincode' => $this->stringOrNull($data['pincode'] ?? null),
+                'referred_by' => $this->stringOrNull($data['referred_by'] ?? null),
                 'services_raw' => $servicesRaw,
                 'service_ids' => $serviceMatch['service_ids'],
                 'services_resolved' => $serviceMatch['resolved'],
@@ -232,9 +239,49 @@ class ClientImportPreviewService
         return match ($header) {
             'mobile', 'contact_phone', 'primary_contact_phone' => 'phone',
             'service', 'service_types', 'services_provided', 'type_of_services' => 'services',
-            'group', 'client reference', 'reference', 'portfolio' => 'group_name',
+            'group', 'client reference', 'reference', 'portfolio', 'family', 'family group' => 'group_name',
+            'dob', 'date of birth', 'birth date', 'date of incorporation', 'doi' => 'date_of_birth',
+            'whatsapp', 'whatsapp no', 'whatsapp number', 'whatsapp_no' => 'whatsapp_number',
+            'whatsapp reminders', 'whatsapp consent', 'whatsapp_consent' => 'whatsapp_opt_in',
+            'pin', 'pin code', 'pin_code', 'zip' => 'pincode',
+            'reference by', 'referred by', 'referral' => 'referred_by',
             default => $header,
         };
+    }
+
+    /** Accepts Excel serial dates, d/m/Y, d-m-Y and Y-m-d. Returns Y-m-d or null. */
+    protected function dateOrNull(mixed $value): ?string
+    {
+        $value = $this->stringOrNull($value);
+        if ($value === null) {
+            return null;
+        }
+
+        try {
+            if (is_numeric($value) && (float) $value > 1000) {
+                return \Carbon\Carbon::create(1899, 12, 30)->addDays((int) $value)->format('Y-m-d');
+            }
+            foreach (['d/m/Y', 'd-m-Y', 'd.m.Y', 'Y-m-d', 'd/m/y'] as $format) {
+                $date = \DateTime::createFromFormat('!'.$format, $value);
+                if ($date !== false) {
+                    return $date->format('Y-m-d');
+                }
+            }
+
+            return \Carbon\Carbon::parse($value)->format('Y-m-d');
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    protected function boolOrNull(mixed $value): ?bool
+    {
+        $value = strtolower((string) $this->stringOrNull($value));
+        if ($value === '') {
+            return null;
+        }
+
+        return in_array($value, ['1', 'yes', 'y', 'true', 'haa', 'ha'], true);
     }
 
     protected function stringOrNull(mixed $value): ?string

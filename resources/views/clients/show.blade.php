@@ -33,6 +33,11 @@
             </a>
             @endif
         </div>
+        @can('create', App\Models\Task::class)
+        <a href="{{ route('tasks.create', ['client_id' => $client->id]) }}" class="bg-white text-indigo-700 hover:bg-indigo-50 border border-indigo-200 px-3 py-2 rounded-md text-sm font-semibold shadow-sm">
+            + New Task
+        </a>
+        @endcan
         @can('create', App\Models\Invoice::class)
         <a href="{{ route('invoices.create', ['client_id' => $client->id]) }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-md text-sm font-semibold shadow-sm">
             + New Invoice
@@ -175,6 +180,7 @@
             @if($canViewClientFinance)
             <button type="button" @click="tab = 'finance'" :class="tab === 'finance' ? 'client-tab active' : 'client-tab'">Finance</button>
             @endif
+            <button type="button" @click="tab = 'tasks'" :class="tab === 'tasks' ? 'client-tab active' : 'client-tab'">All Tasks ({{ $allTasks->count() }})</button>
             <button type="button" @click="tab = 'timeline'" :class="tab === 'timeline' ? 'client-tab active' : 'client-tab'">Timeline</button>
             <button type="button" @click="tab = 'profile'" :class="tab === 'profile' ? 'client-tab active' : 'client-tab'">Profile</button>
         </nav>
@@ -365,6 +371,10 @@
 
     </div>
 
+    <div x-show="tab === 'tasks'" x-cloak class="space-y-4">
+        @include('clients.partials.all-tasks', ['tasks' => $allTasks, 'client' => $client])
+    </div>
+
     <div x-show="tab === 'timeline'" x-cloak class="space-y-4">
         @include('clients.partials.timeline', ['timeline' => $timeline ?? collect()])
     </div>
@@ -434,6 +444,40 @@
 
                     <div class="mt-3 text-gray-900 font-medium">PAN / GSTIN</div>
                     <div class="text-gray-500">{{ $client->pan }} / {{ $client->gstin }}</div>
+
+                    <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+                        <div>
+                            <div class="text-gray-900 font-medium">Group / Family</div>
+                            <div class="text-gray-500">{{ $client->group_name ?: '—' }}</div>
+                        </div>
+                        <div>
+                            <div class="text-gray-900 font-medium">Date of birth / incorporation</div>
+                            <div class="text-gray-500">{{ $client->date_of_birth?->format('d M Y') ?? '—' }}</div>
+                        </div>
+                        <div>
+                            <div class="text-gray-900 font-medium">WhatsApp</div>
+                            <div class="text-gray-500">
+                                {{ $client->mobile_number ?: '—' }}
+                                @if($client->whatsapp_opt_in)
+                                <span class="ml-1 inline-flex rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">Reminders on</span>
+                                @else
+                                <span class="ml-1 inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-semibold text-gray-600">Reminders off</span>
+                                @endif
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-gray-900 font-medium">City / State / Pincode</div>
+                            <div class="text-gray-500">{{ collect([$client->city, $client->state, $client->pincode])->filter()->implode(', ') ?: '—' }}</div>
+                        </div>
+                        <div>
+                            <div class="text-gray-900 font-medium">Referred by</div>
+                            <div class="text-gray-500">{{ $client->referred_by ?: '—' }}</div>
+                        </div>
+                        <div>
+                            <div class="text-gray-900 font-medium">TAN / CIN</div>
+                            <div class="text-gray-500">{{ $client->tan ?: '—' }} / {{ $client->cin ?: '—' }}</div>
+                        </div>
+                    </div>
 
                     <div class="mt-3 text-gray-900 font-medium">Opted Services</div>
                     <div class="flex flex-wrap gap-1 mt-1">

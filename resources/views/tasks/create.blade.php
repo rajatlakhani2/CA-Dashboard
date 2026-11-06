@@ -239,7 +239,7 @@
                         <tr>
                             <th>Priority</th>
                             <td>
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                                <div class="grid grid-cols-3 gap-1.5">
                                     <template x-for="p in priorities" :key="p.value">
                                         <button type="button" @click="priority = p.value"
                                             class="rounded-lg border py-2 text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1"
@@ -334,7 +334,7 @@ function taskCreateForm() {
     const authUserId = '{{ auth()->id() }}';
     const authUserName = @json(auth()->user()->name);
 
-    const oldClientId = @json(old('client_id'));
+    const oldClientId = @json(old('client_id', request('client_id')));
     const oldAssigneeId = @json(old('assigned_to', $defaultAssignTo ?: null));
     const oldAssignToMe = @json(old('assign_to_me', '0') === '1');
 
@@ -344,7 +344,7 @@ function taskCreateForm() {
         titleError: false,
         assignToMe: oldAssignToMe,
         assignmentMode: oldAssignToMe ? 'me' : (oldAssigneeId ? 'team' : 'unassigned'),
-        priority: @json(old('priority', 'Normal')),
+        priority: @json(old('priority', 'Medium')),
         dueDate: @json(old('due_date', $prefillDueDate)),
         duePresets: [
             { label: 'Today', days: 0 },
@@ -355,7 +355,6 @@ function taskCreateForm() {
         priorities: [
             { value: 'High', label: 'High', icon: '🔴', activeClass: 'ring-2 ring-red-400 border-red-300 bg-red-50 text-red-800' },
             { value: 'Medium', label: 'Medium', icon: '🟠', activeClass: 'ring-2 ring-amber-400 border-amber-300 bg-amber-50 text-amber-800' },
-            { value: 'Normal', label: 'Normal', icon: '🔵', activeClass: 'ring-2 ring-indigo-400 border-indigo-300 bg-indigo-50 text-indigo-800' },
             { value: 'Low', label: 'Low', icon: '⚪', activeClass: 'ring-2 ring-gray-400 border-gray-300 bg-gray-50 text-gray-700' },
         ],
         clientOptions: [emptyClient, ...clientOptions],
@@ -430,10 +429,9 @@ function taskCreateForm() {
             const map = {
                 High: 'bg-red-500/30 text-red-100',
                 Medium: 'bg-amber-500/30 text-amber-100',
-                Normal: 'bg-indigo-400/30 text-indigo-100',
                 Low: 'bg-white/20 text-indigo-100',
             };
-            return map[this.priority] || map.Normal;
+            return map[this.priority] || map.Medium;
         },
         onSubmit(e) {
             if (!this.canSubmit()) {

@@ -112,6 +112,13 @@ class ClientImportApplier
             'primary_contact_name' => $row['primary_contact_name'],
             'primary_contact_phone' => $row['phone'],
             'primary_contact_email' => $row['email'],
+            'date_of_birth' => $row['date_of_birth'] ?? null,
+            'whatsapp_number' => $row['whatsapp_number'] ?? null,
+            'whatsapp_opt_in' => $row['whatsapp_opt_in'] ?? null,
+            'city' => $row['city'] ?? null,
+            'state' => $row['state'] ?? null,
+            'pincode' => $row['pincode'] ?? null,
+            'referred_by' => $row['referred_by'] ?? null,
             'gst_applicable' => ! empty($row['gstin']),
             'branch_id' => $branchId,
         ];

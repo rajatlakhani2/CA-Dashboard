@@ -27,6 +27,13 @@ class ClientTemplateExport implements FromArray, WithTitle
                 'phone',
                 'email',
                 'services',
+                'date_of_birth',
+                'whatsapp_number',
+                'whatsapp_opt_in',
+                'city',
+                'state',
+                'pincode',
+                'referred_by',
             ],
             [
                 '',
@@ -45,6 +52,13 @@ class ClientTemplateExport implements FromArray, WithTitle
                 '9876543210',
                 'client@example.com',
                 'IT Return, GST Return',
+                '15/08/1985',
+                '9876543210',
+                'Yes',
+                'Ahmedabad',
+                'Gujarat',
+                '380001',
+                '',
             ],
         ];
     }

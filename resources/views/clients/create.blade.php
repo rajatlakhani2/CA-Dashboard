@@ -157,6 +157,8 @@
                     </div>
                 </div>
 
+                @include('clients.partials.master-fields', [])
+
                 <div class="sm:col-span-6 border-t pt-4">
                     <h3 class="text-base font-semibold leading-7 text-text-main">Address Details</h3>
                 </div>

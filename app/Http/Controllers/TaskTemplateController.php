@@ -18,7 +18,7 @@ class TaskTemplateController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'due_days_offset' => 'required|integer|min:0|max:365',
-            'priority' => 'required|in:High,Medium,Normal,Low',
+            'priority' => 'required|in:High,Medium,Low',
         ]);
 
         $service->taskTemplates()->create(array_merge($data, [

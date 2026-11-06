@@ -7,6 +7,7 @@ Route::patch('/tasks/{task}/mark-foc', [\App\Http\Controllers\TaskController::cl
     ->name('tasks.mark-foc');
 
 Route::middleware('module:tasks')->group(function () {
+    Route::get('/tasks/priority', [\App\Http\Controllers\TaskController::class, 'priority'])->name('tasks.priority');
     Route::get('/my-day', [\App\Http\Controllers\TaskController::class, 'myDay'])->name('tasks.my-day');
     Route::patch('tasks/{task}/mobile-note', [\App\Http\Controllers\TaskMobileWorkController::class, 'appendNote'])->name('tasks.mobile-note');
     Route::post('tasks/{task}/mobile-time', [\App\Http\Controllers\TaskMobileWorkController::class, 'logTime'])->name('tasks.mobile-time');

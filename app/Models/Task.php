@@ -28,6 +28,17 @@ class Task extends Model
         self::STATUS_COMPLETED,
     ];
 
+    public const PRIORITY_HIGH = 'High';
+    public const PRIORITY_MEDIUM = 'Medium';
+    public const PRIORITY_LOW = 'Low';
+
+    /** Priorities offered in the UI (legacy "Normal" is stored as Medium). */
+    public const PRIORITIES = [
+        self::PRIORITY_HIGH,
+        self::PRIORITY_MEDIUM,
+        self::PRIORITY_LOW,
+    ];
+
     public const TERMINAL_STATUSES = [
         self::STATUS_COMPLETED,
         self::STATUS_DONE,
@@ -59,6 +70,15 @@ class Task extends Model
         'due_date' => 'date',
         'is_billed' => 'boolean',
     ];
+
+    /** Legacy "Normal" (and blanks) are saved as Medium. */
+    public function setPriorityAttribute($value): void
+    {
+        $value = is_string($value) ? ucfirst(strtolower(trim($value))) : $value;
+        $this->attributes['priority'] = in_array($value, self::PRIORITIES, true)
+            ? $value
+            : self::PRIORITY_MEDIUM;
+    }
 
     public function client()
     {

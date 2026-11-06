@@ -18,12 +18,15 @@
             <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-900">Next 15 days</span>
             @endif
         </div>
+        <div class="flex gap-2 shrink-0">
+        <a href="{{ route('tasks.priority') }}" class="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:border-indigo-300 hover:text-indigo-700 shadow-sm">Priority Board</a>
         @can('create', App\Models\Task::class)
         <a href="{{ route('tasks.create') }}"
             class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-indigo-700 transition-colors shrink-0">
             <span class="text-base leading-none">+</span> Create Task
         </a>
         @endcan
+        </div>
     </div>
 
     <form method="GET" action="{{ route('tasks.index') }}" class="flex flex-col sm:flex-row gap-2 sm:items-center">
@@ -71,7 +74,7 @@
                 <label for="priority" class="block text-xs font-semibold text-gray-600 mb-1">Priority</label>
                 <select name="priority" id="priority" class="block w-full rounded-lg border-gray-200 text-sm" onchange="this.form.submit()">
                     <option value="">All</option>
-                    @foreach(['High', 'Medium', 'Normal', 'Low'] as $priority)
+                    @foreach(['High', 'Medium', 'Low'] as $priority)
                     <option value="{{ $priority }}" @selected(request('priority') == $priority)>{{ $priority }}</option>
                     @endforeach
                 </select>

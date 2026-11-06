@@ -62,6 +62,10 @@ class WhatsAppInboundBot
     {
         $text = strtolower(trim($message));
 
+        if (preg_match('/^(stop|unsubscribe)\b/', $text)) {
+            return 'opt_out';
+        }
+
         if (preg_match('/\b(help|menu|options|start)\b/', $text)) {
             return 'help';
         }
@@ -99,6 +103,9 @@ class WhatsAppInboundBot
             ->where(function ($q) use ($last10, $digits) {
                 $q->where('primary_contact_phone', 'like', '%' . $last10)
                     ->orWhere('primary_contact_phone', 'like', '%' . $digits);
+                if (\Illuminate\Support\Facades\Schema::hasColumn('clients', 'whatsapp_number')) {
+                    $q->orWhere('whatsapp_number', 'like', '%' . $last10);
+                }
             })
             ->get();
 
@@ -118,6 +125,14 @@ class WhatsAppInboundBot
             return "Hello from {$firm}.\n\nWe could not match your number to a client file. Please contact the office directly"
                 . ($this->handoffLine() ? ' at ' . $this->handoffLine() : '')
                 . ".\n\nReply HELP for options.";
+        }
+
+        if ($intent === 'opt_out') {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('clients', 'whatsapp_opt_in')) {
+                $client->forceFill(['whatsapp_opt_in' => false])->save();
+            }
+
+            return "Done – you will no longer receive daily reminders from {$firm}. Contact the office any time to turn them back on.";
         }
 
         return match ($intent) {

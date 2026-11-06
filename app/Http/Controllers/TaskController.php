@@ -76,7 +76,7 @@ class TaskController extends Controller
         $sort = $request->input('sort', 'due');
 
         if ($sort === 'priority') {
-            $query->orderByRaw("CASE priority WHEN 'High' THEN 1 WHEN 'Medium' THEN 2 WHEN 'Normal' THEN 3 WHEN 'Low' THEN 4 ELSE 5 END");
+            $query->orderByRaw("CASE priority WHEN 'High' THEN 1 WHEN 'Medium' THEN 2 WHEN 'Normal' THEN 2 WHEN 'Low' THEN 3 ELSE 5 END");
             $query->orderBy('due_date');
         } elseif ($sort === 'title') {
             $query->orderBy('title');
@@ -93,6 +93,80 @@ class TaskController extends Controller
         $users = $this->assignableUsers($request->user())->get();
 
         return view('tasks.index', compact('tasks', 'users', 'view'));
+    }
+
+    /**
+     * Priority board: High / Medium / Low tabs, each split deadline-wise
+     * (Overdue, Today, This week, Later, No deadline).
+     */
+    public function priority(Request $request)
+    {
+        $this->authorize('viewAny', Task::class);
+
+        $query = Task::with(['client', 'assignee'])
+            ->whereNotIn('status', Task::TERMINAL_STATUSES);
+        $this->scopeVisibleTasks($query, $request->user());
+
+        if ($request->filled('assigned_to')) {
+            $query->where('assigned_to', $request->integer('assigned_to'));
+        }
+        if ($request->filled('client_id')) {
+            $query->where('client_id', $request->integer('client_id'));
+        }
+
+        $tasks = $query->orderByRaw('due_date IS NULL')->orderBy('due_date')->limit(1000)->get();
+
+        $today = now()->startOfDay();
+        $weekEnd = $today->copy()->addDays(7);
+
+        $bucketOf = function (Task $task) use ($today, $weekEnd): string {
+            if (! $task->due_date) {
+                return 'none';
+            }
+            $due = $task->due_date->copy()->startOfDay();
+            if ($due->lt($today)) {
+                return 'overdue';
+            }
+            if ($due->equalTo($today)) {
+                return 'today';
+            }
+
+            return $due->lte($weekEnd) ? 'week' : 'later';
+        };
+
+        $buckets = [
+            'overdue' => 'Overdue',
+            'today' => 'Due today',
+            'week' => 'Next 7 days',
+            'later' => 'Later',
+            'none' => 'No deadline',
+        ];
+
+        $board = [];
+        foreach (Task::PRIORITIES as $priority) {
+            $inPriority = $tasks->filter(function (Task $t) use ($priority) {
+                $p = $t->priority === 'Normal' || ! in_array($t->priority, Task::PRIORITIES, true)
+                    ? Task::PRIORITY_MEDIUM
+                    : $t->priority;
+
+                return $p === $priority;
+            });
+            $groups = [];
+            foreach (array_keys($buckets) as $key) {
+                $groups[$key] = $inPriority->filter(fn (Task $t) => $bucketOf($t) === $key)->values();
+            }
+            $board[$priority] = [
+                'total' => $inPriority->count(),
+                'overdue' => $groups['overdue']->count(),
+                'groups' => $groups,
+            ];
+        }
+
+        $active = in_array($request->input('p'), Task::PRIORITIES, true) ? $request->input('p') : Task::PRIORITY_HIGH;
+        $users = $this->assignableUsers($request->user())->get();
+        $clients = Client::orderBy('name')->get(['id', 'name']);
+
+        return view('tasks.priority', compact('board', 'buckets', 'active', 'users', 'clients'));
     }
 
     public function create(Request $request)

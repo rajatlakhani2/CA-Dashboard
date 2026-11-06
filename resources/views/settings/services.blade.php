@@ -284,7 +284,7 @@
                 @csrf
                 <input type="text" name="title" required placeholder="Task title" class="rounded-lg border-slate-200">
                 <input type="number" name="due_days_offset" value="7" min="0" class="rounded-lg border-slate-200" title="Days from today">
-                <select name="priority" class="rounded-lg border-slate-200"><option>High</option><option selected>Medium</option><option>Normal</option><option>Low</option></select>
+                <select name="priority" class="rounded-lg border-slate-200"><option>High</option><option selected>Medium</option><option>Low</option></select>
                 <button type="submit" class="bg-indigo-600 text-white rounded-lg font-bold text-xs uppercase tracking-wider py-2">Add step</button>
             </form>
         </div>

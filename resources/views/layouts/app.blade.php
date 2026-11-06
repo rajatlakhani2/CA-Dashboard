@@ -144,6 +144,13 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
+    <style>
+        .ts-wrapper.single .ts-control { border-radius: 0.75rem; border-color: #e5e7eb; padding: 0.55rem 0.75rem; font-size: 0.875rem; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+        .ts-wrapper.focus .ts-control { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.15); }
+        .ts-dropdown { border-radius: 0.75rem; font-size: 0.875rem; z-index: 60; }
+        .ts-dropdown .active { background: #eef2ff; color: #3730a3; }
+    </style>
     @stack('head_styles')
     <script>
         // Check local storage for Zen Mode
@@ -276,6 +283,10 @@
                         </svg>
                         Tasks
                     </a>
+                    <a href="{{ route('tasks.priority') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('tasks.priority') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
+                        <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('tasks.priority') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" /></svg>
+                        Priority Board
+                    </a>
                     @endif
                     @if($mod('staff'))
                     <a href="{{ route('staff.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('staff.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
@@ -331,7 +342,7 @@
                         <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('personal-renewals.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        Personal Renewals
+                        LIC &amp; Insurance
                     </a>
                     @endif
                     @if($mod('dsc'))
@@ -707,6 +718,28 @@
             </main>
         </div>
     </div>
+    {{-- Searchable client picker everywhere: any <select name="client_id"> or <select data-searchable> --}}
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        (function () {
+            function enhance(root) {
+                if (typeof TomSelect === 'undefined') return;
+                root.querySelectorAll('select[name="client_id"], select[name="client_ids[]"], select[data-searchable]').forEach(function (el) {
+                    if (el.tomselect || el.hasAttribute('data-no-search') || el.closest('[x-data]') && el.hasAttribute('x-model')) return;
+                    new TomSelect(el, {
+                        create: false,
+                        allowEmptyOption: true,
+                        maxOptions: 500,
+                        placeholder: el.getAttribute('data-placeholder') || 'Search client…',
+                        searchField: ['text'],
+                        plugins: el.multiple ? ['remove_button'] : [],
+                    });
+                });
+            }
+            document.addEventListener('DOMContentLoaded', function () { enhance(document); });
+            window.enhanceSearchableSelects = enhance;
+        })();
+    </script>
     @stack('scripts')
     @yield('scripts')
 

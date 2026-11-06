@@ -51,7 +51,7 @@
             <div>
                 <label for="priority" class="block text-sm font-medium text-gray-700">Priority</label>
                 <select name="priority" id="priority" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                    @foreach(['High', 'Medium', 'Normal', 'Low'] as $p)
+                    @foreach(['High', 'Medium', 'Low'] as $p)
                     <option value="{{ $p }}" {{ $task->priority == $p ? 'selected' : '' }}>{{ $p }}</option>
                     @endforeach
                 </select>

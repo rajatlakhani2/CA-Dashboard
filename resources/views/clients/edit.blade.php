@@ -168,6 +168,8 @@
                     </div>
                 </div>
 
+                @include('clients.partials.master-fields', ['client' => $client])
+
                 <div class="sm:col-span-6 border-t pt-4">
                     <h3 class="text-base font-semibold leading-7 text-gray-900">Address Details</h3>
                 </div>

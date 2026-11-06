@@ -63,6 +63,13 @@ class Client extends Model
         'tags',
         'branch_id',
         'office_notes',
+        'date_of_birth',
+        'whatsapp_number',
+        'whatsapp_opt_in',
+        'city',
+        'state',
+        'pincode',
+        'referred_by',
     ];
 
     protected $casts = [
@@ -71,6 +78,8 @@ class Client extends Model
         'tags' => 'array',
         'onboarding_date' => 'date',
         'approved_at' => 'datetime',
+        'date_of_birth' => 'date',
+        'whatsapp_opt_in' => 'boolean',
     ];
 
     /**
@@ -78,7 +87,7 @@ class Client extends Model
      */
     public function getMobileNumberAttribute(): ?string
     {
-        return $this->primary_contact_phone;
+        return $this->whatsapp_number ?: $this->primary_contact_phone;
     }
 
     public function isPendingApproval(): bool

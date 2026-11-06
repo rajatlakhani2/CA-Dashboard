@@ -71,6 +71,81 @@ class WhatsAppService
     }
 
     /**
+     * Send an approved Meta template message (required for business-initiated
+     * messages outside WhatsApp's 24-hour window).
+     *
+     * @param  list<string>  $bodyParams  values for {{1}}, {{2}}… (no newlines allowed by Meta)
+     */
+    public function sendTemplate(string $mobile, string $template, array $bodyParams = [], ?string $language = null): array
+    {
+        if (empty($this->apiToken) || empty($this->instanceId) || str_contains((string) $this->apiToken, 'your_meta_app')) {
+            Log::warning('WhatsApp API not configured. Missing token or phone number ID.');
+
+            return ['success' => false, 'message' => 'WhatsApp API not configured. Please check your .env file.'];
+        }
+
+        $parameters = array_map(fn ($value) => [
+            'type' => 'text',
+            // Meta rejects newlines, tabs and 4+ spaces inside template parameters.
+            'text' => mb_substr(trim(preg_replace('/\s+/u', ' ', (string) $value)), 0, 1000),
+        ], $bodyParams);
+
+        try {
+            $response = Http::withToken($this->apiToken)->post($this->apiUrl, [
+                'messaging_product' => 'whatsapp',
+                'to' => $mobile,
+                'type' => 'template',
+                'template' => [
+                    'name' => $template,
+                    'language' => ['code' => $language ?: config('services.whatsapp.template_language', 'en')],
+                    'components' => $parameters ? [['type' => 'body', 'parameters' => $parameters]] : [],
+                ],
+            ]);
+
+            if ($response->successful()) {
+                return ['success' => true, 'message' => 'Template sent', 'data' => $response->json()];
+            }
+
+            Log::error('WhatsApp Template Error: '.$response->body());
+
+            return ['success' => false, 'message' => 'Failed to send template: '.$response->json('error.message', 'Unknown error')];
+        } catch (\Exception $e) {
+            Log::error('WhatsApp Template Exception: '.$e->getMessage());
+
+            return ['success' => false, 'message' => 'Error: '.$e->getMessage()];
+        }
+    }
+
+    /**
+     * Daily reminder: uses the approved template when configured, otherwise plain text.
+     */
+    public function sendDailyReminder(string $mobile, string $name, string $fullText, string $oneLineSummary): array
+    {
+        $template = config('services.whatsapp.daily_template');
+
+        return $template
+            ? $this->sendTemplate($mobile, $template, [$name, $oneLineSummary])
+            : $this->sendMessage($mobile, $fullText);
+    }
+
+    /** Normalise Indian mobile numbers to 91XXXXXXXXXX. */
+    public static function normalizeMobile(?string $mobile): ?string
+    {
+        $digits = preg_replace('/\D+/', '', (string) $mobile);
+        if ($digits === '') {
+            return null;
+        }
+        if (strlen($digits) === 11 && str_starts_with($digits, '0')) {
+            $digits = substr($digits, 1);
+        }
+        if (strlen($digits) === 10) {
+            $digits = '91'.$digits;
+        }
+
+        return strlen($digits) >= 11 ? $digits : null;
+    }
+
+    /**
      * Get predefined templates (Hardcoded for now).
      */
     public function getTemplates()

@@ -26,8 +26,14 @@ try {
     $time2 = '18:00';
 }
 
-Schedule::command('tasks:send-reminders')->dailyAt($time1);
-Schedule::command('tasks:send-reminders')->dailyAt($time2);
+// Old twice-daily staff reminders replaced by one combined morning WhatsApp
+// (partners, staff and opted-in clients). Run manually: php artisan tasks:send-reminders
+try {
+    $dailyWhatsAppTime = \App\Models\Setting::get('whatsapp_daily_time', '09:00');
+} catch (\Throwable $e) {
+    $dailyWhatsAppTime = '09:00';
+}
+Schedule::command('whatsapp:daily-reminders')->dailyAt($dailyWhatsAppTime)->timezone('Asia/Kolkata');
 
 try {
     $digestTime = \App\Models\Setting::get('task_digest_time', '19:00');
