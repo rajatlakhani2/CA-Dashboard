@@ -51,7 +51,8 @@ Route::middleware('module:settings')->group(function () {
 Route::get('/search/palette', [\App\Http\Controllers\SearchController::class, 'palette'])->name('search.palette');
 Route::get('/search/global', [\App\Http\Controllers\SearchController::class, 'globalSearch'])->name('search.global');
 
-Route::prefix('system')->name('system.')->middleware(['role:partner', 'module:system'])->group(function () {
+// Platform-wide: backups are the whole database (every firm), so firm partners alone can't reach these.
+Route::prefix('system')->name('system.')->middleware(['role:partner', 'module:system', 'platform.admin'])->group(function () {
     Route::get('/', [\App\Http\Controllers\SystemController::class, 'index'])->name('index');
     Route::post('/clear-cache', [\App\Http\Controllers\SystemController::class, 'clearCache'])->name('clear-cache');
     Route::post('/optimize', [\App\Http\Controllers\SystemController::class, 'optimize'])->name('optimize');

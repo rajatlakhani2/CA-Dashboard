@@ -18,10 +18,12 @@ use App\Models\TdsEntry;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Tests\Concerns\MakesPlatformAdmin;
 use Tests\TestCase;
 
 class NewerModuleFlowTest extends TestCase
 {
+    use MakesPlatformAdmin;
     use RefreshDatabase;
 
     public function test_credential_create_and_delete_respect_client_branch(): void
@@ -396,7 +398,7 @@ class NewerModuleFlowTest extends TestCase
         $this->assertStringNotContainsString('Export Hidden Service', $complianceCsv);
     }
 
-    public function test_system_actions_are_partner_only_and_call_artisan(): void
+    public function test_system_actions_are_platform_admin_only_and_call_artisan(): void
     {
         $manager = User::factory()->create(['role' => 'manager']);
 
@@ -404,7 +406,7 @@ class NewerModuleFlowTest extends TestCase
             ->post(route('system.clear-cache'))
             ->assertForbidden();
 
-        $partner = User::factory()->create(['role' => 'partner']);
+        $partner = $this->platformAdmin();
 
         Artisan::shouldReceive('call')->once()->with('cache:clear')->andReturn(0);
         Artisan::shouldReceive('call')->once()->with('view:clear')->andReturn(0);

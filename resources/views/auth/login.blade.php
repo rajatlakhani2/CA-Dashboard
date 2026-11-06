@@ -136,9 +136,11 @@
                     <button type="submit" class="login-btn">Sign in</button>
                 </form>
 
+                @if(config('app.public_registration'))
                 <p class="mt-5 text-center text-xs text-slate-500">
                     New firm? <a href="{{ route('register.organization') }}" class="font-semibold login-link hover:opacity-80">Create a workspace</a>
                 </p>
+                @endif
             </div>
         </div>
     </div>

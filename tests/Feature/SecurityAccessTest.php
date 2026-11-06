@@ -4,10 +4,12 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\MakesPlatformAdmin;
 use Tests\TestCase;
 
 class SecurityAccessTest extends TestCase
 {
+    use MakesPlatformAdmin;
     use RefreshDatabase;
 
     public function test_install_db_route_is_not_publicly_registered(): void
@@ -76,12 +78,50 @@ class SecurityAccessTest extends TestCase
         $this->actingAsRole('partner');
 
         foreach ([
-            '/system',
             '/users',
             '/branches',
         ] as $path) {
             $this->get($path)->assertOk();
         }
+    }
+
+    public function test_firm_partner_cannot_open_platform_system_or_backups(): void
+    {
+        // Any sign-up becomes partner of its own firm; backups hold every firm's data.
+        $org = \App\Models\Organization::create(['name' => 'Stranger Firm', 'slug' => 'stranger', 'plan' => 'starter', 'seat_limit' => 5]);
+        $this->platformAdmin(); // platform workspace exists, but this partner isn't in it
+        $partner = User::factory()->create(['role' => 'partner', 'organization_id' => $org->id]);
+        $this->actingAs($partner);
+
+        $this->get('/system')->assertForbidden();
+        $this->post(route('system.backup.run'))->assertForbidden();
+        $this->get(route('system.backup.download', ['filename' => 'backup-x.zip']))->assertForbidden();
+        $this->get('/dashboard')->assertDontSee('System Health');
+    }
+
+    public function test_system_is_closed_to_everyone_when_no_platform_workspace_is_set(): void
+    {
+        config(['app.platform_admin_workspace' => null]);
+        $this->actingAsRole('partner');
+
+        $this->get('/system')->assertForbidden();
+    }
+
+    public function test_platform_admin_can_open_system_health(): void
+    {
+        $this->actingAs($this->platformAdmin());
+
+        $this->get('/system')->assertOk();
+    }
+
+    public function test_same_email_in_another_firm_is_not_platform_admin(): void
+    {
+        $admin = $this->platformAdmin(['email' => 'owner@example.test']);
+        $org = \App\Models\Organization::create(['name' => 'Copycat', 'slug' => 'copycat', 'plan' => 'starter', 'seat_limit' => 5]);
+        $copy = User::factory()->create(['role' => 'partner', 'organization_id' => $org->id, 'email' => 'owner@example.test']);
+
+        $this->assertTrue($admin->isPlatformAdmin());
+        $this->assertFalse($copy->isPlatformAdmin());
     }
 
     private function actingAsRole(string $role): User

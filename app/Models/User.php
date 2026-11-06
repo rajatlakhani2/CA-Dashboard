@@ -143,6 +143,25 @@ class User extends Authenticatable
         return strtolower((string) $this->role) === 'partner';
     }
 
+    /**
+     * Operator of the whole platform (not just one firm): a partner in the
+     * workspace named by PLATFORM_ADMIN_WORKSPACE. Checked by workspace, not
+     * email, because any sign-up can reuse someone else's email in a new firm.
+     */
+    public function isPlatformAdmin(): bool
+    {
+        $slug = trim((string) config('app.platform_admin_workspace'));
+
+        if ($slug === '' || ! $this->isPartner() || ! $this->organization_id) {
+            return false;
+        }
+
+        return Organization::query()
+            ->whereKey($this->organization_id)
+            ->where('slug', $slug)
+            ->exists();
+    }
+
     public function isCeo(): bool
     {
         return strtolower((string) $this->role) === 'ceo';

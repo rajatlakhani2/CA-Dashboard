@@ -11,7 +11,7 @@ class SystemController extends Controller
 {
     private function ensureAdmin(): void
     {
-        abort_unless(auth()->user()?->isPartner(), 403);
+        abort_unless(auth()->user()?->isPlatformAdmin(), 403);
     }
 
     public function index()

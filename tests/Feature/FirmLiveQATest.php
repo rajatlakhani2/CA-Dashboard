@@ -39,7 +39,6 @@ class FirmLiveQATest extends TestCase
             'expenses.index',
             'reports.index',
             'staff.index',
-            'system.index',
             'branches.index',
             'users.index',
         ];
@@ -49,6 +48,9 @@ class FirmLiveQATest extends TestCase
         }
 
         $this->actingAs($partner)->get(route('clients.show', $client))->assertOk();
+
+        // System Health / backups cover every firm: platform admins only.
+        $this->actingAs($partner)->get(route('system.index'))->assertForbidden();
     }
 
     public function test_associate_live_qa_matrix_matches_register(): void

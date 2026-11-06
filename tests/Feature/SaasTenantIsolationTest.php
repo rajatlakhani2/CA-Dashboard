@@ -16,6 +16,8 @@ class SaasTenantIsolationTest extends TestCase
 
     public function test_firm_registration_creates_isolated_organization(): void
     {
+        config(['app.public_registration' => true]);
+
         $response = $this->post(route('register.organization'), [
             'firm_name' => 'Beta CA Firm',
             'workspace' => 'beta-ca',
