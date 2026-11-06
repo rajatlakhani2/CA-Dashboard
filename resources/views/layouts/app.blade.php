@@ -11,11 +11,8 @@
 
     <!-- PWA / mobile install hints -->
     <meta name="theme-color" content="{{ ($themePreset ?? \App\Support\ThemePreset::forWorkspaceType())['theme_color'] }}">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="{{ $dashboardBrandName ?? \App\Support\Branding::dashboardName() }}">
-    <link rel="apple-touch-icon" href="/favicon.ico">
+    {{-- manifest, app icons and the service worker come from partials.head-assets --}}
 
     <!-- Scripts & Styles -->
     @include('partials.head-assets')
@@ -711,41 +708,7 @@
     @yield('scripts')
 
     <script>
-        // PWA Install Logic
-        let deferredPrompt;
-        const installBtn = document.getElementById('pwa-install-btn');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            // Show the install button
-            if (installBtn) {
-                installBtn.classList.remove('hidden');
-            }
-            console.log('PWA Install Triggered');
-        });
-
-        window.addEventListener('appinstalled', () => {
-            if (installBtn) {
-                installBtn.classList.add('hidden');
-            }
-            deferredPrompt = null;
-            console.log('PWA Installed');
-        });
-
-        async function installPWA() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const {
-                    outcome
-                } = await deferredPrompt.userChoice;
-                console.log(`User response to the install prompt: ${outcome}`);
-                deferredPrompt = null;
-                if (outcome === 'accepted' && installBtn) {
-                    installBtn.classList.add('hidden');
-                }
-            }
-        }
+        // App install prompt lives in partials.install-app-banner (defines installPWA()).
 
         function toggleZenMode() {
             document.body.classList.toggle('zen-mode');
@@ -754,6 +717,7 @@
     </script>
 
     @include('partials.mobile-bottom-nav')
+    @include('partials.install-app-banner')
     @include('partials.search-modal')
     @include('partials.dashboard-help-chat')
     @include('partials.demo-tour-play')

@@ -1,7 +1,20 @@
+{{-- Installable app (home-screen "VouchEx" icon). /sw.js stores no pages; see the note at its top. --}}
+<link rel="manifest" href="/site.webmanifest">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="VouchEx">
 <script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function (regs) {
-            regs.forEach(function (r) { r.unregister(); });
+    if ('serviceWorker' in navigator && window.isSecureContext) {
+        window.addEventListener('load', function () {
+            navigator.serviceWorker.getRegistrations().then(function (regs) {
+                // Remove the old Workbox worker (any worker that isn't /sw.js).
+                regs.forEach(function (r) {
+                    var w = r.active || r.waiting || r.installing;
+                    if (w && !/\/sw\.js$/.test(new URL(w.scriptURL).pathname)) { r.unregister(); }
+                });
+                navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
+            });
         });
     }
 </script>

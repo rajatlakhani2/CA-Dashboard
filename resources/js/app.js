@@ -1,12 +1,5 @@
 import './bootstrap';
 
-// Laravel uses server-rendered pages — unregister legacy Workbox/PWA service workers.
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-        registrations.forEach((registration) => registration.unregister());
-    });
-
-    if ('caches' in window) {
-        caches.keys().then((keys) => keys.forEach((key) => caches.delete(key)));
-    }
-}
+// The installable-app service worker (/sw.js) is registered from
+// resources/views/partials/head-assets.blade.php so it works even when
+// public/build is missing. It stores no pages, so it can't serve stale screens.
