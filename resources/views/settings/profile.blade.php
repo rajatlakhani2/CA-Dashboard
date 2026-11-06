@@ -395,7 +395,9 @@
                                 <option value="1" {{ ($auto_backup_enabled ?? '1') == '1' ? 'selected' : '' }}>Enabled (daily)</option>
                                 <option value="0" {{ ($auto_backup_enabled ?? '1') == '0' ? 'selected' : '' }}>Disabled</option>
                             </select>
+                            @if(auth()->user()?->isPlatformAdmin())
                             <p class="mt-2 text-xs text-gray-500">Manual backup: <a href="{{ route('system.index') }}" class="text-indigo-600 hover:underline">System Health</a>.</p>
+                            @endif
                         </div>
                     </div>
                 </div>

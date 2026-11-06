@@ -6,10 +6,12 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
+use Tests\Concerns\MakesPlatformAdmin;
 use Tests\TestCase;
 
 class SystemBackupTest extends TestCase
 {
+    use MakesPlatformAdmin;
     use RefreshDatabase;
 
     protected function setUp(): void
@@ -61,9 +63,9 @@ class SystemBackupTest extends TestCase
         $this->assertNotNull($newBackup);
     }
 
-    public function test_partner_can_run_download_and_delete_backups(): void
+    public function test_platform_admin_can_run_download_and_delete_backups(): void
     {
-        $partner = User::factory()->create(['role' => 'partner']);
+        $partner = $this->platformAdmin();
         $backupDir = storage_path('app/private/backups');
 
         // 1. Partner runs a manual backup

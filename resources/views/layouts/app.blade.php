@@ -489,7 +489,7 @@
                         Service Master
                     </a>
                     @endif
-                    @if($mod('system') && $isPartner)
+                    @if($mod('system') && $isPartner && auth()->user()->isPlatformAdmin())
                     <a href="{{ route('system.index') }}" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('system.*') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
                         <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('system.*') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V9a2 2 0 012-2h2a2 2 0 012 2v10" />

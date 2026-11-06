@@ -125,4 +125,19 @@ return [
 
     'allow_dangerous_system_actions' => (bool) env('APP_ALLOW_DANGEROUS_SYSTEM', false),
 
+    /*
+    | Self-service sign-up at /register. Off by default: anyone who signs up
+    | becomes partner of a new firm, so keep it off until the platform-level
+    | pages are locked to operators (see platform_admin_workspace).
+    */
+    'public_registration' => filter_var(env('PUBLIC_REGISTRATION', false), FILTER_VALIDATE_BOOL),
+
+    /*
+    | Workspace ID (organization slug) whose partners operate the whole
+    | platform: System Health, database backups, logs, cache and migrations.
+    | These cover every firm on the server, so a firm's own partner must not
+    | reach them. Unset = nobody can use them.
+    */
+    'platform_admin_workspace' => env('PLATFORM_ADMIN_WORKSPACE'),
+
 ];

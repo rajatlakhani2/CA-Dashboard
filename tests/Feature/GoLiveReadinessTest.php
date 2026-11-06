@@ -9,6 +9,7 @@ use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Tests\Concerns\MakesPlatformAdmin;
 use Tests\TestCase;
 
 /**
@@ -16,6 +17,7 @@ use Tests\TestCase;
  */
 class GoLiveReadinessTest extends TestCase
 {
+    use MakesPlatformAdmin;
     use RefreshDatabase;
 
     /** @return array<string, array{0: string}> */
@@ -80,7 +82,10 @@ class GoLiveReadinessTest extends TestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('partnerGetCatalog')]
     public function test_partner_get_route_returns_success(string $routeName): void
     {
-        $partner = User::factory()->create(['role' => 'partner']);
+        // System Health covers every firm, so it needs a platform admin, not just a partner.
+        $partner = $routeName === 'system.index'
+            ? $this->platformAdmin()
+            : User::factory()->create(['role' => 'partner']);
 
         $response = $this->actingAs($partner)->get(route($routeName));
 

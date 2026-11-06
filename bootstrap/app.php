@@ -33,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'module' => \App\Http\Middleware\CheckModuleAccess::class,
             'system.dangerous' => \App\Http\Middleware\RestrictDangerousSystemActions::class,
+            'platform.admin' => \App\Http\Middleware\EnsurePlatformAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -12,11 +12,15 @@ class RegisterOrganizationController extends Controller
 {
     public function show()
     {
+        $this->ensureRegistrationOpen();
+
         return view('auth.register-organization');
     }
 
     public function store(Request $request, OrganizationRegistrationService $registration)
     {
+        $this->ensureRegistrationOpen();
+
         $validated = $request->validate([
             'firm_name' => ['required', 'string', 'max:255'],
             'workspace' => [
@@ -50,5 +54,11 @@ class RegisterOrganizationController extends Controller
 
         return redirect()->route('dashboard')
             ->with('success', 'Welcome! Your firm workspace "' . $organization->name . '" is ready.');
+    }
+
+    /** Sign-up is off unless PUBLIC_REGISTRATION=true (see config/app.php). */
+    private function ensureRegistrationOpen(): void
+    {
+        abort_unless(config('app.public_registration'), 404);
     }
 }
