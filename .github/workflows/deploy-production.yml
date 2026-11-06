@@ -2,6 +2,7 @@
 # Required GitHub repo secrets (Settings → Secrets → Actions):
 #   SSH_HOST          e.g. s3508.stableserver.net or server IP
 #   SSH_USER          e.g. kuhuorgi
+#   SSH_PORT          optional, defaults to 22 (check cPanel → SSH Access)
 #   SSH_KEY           private key (full PEM) with access to the account
 #   DEPLOY_PATH       e.g. /home/kuhuorgi/public_html/app.kuhu.org.in
 
@@ -63,6 +64,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
           source: release.tar.gz
           target: ${{ secrets.DEPLOY_PATH }}
 
@@ -72,6 +74,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
           script_stop: true
           script: |
             set -e
