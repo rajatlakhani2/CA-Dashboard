@@ -78,12 +78,19 @@ class Invoice extends Model
         'notes',
         'payment_url',
         'branch_id',
+        'bank_account_id',
     ];
 
     protected $casts = [
         'date' => 'date',
         'due_date' => 'date',
     ];
+
+    /** Bank account printed on the PDF (kept even if later removed from Settings). */
+    public function bankAccount()
+    {
+        return $this->belongsTo(BankAccount::class)->withTrashed();
+    }
 
     public function client()
     {

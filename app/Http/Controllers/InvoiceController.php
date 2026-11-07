@@ -201,6 +201,7 @@ class InvoiceController extends Controller
                 'reference_number' => $request->reference_number,
                 'work_period' => $request->work_period,
                 'project_name' => $request->project_name,
+                'bank_account_id' => $this->resolveBankAccountId($request, $invoice ?? null),
             ]);
 
             foreach ($itemsData as $data) {
@@ -325,6 +326,7 @@ class InvoiceController extends Controller
                 'reference_number' => $request->reference_number,
                 'work_period' => $request->work_period,
                 'project_name' => $request->project_name,
+                'bank_account_id' => $this->resolveBankAccountId($request, $invoice ?? null),
             ]);
 
             // Sync Items
@@ -512,5 +514,28 @@ class InvoiceController extends Controller
     private function clientOptionsQuery()
     {
         return Client::query()->visibleTo(auth()->user());
+    }
+
+    /**
+     * Bank account picked on the form, only if it belongs to this firm.
+     * Blank means "firm default" (resolved when the PDF is made). An archived
+     * account stays allowed only on the invoice that already uses it.
+     */
+    private function resolveBankAccountId(\Illuminate\Http\Request $request, ?Invoice $invoice = null): ?int
+    {
+        $id = (int) $request->input('bank_account_id');
+        if (! $id) {
+            return null;
+        }
+
+        $account = \App\Models\BankAccount::forCurrentFirm()->withTrashed()->find($id);
+        if (! $account) {
+            return null;
+        }
+        if ($account->trashed() && (int) $invoice?->bank_account_id !== $account->id) {
+            return null;
+        }
+
+        return $account->id;
     }
 }

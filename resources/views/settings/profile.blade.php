@@ -275,30 +275,108 @@
                         </div>
                     </div>
 
-                    <div class="border-t border-gray-200 pt-6">
-                        <h3 class="text-lg font-semibold text-gray-900">Bank details (invoice PDF)</h3>
-                        <div class="grid grid-cols-6 gap-6 mt-4">
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="bank_name" class="block text-sm font-medium text-gray-700">Bank name</label>
-                                <input type="text" name="bank_name" id="bank_name" value="{{ old('bank_name', $bank_name ?? '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                    @php
+                        $bankRows = old('bank_accounts');
+                        if (! is_array($bankRows)) {
+                            $bankRows = [];
+                            foreach ($bankAccounts ?? [] as $acc) {
+                                $bankRows['id-'.$acc->id] = $acc->only(['id', 'label', 'bank_name', 'account_name', 'account_number', 'ifsc', 'branch', 'upi_id']);
+                            }
+                        }
+                        $bankRowsJs = collect($bankRows)->map(fn ($r, $k) => array_merge(
+                            ['id' => null, 'label' => '', 'bank_name' => '', 'account_name' => '', 'account_number' => '', 'ifsc' => '', 'branch' => '', 'upi_id' => ''],
+                            array_map(fn ($v) => $v ?? '', (array) $r),
+                            ['key' => (string) $k]
+                        ))->values();
+                        $bankDefaultKey = (string) old('bank_default', ($d = collect($bankAccounts ?? [])->firstWhere('is_default', true)) ? 'id-'.$d->id : '');
+                        $bankErrors = collect($errors->getMessages())->filter(fn ($m, $k) => str_starts_with($k, 'bank_'))->flatten()->unique();
+                    @endphp
+                    <div class="border-t border-gray-200 pt-6" id="bank-accounts"
+                         x-data="{
+                            rows: @js($bankRowsJs),
+                            def: @js($bankDefaultKey),
+                            n: 0,
+                            add() {
+                                const key = 'new-' + Date.now() + '-' + (this.n++);
+                                this.rows.push({ key, id: null, label: '', bank_name: '', account_name: '', account_number: '', ifsc: '', branch: '', upi_id: '' });
+                                if (!this.def || !this.rows.some(r => r.key === this.def)) this.def = this.rows[0].key;
+                            },
+                            remove(i) {
+                                const gone = this.rows.splice(i, 1)[0];
+                                if (gone && gone.key === this.def) this.def = this.rows.length ? this.rows[0].key : '';
+                            },
+                            init() {
+                                if (!this.rows.length) this.add();
+                                if (!this.def || !this.rows.some(r => r.key === this.def)) this.def = this.rows[0].key;
+                            }
+                         }">
+                        <input type="hidden" name="bank_accounts_submitted" value="1">
+                        <input type="hidden" name="bank_default" :value="def">
+                        <div class="flex flex-wrap items-start justify-between gap-3">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">Bank accounts</h3>
+                                <p class="mt-1 text-sm text-gray-500">Add every account your clients can pay into. The <strong>default</strong> prints on invoices unless you pick another one on the invoice.</p>
                             </div>
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="bank_account_name" class="block text-sm font-medium text-gray-700">Account name</label>
-                                <input type="text" name="bank_account_name" id="bank_account_name" value="{{ old('bank_account_name', $bank_account_name ?? '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            </div>
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="bank_account_number" class="block text-sm font-medium text-gray-700">Account number</label>
-                                <input type="text" name="bank_account_number" id="bank_account_number" value="{{ old('bank_account_number', $bank_account_number ?? '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            </div>
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="bank_ifsc" class="block text-sm font-medium text-gray-700">IFSC</label>
-                                <input type="text" name="bank_ifsc" id="bank_ifsc" value="{{ old('bank_ifsc', $bank_ifsc ?? '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            </div>
-                            <div class="col-span-6 sm:col-span-4">
-                                <label for="bank_upi" class="block text-sm font-medium text-gray-700">UPI ID</label>
-                                <input type="text" name="bank_upi" id="bank_upi" value="{{ old('bank_upi', $bank_upi ?? '') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            </div>
+                            <button type="button" @click="add()"
+                                class="inline-flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-100">
+                                <span aria-hidden="true">+</span> Add bank account
+                            </button>
                         </div>
+
+                        @if($bankErrors->isNotEmpty())
+                        <div class="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                            @foreach($bankErrors as $message)<div>{{ $message }}</div>@endforeach
+                        </div>
+                        @endif
+
+                        <div class="mt-4 space-y-4">
+                            <template x-for="(row, i) in rows" :key="row.key">
+                                <div class="rounded-xl border p-4 sm:p-5 transition"
+                                     :class="def === row.key ? 'border-indigo-300 bg-indigo-50/40 ring-1 ring-indigo-200' : 'border-gray-200 bg-white'">
+                                    <input type="hidden" :name="'bank_accounts[' + row.key + '][id]'" :value="row.id ?? ''">
+                                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                                        <label class="inline-flex items-center gap-2 text-sm font-semibold cursor-pointer"
+                                               :class="def === row.key ? 'text-indigo-700' : 'text-gray-600'">
+                                            <input type="radio" class="text-indigo-600 focus:ring-indigo-500" :checked="def === row.key" @change="def = row.key">
+                                            <span x-text="def === row.key ? 'Default on invoices' : 'Make default'"></span>
+                                        </label>
+                                        <button type="button" @click="remove(i)" x-show="rows.length > 1 || row.id"
+                                                class="text-sm font-medium text-red-600 hover:text-red-700">Remove</button>
+                                    </div>
+                                    <div class="grid grid-cols-6 gap-4">
+                                        <div class="col-span-6 sm:col-span-2">
+                                            <label class="block text-sm font-medium text-gray-700" :for="'bank-label-' + row.key">Nickname</label>
+                                            <input type="text" maxlength="60" placeholder="e.g. Current A/c" :id="'bank-label-' + row.key" :name="'bank_accounts[' + row.key + '][label]'" x-model="row.label" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                                        </div>
+                                        <div class="col-span-6 sm:col-span-2">
+                                            <label class="block text-sm font-medium text-gray-700" :for="'bank-name-' + row.key">Bank name</label>
+                                            <input type="text" maxlength="100" placeholder="e.g. HDFC Bank" :id="'bank-name-' + row.key" :name="'bank_accounts[' + row.key + '][bank_name]'" x-model="row.bank_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                                        </div>
+                                        <div class="col-span-6 sm:col-span-2">
+                                            <label class="block text-sm font-medium text-gray-700" :for="'bank-branch-' + row.key">Branch</label>
+                                            <input type="text" maxlength="100" :id="'bank-branch-' + row.key" :name="'bank_accounts[' + row.key + '][branch]'" x-model="row.branch" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                                        </div>
+                                        <div class="col-span-6 sm:col-span-3">
+                                            <label class="block text-sm font-medium text-gray-700" :for="'bank-acname-' + row.key">Account holder name</label>
+                                            <input type="text" maxlength="255" :id="'bank-acname-' + row.key" :name="'bank_accounts[' + row.key + '][account_name]'" x-model="row.account_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                                        </div>
+                                        <div class="col-span-6 sm:col-span-3">
+                                            <label class="block text-sm font-medium text-gray-700" :for="'bank-acno-' + row.key">Account number</label>
+                                            <input type="text" inputmode="numeric" maxlength="30" autocomplete="off" :id="'bank-acno-' + row.key" :name="'bank_accounts[' + row.key + '][account_number]'" x-model="row.account_number" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm tabular-nums">
+                                        </div>
+                                        <div class="col-span-6 sm:col-span-3">
+                                            <label class="block text-sm font-medium text-gray-700" :for="'bank-ifsc-' + row.key">IFSC</label>
+                                            <input type="text" maxlength="11" placeholder="HDFC0001234" :id="'bank-ifsc-' + row.key" :name="'bank_accounts[' + row.key + '][ifsc]'" x-model="row.ifsc" @input="row.ifsc = row.ifsc.toUpperCase()" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm uppercase">
+                                        </div>
+                                        <div class="col-span-6 sm:col-span-3">
+                                            <label class="block text-sm font-medium text-gray-700" :for="'bank-upi-' + row.key">UPI ID</label>
+                                            <input type="text" maxlength="100" placeholder="firm@hdfcbank" :id="'bank-upi-' + row.key" :name="'bank_accounts[' + row.key + '][upi_id]'" x-model="row.upi_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                        <p class="mt-3 text-xs text-gray-500">Click <strong>Save changes</strong> at the bottom to keep your edits. Removed accounts stay on invoices that already used them.</p>
                     </div>
 
                     <div class="border-t border-gray-200 pt-6">

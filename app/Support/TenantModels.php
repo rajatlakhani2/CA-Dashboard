@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\BankAccount;
 use App\Models\BillingRule;
 use App\Models\Branch;
 use App\Models\Client;
@@ -72,6 +73,7 @@ final class TenantModels
             ServiceDocumentRequirement::class,
             ClientServiceDocumentCheck::class,
             WhatsAppMessageLog::class,
+            BankAccount::class,
         ];
     }
 }

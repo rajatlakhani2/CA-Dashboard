@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BankAccount;
 use App\Models\Setting;
 use App\Models\User;
 use App\Support\Branding;
@@ -10,6 +11,7 @@ use App\Support\ModuleAccess;
 use App\Support\ModuleGate;
 use App\Support\WorkspaceProfile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
@@ -28,6 +30,7 @@ class SettingsController extends Controller
                 'workspaceTypes' => WorkspaceProfile::types(),
                 'workspaceDescriptions' => WorkspaceProfile::descriptions(),
                 'workspaceRoles' => WorkspaceProfile::roles(),
+                'bankAccounts' => BankAccount::ordered()->get(),
             ],
             $this->firmSettingDefaults()
         ));
@@ -80,6 +83,10 @@ class SettingsController extends Controller
                 $firmData['company_logo_path'] = 'storage/'.$stored;
             }
             $this->updateFirmSettings($firmData);
+
+            if ($request->boolean('bank_accounts_submitted')) {
+                $this->syncBankAccounts($request);
+            }
 
             if ($request->has('workspace_type')) {
                 $workspaceData = $request->validate([
@@ -231,11 +238,6 @@ class SettingsController extends Controller
             'invoice_payment_days' => '15',
             'invoice_jurisdiction' => 'Ahmedabad',
             'company_logo_path' => '',
-            'bank_name' => '',
-            'bank_account_name' => '',
-            'bank_account_number' => '',
-            'bank_ifsc' => '',
-            'bank_upi' => '',
             'invoice_signatory_name' => '',
             'auto_backup_enabled' => '1',
             'auto_logout_minutes' => '0',
@@ -276,15 +278,102 @@ class SettingsController extends Controller
             'invoice_payment_days' => 'nullable|string|max:10',
             'invoice_jurisdiction' => 'nullable|string|max:100',
             'company_logo_path' => 'nullable|string|max:255',
-            'bank_name' => 'nullable|string|max:100',
-            'bank_account_name' => 'nullable|string|max:255',
-            'bank_account_number' => 'nullable|string|max:30',
-            'bank_ifsc' => 'nullable|string|max:20',
-            'bank_upi' => 'nullable|string|max:100',
             'invoice_signatory_name' => 'nullable|string|max:255',
             'auto_backup_enabled' => 'nullable|in:0,1',
             'auto_logout_minutes' => 'nullable|integer|in:0,15,30,60,120,240,480',
         ];
+    }
+
+    /**
+     * Save the "Bank accounts" rows from the Company & invoices tab:
+     * new rows are created, changed rows updated, rows removed from the form
+     * are archived (soft-deleted, so old invoices still print them).
+     */
+    private function syncBankAccounts(Request $request): void
+    {
+        $request->merge([
+            'bank_accounts' => collect($request->input('bank_accounts', []))
+                ->map(function ($row) {
+                    $row = is_array($row) ? $row : [];
+                    foreach (['label', 'bank_name', 'account_name', 'account_number', 'ifsc', 'branch', 'upi_id'] as $f) {
+                        $row[$f] = isset($row[$f]) ? trim((string) $row[$f]) : null;
+                        if ($row[$f] === '') {
+                            $row[$f] = null;
+                        }
+                    }
+                    if ($row['ifsc']) {
+                        $row['ifsc'] = strtoupper($row['ifsc']);
+                    }
+                    if ($row['account_number']) {
+                        $row['account_number'] = preg_replace('/\s+/', '', $row['account_number']);
+                    }
+
+                    return $row;
+                })
+                // An untouched blank row isn't an account.
+                ->reject(fn ($row) => empty($row['id']) && ! array_filter(\Illuminate\Support\Arr::except($row, ['id'])))
+                ->all(),
+        ]);
+
+        $data = $request->validate([
+            'bank_accounts' => 'array|max:20',
+            'bank_accounts.*.id' => 'nullable|integer',
+            'bank_accounts.*.label' => 'nullable|string|max:60',
+            'bank_accounts.*.bank_name' => 'nullable|string|max:100',
+            'bank_accounts.*.account_name' => 'nullable|string|max:255',
+            'bank_accounts.*.account_number' => ['nullable', 'regex:/^[0-9A-Za-z]{6,30}$/', 'required_without:bank_accounts.*.upi_id'],
+            'bank_accounts.*.ifsc' => ['nullable', 'regex:/^[A-Z]{4}0[A-Z0-9]{6}$/'],
+            'bank_accounts.*.branch' => 'nullable|string|max:100',
+            'bank_accounts.*.upi_id' => ['nullable', 'string', 'max:100', 'regex:/^[\w.\-]{2,}@[A-Za-z][A-Za-z0-9.\-]*$/'],
+            'bank_default' => 'nullable|string|max:20',
+        ], [
+            'bank_accounts.*.account_number.required_without' => 'Each bank account needs an account number or a UPI ID.',
+            'bank_accounts.*.account_number.regex' => 'Account number should be 6–30 letters or digits.',
+            'bank_accounts.*.ifsc.regex' => 'IFSC should look like HDFC0001234 (4 letters, 0, then 6 letters/digits).',
+            'bank_accounts.*.upi_id.regex' => 'UPI ID should look like name@bank.',
+        ]);
+
+        $rows = $data['bank_accounts'] ?? [];
+        $defaultKey = (string) ($data['bank_default'] ?? '');
+        $orgId = BankAccount::currentFirmId();
+
+        DB::transaction(function () use ($rows, $defaultKey, $orgId) {
+            // Only this firm's accounts can be edited or removed, whatever ids are posted.
+            $existing = BankAccount::forCurrentFirm()->get()->keyBy('id');
+            $keptIds = [];
+            $defaultId = null;
+            $order = 0;
+
+            foreach ($rows as $key => $row) {
+                $fields = \Illuminate\Support\Arr::only($row, ['label', 'bank_name', 'account_name', 'account_number', 'ifsc', 'branch', 'upi_id']);
+                $fields['sort_order'] = $order++;
+
+                $account = ! empty($row['id']) ? $existing->get((int) $row['id']) : null;
+                if (! empty($row['id']) && ! $account) {
+                    continue; // not this firm's account
+                }
+                if ($account) {
+                    $account->update($fields);
+                } else {
+                    $account = new BankAccount($fields);
+                    $account->forceFill(['organization_id' => $orgId])->save();
+                }
+
+                $keptIds[] = $account->id;
+                if ((string) $key === $defaultKey) {
+                    $defaultId = $account->id;
+                }
+            }
+
+            $existing->except($keptIds)->each->delete();
+
+            // Exactly one default whenever there is at least one account.
+            $defaultId ??= $keptIds[0] ?? null;
+            BankAccount::forCurrentFirm()->update(['is_default' => false]);
+            if ($defaultId) {
+                BankAccount::forCurrentFirm()->whereKey($defaultId)->update(['is_default' => true]);
+            }
+        });
     }
 
     private function updateFirmSettings(array $firmData): void

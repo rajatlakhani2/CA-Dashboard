@@ -144,7 +144,7 @@
 @endif
 
 {{-- 8. Bank details --}}
-@if($firm['bank_name'] || $firm['bank_account_number'])
+@if($firm['bank_name'] || $firm['bank_account_number'] || $firm['bank_upi'])
 <div class="section-title">Bank Details (for payment)</div>
 <div class="bank-box">
     <table style="font-size:9px;">
@@ -152,6 +152,7 @@
         @if($firm['bank_account_name'])<tr><td><strong>Account Name</strong></td><td>{{ $firm['bank_account_name'] }}</td></tr>@endif
         @if($firm['bank_account_number'])<tr><td><strong>Account No.</strong></td><td>{{ $firm['bank_account_number'] }}</td></tr>@endif
         @if($firm['bank_ifsc'])<tr><td><strong>IFSC</strong></td><td>{{ $firm['bank_ifsc'] }}</td></tr>@endif
+        @if(!empty($firm['bank_branch']))<tr><td><strong>Branch</strong></td><td>{{ $firm['bank_branch'] }}</td></tr>@endif
         @if($firm['bank_upi'])<tr><td><strong>UPI ID</strong></td><td>{{ $firm['bank_upi'] }}</td></tr>@endif
         @if(!empty($paymentUrl))
         <tr><td><strong>Pay (UPI)</strong></td><td style="font-size:8px; word-break:break-all;">{{ $paymentUrl }}</td></tr>
