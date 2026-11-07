@@ -32,6 +32,13 @@
     $formInvoiceNumber = old('invoice_number', $nextInvoiceNumber ?? $invoiceModel?->invoice_number ?? '');
     $formDate = old('date', isset($invoiceModel) ? $invoiceModel->date->format('Y-m-d') : date('Y-m-d'));
     $formDueDate = old('due_date', isset($invoiceModel) ? $invoiceModel->due_date->format('Y-m-d') : date('Y-m-d', strtotime('+7 days')));
+
+    // Bank account printed on the PDF. Edit keeps an archived account if the invoice already uses it.
+    $bankAccounts = \App\Models\BankAccount::ordered()->get();
+    if ($invoiceModel?->bank_account_id && ! $bankAccounts->contains('id', $invoiceModel->bank_account_id) && $invoiceModel->bankAccount) {
+        $bankAccounts->push($invoiceModel->bankAccount);
+    }
+    $formBankAccountId = (string) old('bank_account_id', $invoiceModel?->bank_account_id ?? ($isEdit ? '' : ($bankAccounts->firstWhere('is_default', true)?->id ?? '')));
 @endphp
 
 @push('head_styles')
@@ -272,6 +279,21 @@
 
                 <p x-show="lineCount === 0" class="text-center py-8 text-sm text-gray-400">Add at least one service line</p>
             </div>
+
+            {{-- Bank account shown on the PDF --}}
+            @if($bankAccounts->isNotEmpty())
+            <div class="invoice-card p-5 sm:p-6">
+                <label for="invoice-bank-account" class="block text-sm font-bold text-gray-900 uppercase tracking-wide mb-2">Bank account on invoice</label>
+                <select id="invoice-bank-account" name="bank_account_id"
+                    class="block w-full rounded-xl border-gray-200 bg-gray-50 py-2.5 px-3 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:bg-white">
+                    <option value="" @selected($formBankAccountId === '')>Firm default{{ ($d = $bankAccounts->firstWhere('is_default', true)) ? ' ('.$d->displayName().')' : '' }}</option>
+                    @foreach($bankAccounts as $account)
+                        <option value="{{ $account->id }}" @selected($formBankAccountId === (string) $account->id)>{{ $account->displayName() }}{{ $account->trashed() ? ' (removed)' : '' }}</option>
+                    @endforeach
+                </select>
+                <p class="mt-1.5 text-xs text-gray-500">Printed in the "Bank Details" box of the PDF. Manage accounts in <a href="{{ route('settings.index') }}#company" class="text-indigo-600 hover:underline">Settings → Company &amp; invoices</a>.</p>
+            </div>
+            @endif
 
             {{-- Notes --}}
             <div class="invoice-card p-5 sm:p-6">

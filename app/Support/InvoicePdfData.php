@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\BankAccount;
 use App\Models\Invoice;
 use App\Models\Setting;
 
@@ -9,7 +10,7 @@ class InvoicePdfData
 {
     public static function for(Invoice $invoice): array
     {
-        $invoice->loadMissing(['client', 'items']);
+        $invoice->loadMissing(['client', 'items', 'bankAccount']);
 
         $firm = [
             'name' => Setting::get('company_name', 'RAJAT LAKHANI & ASSOCIATES'),
@@ -35,7 +36,15 @@ class InvoicePdfData
             'jurisdiction' => Setting::get('invoice_jurisdiction', 'Ahmedabad'),
             'show_gst_breakup' => Setting::get('invoice_show_gst_breakup', '1') === '1',
             'signatory_name' => Setting::get('invoice_signatory_name', ''),
+            'bank_branch' => '',
         ];
+
+        // Bank block: the account picked on this invoice, else the firm's
+        // default account, else the old single set of bank settings above.
+        $account = self::bankAccountFor($invoice);
+        if ($account) {
+            $firm = array_merge($firm, $account->toPdfFields());
+        }
 
         $logoFullPath = null;
         if ($firm['logo_path'] && file_exists(public_path($firm['logo_path']))) {
@@ -55,6 +64,23 @@ class InvoicePdfData
             'taxableValue' => $invoice->subtotal,
             'paymentUrl' => $paymentUrl,
         ];
+    }
+
+    public static function bankAccountFor(Invoice $invoice): ?BankAccount
+    {
+        if ($invoice->bank_account_id) {
+            $chosen = $invoice->bankAccount; // includes archived accounts
+            if ($chosen && (int) $chosen->organization_id === (int) $invoice->organization_id) {
+                return $chosen;
+            }
+        }
+
+        $query = BankAccount::query()->withoutGlobalScopes();
+        $invoice->organization_id
+            ? $query->where('organization_id', $invoice->organization_id)
+            : $query->whereNull('organization_id');
+
+        return $query->orderByDesc('is_default')->orderBy('sort_order')->orderBy('id')->first();
     }
 
     public static function defaultTerms(): string

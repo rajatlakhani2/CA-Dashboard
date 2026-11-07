@@ -24,6 +24,7 @@ trait ValidatesInvoicePayload
             'project_name' => 'nullable|string|max:255',
             'reverse_charge' => 'nullable|boolean',
             'notes' => 'nullable|string',
+            'bank_account_id' => 'nullable|integer',
             'items' => 'required|array|min:1',
             'items.*.description' => 'required|string',
             'items.*.hsn_sac_code' => 'nullable|string',
