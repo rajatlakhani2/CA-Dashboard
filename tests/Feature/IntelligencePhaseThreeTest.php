@@ -55,7 +55,7 @@ class IntelligencePhaseThreeTest extends TestCase
         $token = $m[1];
         $this->assertNotEmpty($token);
 
-        $this->get(route('portal.home', ['token' => $token]))->assertOk()->assertSee($client->name, false);
+        $this->get(route('portal.home', ['token' => $token]))->assertOk()->assertSee($client->name);
 
         $file = UploadedFile::fake()->create('gstr3b_notice.pdf', 100, 'application/pdf');
 
