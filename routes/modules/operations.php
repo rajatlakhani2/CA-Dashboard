@@ -74,5 +74,6 @@ Route::middleware('role:partner')->group(function () {
     Route::get('/users', [\App\Http\Controllers\SettingsController::class, 'users'])->name('users.index');
     Route::post('/users', [\App\Http\Controllers\SettingsController::class, 'storeUser'])->name('users.store');
     Route::patch('/users/{user}/role', [\App\Http\Controllers\SettingsController::class, 'updateRole'])->name('users.update-role');
+    Route::patch('/users/{user}/dashboard-layout', [\App\Http\Controllers\SettingsController::class, 'updateDashboardLayout'])->name('users.update-dashboard-layout');
     Route::patch('/users/{user}/module-access', [\App\Http\Controllers\SettingsController::class, 'updateModuleAccess'])->name('users.update-module-access');
 });

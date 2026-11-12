@@ -40,6 +40,9 @@ Route::middleware([
     Route::get('/dashboard/finance-snapshot', [DashboardController::class, 'financeSnapshot'])
         ->middleware('module:dashboard')
         ->name('dashboard.finance-snapshot');
+    Route::post('/dashboard/layout', [DashboardController::class, 'switchLayout'])
+        ->middleware('module:dashboard')
+        ->name('dashboard.layout');
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->middleware('module:dashboard')
         ->name('dashboard');

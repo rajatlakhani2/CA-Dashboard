@@ -130,6 +130,7 @@
                     <tr>
                         <th class="px-8 py-4">Member</th>
                         <th class="px-8 py-4">Role & mobile</th>
+                        <th class="px-8 py-4">Dashboard layout</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
@@ -153,6 +154,18 @@
                                 <select name="role" onchange="this.form.submit()" class="rounded-lg border-slate-200 text-sm font-bold" {{ $user->isWorkspaceOwner() ? 'disabled' : '' }}>
                                     @foreach($directoryRoles as $r => $label)
                                     <option value="{{ $r }}" {{ strtolower((string)$user->role) === $r ? 'selected' : '' }}>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </form>
+                        </td>
+                        <td class="px-8 py-5">
+                            <form action="{{ route('users.update-dashboard-layout', $user) }}" method="POST">
+                                @csrf @method('PATCH')
+                                <label for="layout-{{ $user->id }}" class="sr-only">Dashboard layout for {{ $user->name }}</label>
+                                <select id="layout-{{ $user->id }}" name="dashboard_layout" onchange="this.form.submit()" class="rounded-lg border-slate-200 text-sm">
+                                    <option value="">Firm default ({{ $dashboardLayouts[$dashboardLayoutFirmDefault]['label'] ?? 'Classic' }})</option>
+                                    @foreach($dashboardLayouts as $key => $layout)
+                                    <option value="{{ $key }}" {{ $user->dashboard_layout === $key ? 'selected' : '' }} {{ $layout['available'] ? '' : 'disabled' }}>{{ $layout['label'] }}{{ $layout['available'] ? '' : ' (coming soon)' }}</option>
                                     @endforeach
                                 </select>
                             </form>

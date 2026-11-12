@@ -16,6 +16,7 @@ use App\Services\NotificationSummaryService;
 use App\Services\OrganizationWorkspaceService;
 use App\Services\PartnerFirmOverviewService;
 use App\Services\WorkspaceOnboardingService;
+use App\Support\DashboardLayout;
 use App\Support\ExecutiveSummaryWidgets;
 use App\Support\UserTimezone;
 use Illuminate\Http\Request;
@@ -67,7 +68,24 @@ class DashboardController extends Controller
             'showFirmOverviewTab' => $isPartner,
             'allowedExecutiveWidgets' => ExecutiveSummaryWidgets::allowed($user),
             'dashboardBuildId' => $this->dashboardBuildId(),
+            'dashboardLayout' => DashboardLayout::forUser($user),
+            'dashboardLayoutChoice' => DashboardLayout::userChoice($user),
+            'dashboardLayouts' => DashboardLayout::options(),
         ]));
+    }
+
+    /** Save the signed-in user's own dashboard layout (empty = follow firm default). */
+    public function switchLayout(Request $request)
+    {
+        $data = $request->validate([
+            'dashboard_layout' => ['nullable', 'string', \Illuminate\Validation\Rule::in(DashboardLayout::availableKeys())],
+        ]);
+
+        $user = $request->user();
+        $user->dashboard_layout = ($data['dashboard_layout'] ?? null) ?: null;
+        $user->save();
+
+        return redirect()->route('dashboard')->with('success', 'Dashboard layout updated.');
     }
 
     /** Live deploy stamp (public/dashboard-build.txt) or code fallback. */
