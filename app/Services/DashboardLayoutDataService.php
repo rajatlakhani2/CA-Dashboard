@@ -132,6 +132,7 @@ class DashboardLayoutDataService
         }
 
         if ($user->canAccessModule('invoices') && ($user->isPartner() || $user->isManager())) {
+            $canPay = $user->canAccessModule('payments');
             $invoices = Invoice::query()
                 ->with('client:id,name,manager_id', 'client.manager:id,name')
                 ->withSum('payments', 'amount')
@@ -166,6 +167,12 @@ class DashboardLayoutDataService
                     'open_url' => route('invoices.show', $inv),
                     'due_text' => $dueOn ? $dueOn->diffInDays($this->today).' days overdue' : 'Unpaid',
                     'amount' => $balance,
+                    'pay' => $canPay ? [
+                        'invoice_id' => $inv->id,
+                        'number' => $inv->invoice_number ?: '#'.$inv->id,
+                        'client' => $inv->client->name,
+                        'balance' => round($balance, 2),
+                    ] : null,
                 ]));
             }
         }
@@ -311,6 +318,7 @@ class DashboardLayoutDataService
             'complete_json' => $data['complete_json'] ?? false,
             'link_url' => $data['link_url'] ?? null,
             'start_payload' => $data['start_payload'] ?? null,
+            'pay' => $data['pay'] ?? null,
             'client' => null,
             'date' => $date?->format('Y-m-d'),
         ]);

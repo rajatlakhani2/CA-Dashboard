@@ -40,6 +40,7 @@ class User extends Authenticatable
         'role',
         'theme',
         'dashboard_layout',
+        'dashboard_preferences',
         'timezone',
         'branch_id',
         'module_access',
@@ -68,6 +69,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'module_access' => 'array',
+            'dashboard_preferences' => 'array',
             'demo_tour_completed_at' => 'datetime',
         ];
     }

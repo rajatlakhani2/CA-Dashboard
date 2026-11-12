@@ -33,16 +33,26 @@
         @endforeach
     </section>
 
+    <div data-drop-col="done" class="flex min-h-16 items-center justify-center rounded-2xl border-2 border-dashed border-teal-300 bg-teal-50/60 px-4 text-sm font-medium text-teal-900 transition">
+        Drag a card here to mark it done · drag tasks between columns to change their status
+    </div>
+
     <section aria-label="Board" class="grid grid-cols-1 items-start gap-4 md:grid-cols-2 xl:grid-cols-4">
         @foreach($columns as $col)
         <div class="rounded-2xl bg-slate-100 p-3">
             <div class="flex items-center justify-between px-1 pb-3">
                 <h2 class="text-sm font-bold {{ $col['color'] }}">{{ $col['title'] }}</h2>
-                <span class="rounded-full bg-white px-2.5 py-0.5 text-sm font-semibold text-slate-700">{{ $col['items']->count() }}</span>
+                <span data-col-count class="rounded-full bg-white px-2.5 py-0.5 text-sm font-semibold text-slate-700">{{ $col['items']->count() }}</span>
             </div>
-            <div class="flex max-h-[720px] flex-col gap-2 overflow-y-auto">
+            <div data-drop-col="{{ $col['key'] }}" class="flex min-h-24 max-h-[720px] flex-col gap-2 overflow-y-auto rounded-xl transition">
                 @forelse($col['items'] as $item)
-                <article data-dash-item class="rounded-xl border border-slate-200 bg-white p-3">
+                <article data-dash-item draggable="true"
+                    data-type="{{ $item['type'] }}"
+                    data-label="{{ $item['title'] }}"
+                    @if($item['type'] === 'task') data-status-url="{{ $item['complete_url'] }}" @endif
+                    @if($item['complete_url']) data-complete-url="{{ $item['complete_url'] }}" data-complete-method="{{ $item['complete_method'] }}" data-complete-payload='@json($item['complete_payload'])' @endif
+                    @if(!empty($item['pay'])) data-pay='@json($item['pay'])' @endif
+                    class="cursor-grab rounded-xl border border-slate-200 bg-white p-3 active:cursor-grabbing">
                     <div class="flex items-start justify-between gap-2">
                         <span class="flex items-center gap-1.5">
                             <span class="rounded-md px-2 py-0.5 text-xs font-bold {{ $tag[$item['kind']][1] }}">{{ $tag[$item['kind']][0] }}</span>
@@ -59,7 +69,7 @@
                     </div>
                 </article>
                 @empty
-                <p class="px-1 py-2 text-sm text-slate-600">Nothing here.</p>
+                <p data-empty class="px-1 py-2 text-sm text-slate-600">Nothing here.</p>
                 @endforelse
             </div>
         </div>
@@ -97,5 +107,6 @@
     </section>
 </div>
 
+@include('dashboard.layouts._payment-dialog')
 @include('dashboard.layouts._script')
 @endsection

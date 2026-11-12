@@ -15,7 +15,7 @@ class StorePaymentRequest extends FormRequest
     {
         return [
             'invoice_id' => 'required|exists:invoices,id',
-            'receipt_number' => 'required|unique:payments,receipt_number',
+            'receipt_number' => 'nullable|unique:payments,receipt_number',
             'amount' => 'required|numeric|min:0.01',
             'payment_date' => 'required|date',
             'payment_mode' => 'required|in:Cash,Cheque,UPI,Bank Transfer,Online',

@@ -51,6 +51,31 @@ class DashboardLayout
         return $out;
     }
 
+    /** Sections of the Action inbox, in default order. */
+    public const INBOX_SECTIONS = [
+        'kpis' => 'Headline numbers',
+        'inbox' => 'Action inbox',
+        'calendar' => 'Compliance calendar',
+        'revenue' => 'Billed vs collected',
+        'ageing' => 'Receivables by age',
+        'filing_status' => 'Filing status this month',
+        'workload' => 'Team workload',
+        'attention' => 'Clients needing attention',
+    ];
+
+    /** The user's visible inbox sections, in their chosen order. */
+    public static function inboxSections(?User $user): array
+    {
+        $all = array_keys(self::INBOX_SECTIONS);
+        $prefs = $user?->dashboard_preferences['inbox_sections'] ?? null;
+
+        if (! is_array($prefs) || $prefs === []) {
+            return $all;
+        }
+
+        return array_values(array_unique(array_intersect($prefs, $all)));
+    }
+
     /** @return list<string> */
     public static function keys(): array
     {

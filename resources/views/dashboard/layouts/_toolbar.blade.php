@@ -32,7 +32,7 @@
     @if(($showPeriod ?? false))<input type="hidden" name="period" value="{{ $f['period'] }}">@endif
     @if(!empty($filterOptions['branches']))
     <label class="flex items-center gap-2 text-sm text-slate-600">Branch
-        <select name="branch" onchange="this.form.submit()" class="min-h-10 rounded-lg border-slate-300 text-sm text-slate-900">
+        <select name="branch" onchange="this.form.submit()" class="min-h-10 rounded-lg border border-slate-300 bg-white px-2 text-sm text-slate-900">
             <option value="">All branches</option>
             @foreach($filterOptions['branches'] as $b)
             <option value="{{ $b['id'] }}" @selected($f['branch'] == $b['id'])>{{ $b['name'] }}</option>
@@ -41,7 +41,7 @@
     </label>
     @endif
     <label class="flex items-center gap-2 text-sm text-slate-600">Staff
-        <select name="staff" onchange="this.form.submit()" class="min-h-10 rounded-lg border-slate-300 text-sm text-slate-900">
+        <select name="staff" onchange="this.form.submit()" class="min-h-10 rounded-lg border border-slate-300 bg-white px-2 text-sm text-slate-900">
             <option value="">Everyone</option>
             @foreach($filterOptions['staff'] as $s)
             <option value="{{ $s['id'] }}" @selected($f['staff'] == $s['id'])>{{ $s['name'] }}</option>

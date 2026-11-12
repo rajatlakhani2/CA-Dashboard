@@ -253,4 +253,72 @@ class DashboardLayoutsTest extends TestCase
             ->assertOk()
             ->assertDontSee('data-dashboard-layout="inbox"', false);
     }
+
+    public function test_inbox_has_payment_popup_and_payment_can_be_recorded_as_json(): void
+    {
+        $this->useLayout($this->partner, DashboardLayout::INBOX);
+
+        $this->actingAs($this->partner)->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('data-dash-action="pay"', false)
+            ->assertSee('id="dash-pay-dialog"', false);
+
+        $this->actingAs($this->partner)->postJson(route('payments.store'), [
+            'invoice_id' => $this->invoice->id,
+            'amount' => 15000,
+            'payment_date' => now()->toDateString(),
+            'payment_mode' => 'UPI',
+        ])->assertOk()->assertJson(['success' => true, 'balance' => 25000]);
+
+        $this->actingAs($this->partner)->postJson(route('payments.store'), [
+            'invoice_id' => $this->invoice->id,
+            'amount' => 999999,
+            'payment_date' => now()->toDateString(),
+            'payment_mode' => 'UPI',
+        ])->assertStatus(422);
+
+        $this->assertSame(25000.0, round($this->invoice->fresh()->balanceDue(), 2));
+    }
+
+    public function test_associate_does_not_get_payment_popup(): void
+    {
+        $this->useLayout($this->associate, DashboardLayout::INBOX);
+
+        $this->actingAs($this->associate)->get(route('dashboard'))
+            ->assertOk()
+            ->assertDontSee('id="dash-pay-dialog"', false);
+    }
+
+    public function test_user_can_choose_and_order_inbox_sections(): void
+    {
+        $this->useLayout($this->partner, DashboardLayout::INBOX);
+
+        $this->actingAs($this->partner)->post(route('dashboard.inbox.sections'), [
+            'sections' => ['attention', 'inbox'],
+        ])->assertRedirect(route('dashboard'));
+
+        $html = $this->actingAs($this->partner)->get(route('dashboard'))->assertOk()->getContent();
+        $this->assertStringContainsString('data-dash-section="attention"', $html);
+        $this->assertStringNotContainsString('data-dash-section="calendar"', $html);
+        $this->assertStringNotContainsString('data-dash-section="revenue"', $html);
+        $this->assertLessThan(strpos($html, 'data-dash-section="inbox"'), strpos($html, 'data-dash-section="attention"'));
+
+        $this->actingAs($this->partner)->post(route('dashboard.inbox.sections'), ['sections' => ['bogus']])
+            ->assertSessionHasErrors();
+
+        $this->actingAs($this->partner)->post(route('dashboard.inbox.sections'), ['reset' => 1])->assertRedirect();
+        $this->actingAs($this->partner)->get(route('dashboard'))->assertSee('data-dash-section="calendar"', false);
+    }
+
+    public function test_board_cards_are_draggable_with_status_targets(): void
+    {
+        $this->useLayout($this->partner, DashboardLayout::BOARD);
+
+        $this->actingAs($this->partner)->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('data-drop-col="done"', false)
+            ->assertSee('data-drop-col="doing"', false)
+            ->assertSee('draggable="true"', false)
+            ->assertSee('data-status-url=', false);
+    }
 }
