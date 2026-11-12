@@ -39,7 +39,7 @@ class IntelligencePhaseTwoTest extends TestCase
             'total_amount' => 5000,
         ]);
 
-        $this->actingAs($partner)->get(route('collections.index'))->assertOk()->assertSee($client->name, false);
+        $this->actingAs($partner)->get(route('collections.index'))->assertOk()->assertSee($client->name);
 
         $this->actingAs($partner)
             ->post(route('collections.follow-up', $client), [
