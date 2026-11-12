@@ -19,7 +19,7 @@
         <!-- Efficiency Score -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between">
             <div>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Efficiency Score</p>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Efficiency Score</p>
                 <div class="mt-2 flex items-baseline space-x-2">
                     <span class="text-3xl font-black text-slate-800">{{ $efficiency }}%</span>
                 </div>
@@ -31,13 +31,13 @@
 
         <!-- Total Tasks -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Workload</p>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Workload</p>
             <p class="mt-2 text-3xl font-black text-slate-800">{{ $totalTasks }} <span class="text-sm font-bold text-gray-400">tasks</span></p>
         </div>
 
         <!-- Pending -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Pending Tasks</p>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Pending Tasks</p>
             <p class="mt-2 text-3xl font-black text-amber-600">{{ $pendingTasks }}</p>
         </div>
 
@@ -87,7 +87,7 @@
                         <div class="flex-1 min-w-0 pr-4">
                             <div class="flex items-center justify-between mb-1">
                                 <h4 class="text-sm font-bold text-gray-900 truncate">{{ $task->title }}</h4>
-                                <span class="text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider {{ $task->priority == 'High' ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-gray-50 text-gray-600 border border-gray-100' }}">
+                                <span class="text-xs px-2 py-0.5 rounded-full font-black uppercase tracking-wider {{ $task->priority == 'High' ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-gray-50 text-gray-600 border border-gray-100' }}">
                                     {{ $task->priority }}
                                 </span>
                             </div>
@@ -98,7 +98,7 @@
                                     Due {{ $task->due_date ? $task->due_date->format('d M Y') : 'No Date' }}
                                 </span>
                                 <span>&bull;</span>
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700">{{ $task->status }}</span>
+                                <span class="px-2 py-0.5 rounded text-xs font-bold bg-indigo-50 text-indigo-700">{{ $task->status }}</span>
                             </div>
                         </div>
                         
@@ -173,7 +173,7 @@
                             </span>
                             <div>
                                 <p class="text-sm font-bold text-gray-900">{{ $client->name }}</p>
-                                <p class="text-[10px] text-gray-400 font-bold tracking-wider uppercase mt-0.5">{{ $client->pan_number ?? 'No PAN' }}</p>
+                                <p class="text-xs text-gray-400 font-bold tracking-wider uppercase mt-0.5">{{ $client->pan_number ?? 'No PAN' }}</p>
                             </div>
                         </div>
                         <a href="{{ route('clients.show', $client) }}" class="text-gray-400 hover:text-indigo-600 p-1.5 hover:bg-slate-100 rounded-lg transition-colors">

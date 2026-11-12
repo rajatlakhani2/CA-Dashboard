@@ -64,7 +64,7 @@ bash scripts/spidy-install.sh
 
 1. https://app.kuhu.org.in/clear-app-cache  
 2. Incognito → https://app.kuhu.org.in/login  
-3. `rajat@rlassociates.in` / `password`
+3. `rajat@rlassociates.in` / your own password
 
 ## Cron (optional)
 

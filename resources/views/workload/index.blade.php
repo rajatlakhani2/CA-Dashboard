@@ -77,10 +77,10 @@
                         </p>
                     </div>
                     @if($member->overdue_count > 0)
-                    <span class="text-[10px] font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-full">{{ $member->overdue_count }} late</span>
+                    <span class="text-xs font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-full">{{ $member->overdue_count }} late</span>
                     @endif
                 </div>
-                <dl class="mt-2 grid grid-cols-2 gap-1 text-[10px] text-slate-600">
+                <dl class="mt-2 grid grid-cols-2 gap-1 text-xs text-slate-600">
                     <div><dt class="inline">Open:</dt> <dd class="inline font-bold">{{ $member->open_count }}</dd></div>
                     <div><dt class="inline">This week:</dt> <dd class="inline font-bold">{{ $member->due_this_week }}</dd></div>
                     <div><dt class="inline">Planned:</dt> <dd class="inline font-bold">{{ $member->planned_hours }}h</dd></div>

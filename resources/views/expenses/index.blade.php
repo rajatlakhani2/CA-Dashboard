@@ -64,7 +64,7 @@
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
-                    <thead class="bg-gray-50 text-gray-400 text-[10px] uppercase font-bold tracking-wider">
+                    <thead class="bg-gray-50 text-gray-400 text-xs uppercase font-bold tracking-wider">
                         <tr>
                             <th class="px-6 py-3">Date</th>
                             <th class="px-6 py-3">Vendor / Desc</th>
@@ -82,7 +82,7 @@
                                 <div class="text-xs text-gray-500 truncate max-w-[150px]">{{ $expense->description }}</div>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="bg-gray-100 text-gray-700 px-2.5 py-1 rounded-md text-[10px] font-bold">{{ $expense->category }}</span>
+                                <span class="bg-gray-100 text-gray-700 px-2.5 py-1 rounded-md text-xs font-bold">{{ $expense->category }}</span>
                             </td>
                             <td class="px-6 py-4 font-bold text-gray-900">₹{{ number_format($expense->amount, 2) }}</td>
                             <td class="px-6 py-4">
@@ -146,7 +146,7 @@
                         <div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
                             <div class="bg-indigo-500 h-full rounded-full transition-all duration-1000" style="width: {{ $percent }}%"></div>
                         </div>
-                        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-tight text-right">{{ round($percent) }}% OF TOTAL</div>
+                        <div class="text-xs text-gray-400 font-bold uppercase tracking-tight text-right">{{ round($percent) }}% OF TOTAL</div>
                     </div>
                     @empty
                     <p class="text-sm text-gray-500 text-center py-4 italic">No categorical data</p>

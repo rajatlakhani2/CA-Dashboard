@@ -11,7 +11,7 @@
     <div>
         <div class="flex items-center justify-between gap-2 mb-1.5">
             <p class="exec-summary__label mb-0">Action needed</p>
-            <a href="{{ route('activity.index') }}" class="text-[10px] font-semibold text-indigo-600">Pulse →</a>
+            <a href="{{ route('activity.index') }}" class="text-xs font-semibold text-indigo-600">Pulse →</a>
         </div>
         <ul class="space-y-1">
             @foreach(array_slice($risks, 0, 3) as $alert)
@@ -35,7 +35,7 @@
     <div class="{{ (count($risks) > 0 || count($insights) > 0) ? 'pt-2 border-t border-slate-100' : '' }}">
         <div class="flex justify-between items-center mb-1.5">
             <p class="exec-summary__label mb-0">Team workload</p>
-            <a href="{{ route('workload.index') }}" class="text-[10px] font-semibold text-indigo-600">Planner →</a>
+            <a href="{{ route('workload.index') }}" class="text-xs font-semibold text-indigo-600">Planner →</a>
         </div>
         <div class="flex flex-wrap gap-1">
             @foreach($team->take(6) as $member)
@@ -56,7 +56,7 @@
             @php $c = $row['client']; @endphp
             <li>
                 <a href="{{ route('clients.show', $c) }}" class="exec-summary__row py-1.5">
-                    <span class="exec-summary__score exec-summary__score--{{ $row['tone'] }} text-[10px]">{{ $row['score'] }}</span>
+                    <span class="exec-summary__score exec-summary__score--{{ $row['tone'] }} text-xs">{{ $row['score'] }}</span>
                     <span class="text-xs font-semibold truncate">{{ $c->name }}</span>
                 </a>
             </li>
@@ -68,7 +68,7 @@
     <div class="pt-2 border-t border-slate-100" x-data="{ openKey: null }">
         <div class="flex items-center justify-between gap-2 mb-2">
             <p class="exec-summary__label mb-0">Deadline services · next month</p>
-            <a href="{{ route('service-dues.index') }}" class="text-[10px] font-semibold text-indigo-600">All dues →</a>
+            <a href="{{ route('service-dues.index') }}" class="text-xs font-semibold text-indigo-600">All dues →</a>
         </div>
         @if(count($monthlyDeadlines) > 0)
         <ul class="space-y-1.5">
@@ -80,11 +80,11 @@
                     <div class="flex items-start justify-between gap-2">
                         <div class="min-w-0">
                             <p class="text-sm font-bold text-gray-900 truncate">{{ $deadline['service_name'] }}</p>
-                            <p class="text-[10px] text-gray-500">Due {{ $deadline['due_label'] }}</p>
+                            <p class="text-xs text-gray-500">Due {{ $deadline['due_label'] }}</p>
                         </div>
-                        <span class="text-[10px] font-bold text-indigo-600 shrink-0" x-text="openKey === @js($deadline['key']) ? '▲' : '▼'"></span>
+                        <span class="text-xs font-bold text-indigo-600 shrink-0" x-text="openKey === @js($deadline['key']) ? '▲' : '▼'"></span>
                     </div>
-                    <div class="mt-1.5 flex flex-wrap items-center gap-2 text-[10px]">
+                    <div class="mt-1.5 flex flex-wrap items-center gap-2 text-xs">
                         <span class="font-semibold text-gray-700">{{ $deadline['total'] }} clients</span>
                         <span class="text-emerald-700 font-bold">{{ $deadline['completed'] }} filed</span>
                         <span class="text-rose-700 font-bold">{{ $deadline['pending'] }} pending</span>

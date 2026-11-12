@@ -27,27 +27,27 @@
 
         <div class="px-5 py-4 space-y-3 overflow-y-auto text-sm pe-error-body">
             <div class="rounded-lg bg-sky-50 border border-sky-100 px-3 py-2.5">
-                <p class="text-[10px] font-bold uppercase tracking-wide text-sky-700">What you were doing</p>
+                <p class="text-xs font-bold uppercase tracking-wide text-sky-700">What you were doing</p>
                 <p class="mt-1 text-slate-800 pe-error-action">{{ $portalErrorPayload['action'] ?? '' }}</p>
             </div>
             <div class="rounded-lg bg-rose-50 border border-rose-100 px-3 py-2.5">
-                <p class="text-[10px] font-bold uppercase tracking-wide text-rose-700">Problem</p>
+                <p class="text-xs font-bold uppercase tracking-wide text-rose-700">Problem</p>
                 <p class="mt-1 text-slate-800 pe-error-problem">{{ $portalErrorPayload['problem'] ?? '' }}</p>
             </div>
             <div class="rounded-lg bg-teal-50 border border-teal-100 px-3 py-2.5">
-                <p class="text-[10px] font-bold uppercase tracking-wide text-teal-700">Technical detail</p>
+                <p class="text-xs font-bold uppercase tracking-wide text-teal-700">Technical detail</p>
                 <p class="mt-1 text-slate-800 font-mono text-xs whitespace-pre-wrap break-words pe-error-technical">{{ $portalErrorPayload['technical'] ?? '' }}</p>
             </div>
             <div class="rounded-lg bg-amber-50 border border-amber-100 px-3 py-2.5">
-                <p class="text-[10px] font-bold uppercase tracking-wide text-amber-800">Why this happened</p>
+                <p class="text-xs font-bold uppercase tracking-wide text-amber-800">Why this happened</p>
                 <p class="mt-1 text-slate-800 pe-error-why">{{ $portalErrorPayload['why'] ?? '' }}</p>
             </div>
             <div class="rounded-lg bg-indigo-50 border border-indigo-100 px-3 py-2.5">
-                <p class="text-[10px] font-bold uppercase tracking-wide text-indigo-700">What to do</p>
+                <p class="text-xs font-bold uppercase tracking-wide text-indigo-700">What to do</p>
                 <p class="mt-1 text-slate-800 pe-error-todo">{{ $portalErrorPayload['todo'] ?? '' }}</p>
             </div>
             <div class="rounded-lg bg-slate-50 border border-slate-200 px-3 py-2.5">
-                <p class="text-[10px] font-bold uppercase tracking-wide text-slate-600">Reference</p>
+                <p class="text-xs font-bold uppercase tracking-wide text-slate-600">Reference</p>
                 <p class="mt-1 text-slate-700 font-mono text-xs pe-error-reference">{{ $portalErrorPayload['reference'] ?? '' }}</p>
             </div>
         </div>

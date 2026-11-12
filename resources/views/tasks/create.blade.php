@@ -32,7 +32,7 @@
     vertical-align: top;
     padding: 0.9rem 0.75rem 0.9rem 1rem;
     text-align: left;
-    font-size: 0.7rem;
+    font-size: 0.8125rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -80,7 +80,7 @@
 .chip-btn {
     border-radius: 9999px;
     padding: 0.3rem 0.75rem;
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     border: 1px solid #e5e7eb;
     background: #fff;
@@ -138,7 +138,7 @@
                                     class="block w-full rounded-lg border-gray-300 py-2 px-3 text-sm shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
                                     :class="titleError ? 'border-red-300 ring-2 ring-red-100' : ''"
                                     @input="titleError = false">
-                                <div class="mt-1 flex items-center justify-between text-[11px]">
+                                <div class="mt-1 flex items-center justify-between text-xs">
                                     <p class="text-red-600 font-medium" x-show="titleError" x-cloak>Title is required</p>
                                     <span class="ml-auto text-gray-400" :class="title.length > 220 ? 'text-amber-600 font-semibold' : ''" x-text="title.length + ' / 255'"></span>
                                 </div>
@@ -164,7 +164,7 @@
                                 ])
                                 @if($recentClientsForPicker->isNotEmpty())
                                 <div>
-                                    <p class="text-[10px] font-bold uppercase tracking-wide text-gray-400 mb-1.5">Quick pick</p>
+                                    <p class="text-xs font-bold uppercase tracking-wide text-gray-400 mb-1.5">Quick pick</p>
                                     <div class="client-chips-scroll">
                                         <button type="button" @click="clientClear()"
                                             class="chip-btn"
@@ -178,7 +178,7 @@
                                     </div>
                                 </div>
                                 @endif
-                                <p class="text-[11px] text-gray-500" x-show="!clientId">Optional — leave empty for internal tasks.</p>
+                                <p class="text-xs text-gray-500" x-show="!clientId">Optional — leave empty for internal tasks.</p>
                                 <div x-show="clientId" x-cloak x-transition class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 border border-emerald-200 px-2.5 py-1.5 text-xs font-semibold text-emerald-900">
                                     <svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                     <span x-text="clientLabel"></span>
@@ -199,7 +199,7 @@
                                         Unassigned
                                     </button>
                                 </div>
-                                <p class="text-[11px] text-gray-500" x-text="assigneeHint()"></p>
+                                <p class="text-xs text-gray-500" x-text="assigneeHint()"></p>
                                 <div x-show="assignmentMode === 'team'" x-transition>
                                     @if($usersForPicker->isEmpty())
                                     <p class="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
@@ -256,7 +256,7 @@
             </div>
 
             <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
-                <p class="text-[11px] text-gray-500">
+                <p class="text-xs text-gray-500">
                     Completed tasks flow to <a href="{{ route('invoices.index', ['tab' => 'unbilled']) }}" class="text-indigo-600 font-semibold hover:underline">Invoices → Unbilled</a>
                 </p>
                 <div class="flex gap-2">
@@ -275,7 +275,7 @@
         {{-- Live preview --}}
         <aside class="xl:col-span-2 xl:sticky xl:top-6 space-y-4 min-w-[280px]">
             <div class="task-preview-card p-5 space-y-4">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-indigo-200">Live preview</p>
+                <p class="text-xs font-bold uppercase tracking-widest text-indigo-200">Live preview</p>
                 <div>
                     <h3 class="font-display text-lg font-bold leading-snug" x-text="title.trim() || 'Untitled task'"></h3>
                     <p class="mt-2 text-sm text-indigo-100 line-clamp-3" x-show="description.trim()" x-text="description.trim()"></p>
@@ -297,7 +297,7 @@
                         <dd class="mt-0.5 font-semibold" x-text="dueDateFormatted()"></dd>
                     </div>
                 </dl>
-                <p class="text-[11px] text-indigo-200/90" x-text="dueRelativeLabel()" x-show="dueDate"></p>
+                <p class="text-xs text-indigo-200/90" x-text="dueRelativeLabel()" x-show="dueDate"></p>
             </div>
 
             <div class="task-section p-4">

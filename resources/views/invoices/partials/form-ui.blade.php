@@ -70,7 +70,7 @@
     .chip-btn {
         border-radius: 9999px;
         padding: 0.25rem 0.75rem;
-        font-size: 0.75rem;
+        font-size: 0.8125rem;
         font-weight: 600;
         border: 1px solid #e5e7eb;
         background: #fff;
@@ -113,7 +113,7 @@
     <div class="invoice-preview p-5 sm:p-6 mb-6 shadow-lg shadow-indigo-900/20">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
-                <p class="text-[10px] font-bold uppercase tracking-widest text-indigo-200">Invoice preview</p>
+                <p class="text-xs font-bold uppercase tracking-widest text-indigo-200">Invoice preview</p>
                 <p class="font-display text-2xl sm:text-3xl font-bold mt-1" x-text="invoiceNumber || '—'"></p>
                 <p class="text-indigo-100 text-sm mt-2">
                     <span x-text="clientLabel || 'Select a client'"></span>
@@ -122,7 +122,7 @@
                 </p>
             </div>
             <div class="text-right">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-indigo-200">Amount due</p>
+                <p class="text-xs font-bold uppercase tracking-widest text-indigo-200">Amount due</p>
                 <p class="text-3xl sm:text-4xl font-extrabold tabular-nums mt-1" x-text="formatMoney(total)"></p>
                 <p class="text-xs text-indigo-200 mt-1" x-text="lineCount + ' line item' + (lineCount === 1 ? '' : 's')"></p>
             </div>
@@ -320,7 +320,7 @@
                         <span class="text-gray-900">Total</span>
                         <span class="text-indigo-600 tabular-nums" x-text="formatMoney(total)"></span>
                     </div>
-                    <p class="text-[11px] text-gray-400 leading-relaxed">GST split (CGST/SGST/IGST) is calculated on save based on place of supply.</p>
+                    <p class="text-xs text-gray-400 leading-relaxed">GST split (CGST/SGST/IGST) is calculated on save based on place of supply.</p>
                 </div>
                 <div class="flex flex-col gap-2">
                     <button type="submit"

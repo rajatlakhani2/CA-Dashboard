@@ -39,7 +39,7 @@
     </div>
     <div class="px-4 pb-4" x-show="output" x-cloak>
         <pre class="text-sm text-slate-800 whitespace-pre-wrap font-sans bg-slate-50 rounded-lg p-3 border border-slate-100" x-text="output"></pre>
-        <p class="text-[10px] text-slate-400 mt-2" x-text="disclaimer"></p>
+        <p class="text-xs text-slate-400 mt-2" x-text="disclaimer"></p>
         <div class="mt-2 flex gap-2" x-show="lastAction === 'whatsapp' && output">
             <button type="button" @click="copyOutput()"
                 class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">Copy to clipboard</button>

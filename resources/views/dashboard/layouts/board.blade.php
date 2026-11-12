@@ -45,9 +45,9 @@
                 <article data-dash-item class="rounded-xl border border-slate-200 bg-white p-3">
                     <div class="flex items-start justify-between gap-2">
                         <span class="flex items-center gap-1.5">
-                            <span class="rounded-md px-2 py-0.5 text-[11px] font-bold {{ $tag[$item['kind']][1] }}">{{ $tag[$item['kind']][0] }}</span>
+                            <span class="rounded-md px-2 py-0.5 text-xs font-bold {{ $tag[$item['kind']][1] }}">{{ $tag[$item['kind']][0] }}</span>
                             @if($item['who'])
-                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-100 text-[10px] font-bold text-teal-900" title="{{ $item['who'] }}">{{ \Illuminate\Support\Str::of($item['who'])->explode(' ')->map(fn ($p) => mb_substr($p, 0, 1))->take(2)->implode('') }}</span>
+                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-100 text-xs font-bold text-teal-900" title="{{ $item['who'] }}">{{ \Illuminate\Support\Str::of($item['who'])->explode(' ')->map(fn ($p) => mb_substr($p, 0, 1))->take(2)->implode('') }}</span>
                             @endif
                         </span>
                         <span class="whitespace-nowrap text-xs {{ $item['urgency'] === 'over' ? 'font-semibold text-red-700' : 'text-slate-600' }}">{{ $item['due_text'] }}</span>

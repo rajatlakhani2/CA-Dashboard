@@ -13,7 +13,7 @@
                 </svg>
             </div>
             <div>
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Total Hours Logged</p>
+                <p class="text-xs font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Total Hours Logged</p>
                 <p class="text-2xl font-black text-slate-900 leading-none">{{ number_format($timeEntries->sum('hours'), 1) }}</p>
             </div>
         </div>
@@ -30,11 +30,11 @@
                     <p class="text-indigo-200 text-xs font-bold uppercase tracking-tighter">Logging productivity across {{ $tasks->count() }} active tasks</p>
                 </div>
             </div>
-            <button @click="$dispatch('open-time-modal')" class="bg-white text-indigo-600 px-6 py-2.5 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-slate-900 hover:text-white transition-all transform active:scale-95">Log Time</button>
+            <button @click="$dispatch('open-time-modal')" class="bg-white text-indigo-600 px-6 py-2.5 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-slate-900 hover:text-white transition-all transform active:scale-95">Log Time</button>
         </div>
 
         <div class="bg-slate-900 rounded-3xl shadow-xl p-6 flex flex-col justify-center items-center">
-            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Retention Rate</p>
+            <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Retention Rate</p>
             <p class="text-2xl font-black text-white">98%</p>
         </div>
     </div>
@@ -45,12 +45,12 @@
             <div class="px-8 py-6 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
                 <h3 class="font-black text-slate-800">Productivity Log</h3>
                 <div class="flex items-center space-x-2">
-                    <span class="inline-flex items-center px-2 py-1 rounded bg-green-50 text-green-700 text-[10px] font-bold">LIVE SYNC</span>
+                    <span class="inline-flex items-center px-2 py-1 rounded bg-green-50 text-green-700 text-xs font-bold">LIVE SYNC</span>
                 </div>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
-                    <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <thead class="bg-slate-50 text-xs font-black text-slate-400 uppercase tracking-widest">
                         <tr>
                             <th class="px-8 py-5">Date</th>
                             <th class="px-8 py-5">User / Task</th>
@@ -64,15 +64,15 @@
                             <td class="px-8 py-6 text-xs font-bold text-slate-500">{{ $entry->date->format('d M, Y') }}</td>
                             <td class="px-8 py-6">
                                 <div class="text-xs font-black text-slate-900">{{ $entry->user->name }}</div>
-                                <div class="text-[10px] font-bold text-indigo-600 uppercase tracking-tighter mt-1">{{ $entry->task->title ?? 'General Task' }}</div>
+                                <div class="text-xs font-bold text-indigo-600 uppercase tracking-tighter mt-1">{{ $entry->task->title ?? 'General Task' }}</div>
                                 @if($entry->description)
-                                <p class="text-[10px] text-slate-400 mt-1 italic">{{ $entry->description }}</p>
+                                <p class="text-xs text-slate-400 mt-1 italic">{{ $entry->description }}</p>
                                 @endif
                             </td>
                             <td class="px-8 py-6 uppercase">
                                 <span class="bg-indigo-50 text-indigo-700 font-black px-2.5 py-1 rounded-lg text-xs">{{ number_format($entry->hours, 1) }} HRS</span>
                                 @if($entry->is_billable)
-                                <span class="ml-1 text-[8px] font-black text-green-500 border border-green-200 px-1 rounded">BILLABLE</span>
+                                <span class="ml-1 text-xs font-black text-green-500 border border-green-200 px-1 rounded">BILLABLE</span>
                                 @endif
                             </td>
                             <td class="px-8 py-6 text-right">
@@ -106,7 +106,7 @@
             <form action="{{ route('time-entries.store') }}" method="POST" class="space-y-6">
                 @csrf
                 <div>
-                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Target Task</label>
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Target Task</label>
                     <select name="task_id" required class="w-full bg-white/5 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:bg-white/10 transition-all py-3 px-4 font-bold text-white shadow-sm">
                         <option value="" class="text-slate-900">-- Select Task --</option>
                         @foreach($tasks as $task)
@@ -117,23 +117,23 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Hours</label>
+                        <label class="block text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Hours</label>
                         <input type="number" step="0.5" name="hours" required placeholder="1.5" class="w-full bg-white/5 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:bg-white/10 transition-all py-3 px-4 font-bold text-white shadow-sm">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Date</label>
+                        <label class="block text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Date</label>
                         <input type="date" name="date" value="{{ date('Y-m-d') }}" required class="w-full bg-white/5 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:bg-white/10 transition-all py-3 px-4 font-bold text-white shadow-sm">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Narration</label>
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Narration</label>
                     <textarea name="description" rows="2" placeholder="Brief of work done..." class="w-full bg-white/5 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:bg-white/10 transition-all py-3 px-4 font-bold text-white shadow-sm"></textarea>
                 </div>
 
                 <div class="flex items-center">
                     <input type="checkbox" name="is_billable" value="1" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-white/10 bg-white/5 rounded">
-                    <label class="ml-2 block text-[10px] font-black text-slate-400 uppercase tracking-widest">Billable to Client</label>
+                    <label class="ml-2 block text-xs font-black text-slate-400 uppercase tracking-widest">Billable to Client</label>
                 </div>
 
                 <button type="submit" class="w-full bg-indigo-600 text-white rounded-2xl py-4 font-black uppercase text-xs tracking-[0.2em] transition-all hover:bg-white hover:text-indigo-600 shadow-xl shadow-indigo-600/10 active:scale-95">Record Entry</button>

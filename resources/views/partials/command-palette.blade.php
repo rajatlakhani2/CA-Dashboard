@@ -100,7 +100,7 @@
         let html = '';
         sections.forEach(section => {
             if (!section.items || section.items.length === 0) return;
-            html += `<li class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">${section.label}</li>`;
+            html += `<li class="px-2 py-1 text-xs font-bold uppercase tracking-wider text-gray-400">${section.label}</li>`;
             section.items.forEach(item => { html += renderPaletteItem(item); });
         });
         paletteResults.innerHTML = html || '';

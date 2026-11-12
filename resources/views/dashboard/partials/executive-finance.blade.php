@@ -7,7 +7,7 @@
     @if(! $hideHeader)
     <div class="flex items-center justify-between gap-2 mb-3">
         <p class="exec-summary__label mb-0">Finance</p>
-        <p class="text-[10px] text-gray-500">Tap a card to reveal figures</p>
+        <p class="text-xs text-gray-500">Tap a card to reveal figures</p>
     </div>
     @endif
     <div
@@ -28,15 +28,15 @@
             <p class="exec-finance-card__label">Revenue this month</p>
             <div class="flex flex-wrap justify-between gap-3 mt-1">
                 <div>
-                    <p class="text-[10px] text-gray-500">Target</p>
+                    <p class="text-xs text-gray-500">Target</p>
                     <p class="exec-finance-card__value" x-cloak x-text="display('revenue', 'target')">xxx</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-[10px] text-gray-500">Achieved</p>
+                    <p class="text-xs text-gray-500">Achieved</p>
                     <p class="exec-finance-card__value exec-finance-card__value--lg" x-cloak x-text="display('revenue', 'achieved')">xxx</p>
                 </div>
             </div>
-            <p class="text-[10px] text-gray-500 mt-2" x-show="isRevealed('revenue') && progressLabel()" x-cloak x-text="progressLabel()"></p>
+            <p class="text-xs text-gray-500 mt-2" x-show="isRevealed('revenue') && progressLabel()" x-cloak x-text="progressLabel()"></p>
         </div>
 
         <div

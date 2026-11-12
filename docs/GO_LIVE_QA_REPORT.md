@@ -97,4 +97,4 @@ npm run build
 .\.tools\php\php.exe artisan users:ensure-firm-logins
 ```
 
-**Default QA passwords:** `password` — change after go-live.
+**QA passwords:** set per account; never use a shared default.

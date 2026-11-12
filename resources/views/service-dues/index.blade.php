@@ -13,19 +13,19 @@ Compliance Schedule
     {{-- Summary --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div class="rounded-xl bg-white border border-slate-200 shadow-sm px-4 py-3">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Pending</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Pending</p>
             <p class="text-2xl font-bold text-amber-600">{{ number_format($stats['pending']) }}</p>
         </div>
         <div class="rounded-xl bg-white border border-slate-200 shadow-sm px-4 py-3">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Overdue</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Overdue</p>
             <p class="text-2xl font-bold text-red-600">{{ number_format($stats['overdue']) }}</p>
         </div>
         <div class="rounded-xl bg-white border border-slate-200 shadow-sm px-4 py-3">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Due this month</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Due this month</p>
             <p class="text-2xl font-bold text-indigo-600">{{ number_format($stats['due_this_month']) }}</p>
         </div>
         <div class="rounded-xl bg-white border border-slate-200 shadow-sm px-4 py-3">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">This page</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">This page</p>
             <p class="text-2xl font-bold text-slate-800">{{ $dues->count() }} <span class="text-sm font-normal text-slate-500">/ {{ $dues->total() }}</span></p>
         </div>
     </div>

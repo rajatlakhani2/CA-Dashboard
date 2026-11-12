@@ -49,7 +49,7 @@ Upload `public/build` from `npm run build` (or build on server if Node is availa
 
 | Check | URL / action |
 |-------|----------------|
-| Login | `/login` — partner `rajat@rlassociates.in` / `password` |
+| Login | `/login` — partner `rajat@rlassociates.in` / your own password |
 | Dashboard | `/dashboard` |
 | Partner overview | `/partner-dashboard` |
 | Clients | `/clients` |
@@ -78,7 +78,7 @@ php artisan users:ensure-firm-logins
 php artisan clients:assign-portfolios   # if using portfolio assignment
 ```
 
-Default passwords are `password` — change in **Settings → Users** after first login.
+New accounts get a one-time random password (printed once when created) — change it in **Settings → Profile** after first login.
 
 ## 7. Do not deploy
 

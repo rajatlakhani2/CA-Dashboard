@@ -152,7 +152,7 @@
                                 <input type="radio" name="dashboard_layout" value="{{ $key }}" class="mt-1" {{ $currentLayoutChoice === $key ? 'checked' : '' }} {{ $layout['available'] ? '' : 'disabled' }}>
                                 <span>
                                     <span class="block text-sm font-semibold text-slate-900">{{ $layout['label'] }}
-                                        @unless($layout['available'])<span class="ml-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-800">Coming soon</span>@endunless
+                                        @unless($layout['available'])<span class="ml-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold uppercase text-amber-800">Coming soon</span>@endunless
                                     </span>
                                     <span class="block text-xs text-slate-500 mt-0.5">{{ $layout['description'] }}</span>
                                 </span>

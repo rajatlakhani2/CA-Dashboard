@@ -24,12 +24,12 @@
                     </p>
                 </div>
                 <div class="flex flex-col items-end gap-1 shrink-0">
-                    <span class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-gray-100 text-gray-600" data-my-day-status>{{ $task->status }}</span>
+                    <span class="text-xs font-bold uppercase px-2 py-1 rounded bg-gray-100 text-gray-600" data-my-day-status>{{ $task->status }}</span>
                     @can('delete', $task)
                     <form action="{{ route('tasks.destroy', $task) }}" method="POST" onsubmit="return confirm('Delete this task?');">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="text-[10px] font-semibold text-red-600 hover:text-red-800">Delete</button>
+                        <button type="submit" class="text-xs font-semibold text-red-600 hover:text-red-800">Delete</button>
                     </form>
                     @endcan
                 </div>

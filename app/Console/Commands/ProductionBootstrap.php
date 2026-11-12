@@ -29,7 +29,7 @@ class ProductionBootstrap extends Command
         $this->newLine();
         $this->info('Production bootstrap complete.');
         $this->line('Login: https://app.kuhu.org.in/login');
-        $this->line('  rajat@rlassociates.in / password');
+        $this->line('  Sign in with your existing account. New accounts print a one-time password when created.');
 
         return self::SUCCESS;
     }

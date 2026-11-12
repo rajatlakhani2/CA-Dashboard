@@ -22,7 +22,7 @@
             <span class="text-slate-700">Service dues</span>
         </label>
         <div>
-            <label class="block text-[10px] font-medium text-slate-500 mb-1">Status</label>
+            <label class="block text-xs font-medium text-slate-500 mb-1">Status</label>
             <select x-model="dueStatus" @change="syncPreset(); apply()" class="w-full rounded-md border-slate-300 text-xs py-1.5">
                 <option value="active">Pending + overdue</option>
                 <option value="pending">Pending only</option>
@@ -32,7 +32,7 @@
             </select>
         </div>
         <div>
-            <label class="block text-[10px] font-medium text-slate-500 mb-1">Service</label>
+            <label class="block text-xs font-medium text-slate-500 mb-1">Service</label>
             <select x-model="serviceId" @change="apply()" class="w-full rounded-md border-slate-300 text-xs py-1.5">
                 <option value="">All services</option>
                 @foreach($opts['services'] as $service)
@@ -41,7 +41,7 @@
             </select>
         </div>
         <div>
-            <label class="block text-[10px] font-medium text-slate-500 mb-1">Assignee / manager</label>
+            <label class="block text-xs font-medium text-slate-500 mb-1">Assignee / manager</label>
             <select x-model="assignedTo" @change="apply()" class="w-full rounded-md border-slate-300 text-xs py-1.5">
                 <option value="">Everyone</option>
                 @foreach($opts['assignees'] as $person)
@@ -50,7 +50,7 @@
             </select>
         </div>
         <div>
-            <label class="block text-[10px] font-medium text-slate-500 mb-1">Client category</label>
+            <label class="block text-xs font-medium text-slate-500 mb-1">Client category</label>
             <select x-model="category" @change="apply()" class="w-full rounded-md border-slate-300 text-xs py-1.5">
                 <option value="">All</option>
                 @foreach($opts['categories'] as $cat)
@@ -60,7 +60,7 @@
         </div>
         @if($opts['branches']->isNotEmpty())
         <div>
-            <label class="block text-[10px] font-medium text-slate-500 mb-1">Branch</label>
+            <label class="block text-xs font-medium text-slate-500 mb-1">Branch</label>
             <select x-model="branchId" @change="apply()" class="w-full rounded-md border-slate-300 text-xs py-1.5">
                 <option value="">All branches</option>
                 @foreach($opts['branches'] as $branch)

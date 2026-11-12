@@ -58,7 +58,7 @@
             x-transition:enter-end="opacity-100 translate-y-0"
             x-cloak
             class="absolute z-40 mt-1.5 w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl ring-1 ring-black/5">
-            <div class="flex items-center justify-between gap-2 border-b border-gray-100 bg-gray-50/90 px-3 py-2 text-[11px] font-semibold text-gray-500">
+            <div class="flex items-center justify-between gap-2 border-b border-gray-100 bg-gray-50/90 px-3 py-2 text-xs font-semibold text-gray-500">
                 <span x-text="{{ $prefix }}DropdownHint()"></span>
                 <span class="text-indigo-600" x-text="{{ $prefix }}Filtered().length + ' shown'"></span>
             </div>
@@ -73,7 +73,7 @@
                         <span class="min-w-0 flex-1">
                             <span class="block font-medium truncate" x-text="opt.name"></span>
                             @if($showRole)
-                            <span class="block text-[10px] text-gray-400 mt-0.5" x-show="opt.role" x-text="opt.role"></span>
+                            <span class="block text-xs text-gray-400 mt-0.5" x-show="opt.role" x-text="opt.role"></span>
                             @endif
                         </span>
                         <svg x-show="String({{ $prefix }}Id) === String(opt.id)" class="h-4 w-4 shrink-0 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>

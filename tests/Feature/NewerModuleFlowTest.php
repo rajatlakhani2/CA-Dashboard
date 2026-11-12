@@ -406,10 +406,7 @@ class NewerModuleFlowTest extends TestCase
 
         $partner = User::factory()->create(['role' => 'partner']);
 
-        Artisan::shouldReceive('call')->once()->with('cache:clear')->andReturn(0);
-        Artisan::shouldReceive('call')->once()->with('view:clear')->andReturn(0);
-        Artisan::shouldReceive('call')->once()->with('config:clear')->andReturn(0);
-        Artisan::shouldReceive('call')->once()->with('route:clear')->andReturn(0);
+        Artisan::shouldReceive('call')->once()->with('optimize:clear')->andReturn(0);
 
         $this->actingAs($partner)
             ->post(route('system.clear-cache'))

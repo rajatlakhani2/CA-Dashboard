@@ -23,7 +23,7 @@
                     <p class="text-sm font-semibold text-gray-900 truncate">{{ $task->title }}</p>
                     <p class="text-xs text-gray-500 truncate">{{ $task->client?->name ?? 'Internal' }} · {{ $task->priority }}</p>
                 </div>
-                <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-white border border-gray-200 text-gray-600 shrink-0" data-my-day-status>{{ $task->status }}</span>
+                <span class="text-xs font-bold uppercase px-2 py-0.5 rounded bg-white border border-gray-200 text-gray-600 shrink-0" data-my-day-status>{{ $task->status }}</span>
             </div>
             <div class="mt-2 flex flex-wrap gap-2 items-center">
                 @if($task->status !== \App\Models\Task::STATUS_IN_PROGRESS)

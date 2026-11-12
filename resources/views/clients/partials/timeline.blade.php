@@ -20,7 +20,7 @@
                 @if($event['detail'])
                 <p class="text-xs text-slate-500 mt-0.5">{{ $event['detail'] }}</p>
                 @endif
-                <span class="inline-block mt-1 text-[10px] uppercase tracking-wide text-slate-400">{{ $event['type'] }}</span>
+                <span class="inline-block mt-1 text-xs uppercase tracking-wide text-slate-400">{{ $event['type'] }}</span>
             </div>
         </li>
         @empty

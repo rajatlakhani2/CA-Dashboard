@@ -25,7 +25,7 @@
             </div>
             <div class="flex flex-wrap items-center gap-3 shrink-0">
                 <div class="saas-workspace__stat">
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-white/60">Team</p>
+                    <p class="text-xs font-bold uppercase tracking-wider text-white/60">Team</p>
                     <p class="text-lg font-bold text-white tabular-nums">{{ $ws['seat_used'] ?? 0 }}<span class="text-white/50 text-sm font-medium">/{{ $ws['seat_limit'] ?? 25 }}</span></p>
                 </div>
                 @can('viewAny', App\Models\User::class)
@@ -39,14 +39,14 @@
 
     @if($team->isNotEmpty())
     <div class="px-[var(--content-pad)] py-3 border-b border-[var(--premium-border)] bg-[#f6f8fb]">
-        <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--premium-muted)] mb-2">Your team</p>
+        <p class="text-xs font-bold uppercase tracking-[0.14em] text-[var(--premium-muted)] mb-2">Your team</p>
         <div class="saas-team-grid">
             @foreach($team->take(12) as $member)
             <div class="saas-team-card {{ ($member['is_you'] ?? false) ? 'saas-team-card--you' : '' }}">
                 <span class="saas-team-card__avatar">{{ $member['initials'] }}</span>
                 <div class="min-w-0 flex-1">
                     <p class="text-xs font-semibold text-[var(--premium-text)] truncate">{{ $member['name'] }}{{ ($member['is_you'] ?? false) ? ' (you)' : '' }}</p>
-                    <p class="text-[10px] text-[var(--premium-muted)]">{{ $member['role'] }} · {{ $member['open_tasks'] }} open</p>
+                    <p class="text-xs text-[var(--premium-muted)]">{{ $member['role'] }} · {{ $member['open_tasks'] }} open</p>
                 </div>
             </div>
             @endforeach

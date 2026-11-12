@@ -46,7 +46,7 @@
     .renewal-cat-chip__count {
         min-width: 1.35rem;
         text-align: center;
-        font-size: 0.65rem;
+        font-size: 0.8125rem;
         font-weight: 800;
         padding: 0.1rem 0.35rem;
         border-radius: 9999px;
@@ -101,12 +101,12 @@
     <div class="rounded-2xl p-5 sm:p-6 shadow-lg" style="background: linear-gradient(135deg, var(--premium-navy) 0%, var(--premium-navy-soft) 50%, var(--vx-accent-blue) 100%); color: #fff; box-shadow: 0 10px 30px -8px var(--vx-nav-active-shadow);">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
-                <p class="text-[10px] font-bold uppercase tracking-widest opacity-80">Personal reminders</p>
+                <p class="text-xs font-bold uppercase tracking-widest opacity-80">Personal reminders</p>
                 <h2 class="text-2xl sm:text-3xl font-bold mt-1">Stay ahead of renewals</h2>
                 <p class="text-sm mt-2 opacity-90">LIC, loans, medical policies & family due dates in one calm view.</p>
             </div>
             <div class="text-right">
-                <p class="text-[10px] font-bold uppercase tracking-widest opacity-80">Due this month</p>
+                <p class="text-xs font-bold uppercase tracking-widest opacity-80">Due this month</p>
                 <p class="text-3xl font-extrabold tabular-nums mt-1">{{ $dueThisMonth }}</p>
                 @if($overdueCount > 0)
                 <p class="text-xs text-rose-200 mt-1 font-semibold">{{ $overdueCount }} overdue</p>

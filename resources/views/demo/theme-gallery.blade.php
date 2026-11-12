@@ -62,7 +62,7 @@
             gap: 0.5rem;
         }
         .badge {
-            font-size: 0.65rem;
+            font-size: 0.8125rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.06em;
@@ -97,7 +97,7 @@
             color: #fff;
         }
         .preview-sidebar .logo {
-            font-size: 0.62rem;
+            font-size: 0.8125rem;
             font-weight: 800;
             letter-spacing: 0.08em;
             text-align: center;
@@ -106,7 +106,7 @@
             opacity: 0.95;
         }
         .preview-sidebar .nav-label {
-            font-size: 0.55rem;
+            font-size: 0.8125rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.1em;
@@ -141,7 +141,7 @@
         }
         .preview-header span {
             display: block;
-            font-size: 0.62rem;
+            font-size: 0.8125rem;
             font-weight: 500;
             color: var(--t-muted);
             margin-top: 0.1rem;
@@ -159,7 +159,7 @@
             border-top: 3px solid var(--t-accent);
         }
         .kpi .label {
-            font-size: 0.55rem;
+            font-size: 0.8125rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -173,7 +173,7 @@
         }
         .preview-btn {
             align-self: flex-start;
-            font-size: 0.65rem;
+            font-size: 0.8125rem;
             font-weight: 700;
             padding: 0.35rem 0.65rem;
             border-radius: 8px;
