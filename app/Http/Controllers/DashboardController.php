@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Services\DashboardCalendarBuilder;
 use App\Services\DashboardCalendarFilters;
 use App\Services\DashboardMetricsService;
+use App\Services\DashboardLayoutDataService;
 use App\Services\DashboardMissionControlService;
 use App\Services\NotificationSummaryService;
 use App\Services\OrganizationWorkspaceService;
@@ -32,6 +33,12 @@ class DashboardController extends Controller
         WorkspaceOnboardingService $onboarding,
     ) {
         $user = $request->user();
+
+        $layout = DashboardLayout::forUser($user);
+        if ($layout !== DashboardLayout::CLASSIC) {
+            return $this->renderLayout($request, $layout);
+        }
+
         $data = $metrics->build($user);
         $workspace = $workspaceService->forUser($user);
 
@@ -72,6 +79,92 @@ class DashboardController extends Controller
             'dashboardLayoutChoice' => DashboardLayout::userChoice($user),
             'dashboardLayouts' => DashboardLayout::options(),
         ]));
+    }
+
+    /** Action inbox / Work board / Client first layouts. */
+    private function renderLayout(Request $request, string $layout)
+    {
+        $user = $request->user();
+        $svc = app(DashboardLayoutDataService::class);
+        $filters = $svc->filters($request, $user);
+
+        $common = [
+            'dashboardLayout' => $layout,
+            'dashboardLayoutChoice' => DashboardLayout::userChoice($user),
+            'dashboardLayouts' => DashboardLayout::options(),
+            'filters' => $filters,
+            'filterOptions' => $filters['can_see_firm'] ? $svc->filterOptions($user) : ['branches' => [], 'staff' => []],
+            'canSeeMoney' => $svc->canSeeMoney($user),
+        ];
+
+        if ($layout === DashboardLayout::CLIENT) {
+            $sort = $request->query('sort') === 'az' ? 'az' : 'risk';
+            $search = trim((string) $request->query('q', ''));
+            $clients = $svc->clientList($user, $filters, $sort, $search !== '' ? $search : null);
+
+            $selected = null;
+            $selectedId = (int) $request->query('client', $clients->first()['id'] ?? 0);
+            if ($selectedId) {
+                $client = $svc->clientScope($user, $filters)->whereKey($selectedId)->first()
+                    ?? \App\Models\Client::query()->visibleTo($user)->whereKey($selectedId)->first();
+                if ($client) {
+                    $selected = $svc->clientDetail($user, $client);
+                    // Keep the headline score identical to the one shown in the list.
+                    $listed = $clients->firstWhere('id', $client->id);
+                    if ($listed) {
+                        $score = $listed['score'];
+                        $selected['health']['score'] = $score;
+                        $selected['health']['label'] = $score >= 75 ? 'Healthy' : ($score >= 50 ? 'Watch' : 'At risk');
+                    }
+                }
+            }
+
+            return view('dashboard.layouts.client', $common + [
+                'clients' => $clients,
+                'selected' => $selected,
+                'sort' => $sort,
+                'search' => $search,
+            ]);
+        }
+
+        $items = $svc->actionItems($user, $filters);
+
+        $data = $common + [
+            'items' => $items,
+            'kpis' => $svc->kpis($user, $filters, $items),
+            'workload' => $svc->workload($user, $filters),
+        ];
+
+        if ($layout === DashboardLayout::BOARD) {
+            return view('dashboard.layouts.board', $data + [
+                'weekLoad' => $svc->weekLoad($items),
+            ]);
+        }
+
+        return view('dashboard.layouts.inbox', $data + [
+            'revenue' => $svc->revenueSeries($user, $filters),
+            'ageing' => $svc->ageing($user, $filters),
+            'calendar' => $svc->calendar($user, $filters, $request->query('month')),
+            'filingStatus' => $svc->filingStatus($user, $filters),
+        ]);
+    }
+
+    /** Hide an inbox item for 24 hours (per user). */
+    public function snoozeItem(Request $request)
+    {
+        $data = $request->validate([
+            'key' => ['required', 'string', 'max:80', 'regex:/^(due|invoice|dsc|doc|task):[0-9-]+$/'],
+            'undo' => ['nullable', 'boolean'],
+        ]);
+
+        $svc = app(DashboardLayoutDataService::class);
+        $request->boolean('undo')
+            ? $svc->unsnooze($request->user(), $data['key'])
+            : $svc->snooze($request->user(), $data['key']);
+
+        return $request->expectsJson()
+            ? response()->json(['success' => true])
+            : back()->with('success', $request->boolean('undo') ? 'Item restored.' : 'Snoozed until tomorrow.');
     }
 
     /** Save the signed-in user's own dashboard layout (empty = follow firm default). */

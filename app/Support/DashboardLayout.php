@@ -24,9 +24,9 @@ class DashboardLayout
     /** Flip a layout to true once its view ships. */
     private const AVAILABLE = [
         self::CLASSIC => true,
-        self::INBOX => false,
-        self::BOARD => false,
-        self::CLIENT => false,
+        self::INBOX => true,
+        self::BOARD => true,
+        self::CLIENT => true,
     ];
 
     /** @return array<string, array{label: string, description: string, available: bool}> */
