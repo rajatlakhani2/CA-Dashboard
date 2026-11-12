@@ -39,6 +39,7 @@ class User extends Authenticatable
         'password',
         'role',
         'theme',
+        'dashboard_layout',
         'timezone',
         'branch_id',
         'module_access',

@@ -17,7 +17,10 @@
             <h2 class="mission-control__heading text-xl sm:text-2xl">{{ $mc['greeting'] ?? 'Welcome' }}</h2>
             <p class="text-[11px] text-[var(--premium-muted)]">{{ now()->format('l, d M Y') }} · {{ \App\Support\Branding::dashboardName() }}</p>
         </div>
-        <p class="executive-summary__layout-hint text-[10px] text-gray-500 shrink-0 hidden sm:block">Drag · ▼ collapse · drag ⤡ corner to resize</p>
+        <div class="flex flex-wrap items-center gap-3 shrink-0">
+            @include('dashboard.partials.layout-switcher')
+            <p class="executive-summary__layout-hint text-[10px] text-gray-500 shrink-0 hidden sm:block">Drag · ▼ collapse · drag ⤡ corner to resize</p>
+        </div>
     </div>
 
     <div id="executive-summary-sortable" class="executive-summary__sortable" data-allowed-widgets="@json(array_keys($allowedExecutiveWidgets ?? []))">

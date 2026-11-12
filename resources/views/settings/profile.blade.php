@@ -135,6 +135,32 @@
                             </div>
                         </div>
                     </div>
+                    @php $currentLayoutChoice = old('dashboard_layout', $dashboardLayoutChoice ?? ''); @endphp
+                    <fieldset class="border-t border-gray-200 pt-6">
+                        <legend class="text-lg font-semibold text-gray-900">Dashboard layout</legend>
+                        <p class="mt-1 text-sm text-gray-500">Choose how your home dashboard looks. Only you see this choice; teammates pick their own.</p>
+                        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                            <label class="flex gap-3 rounded-xl border p-4 cursor-pointer {{ $currentLayoutChoice === '' || $currentLayoutChoice === null ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 bg-white' }}">
+                                <input type="radio" name="dashboard_layout" value="" class="mt-1" {{ $currentLayoutChoice === '' || $currentLayoutChoice === null ? 'checked' : '' }}>
+                                <span>
+                                    <span class="block text-sm font-semibold text-slate-900">Firm default</span>
+                                    <span class="block text-xs text-slate-500 mt-0.5">Currently {{ $dashboardLayouts[$dashboardLayoutFirmDefault]['label'] ?? 'Classic' }}. Follows whatever your firm sets.</span>
+                                </span>
+                            </label>
+                            @foreach($dashboardLayouts as $key => $layout)
+                            <label class="flex gap-3 rounded-xl border p-4 {{ $layout['available'] ? 'cursor-pointer' : 'opacity-60 cursor-not-allowed' }} {{ $currentLayoutChoice === $key ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 bg-white' }}">
+                                <input type="radio" name="dashboard_layout" value="{{ $key }}" class="mt-1" {{ $currentLayoutChoice === $key ? 'checked' : '' }} {{ $layout['available'] ? '' : 'disabled' }}>
+                                <span>
+                                    <span class="block text-sm font-semibold text-slate-900">{{ $layout['label'] }}
+                                        @unless($layout['available'])<span class="ml-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-800">Coming soon</span>@endunless
+                                    </span>
+                                    <span class="block text-xs text-slate-500 mt-0.5">{{ $layout['description'] }}</span>
+                                </span>
+                            </label>
+                            @endforeach
+                        </div>
+                        @error('dashboard_layout')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
+                    </fieldset>
                     <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 flex flex-wrap items-center justify-between gap-3">
                         <div>
                             <p class="text-sm font-semibold text-slate-800">Theme gallery</p>
@@ -160,6 +186,20 @@
                         <div class="col-span-6 sm:col-span-4">
                             <label for="dashboard_tagline" class="block text-sm font-medium text-gray-700">Login tagline <span class="text-gray-400 font-normal">(optional)</span></label>
                             <input type="text" name="dashboard_tagline" id="dashboard_tagline" value="{{ old('dashboard_tagline', $dashboard_tagline ?? '') }}" placeholder="Finance &amp; compliance workspace" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-6">
+                        <h3 class="text-lg font-semibold text-gray-900">Default dashboard layout</h3>
+                        <p class="mt-1 text-sm text-gray-500">Used by anyone who hasn't picked their own layout, including new staff.</p>
+                        <div class="mt-4 col-span-6 sm:col-span-4 max-w-md">
+                            <label for="default_dashboard_layout" class="block text-sm font-medium text-gray-700">Firm default</label>
+                            <select id="default_dashboard_layout" name="{{ \App\Support\DashboardLayout::FIRM_SETTING_KEY }}" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm">
+                                @foreach($dashboardLayouts as $key => $layout)
+                                <option value="{{ $key }}" {{ $dashboardLayoutFirmDefault === $key ? 'selected' : '' }} {{ $layout['available'] ? '' : 'disabled' }}>{{ $layout['label'] }}{{ $layout['available'] ? '' : ' (coming soon)' }}</option>
+                                @endforeach
+                            </select>
+                            @error(\App\Support\DashboardLayout::FIRM_SETTING_KEY)<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
                         </div>
                     </div>
 

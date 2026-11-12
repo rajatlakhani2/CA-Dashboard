@@ -6,6 +6,7 @@ use App\Models\BankAccount;
 use App\Models\Setting;
 use App\Models\User;
 use App\Support\Branding;
+use App\Support\DashboardLayout;
 use App\Support\InvoicePdfData;
 use App\Support\ModuleAccess;
 use App\Support\ModuleGate;
@@ -31,6 +32,9 @@ class SettingsController extends Controller
                 'workspaceDescriptions' => WorkspaceProfile::descriptions(),
                 'workspaceRoles' => WorkspaceProfile::roles(),
                 'bankAccounts' => BankAccount::ordered()->get(),
+                'dashboardLayouts' => DashboardLayout::options(),
+                'dashboardLayoutChoice' => DashboardLayout::userChoice(auth()->user()),
+                'dashboardLayoutFirmDefault' => DashboardLayout::firmDefault(),
             ],
             $this->firmSettingDefaults()
         ));
@@ -54,6 +58,7 @@ class SettingsController extends Controller
                     ->ignore($user->id),
             ],
             'theme' => 'required|in:modern,executive,dense',
+            'dashboard_layout' => ['nullable', 'string', Rule::in(DashboardLayout::availableKeys())],
             'timezone' => ['nullable', 'string', 'max:64', Rule::in(timezone_identifiers_list())],
             'current_password' => 'nullable|required_with:new_password|current_password',
             'new_password' => 'nullable|min:8|confirmed',
@@ -63,6 +68,9 @@ class SettingsController extends Controller
         $user->name = $profileData['name'];
         $user->email = $profileData['email'];
         $user->theme = $profileData['theme'];
+        if ($request->has('dashboard_layout')) {
+            $user->dashboard_layout = $profileData['dashboard_layout'] ?: null;
+        }
         $user->timezone = $profileData['timezone'] ?? null;
         $user->mobile = $profileData['mobile'];
 
@@ -83,6 +91,13 @@ class SettingsController extends Controller
                 $firmData['company_logo_path'] = 'storage/'.$stored;
             }
             $this->updateFirmSettings($firmData);
+
+            if ($request->has(DashboardLayout::FIRM_SETTING_KEY)) {
+                $layoutData = $request->validate([
+                    DashboardLayout::FIRM_SETTING_KEY => ['required', 'string', Rule::in(DashboardLayout::availableKeys())],
+                ]);
+                Setting::set(DashboardLayout::FIRM_SETTING_KEY, $layoutData[DashboardLayout::FIRM_SETTING_KEY]);
+            }
 
             if ($request->boolean('bank_accounts_submitted')) {
                 $this->syncBankAccounts($request);
@@ -118,6 +133,8 @@ class SettingsController extends Controller
 
         return view('settings.users', [
             'users' => $users,
+            'dashboardLayouts' => DashboardLayout::options(),
+            'dashboardLayoutFirmDefault' => DashboardLayout::firmDefault(),
             'modules' => ModuleAccess::MODULES,
             'workspaceType' => WorkspaceProfile::current(),
             'workspaceTypes' => WorkspaceProfile::types(),
@@ -185,6 +202,21 @@ class SettingsController extends Controller
         }
 
         return back()->with('success', 'User updated successfully.');
+    }
+
+    public function updateDashboardLayout(Request $request, User $user)
+    {
+        $this->authorize('manageUsers', Setting::class);
+        abort_unless((int) $user->organization_id === (int) $request->user()->organization_id, 404);
+
+        $data = $request->validate([
+            'dashboard_layout' => ['nullable', 'string', Rule::in(DashboardLayout::availableKeys())],
+        ]);
+
+        $user->dashboard_layout = ($data['dashboard_layout'] ?? null) ?: null;
+        $user->save();
+
+        return back()->with('success', "Dashboard layout updated for {$user->name}.");
     }
 
     public function updateModuleAccess(Request $request, User $user, \App\Services\SensitiveActionLogger $audit)
