@@ -873,6 +873,7 @@ class DashboardLayoutDataService
                 'branch' => $client->branch?->name,
                 'services' => $client->services->map(fn ($s) => $s->service->name ?? null)->filter()->unique()->values()->all(),
                 'url' => route('clients.show', $client),
+                'auto_reminders' => (bool) ($client->auto_reminders ?? true),
             ],
             'health' => $health,
             'tiles' => array_values(array_filter([

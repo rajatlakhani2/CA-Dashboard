@@ -35,3 +35,6 @@ try {
     $digestTime = '19:00';
 }
 Schedule::command('tasks:send-daily-digest')->dailyAt($digestTime);
+
+// Phase 3 automations: checked hourly; each firm's own switches and hours decide what is sent.
+Schedule::command('automation:run')->hourlyAt(1)->withoutOverlapping();

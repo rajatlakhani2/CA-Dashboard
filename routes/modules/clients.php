@@ -81,3 +81,7 @@ Route::middleware('module:credentials')->group(function () {
     Route::delete('/credentials/{credential}', [\App\Http\Controllers\ClientCredentialController::class, 'destroy'])->name('credentials.destroy');
 });
 
+
+Route::patch('clients/{client}/auto-reminders', [\App\Http\Controllers\AutomationController::class, 'toggleClient'])
+    ->middleware('module:clients')
+    ->name('clients.auto-reminders');

@@ -36,8 +36,14 @@ class SendDailyTaskReminders extends Command
         $cutoffDate = \Carbon\Carbon::now()->addDays($daysAhead)->endOfDay();
 
         // 1. Get all staff users with a mobile number and pending tasks
+        // Firms using the new morning brief (Settings → Automations) get that instead.
+        $briefOrgIds = \App\Models\Setting::withoutGlobalScopes()
+            ->where('key', 'auto_morning_brief')->where('value', '1')
+            ->whereNotNull('organization_id')->pluck('organization_id');
+
         $staffUsers = User::whereNotNull('mobile')
             ->where('mobile', '!=', '')
+            ->when($briefOrgIds->isNotEmpty(), fn ($q) => $q->where(fn ($w) => $w->whereNull('organization_id')->orWhereNotIn('organization_id', $briefOrgIds)))
             ->with(['tasks' => function ($query) use ($cutoffDate) {
                 $query->whereNotIn('status', Task::TERMINAL_STATUSES)
                       ->where(function($q) use ($cutoffDate) {

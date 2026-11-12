@@ -29,6 +29,9 @@ Route::middleware('role:partner,manager')->group(function () {
 });
 
 Route::middleware('module:settings')->group(function () {
+    Route::get('/settings/automations', [\App\Http\Controllers\AutomationController::class, 'index'])->name('settings.automations');
+    Route::put('/settings/automations', [\App\Http\Controllers\AutomationController::class, 'update'])->name('settings.automations.update');
+    Route::post('/settings/automations/test-brief', [\App\Http\Controllers\AutomationController::class, 'testBrief'])->name('settings.automations.test-brief');
     Route::get('/settings', [\App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
     Route::put('/settings', [\App\Http\Controllers\SettingsController::class, 'update'])->name('settings.update');
     Route::get('/demo/themes', [\App\Http\Controllers\ThemeGalleryController::class, 'index'])->name('demo.themes');
