@@ -36,6 +36,26 @@
     <form method="POST" action="{{ route('settings.automations.update') }}" class="flex flex-col gap-4">
         @csrf @method('PUT')
 
+        {{-- WhatsApp limit --}}
+        @php $limitOn = $settings['whatsapp_only_to'] !== ''; @endphp
+        <section class="rounded-2xl border-2 {{ $limitOn ? 'border-indigo-300 bg-indigo-50/60' : 'border-slate-200 bg-white' }} p-5" x-data="{ on: {{ $limitOn ? 'true' : 'false' }} }">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+                <div class="min-w-0 flex-1">
+                    <h2 class="text-lg font-bold text-slate-900">Who can receive automatic WhatsApp</h2>
+                    <p class="mt-1 text-sm text-slate-600">While this is on, automatic WhatsApp messages (morning briefs, client reminders, the old task reminders and new-task alerts) go <strong>only</strong> to the numbers below. Staff and clients get nothing on WhatsApp. Emails are not affected. WhatsApp you send yourself with a button still works.</p>
+                </div>
+                <label class="flex items-center gap-2 text-sm font-semibold text-slate-800">
+                    <input type="checkbox" name="whatsapp_limit" value="1" x-model="on" class="h-5 w-5 rounded border-slate-300 text-indigo-600"> Only these numbers
+                </label>
+            </div>
+            <label class="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-700" x-show="on">Numbers
+                <input type="text" name="whatsapp_only_to" value="{{ old('whatsapp_only_to', $limitOn ? $settings['whatsapp_only_to'] : auth()->user()->mobile) }}"
+                    placeholder="919876543210" class="min-h-10 w-72 max-w-full rounded-lg border border-slate-300 bg-white px-3">
+                <span class="text-slate-500">with country code, comma-separated</span>
+            </label>
+            @error('whatsapp_only_to')<p class="mt-2 text-sm text-red-700">{{ $message }}</p>@enderror
+        </section>
+
         {{-- Morning brief --}}
         <section class="rounded-2xl border border-slate-200 bg-white p-5" x-data="{ on: {{ $settings['auto_morning_brief'] === '1' ? 'true' : 'false' }} }">
             <div class="flex flex-wrap items-start justify-between gap-3">

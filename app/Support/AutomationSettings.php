@@ -23,6 +23,7 @@ class AutomationSettings
         'auto_client_hour' => '11',
         'auto_weekly_summary' => '0',
         'auto_weekly_summary_hour' => '8',
+        'whatsapp_only_to' => '',
     ];
 
     public static function all(): array

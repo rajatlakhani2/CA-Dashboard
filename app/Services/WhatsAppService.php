@@ -25,8 +25,55 @@ class WhatsAppService
      * @param string $message Text message content
      * @return array
      */
-    public function sendMessage($mobile, $message)
+    /**
+     * Firm setting "whatsapp_only_to": while it holds numbers, automatic WhatsApp
+     * messages (scheduled reminders, task-assigned alerts, automations) only go to
+     * those numbers; everyone else is skipped. Messages a person sends on purpose
+     * from a button ($deliberate = true) are not restricted.
+     *
+     * @return list<string>
+     */
+    public static function onlyToNumbers(): array
     {
+        $query = \App\Models\Setting::withoutGlobalScopes()->where('key', 'whatsapp_only_to');
+        if ($orgId = \App\Support\OrganizationContext::id()) {
+            $query->where('organization_id', $orgId);
+        }
+
+        return collect($query->pluck('value'))
+            ->flatMap(fn ($v) => explode(',', (string) $v))
+            ->map(fn ($n) => self::normalise($n))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    public static function normalise(?string $mobile): ?string
+    {
+        $digits = preg_replace('/\D+/', '', (string) $mobile);
+        if (strlen($digits) === 10) {
+            $digits = '91'.$digits;
+        }
+
+        return strlen($digits) >= 11 ? $digits : null;
+    }
+
+    public function sendMessage($mobile, $message, bool $deliberate = false)
+    {
+        if (! $deliberate) {
+            $allowed = self::onlyToNumbers();
+            if ($allowed && ! in_array(self::normalise($mobile), $allowed, true)) {
+                Log::info('WhatsApp skipped (limited to '.implode(', ', $allowed).'): '.$mobile);
+
+                return [
+                    'success' => false,
+                    'skipped' => true,
+                    'message' => 'Skipped: WhatsApp is limited to '.implode(', ', $allowed).' (Settings → Automations).',
+                ];
+            }
+        }
+
         if (empty($this->apiToken) || empty($this->instanceId) || str_contains($this->apiToken, 'your_meta_app')) {
             Log::warning("WhatsApp API not configured. Missing token or phone number ID.");
             return [

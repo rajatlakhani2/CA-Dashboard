@@ -66,7 +66,7 @@ class AutomationsTest extends TestCase
         // Capture WhatsApp instead of calling Meta.
         $this->app->instance(WhatsAppService::class, new class($this->sent) extends WhatsAppService {
             public function __construct(private array &$box) {}
-            public function sendMessage($mobile, $message) { $this->box[] = [$mobile, $message]; return ['success' => true, 'message' => 'ok']; }
+            public function sendMessage($mobile, $message, bool $deliberate = false) { $this->box[] = [$mobile, $message]; return ['success' => true, 'message' => 'ok']; }
         });
         Mail::fake();
     }
@@ -184,7 +184,7 @@ class AutomationsTest extends TestCase
     {
         $this->app->instance(WhatsAppService::class, new class extends WhatsAppService {
             public function __construct() {}
-            public function sendMessage($mobile, $message) { return ['success' => false, 'message' => 'WhatsApp API not configured.']; }
+            public function sendMessage($mobile, $message, bool $deliberate = false) { return ['success' => false, 'message' => 'WhatsApp API not configured.']; }
         });
         $this->enable(['auto_morning_brief' => '1']);
 
@@ -223,5 +223,38 @@ class AutomationsTest extends TestCase
     public function test_associate_cannot_change_automations(): void
     {
         $this->actingAs($this->associate)->get(route('settings.automations'))->assertForbidden();
+    }
+
+    public function test_whatsapp_only_to_limits_automatic_messages_but_not_deliberate_ones(): void
+    {
+        config(['services.whatsapp.token' => 'test-token', 'services.whatsapp.phone_number_id' => '123']);
+        \Illuminate\Support\Facades\Http::fake(['graph.facebook.com/*' => \Illuminate\Support\Facades\Http::response(['messages' => [['id' => 'x']]], 200)]);
+        $this->app->forgetInstance(WhatsAppService::class);
+        $this->app->offsetUnset(WhatsAppService::class);
+
+        $this->actingAs($this->partner)->put(route('settings.automations.update'), [
+            'whatsapp_limit' => '1', 'whatsapp_only_to' => '98000 00001',
+            'auto_morning_brief' => '1', 'auto_morning_brief_hour' => 9, 'auto_payment_reminders' => '1',
+            'auto_payment_reminder_days' => '7,15,30', 'auto_document_request_days' => 5, 'auto_client_hour' => 11, 'auto_weekly_summary_hour' => 8,
+        ])->assertRedirect();
+
+        OrganizationContext::set($this->org->id);
+        $this->assertSame(['919800000001'], WhatsAppService::onlyToNumbers());
+
+        Task::create(['assigned_to' => $this->partner->id, 'created_by' => $this->partner->id, 'title' => 'Partner task',
+            'status' => Task::STATUS_PENDING, 'priority' => 'High', 'due_date' => now()]);
+        $this->artisan('automation:run', ['--force' => true])->assertSuccessful();
+
+        $to = collect(\Illuminate\Support\Facades\Http::recorded())->map(fn ($r) => $r[0]['to'])->all();
+        $this->assertSame(['919800000001'], array_values(array_unique($to)), 'only the partner got WhatsApp');
+        // Client still gets the payment reminder by email.
+        $this->assertTrue(AutomationLog::withoutGlobalScopes()->where('type', 'payment_reminder')->where('channel', 'email')->where('status', 'sent')->exists());
+        $this->assertFalse(AutomationLog::withoutGlobalScopes()->where('channel', 'whatsapp')->where('recipient', '919876543210')->exists());
+
+        // A WhatsApp someone sends on purpose is not blocked.
+        $res = app(WhatsAppService::class)->sendMessage('919876543210', 'Manual', deliberate: true);
+        $this->assertTrue($res['success']);
+        $blocked = app(WhatsAppService::class)->sendMessage('919876543210', 'Automatic');
+        $this->assertTrue($blocked['skipped'] ?? false);
     }
 }

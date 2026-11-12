@@ -99,7 +99,7 @@ class WhatsAppController extends Controller
         // Assuming client has a mobile_number field. If not, use dummy.
         $mobile = $client->mobile_number ?? '919999999999';
 
-        $result = $this->whatsapp->sendMessage($mobile, $message);
+        $result = $this->whatsapp->sendMessage($mobile, $message, deliberate: true);
 
         if ($result['success']) {
             return back()->with('success', "Message successfully sent to {$client->name} ({$mobile})");

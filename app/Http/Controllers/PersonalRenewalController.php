@@ -187,7 +187,7 @@ class PersonalRenewalController extends Controller
         // Dummy mobile number (User's phone)
         $mobile = auth()->user()->mobile;
 
-        $whatsapp->sendMessage($mobile, $message);
+        $whatsapp->sendMessage($mobile, $message, deliberate: true);
 
         return back()->with('success', 'WhatsApp reminder sent successfully!');
     }

@@ -131,7 +131,7 @@ class ServiceDueController extends Controller
         
         $message = "🔔 *Service Due Reminder*\n\nDear {$client->name},\nThis is a gentle reminder regarding your pending service: *{$serviceName}*. The deadline for this is {$dueDate}.\n\nPlease ensure necessary actions or documents are provided on time.";
 
-        $result = $whatsAppService->sendMessage($client->mobile_number, $message);
+        $result = $whatsAppService->sendMessage($client->mobile_number, $message, deliberate: true);
 
         if ($result['success']) {
             return back()->with('success', "WhatsApp reminder sent to {$client->name} successfully.");

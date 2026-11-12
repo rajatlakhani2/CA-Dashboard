@@ -62,6 +62,8 @@ class AutomationController extends Controller
             'auto_client_hour' => ['required', 'integer', 'between:9,19'],
             'auto_weekly_summary' => ['nullable', 'boolean'],
             'auto_weekly_summary_hour' => ['required', 'integer', 'between:6,12'],
+            'whatsapp_limit' => ['nullable', 'boolean'],
+            'whatsapp_only_to' => ['nullable', 'string', 'max:200'],
         ], [
             'auto_payment_reminder_days.regex' => 'Enter days as numbers separated by commas, e.g. 7,15,30.',
         ]);
@@ -70,6 +72,14 @@ class AutomationController extends Controller
             $data[$flag] = $request->boolean($flag) ? '1' : '0';
         }
         $data['auto_payment_reminder_days'] = preg_replace('/\s+/', '', $data['auto_payment_reminder_days']);
+
+        $numbers = collect(explode(',', (string) ($data['whatsapp_only_to'] ?? '')))
+            ->map(fn ($n) => \App\Services\WhatsAppService::normalise($n))->filter()->unique()->implode(',');
+        if ($request->boolean('whatsapp_limit') && $numbers === '') {
+            return back()->withInput()->withErrors(['whatsapp_only_to' => 'Enter at least one mobile number with country code.']);
+        }
+        $data['whatsapp_only_to'] = $request->boolean('whatsapp_limit') ? $numbers : '';
+        unset($data['whatsapp_limit']);
 
         AutomationSettings::save($data);
 
