@@ -38,36 +38,58 @@ class FirmTeamSeeder extends Seeder
             ],
         ];
 
+        $created = [];
+
         foreach ($accounts as $data) {
             $email = strtolower($data['email']);
 
+            $existing = User::withoutGlobalScopes()
+                ->where('organization_id', $organization->id)
+                ->whereRaw('LOWER(email) = ?', [$email])
+                ->first();
+
+            // Existing accounts are never touched: no password reset, no role change.
+            if ($existing) {
+                continue;
+            }
+
+            $password = self::initialPassword();
             $attributes = [
                 'name' => $data['name'],
+                'email' => $email,
                 'role' => $data['role'],
                 'mobile' => $data['mobile'],
                 'organization_id' => $organization->id,
+                'password' => $password,
             ];
 
             if (Schema::hasColumn('users', 'module_access')) {
                 $attributes['module_access'] = \App\Support\ModuleAccess::defaultsForRole($data['role']);
             }
 
-            // Required on INSERT (MySQL has no default for password).
-            $attributes['password'] = 'password';
-
-            $user = User::withoutGlobalScopes()->updateOrCreate(
-                ['email' => $email, 'organization_id' => $organization->id],
-                $attributes
-            );
-
-            // Always reset password (production recoveries often leave a bad hash).
-            $user->forceFill(['password' => 'password'])->save();
+            User::withoutGlobalScopes()->create($attributes);
+            $created[] = [$email, $password];
         }
 
-        $this->removeLegacyNamedSeedUsers($organization->id);
-        $this->removeDuplicateArticleUsers($organization->id);
-        $this->removeDuplicateAssociateUsers($organization->id);
         $this->renameLegacyArticleClerkUsers($organization->id);
+
+        if ($created && $this->command) {
+            $this->command->warn('New firm accounts created. Note these one-time passwords now and change them after first login:');
+            foreach ($created as [$email, $password]) {
+                $this->command->line("  {$email}  {$password}");
+            }
+        }
+    }
+
+    /**
+     * Password for a newly created account: FIRM_SEED_PASSWORD if set, otherwise random.
+     * Never a fixed value that appears in the code.
+     */
+    public static function initialPassword(): string
+    {
+        $fromEnv = (string) env('FIRM_SEED_PASSWORD', '');
+
+        return strlen($fromEnv) >= 10 ? $fromEnv : Str::password(14, symbols: false);
     }
 
     private function renameLegacyArticleClerkUsers(int $organizationId): void
@@ -76,36 +98,6 @@ class FirmTeamSeeder extends Seeder
             ->where('organization_id', $organizationId)
             ->whereRaw('LOWER(name) = ?', ['article clerk'])
             ->update(['name' => 'Articles']);
-    }
-
-    private function removeDuplicateArticleUsers(int $organizationId): void
-    {
-        User::withoutGlobalScopes()
-            ->where('organization_id', $organizationId)
-            ->where('role', 'article')
-            ->whereRaw('LOWER(email) != ?', ['article@rlassociates.in'])
-            ->delete();
-    }
-
-    private function removeDuplicateAssociateUsers(int $organizationId): void
-    {
-        User::withoutGlobalScopes()
-            ->where('organization_id', $organizationId)
-            ->where('role', 'associate')
-            ->whereRaw('LOWER(email) != ?', ['associate@rlassociates.in'])
-            ->delete();
-    }
-
-    /** Drop old firm-specific demo users (SaaS uses generic roles only). */
-    private function removeLegacyNamedSeedUsers(int $organizationId): void
-    {
-        User::withoutGlobalScopes()
-            ->where('organization_id', $organizationId)
-            ->where(function ($query) {
-                $query->whereIn('email', ['nilesh@rlassociates.in', 'nilesh@rla.local'])
-                    ->orWhereRaw('LOWER(name) LIKE ?', ['%nilesh%']);
-            })
-            ->delete();
     }
 
     /**

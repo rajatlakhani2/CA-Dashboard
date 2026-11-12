@@ -61,7 +61,7 @@ Or manually:
 LOGIN
 -----
   https://app.kuhu.org.in/login
-  rajat@rlassociates.in / password
+  rajat@rlassociates.in with your own password
   Change passwords in Settings → Users after login.
 
 BROWSER CACHE (if old Workbox errors)

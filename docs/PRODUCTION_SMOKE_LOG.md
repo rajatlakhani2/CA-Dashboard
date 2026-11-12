@@ -38,7 +38,7 @@
    ```
 4. Upload `public/build/` from local `npm run build`.
 5. Re-run: `BASE_URL=https://kuhu.org.in npm run test:production`
-6. Change passwords from default `password`.
+6. Make sure no account uses a simple or shared password.
 
 ### Manual smoke (after redeploy)
 

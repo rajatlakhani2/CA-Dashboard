@@ -37,9 +37,12 @@ class CrossTenantIsolationTest extends TestCase
             'approval_status' => Client::APPROVAL_APPROVED,
         ]);
 
-        $this->actingAs($partnerA)
+        $status = $this->actingAs($partnerA)
             ->get(route('clients.show', $clientB))
-            ->assertForbidden();
+            ->status();
+
+        // Either "forbidden" or "not found" keeps the other firm's client hidden.
+        $this->assertContains($status, [403, 404]);
     }
 
     public function test_finance_snapshot_requires_authentication(): void

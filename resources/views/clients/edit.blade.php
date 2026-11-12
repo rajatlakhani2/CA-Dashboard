@@ -289,7 +289,7 @@
             </div>
             <div class="text-center bg-white/20 rounded-xl px-4 py-2">
                 <div class="text-2xl font-black">{{ $client->personalRenewals->count() }}</div>
-                <div class="text-[10px] uppercase font-bold">Records</div>
+                <div class="text-xs uppercase font-bold">Records</div>
             </div>
         </div>
         <div class="flex justify-between items-center border-b border-gray-200 pb-4">
@@ -337,7 +337,7 @@
                                     <span class="font-medium text-gray-900">₹ {{ number_format($renewal->amount) }}</span>
                                 </div>
                                 @if($renewal->expiry_date)
-                                <p class="text-[10px] text-red-500 font-bold mt-1">EXPIRES: {{ $renewal->expiry_date->format('d M, Y') }}</p>
+                                <p class="text-xs text-red-500 font-bold mt-1">EXPIRES: {{ $renewal->expiry_date->format('d M, Y') }}</p>
                                 @endif
                             </div>
                         </div>

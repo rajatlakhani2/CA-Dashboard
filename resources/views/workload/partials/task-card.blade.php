@@ -9,6 +9,6 @@
         <span class="{{ $isOverdue ? 'text-red-600 font-bold' : 'text-slate-500' }}">
             {{ $task->due_date ? $task->due_date->format('d M') : 'No date' }}
         </span>
-        <span class="px-1.5 py-0.5 rounded bg-slate-100 text-[10px] font-medium">{{ $task->priority ?? 'Normal' }}</span>
+        <span class="px-1.5 py-0.5 rounded bg-slate-100 text-xs font-medium">{{ $task->priority ?? 'Normal' }}</span>
     </div>
 </div>

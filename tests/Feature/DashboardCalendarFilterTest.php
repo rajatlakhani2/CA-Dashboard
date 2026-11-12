@@ -143,7 +143,7 @@ class DashboardCalendarFilterTest extends TestCase
             ->postJson(route('calendar.update'), [
                 'type' => 'due',
                 'id' => $due->id,
-                'new_date' => '2025-01-22',
+                'new_date' => now()->addDays(10)->toDateString(),
             ])
             ->assertOk()
             ->assertJson(['success' => true]);

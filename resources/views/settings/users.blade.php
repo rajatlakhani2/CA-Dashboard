@@ -126,7 +126,7 @@
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left">
-                <thead class="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                <thead class="bg-slate-50 text-slate-400 text-xs font-black uppercase tracking-widest">
                     <tr>
                         <th class="px-8 py-4">Member</th>
                         <th class="px-8 py-4">Role & mobile</th>

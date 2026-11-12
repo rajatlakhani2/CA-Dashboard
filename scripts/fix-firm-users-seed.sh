@@ -35,4 +35,4 @@ php artisan organization:slug --set=rla 2>/dev/null || true
 php artisan optimize:clear
 
 echo ""
-echo "Done. Login: Workspace rla + rajat@rlassociates.in / password"
+echo "Done. Login: Workspace rla + rajat@rlassociates.in with your own password"

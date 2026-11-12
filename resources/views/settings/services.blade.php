@@ -8,12 +8,12 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 flex flex-col justify-between">
             <div>
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Services</p>
+                <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Total Services</p>
                 <h3 class="text-3xl font-black text-slate-900 leading-none">{{ $services->count() }}</h3>
             </div>
             <div class="mt-4 flex -space-x-2">
                 @foreach($services->take(5) as $s)
-                <div class="h-8 w-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-400 uppercase">
+                <div class="h-8 w-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-xs font-bold text-slate-400 uppercase">
                     {{ substr($s->code, 0, 2) }}
                 </div>
                 @endforeach
@@ -22,10 +22,10 @@
 
         <div class="md:col-span-2 bg-slate-900 rounded-3xl shadow-xl p-8 flex items-center justify-between text-white relative overflow-hidden group">
             <div class="relative z-10 transition-transform duration-500 group-hover:scale-105">
-                <h4 class="text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] mb-2">Registry Control</h4>
+                <h4 class="text-indigo-400 text-xs font-black uppercase tracking-[0.3em] mb-2">Registry Control</h4>
                 <p class="text-2xl font-black leading-tight">Define Your Practice <br><span class="text-indigo-300">Service Catalog</span></p>
             </div>
-            <button onclick="openModal('create')" class="relative z-10 bg-white text-slate-900 px-8 py-3.5 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-indigo-500 hover:text-white transition-all transform active:scale-95 shadow-xl">
+            <button onclick="openModal('create')" class="relative z-10 bg-white text-slate-900 px-8 py-3.5 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-indigo-500 hover:text-white transition-all transform active:scale-95 shadow-xl">
                 Add Service
             </button>
             <!-- Decorative gradient -->
@@ -33,7 +33,7 @@
         </div>
 
         <div class="bg-indigo-50 rounded-3xl p-6 flex flex-col justify-center">
-            <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Statutory Count</p>
+            <p class="text-xs font-black text-indigo-400 uppercase tracking-widest mb-1">Statutory Count</p>
             <p class="text-3xl font-black text-indigo-600">{{ $services->where('is_statutory', true)->count() }}</p>
         </div>
     </div>
@@ -43,13 +43,13 @@
         <div class="px-10 py-8 border-b border-slate-50 flex items-center justify-between">
             <div>
                 <h3 class="font-black text-slate-900 text-xl tracking-tight">Active Catalog</h3>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Configure compliance frequencies and billing codes</p>
+                <p class="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Configure compliance frequencies and billing codes</p>
             </div>
         </div>
 
         <div class="overflow-x-auto">
             <table class="w-full text-left">
-                <thead class="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                <thead class="bg-slate-50 text-slate-400 text-xs font-black uppercase tracking-widest">
                     <tr>
                         <th class="px-10 py-6">Service Detail</th>
                         <th class="px-10 py-6">Frequency</th>
@@ -69,18 +69,18 @@
                                 <div>
                                     <div class="text-sm font-black text-slate-900">{{ $service->name }}</div>
                                     @if($service->is_statutory)
-                                    <span class="text-[8px] font-black text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded border border-orange-100">STATUTORY</span>
+                                    <span class="text-xs font-black text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded border border-orange-100">STATUTORY</span>
                                     @endif
                                 </div>
                             </div>
                         </td>
                         <td class="px-10 py-7">
-                            <span class="inline-flex px-3 py-1 rounded-lg text-[10px] font-black uppercase bg-indigo-50 text-indigo-700">
+                            <span class="inline-flex px-3 py-1 rounded-lg text-xs font-black uppercase bg-indigo-50 text-indigo-700">
                                 {{ $service->frequency }}
                             </span>
                         </td>
                         <td class="px-10 py-7">
-                            <div class="text-[10px] font-black text-slate-900">
+                            <div class="text-xs font-black text-slate-900">
                                 @if($service->frequency === 'Monthly')
                                 DAY {{ str_pad($service->due_day, 2, '0', STR_PAD_LEFT) }} <span class="text-slate-400">/ MONTH</span>
                                 @elseif($service->frequency === 'Annually')
@@ -91,7 +91,7 @@
                             </div>
                         </td>
                         <td class="px-10 py-7">
-                            <p class="text-[10px] text-slate-400 font-medium max-w-xs truncate">{{ $service->description ?? 'No specific instructions set.' }}</p>
+                            <p class="text-xs text-slate-400 font-medium max-w-xs truncate">{{ $service->description ?? 'No specific instructions set.' }}</p>
                         </td>
                         <td class="px-10 py-7 text-right">
                             <button onclick='openModal("edit", @json($service))' class="text-slate-400 hover:text-indigo-600 transition-colors">
@@ -128,23 +128,23 @@
 
                 <div class="mb-10">
                     <h3 class="text-2xl font-black text-slate-900 tracking-tight" id="modalTitle">Define Service</h3>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1 text-indigo-500">Registry Entry</p>
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1 text-indigo-500">Registry Entry</p>
                 </div>
 
                 <div class="space-y-6">
                     <div class="grid grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Service Name</label>
+                            <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Service Name</label>
                             <input type="text" name="name" id="name" required class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 py-4 px-6 font-bold text-slate-900">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Code</label>
+                            <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Code</label>
                             <input type="text" name="code" id="code" required class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 py-4 px-6 font-bold text-slate-900">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Billing Frequency</label>
+                        <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Billing Frequency</label>
                         <select name="frequency" id="frequency" class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 py-4 px-6 font-bold text-slate-900 appearance-none">
                             <option value="Monthly">Monthly</option>
                             <option value="Quarterly">Quarterly</option>
@@ -156,11 +156,11 @@
 
                     <div class="grid grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Due Day (1-28)</label>
+                            <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Due Day (1-28)</label>
                             <input type="number" name="due_day" id="due_day" max="31" class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 py-4 px-6 font-bold text-slate-900">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Target Month</label>
+                            <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Target Month</label>
                             <select name="due_month" id="due_month" class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 py-4 px-6 font-bold text-slate-900 appearance-none">
                                 <option value="">N/A</option>
                                 @foreach(range(1, 12) as $m)
@@ -172,11 +172,11 @@
 
                     <div class="flex items-center space-x-3 bg-slate-50 p-6 rounded-3xl border border-slate-100 italic">
                         <input type="checkbox" name="is_statutory" id="is_statutory" value="1" class="h-5 w-5 rounded-lg border-slate-200 text-indigo-600 focus:ring-indigo-500">
-                        <label for="is_statutory" class="text-[10px] font-black text-slate-600 uppercase tracking-widest">Mark as Statutory Compliance</label>
+                        <label for="is_statutory" class="text-xs font-black text-slate-600 uppercase tracking-widest">Mark as Statutory Compliance</label>
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Scope / Notes</label>
+                        <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Scope / Notes</label>
                         <textarea name="description" id="description" rows="3" class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 py-4 px-6 font-bold text-slate-900"></textarea>
                     </div>
                 </div>

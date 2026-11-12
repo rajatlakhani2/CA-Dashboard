@@ -6,9 +6,9 @@ Each **workspace** (organization) has its own users and data. Roles below apply 
 
 | Role | Email | Password (default) |
 |------|-------|-------------------|
-| Partner | `rajat@rlassociates.in` | `password` |
-| Associate | `associate@rlassociates.in` | `password` |
-| Article clerk | `article@rlassociates.in` | `password` |
+| Partner | `rajat@rlassociates.in` | set by the partner |
+| Associate | `associate@rlassociates.in` | set by the partner |
+| Article clerk | `article@rlassociates.in` | set by the partner |
 
 Login: **Workspace ID** (e.g. `rla`) + email + password.
 

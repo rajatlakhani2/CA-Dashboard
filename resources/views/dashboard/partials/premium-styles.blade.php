@@ -72,7 +72,7 @@
         align-items: center;
         border-radius: 6px;
         padding: 0.2rem 0.55rem;
-        font-size: 0.625rem;
+        font-size: 0.8125rem;
         font-weight: 700;
         letter-spacing: 0.12em;
         text-transform: uppercase;
@@ -116,7 +116,7 @@
         background: linear-gradient(180deg, #3b82f6 0%, #2563eb 45%, #1d4ed8 100%);
         color: #fff;
         font-weight: 700;
-        font-size: 0.75rem;
+        font-size: 0.8125rem;
         padding: 0.65rem 1.1rem;
         transition: transform 0.2s, box-shadow 0.2s;
         box-shadow: inset 0 1px rgba(255, 255, 255, 0.45), 0 8px 20px rgba(37, 99, 235, 0.35);
@@ -157,7 +157,7 @@
         border-radius: 10px;
         background: var(--premium-navy);
         color: #93c5fd;
-        font-size: 0.6875rem;
+        font-size: 0.8125rem;
         font-weight: 700;
         display: flex;
         align-items: center;
@@ -175,7 +175,7 @@
     }
 
     .mission-control__eyebrow {
-        font-size: 0.625rem;
+        font-size: 0.8125rem;
         font-weight: 700;
         letter-spacing: 0.14em;
         text-transform: uppercase;
@@ -207,7 +207,7 @@
     }
 
     .mc-strip--dense .mc-strip-item p:first-child {
-        font-size: 0.5625rem;
+        font-size: 0.8125rem;
         letter-spacing: 0.05em;
     }
 
@@ -271,7 +271,7 @@
     }
 
     .exec-kpi-card__label {
-        font-size: 0.5625rem;
+        font-size: 0.8125rem;
         font-weight: 700;
         letter-spacing: 0.05em;
         text-transform: uppercase;
@@ -471,7 +471,7 @@
     }
 
     .exec-widget__title {
-        font-size: 0.75rem;
+        font-size: 0.8125rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.04em;
@@ -481,7 +481,7 @@
     }
 
     .exec-widget__subtitle {
-        font-size: 0.625rem;
+        font-size: 0.8125rem;
         color: #64748b;
         margin: 0.15rem 0 0;
         line-height: 1.3;
@@ -497,7 +497,7 @@
         border: 1px solid #e2e8f0;
         background: #fff;
         border-radius: 0.375rem;
-        font-size: 0.65rem;
+        font-size: 0.8125rem;
         color: #475569;
         cursor: pointer;
         transition: background 0.15s, border-color 0.15s;
@@ -593,7 +593,7 @@
         border: 1px solid #c7d2fe;
         border-radius: 6px 0 var(--premium-radius) 0;
         color: #4f46e5;
-        font-size: 0.7rem;
+        font-size: 0.8125rem;
         line-height: 1;
     }
 
@@ -707,7 +707,7 @@
     }
 
     .exec-finance-card__label {
-        font-size: 0.625rem;
+        font-size: 0.8125rem;
         font-weight: 700;
         letter-spacing: 0.06em;
         text-transform: uppercase;
@@ -742,7 +742,7 @@
     }
 
     .exec-summary__chip--sm {
-        font-size: 0.625rem;
+        font-size: 0.8125rem;
         padding: 0.15rem 0.4rem;
     }
 
@@ -782,7 +782,7 @@
     }
 
     .exec-summary__label {
-        font-size: 0.625rem;
+        font-size: 0.8125rem;
         font-weight: 700;
         letter-spacing: 0.1em;
         text-transform: uppercase;
@@ -829,7 +829,7 @@
         border: 1px solid #e2e8f0;
         background: #f8fafc;
         padding: 0.25rem 0.5rem;
-        font-size: 0.6875rem;
+        font-size: 0.8125rem;
         font-weight: 600;
         color: #334155;
     }
@@ -853,7 +853,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.6875rem;
+        font-size: 0.8125rem;
         font-weight: 800;
         flex-shrink: 0;
     }
@@ -885,7 +885,7 @@
         border: 1px solid #cbd5e1;
         background: #fff;
         padding: 0.25rem 0.65rem;
-        font-size: 0.6875rem;
+        font-size: 0.8125rem;
         font-weight: 700;
         color: #475569;
         cursor: pointer;
@@ -910,7 +910,7 @@
     }
 
     .mc-strip-item p:first-child {
-        font-size: 0.625rem;
+        font-size: 0.8125rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.06em;

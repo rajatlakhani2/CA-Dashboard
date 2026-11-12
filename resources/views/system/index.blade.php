@@ -113,8 +113,8 @@
             <span class="font-semibold">UI on server:</span>
             <span class="{{ str_contains($taskCreateUi ?? '', 'v4') || str_contains($taskCreateUi ?? '', 'v3') ? 'text-emerald-800' : 'text-amber-900 font-bold' }}">{{ $taskCreateUi ?? 'unknown' }}</span>
         </p>
-        <p class="mt-1 text-xs text-gray-600">App path: <code class="text-[11px]">{{ $appPath ?? '' }}</code></p>
-        <p class="mt-1 text-xs text-gray-600">Git: <code class="text-[11px]">{{ $deployRef ?? 'n/a' }}</code></p>
+        <p class="mt-1 text-xs text-gray-600">App path: <code class="text-xs">{{ $appPath ?? '' }}</code></p>
+        <p class="mt-1 text-xs text-gray-600">Git: <code class="text-xs">{{ $deployRef ?? 'n/a' }}</code></p>
         @if(!str_contains($taskCreateUi ?? '', 'v4') && !str_contains($taskCreateUi ?? '', 'v3'))
         <p class="mt-3 text-sm text-amber-900 font-medium">Still on old UI? In cPanel Terminal run: <code class="block mt-1 text-xs bg-white/80 p-2 rounded">bash scripts/sync-ui-now.sh</code> then click <strong>Clear &amp; Rebuild Cache</strong> below.</p>
         @endif
@@ -201,11 +201,11 @@
         <div class="px-10 py-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/20">
             <div>
                 <h3 class="font-black text-slate-900 text-xl tracking-tight">Database & Asset Backups</h3>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Backups are automatically taken daily and stored for 30 days (1 month)</p>
+                <p class="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Backups are automatically taken daily and stored for 30 days (1 month)</p>
             </div>
             <form action="{{ route('system.backup.run') }}" method="POST">
                 @csrf
-                <button type="submit" class="inline-flex items-center px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white bg-green-600 hover:bg-green-700 border border-green-700 shadow-sm transition-all cursor-pointer">
+                <button type="submit" class="inline-flex items-center px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-widest text-white bg-green-600 hover:bg-green-700 border border-green-700 shadow-sm transition-all cursor-pointer">
                     <svg class="mr-2 h-4 w-4 text-green-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
@@ -216,7 +216,7 @@
 
         <div class="overflow-x-auto">
             <table class="w-full text-left">
-                <thead class="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                <thead class="bg-slate-50 text-slate-400 text-xs font-black uppercase tracking-widest">
                     <tr>
                         <th class="px-10 py-6">Filename</th>
                         <th class="px-10 py-6">Size</th>
@@ -238,7 +238,7 @@
                             {{ $backup['created_at'] }}
                         </td>
                         <td class="px-10 py-7">
-                            <span class="inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-black uppercase {{ $backup['days_old'] > 20 ? 'bg-yellow-50 text-yellow-700 border border-yellow-100' : 'bg-green-50 text-green-700 border border-green-100' }} shadow-sm">
+                            <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black uppercase {{ $backup['days_old'] > 20 ? 'bg-yellow-50 text-yellow-700 border border-yellow-100' : 'bg-green-50 text-green-700 border border-green-100' }} shadow-sm">
                                 {{ $backup['age'] }}
                             </span>
                         </td>

@@ -5,7 +5,7 @@
 <style>
     .tasks-demo-table { border-collapse: separate; border-spacing: 0; }
     .tasks-demo-table thead th {
-        font-size: 0.65rem;
+        font-size: 0.8125rem;
         font-weight: 700;
         letter-spacing: 0.08em;
         text-transform: uppercase;
@@ -63,7 +63,7 @@
                     <td class="priority-cell pl-4">
                         <div class="flex items-stretch gap-2 min-h-[2.75rem]">
                             <span class="tasks-priority-bar {{ $tone['bar'] }}"></span>
-                            <span class="inline-flex items-center rounded-md border px-2 py-1 text-[11px] font-bold {{ $tone['badge'] }}">
+                            <span class="inline-flex items-center rounded-md border px-2 py-1 text-xs font-bold {{ $tone['badge'] }}">
                                 {{ $task->priority }}
                             </span>
                         </div>
@@ -84,7 +84,7 @@
                             <div class="flex-1 h-1.5 rounded-full bg-gray-100 overflow-hidden">
                                 <div class="h-full rounded-full bg-indigo-500 transition-all" style="width: {{ $progress }}%"></div>
                             </div>
-                            <span class="text-[10px] font-bold text-indigo-600 tabular-nums">{{ $progress }}%</span>
+                            <span class="text-xs font-bold text-indigo-600 tabular-nums">{{ $progress }}%</span>
                         </div>
                     </td>
                     <td class="due-cell cursor-pointer" onclick="window.location='{{ route('tasks.edit', $task) }}'">

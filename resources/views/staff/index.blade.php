@@ -39,7 +39,7 @@
                         </div>
                         <p class="text-xs text-gray-500 truncate mt-0.5">{{ $employee->email }}</p>
                         @if($employee->mobile)
-                        <p class="text-[10px] text-gray-400 font-medium mt-0.5">📞 {{ $employee->mobile }}</p>
+                        <p class="text-xs text-gray-400 font-medium mt-0.5">📞 {{ $employee->mobile }}</p>
                         @endif
 
                         <!-- Role Badge -->
@@ -53,11 +53,11 @@
                                 ];
                                 $roleColor = $roleColors[strtolower($employee->role ?? '')] ?? 'bg-gray-50 text-gray-700 border-gray-100';
                             @endphp
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border {{ $roleColor }}">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider border {{ $roleColor }}">
                                 {{ $employee->role ?? 'Staff' }}
                             </span>
                             @if($employee->branch)
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold text-gray-500 bg-gray-100 ml-1">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold text-gray-500 bg-gray-100 ml-1">
                                 🏢 {{ $employee->branch->name }}
                             </span>
                             @endif
@@ -68,11 +68,11 @@
                 <!-- Stats Overview -->
                 <div class="mt-6 grid grid-cols-2 gap-4 border-t border-gray-50 pt-4">
                     <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Active Tasks</p>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Active Tasks</p>
                         <p class="mt-1 text-2xl font-black text-slate-800">{{ $employee->tasks_count }}</p>
                     </div>
                     <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Clients Mgd.</p>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Clients Mgd.</p>
                         <p class="mt-1 text-2xl font-black text-slate-800">{{ $employee->managed_clients_count }}</p>
                     </div>
                 </div>
@@ -92,11 +92,11 @@
                     </button>
                 </form>
                 @elseif(empty($employee->mobile))
-                <div class="text-center text-gray-400 text-[11px] py-2 border border-dashed border-gray-200 rounded-xl bg-gray-50/50">
+                <div class="text-center text-gray-400 text-xs py-2 border border-dashed border-gray-200 rounded-xl bg-gray-50/50">
                     No Mobile Number Registered
                 </div>
                 @else
-                <div class="text-center text-gray-400 text-[11px] py-2 border border-dashed border-gray-200 rounded-xl bg-gray-50/50">
+                <div class="text-center text-gray-400 text-xs py-2 border border-dashed border-gray-200 rounded-xl bg-gray-50/50">
                     No Pending Tasks
                 </div>
                 @endif
@@ -167,7 +167,7 @@
                         <div>
                             <label for="mobile" class="block text-xs font-bold uppercase tracking-wider text-gray-700">Mobile Number (WhatsApp) *</label>
                             <input type="text" name="mobile" id="mobile" placeholder="e.g. 919876543210" class="mt-1 block w-full rounded-xl border-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2.5 px-3">
-                            <p class="text-[10px] text-gray-400 mt-1">Include country code without special characters (e.g. 91 for India)</p>
+                            <p class="text-xs text-gray-400 mt-1">Include country code without special characters (e.g. 91 for India)</p>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">

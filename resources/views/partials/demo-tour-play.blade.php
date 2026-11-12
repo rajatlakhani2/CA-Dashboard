@@ -41,7 +41,7 @@
         border-radius: 9999px;
         background: rgba(15, 23, 42, 0.92);
         color: #fff;
-        font-size: 0.75rem;
+        font-size: 0.8125rem;
         font-weight: 700;
         box-shadow: 0 8px 24px rgba(15, 23, 42, 0.25);
     }
@@ -89,7 +89,7 @@
         background: #fff;
         border: 2px solid #6366f1;
         box-shadow: 0 12px 28px rgba(79, 70, 229, 0.25);
-        font-size: 0.75rem;
+        font-size: 0.8125rem;
         font-weight: 700;
         color: #1e293b;
         pointer-events: none;

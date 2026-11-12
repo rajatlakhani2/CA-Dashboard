@@ -67,7 +67,7 @@
             </div>
 
             <div class="pt-6 flex justify-end space-x-4">
-                <a href="{{ route('subscriptions.index') }}" class="px-8 py-5 text-slate-400 font-black uppercase text-[10px] tracking-widest hover:text-slate-900 transition-colors">Cancel</a>
+                <a href="{{ route('subscriptions.index') }}" class="px-8 py-5 text-slate-400 font-black uppercase text-xs tracking-widest hover:text-slate-900 transition-colors">Cancel</a>
                 <button type="submit" class="bg-indigo-600 text-white px-12 py-5 rounded-2xl font-black uppercase text-sm tracking-[0.2em] shadow-xl shadow-indigo-100 hover:bg-slate-900 transition-all">Activate Retainer</button>
             </div>
         </form>

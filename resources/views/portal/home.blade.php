@@ -19,7 +19,7 @@
                 @if($invoice->qr_url)
                 <img src="{{ $invoice->qr_url }}" alt="Pay" class="w-28 h-28 mx-auto border rounded-lg">
                 @endif
-                <p class="text-[10px] text-slate-400 mt-1 max-w-[140px]">Scan to pay via UPI</p>
+                <p class="text-xs text-slate-400 mt-1 max-w-[140px]">Scan to pay via UPI</p>
             </div>
             @endif
         </div>

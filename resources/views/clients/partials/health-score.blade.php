@@ -2,7 +2,7 @@
 <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
     <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Client health score</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Client health score</p>
             <p class="text-3xl font-black
                 {{ $health['tone'] === 'green' ? 'text-emerald-600' : ($health['tone'] === 'amber' ? 'text-amber-600' : 'text-rose-600') }}">
                 {{ $health['score'] }}<span class="text-lg text-slate-400 font-semibold">/100</span>

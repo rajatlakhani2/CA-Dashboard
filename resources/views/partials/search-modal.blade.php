@@ -49,7 +49,7 @@
             <div class="max-h-[min(24rem,50vh)] overflow-y-auto p-2" x-show="flatResults.length > 0">
                 <template x-for="(group, category) in groupedResults" :key="category">
                     <div class="mb-2">
-                        <p class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400" x-text="category"></p>
+                        <p class="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-400" x-text="category"></p>
                         <template x-for="item in group" :key="item.url">
                             <button
                                 type="button"
@@ -64,7 +64,7 @@
                                     <span class="block font-medium truncate" x-text="item.title"></span>
                                     <span class="block text-xs truncate" :class="isActive(item) ? 'text-indigo-100' : 'text-slate-400'" x-show="item.subtitle" x-text="item.subtitle"></span>
                                 </span>
-                                <kbd class="hidden sm:inline text-[10px] opacity-60" x-show="isActive(item)">↵</kbd>
+                                <kbd class="hidden sm:inline text-xs opacity-60" x-show="isActive(item)">↵</kbd>
                             </button>
                         </template>
                     </div>
@@ -81,7 +81,7 @@
                 <p class="mt-2 text-xs">Type at least 2 characters — clients, tasks, invoices, and pages.</p>
             </div>
 
-            <div class="bg-slate-50 px-4 py-2.5 border-t border-slate-100 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-500">
+            <div class="bg-slate-50 px-4 py-2.5 border-t border-slate-100 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
                 <span><kbd class="rounded border border-slate-200 bg-white px-1 font-mono">↑</kbd> <kbd class="rounded border border-slate-200 bg-white px-1 font-mono">↓</kbd> navigate</span>
                 <span><kbd class="rounded border border-slate-200 bg-white px-1 font-mono">↵</kbd> open</span>
                 <span><kbd class="rounded border border-slate-200 bg-white px-1 font-mono">esc</kbd> close</span>

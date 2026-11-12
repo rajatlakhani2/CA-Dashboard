@@ -112,7 +112,7 @@
     .dashboard-help-chat__tab:hover { padding-right: 0.75rem; }
     .dashboard-help-chat__tab-emoji { font-size: 1.35rem; line-height: 1; }
     .dashboard-help-chat__tab-label {
-        font-size: 0.65rem;
+        font-size: 0.8125rem;
         font-weight: 800;
         letter-spacing: 0.08em;
         text-transform: uppercase;
@@ -145,7 +145,7 @@
         color: #fff;
     }
     .dashboard-help-chat__eyebrow {
-        font-size: 0.65rem;
+        font-size: 0.8125rem;
         font-weight: 700;
         letter-spacing: 0.14em;
         text-transform: uppercase;
@@ -220,7 +220,7 @@
         border-top: 1px solid #eef2f7;
     }
     .dashboard-help-chat__prompts-label {
-        font-size: 0.7rem;
+        font-size: 0.8125rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.06em;

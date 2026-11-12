@@ -5,7 +5,7 @@ Live QA register for **CA Dashboard** (`D:\New folder\Dashboard\CA Dashboard`).
 **Test environment:** http://127.0.0.1:8000 (PHP built-in server + Vite)  
 **Last run:** 2026-05-30 (go-live QA pass)  
 **Roles:** `article`, `associate`, `partner` — see [FIRM_ROLES_AND_ACCESS.md](./FIRM_ROLES_AND_ACCESS.md)  
-**Seeded logins:** `php artisan users:ensure-firm-logins` (password: `password`)
+**Seeded logins:** `php artisan users:ensure-firm-logins` (new accounts print a one-time password)
 
 **Register status:** All rows below are `[x]`, `[!]`, or `[—]` — **no `[ ]` untested rows** as of 2026-05-29.
 

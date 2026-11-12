@@ -76,9 +76,9 @@
         box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
     }
     .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(15, 23, 42, 0.1); border-color: #bfdbfe; }
-    .kpi-card .kpi-label { color: #475569; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; }
+    .kpi-card .kpi-label { color: #475569; font-size: 0.8125rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; }
     .kpi-card .kpi-value { color: #0f172a; font-size:2.5rem; font-weight:800; line-height:1; margin: 0.5rem 0 0.25rem; }
-    .kpi-card .kpi-sub { color: #64748b; font-size:0.75rem; }
+    .kpi-card .kpi-sub { color: #64748b; font-size: 0.8125rem; }
 
     .kpi-blue { border-top: 3px solid #2563eb !important; }
     .kpi-violet { border-top: 3px solid #7c3aed !important; }
@@ -107,7 +107,7 @@
         border: 1px solid #e2e8f0;
         background: rgba(255,255,255,0.92);
         color: #64748b;
-        font-size: 0.65rem;
+        font-size: 0.8125rem;
         font-weight: 700;
         cursor: grab;
         user-select: none;
@@ -121,7 +121,7 @@
         .glass-tab { flex-shrink: 0; }
     }
 
-    .glass-section-title { color: #4b5563; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:1rem; }
+    .glass-section-title { color: #4b5563; font-size: 0.8125rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:1rem; }
     .glass-list-item { padding: 0.75rem 0; border-bottom: 1px solid #f3f4f6; }
     .glass-list-item:last-child { border-bottom: none; }
 
@@ -221,7 +221,7 @@
         width: 100%;
         border-radius: 6px;
         padding: 2px 6px;
-        font-size: 0.625rem;
+        font-size: 0.8125rem;
         font-weight: 600;
         line-height: 1.25;
         color: #fff;
@@ -241,7 +241,7 @@
         box-shadow: 0 1px 2px rgba(0,0,0,0.12);
     }
     #dashboardCalendar .fc-daygrid-more-link {
-        font-size: 0.65rem !important;
+        font-size: 0.8125rem !important;
         color: #6366f1 !important;
         font-weight: 700;
         background: #eef2ff;
@@ -334,10 +334,10 @@
     </div>
 
     <div class="flex flex-wrap items-center justify-end gap-3 -mb-2">
-        <p class="text-[10px] text-gray-400" title="If this does not say tabs-v2, the server still has an old dashboard file">
+        <p class="text-xs text-gray-400" title="If this does not say tabs-v2, the server still has an old dashboard file">
             Build: {{ $dashboardBuildId ?? 'unknown' }}
         </p>
-        <button type="button" data-dashboard-report-issue class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-800 underline">
+        <button type="button" data-dashboard-report-issue class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 underline">
             Report technical issue
         </button>
     </div>

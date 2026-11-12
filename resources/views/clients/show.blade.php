@@ -90,16 +90,16 @@
     <!-- Summary strip -->
     <div class="rounded-xl border border-slate-200 bg-white shadow-sm divide-y divide-slate-100 sm:divide-y-0 sm:divide-x sm:flex">
         <div class="px-4 py-3 sm:flex-1 min-w-0">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">PAN</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">PAN</p>
             <p class="mt-0.5 text-sm font-semibold text-slate-900 truncate">{{ $client->pan }}</p>
         </div>
         <div class="px-4 py-3 sm:flex-1 min-w-0">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Manager</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Manager</p>
             <p class="mt-0.5 text-sm font-semibold text-slate-900 truncate">{{ $client->manager->name ?? 'Unassigned' }}</p>
         </div>
         @if($canViewClientFinance)
         <div class="px-4 py-3 sm:flex-1 min-w-0">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Outstanding</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Outstanding</p>
             @if($canManageFirm)
             <a href="{{ route('ledger.show', $client) }}" class="mt-0.5 block text-sm font-semibold text-money-negative hover:underline">₹ {{ number_format($totalOutstanding, 2) }}</a>
             @else
@@ -108,7 +108,7 @@
         </div>
         @endif
         <div class="px-4 py-3 sm:flex-1 min-w-0">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Next due</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Next due</p>
             @if($nextDue)
             <p class="mt-0.5 text-sm font-semibold text-slate-900">{{ $nextDue->clientService->service->name ?? 'Compliance' }}</p>
             <p class="text-xs text-slate-500">{{ $nextDue->due_date->format('d M Y') }}
@@ -120,7 +120,7 @@
         </div>
         @if($canViewClientFinance)
         <div class="px-4 py-3 sm:flex-1 min-w-0">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Last invoice</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Last invoice</p>
             @if($lastInvoice)
             <a href="{{ route('invoices.show', $lastInvoice) }}" class="mt-0.5 block text-sm font-semibold text-slate-900 hover:text-indigo-600 truncate">{{ $lastInvoice->invoice_number }}</a>
             <p class="text-xs text-slate-500">₹ {{ number_format($lastInvoice->total_amount, 2) }}
@@ -132,7 +132,7 @@
         </div>
         @endif
         <div class="px-4 py-3 sm:flex-1 min-w-0">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Active tasks</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Active tasks</p>
             <p class="mt-0.5 text-sm font-semibold text-slate-900">{{ $activeTasks->count() }}</p>
         </div>
     </div>

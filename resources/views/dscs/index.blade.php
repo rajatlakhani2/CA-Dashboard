@@ -61,7 +61,7 @@
 
         <div class="overflow-x-auto">
             <table class="w-full text-left">
-                <thead class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black tracking-widest">
+                <thead class="bg-slate-50 text-slate-400 text-xs uppercase font-black tracking-widest">
                     <tr>
                         <th class="px-8 py-5">Holder / Client</th>
                         <th class="px-8 py-5">Class / Provider</th>
@@ -87,19 +87,19 @@
                             <div class="text-sm font-bold {{ $dsc->expiry_date->isPast() ? 'text-red-600' : ($dsc->isExpiringSoon() ? 'text-orange-600' : 'text-slate-900') }}">
                                 {{ $dsc->expiry_date->format('d M, Y') }}
                             </div>
-                            <div class="text-[10px] uppercase font-black text-slate-400 mt-1">
+                            <div class="text-xs uppercase font-black text-slate-400 mt-1">
                                 Issued: {{ $dsc->issue_date->format('M Y') }}
                             </div>
                         </td>
                         <td class="px-8 py-6 text-center">
                             @if($dsc->status === 'Active')
                             @if($dsc->isExpiringSoon())
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase bg-orange-100 text-orange-700 border border-orange-200">Expiring Soon</span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase bg-orange-100 text-orange-700 border border-orange-200">Expiring Soon</span>
                             @else
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase bg-green-100 text-green-700 border border-green-200">Protected</span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase bg-green-100 text-green-700 border border-green-200">Protected</span>
                             @endif
                             @else
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase bg-red-100 text-red-700 border border-red-200">{{ $dsc->status }}</span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase bg-red-100 text-red-700 border border-red-200">{{ $dsc->status }}</span>
                             @endif
                         </td>
                         <td class="px-8 py-6 text-right">

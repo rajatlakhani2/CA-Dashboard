@@ -45,5 +45,5 @@ chmod -R 775 storage bootstrap/cache 2>/dev/null || true
 
 echo ""
 echo "Done. Open: https://app.kuhu.org.in/login"
-echo "  rajat@rlassociates.in / password"
+echo "  rajat@rlassociates.in with your own password"
 echo "Clear old PWA cache: https://app.kuhu.org.in/clear-app-cache"

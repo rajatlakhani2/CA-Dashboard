@@ -183,7 +183,7 @@
                 @if($isArticle)
                 <!-- Article / Clerk Custom Menu -->
                 <div class="space-y-1">
-                    <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
+                    <p class="px-4 text-xs font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
                         My Work
                     </p>
                     @if($mod('tasks'))
@@ -208,7 +208,7 @@
                 @if($mod('dashboard') || $isPartner)
                 <!-- Executive Summary -->
                 <div class="space-y-1">
-                    <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">Executive Summary</p>
+                    <p class="px-4 text-xs font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">Executive Summary</p>
                     @if($mod('dashboard'))
                     <a href="{{ route('dashboard') }}" data-tour="nav-dashboard" class="group flex items-center py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-l-4 border-indigo-400 pl-3 pr-4 scale-[1.01]' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1 pl-4 pr-4' }}">
                         <svg class="mr-3 flex-shrink-0 h-5 w-5 {{ request()->routeIs('dashboard') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -223,7 +223,7 @@
                 @if($mod('clients') || $mod('credentials') || $mod('smart_documents'))
                 <!-- Clients -->
                 <div class="pt-4 border-t border-white/5 space-y-1">
-                    <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
+                    <p class="px-4 text-xs font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
                         Clients
                     </p>
                     @if($mod('clients'))
@@ -262,7 +262,7 @@
                 @if($mod('tasks') || $mod('staff'))
                 <!-- 3. WORK MANAGEMENT -->
                 <div class="pt-4 border-t border-white/5 space-y-1">
-                    <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
+                    <p class="px-4 text-xs font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
                         Work
                     </p>
                     @if($mod('tasks'))
@@ -315,7 +315,7 @@
                 @if($mod('service_dues') || $mod('personal_renewals') || $mod('dsc'))
                 <!-- 4. COMPLIANCE -->
                 <div class="pt-4 border-t border-white/5 space-y-1">
-                    <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
+                    <p class="px-4 text-xs font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
                         Compliance
                     </p>
                     @if($mod('service_dues'))
@@ -348,7 +348,7 @@
                 <!-- 5. FINANCE & BILLING -->
                 @if($showFinance)
                 <div class="pt-4 border-t border-white/5 space-y-1">
-                    <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
+                    <p class="px-4 text-xs font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
                         Billing
                     </p>
                     @if($mod('billing'))
@@ -404,7 +404,7 @@
                 <!-- 6. REPORTS & 360° -->
                 @if($mod('reports') || $mod('compliance'))
                 <div class="pt-4 border-t border-white/5" x-data="{ open: {{ request()->routeIs('reports.*') || request()->routeIs('compliance.index') ? 'true' : 'false' }} }">
-                    <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
+                    <p class="px-4 text-xs font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
                         Insights
                     </p>
                     <button @click="open = !open" class="group w-full flex items-center justify-between px-4 py-3 text-sm font-bold rounded-xl transition-all duration-200 {{ request()->routeIs('reports.*') || request()->routeIs('compliance.index') ? 'text-white bg-white/5' : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1' }} focus:outline-none">
@@ -455,7 +455,7 @@
                 <!-- 7. ADMINISTRATION / OPERATIONS -->
                 @if($mod('activity') || $canManageFirm || $mod('system'))
                 <div class="pt-4 border-t border-white/5 space-y-1">
-                    <p class="px-4 text-[10px] font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
+                    <p class="px-4 text-xs font-extrabold text-indigo-300/40 uppercase tracking-widest mb-2 select-none">
                         Administration
                     </p>
                     @if($canManageFirm)
@@ -562,7 +562,7 @@
                                     $unreadCount = auth()->user()->unreadNotifications->count();
                                 @endphp
                                 @if($unreadCount > 0 || $groupTotal > 0)
-                                <span class="absolute top-1.5 right-1.5 min-w-[1.125rem] h-[1.125rem] px-0.5 rounded-full bg-red-500 ring-2 ring-white text-[9px] font-bold text-white flex items-center justify-center">{{ max($unreadCount, $groupTotal) > 9 ? '9+' : max($unreadCount, $groupTotal) }}</span>
+                                <span class="absolute top-1.5 right-1.5 min-w-[1.125rem] h-[1.125rem] px-0.5 rounded-full bg-red-500 ring-2 ring-white text-xs font-bold text-white flex items-center justify-center">{{ max($unreadCount, $groupTotal) > 9 ? '9+' : max($unreadCount, $groupTotal) }}</span>
                                 @endif
                             </button>
 
@@ -602,7 +602,7 @@
                                                 <p class="mt-1 text-xs text-gray-500">
                                                     {{ $notification->data['message'] ?? 'You have a new update.' }}
                                                 </p>
-                                                <p class="mt-1 text-[10px] text-gray-400">
+                                                <p class="mt-1 text-xs text-gray-400">
                                                     {{ $notification->created_at->diffForHumans() }}
                                                 </p>
                                             </div>

@@ -183,14 +183,14 @@ class ServiceDueTest extends TestCase
         $response = $this->actingAs($manager)->postJson(route('calendar.update'), [
             'type' => 'due',
             'id' => $due->id,
-            'new_date' => '2025-01-20',
+            'new_date' => now()->addDays(10)->toDateString(),
         ]);
 
         $response->assertOk()->assertJson(['success' => true]);
 
         $this->assertDatabaseHas('service_dues', [
             'id' => $due->id,
-            'due_date' => '2025-01-20 00:00:00',
+            'due_date' => now()->addDays(10)->toDateString().' 00:00:00',
         ]);
     }
 

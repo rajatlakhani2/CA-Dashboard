@@ -1,7 +1,7 @@
 <div id="task-card-{{ $task->id }}" data-id="{{ $task->id }}" class="bg-white p-3 rounded-lg shadow-sm border-l-4 {{ $task->priority === 'High' ? 'border-red-500' : ($task->priority === 'Medium' ? 'border-yellow-500' : 'border-green-500') }} hover:shadow-md cursor-move transition-all active:cursor-grabbing group relative">
 
     <div class="flex justify-between items-start mb-1">
-        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide
+        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold uppercase tracking-wide
             {{ $task->priority === 'High' ? 'bg-red-50 text-red-700' : ($task->priority === 'Medium' ? 'bg-yellow-50 text-yellow-700' : 'bg-green-50 text-green-700') }}">
             {{ $task->priority }}
         </span>
@@ -24,18 +24,18 @@
     <div class="flex justify-between items-center pt-2 border-t border-gray-100">
         <div class="flex items-center -space-x-2 overflow-hidden">
             @if($task->assignee)
-            <div class="h-6 w-6 rounded-full bg-indigo-100 ring-2 ring-white flex items-center justify-center text-[10px] text-indigo-700 font-bold" title="{{ $task->assignee->name }}">
+            <div class="h-6 w-6 rounded-full bg-indigo-100 ring-2 ring-white flex items-center justify-center text-xs text-indigo-700 font-bold" title="{{ $task->assignee->name }}">
                 {{ substr($task->assignee->name, 0, 1) }}
             </div>
             @else
-            <div class="h-6 w-6 rounded-full bg-gray-100 ring-2 ring-white flex items-center justify-center text-[10px] text-gray-500" title="Unassigned">
+            <div class="h-6 w-6 rounded-full bg-gray-100 ring-2 ring-white flex items-center justify-center text-xs text-gray-500" title="Unassigned">
                 ?
             </div>
             @endif
         </div>
 
         @if($task->due_date)
-        <div class="flex items-center text-[11px] font-medium {{ $task->due_date->isPast() && $task->status !== 'Completed' ? 'text-red-600 bg-red-50 px-2 py-0.5 rounded' : 'text-gray-500' }}">
+        <div class="flex items-center text-xs font-medium {{ $task->due_date->isPast() && $task->status !== 'Completed' ? 'text-red-600 bg-red-50 px-2 py-0.5 rounded' : 'text-gray-500' }}">
             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
             </svg>

@@ -17,7 +17,7 @@
         </div>
         @if(isset($totalOutstanding) && auth()->user()?->managesFirmModules())
         <div class="text-right shrink-0">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Outstanding</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Outstanding</p>
             <p class="text-2xl font-extrabold text-gray-900 tabular-nums">₹{{ number_format($totalOutstanding, 0) }}</p>
         </div>
         @endif
@@ -41,30 +41,30 @@
 
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-5 pt-5 border-t border-gray-100">
         <div>
-            <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Partner / Manager</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Partner / Manager</p>
             <p class="text-sm font-semibold text-gray-900 mt-0.5 truncate">{{ $client->manager->name ?? 'Unassigned' }}</p>
         </div>
         @if($lastPayment ?? null)
         <div>
-            <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Last payment</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Last payment</p>
             <p class="text-sm font-semibold text-gray-900 mt-0.5">{{ $lastPayment->payment_date->format('d M Y') }}</p>
             <p class="text-xs text-gray-500">₹{{ number_format($lastPayment->amount, 0) }}</p>
         </div>
         @else
         <div>
-            <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Last payment</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Last payment</p>
             <p class="text-sm text-gray-400 mt-0.5">—</p>
         </div>
         @endif
         @if($lastInvoice ?? null)
         <div>
-            <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Last invoice</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Last invoice</p>
             <a href="{{ route('invoices.show', $lastInvoice) }}" class="text-sm font-semibold text-indigo-600 hover:underline mt-0.5 block truncate">{{ $lastInvoice->invoice_number }}</a>
         </div>
         @endif
         @if($nextDue ?? null)
         <div>
-            <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Next due</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Next due</p>
             <p class="text-sm font-semibold text-gray-900 mt-0.5 truncate">{{ $nextDue->clientService->service->name ?? 'Compliance' }}</p>
             <p class="text-xs text-gray-500">{{ $nextDue->due_date->format('d M Y') }}</p>
         </div>
@@ -74,13 +74,13 @@
     @if($timelinePreview->isNotEmpty())
     <div class="mt-5 pt-5 border-t border-gray-100">
         <div class="flex items-center justify-between mb-3">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Timeline</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Timeline</p>
             <button type="button" @click="tab = 'timeline'" class="text-xs font-semibold text-indigo-600 hover:underline">View all →</button>
         </div>
         <ul class="space-y-2">
             @foreach($timelinePreview as $event)
             <li class="flex items-start gap-3 text-sm">
-                <span class="text-[10px] font-mono text-gray-400 shrink-0 w-14">{{ $event['at']->format('M Y') }}</span>
+                <span class="text-xs font-mono text-gray-400 shrink-0 w-14">{{ $event['at']->format('M Y') }}</span>
                 <span class="text-gray-700 flex-1 min-w-0 truncate">{{ $event['title'] }}</span>
                 @if(!empty($event['url']))
                 <a href="{{ $event['url'] }}" class="text-xs text-indigo-600 shrink-0">Open</a>

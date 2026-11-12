@@ -60,7 +60,7 @@
                     <p class="text-sm font-medium text-text-main truncate" title="{{ $doc->document_type }}">
                         {{ $doc->document_type ?? basename($doc->file_path) }}
                     </p>
-                    <p class="text-[10px] text-text-secondary">{{ strtoupper($ext) }} • {{ $doc->uploaded_at ? $doc->uploaded_at->format('M d, Y') : 'N/A' }}</p>
+                    <p class="text-xs text-text-secondary">{{ strtoupper($ext) }} • {{ $doc->uploaded_at ? $doc->uploaded_at->format('M d, Y') : 'N/A' }}</p>
                 </div>
             </div>
             @endforeach

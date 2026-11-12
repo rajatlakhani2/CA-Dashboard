@@ -18,7 +18,7 @@
             <div class="h-2 bg-indigo-500"></div>
             <div class="p-8">
                 <div class="flex items-center justify-between mb-6">
-                    <span class="bg-slate-50 text-slate-400 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">{{ $branch->code }}</span>
+                    <span class="bg-slate-50 text-slate-400 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest">{{ $branch->code }}</span>
                     <span class="h-2 w-2 rounded-full {{ $branch->is_active ? 'bg-green-500 ring-4 ring-green-100' : 'bg-slate-300' }}"></span>
                 </div>
                 <h3 class="text-xl font-black text-slate-900">{{ $branch->name }}</h3>
@@ -26,7 +26,7 @@
 
                 <div class="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
                     <div class="flex flex-col">
-                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">GSTIN</span>
+                        <span class="text-xs font-black text-slate-400 uppercase tracking-tighter">GSTIN</span>
                         <span class="text-xs font-bold text-slate-900">{{ $branch->gstin ?? 'N/A' }}</span>
                     </div>
                     <div class="flex space-x-2">

@@ -35,9 +35,9 @@
         </div>
 
         <div class="bg-slate-950 rounded-3xl shadow-xl p-8 flex flex-col justify-center">
-            <h4 class="text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em]">Quick Entry</h4>
+            <h4 class="text-indigo-400 text-xs font-black uppercase tracking-[0.3em]">Quick Entry</h4>
             <p class="text-white text-lg font-bold leading-tight mt-1">Manual TDS Sync</p>
-            <button @click="$dispatch('open-tds-modal')" class="mt-4 bg-white text-slate-900 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-500 hover:text-white transition-all">Add Record</button>
+            <button @click="$dispatch('open-tds-modal')" class="mt-4 bg-white text-slate-900 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-500 hover:text-white transition-all">Add Record</button>
         </div>
     </div>
 
@@ -46,13 +46,13 @@
         <div class="px-10 py-8 border-b border-gray-50 flex items-center justify-between">
             <div>
                 <h3 class="font-black text-slate-900 text-xl tracking-tight">TDS Repository</h3>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Status of Form 16A and TDS Deductions</p>
+                <p class="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Status of Form 16A and TDS Deductions</p>
             </div>
         </div>
 
         <div class="overflow-x-auto">
             <table class="w-full text-left">
-                <thead class="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                <thead class="bg-slate-50 text-slate-400 text-xs font-black uppercase tracking-widest">
                     <tr>
                         <th class="px-10 py-6">Invoice Details</th>
                         <th class="px-10 py-6">Status</th>
@@ -67,13 +67,13 @@
                     <tr class="hover:bg-slate-50/50 transition-colors">
                         <td class="px-10 py-7">
                             <div class="text-sm font-black text-slate-900">#{{ $entry->invoice->invoice_number }}</div>
-                            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{{ $entry->invoice->client->name }}</div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-tighter">{{ $entry->invoice->client->name }}</div>
                         </td>
                         <td class="px-10 py-7">
                             @if($entry->certificate_received)
-                            <span class="inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-black uppercase bg-green-50 text-green-700 border border-green-100 shadow-sm">Received</span>
+                            <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black uppercase bg-green-50 text-green-700 border border-green-100 shadow-sm">Received</span>
                             @else
-                            <span class="inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-black uppercase bg-orange-50 text-orange-700 border border-orange-100 shadow-sm">Pending</span>
+                            <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black uppercase bg-orange-50 text-orange-700 border border-orange-100 shadow-sm">Pending</span>
                             @endif
                         </td>
                         <td class="px-10 py-7 text-sm font-bold text-slate-600">
@@ -85,9 +85,9 @@
                         <td class="px-10 py-7">
                             @if($entry->certificate_number)
                             <div class="text-xs font-bold text-slate-900">{{ $entry->certificate_number }}</div>
-                            <div class="text-[10px] text-slate-400 font-medium">{{ $entry->certificate_date ? $entry->certificate_date->format('d M, Y') : '' }}</div>
+                            <div class="text-xs text-slate-400 font-medium">{{ $entry->certificate_date ? $entry->certificate_date->format('d M, Y') : '' }}</div>
                             @else
-                            <span class="text-[10px] text-slate-300 italic">No certificate uploaded</span>
+                            <span class="text-xs text-slate-300 italic">No certificate uploaded</span>
                             @endif
                         </td>
                         <td class="px-10 py-7 text-right">
@@ -118,7 +118,7 @@
                                     </svg>
                                 </div>
                                 <h4 class="text-slate-900 font-black">Archive is Empty</h4>
-                                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">No TDS entries found</p>
+                                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">No TDS entries found</p>
                             </div>
                         </td>
                     </tr>

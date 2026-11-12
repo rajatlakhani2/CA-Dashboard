@@ -23,7 +23,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10 border-t border-white/10 pt-8">
                 <div class="md:col-span-2">
-                    <p class="text-[10px] font-black uppercase tracking-widest text-indigo-300 mb-3">Overall Readiness</p>
+                    <p class="text-xs font-black uppercase tracking-widest text-indigo-300 mb-3">Overall Readiness</p>
                     @php
                     $completedCount = $checklist->where('is_completed', true)->count();
                     $totalCount = $checklist->count();
@@ -45,7 +45,7 @@
 <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
     <div class="px-10 py-8 border-b border-gray-50 flex items-center justify-between" x-data="{ open: false }">
         <h3 class="font-black text-slate-900 text-xl">Onboarding Milestones</h3>
-        <button @click="open = true" class="bg-slate-50 text-slate-500 hover:bg-indigo-600 hover:text-white px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Add Custom Milestone</button>
+        <button @click="open = true" class="bg-slate-50 text-slate-500 hover:bg-indigo-600 hover:text-white px-5 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all">Add Custom Milestone</button>
 
         <!-- Modal -->
         <div x-show="open" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" x-cloak>
@@ -77,14 +77,14 @@
                 <div>
                     <p class="text-sm font-black {{ $item->is_completed ? 'text-slate-400 line-through' : 'text-slate-900' }}">{{ $item->item }}</p>
                     @if($item->is_completed)
-                    <p class="text-[10px] text-slate-400 font-bold uppercase mt-1">Verified by {{ $item->user->name ?? 'System' }} • {{ $item->completed_at->format('d M, Y') }}</p>
+                    <p class="text-xs text-slate-400 font-bold uppercase mt-1">Verified by {{ $item->user->name ?? 'System' }} • {{ $item->completed_at->format('d M, Y') }}</p>
                     @endif
                 </div>
             </div>
 
             @if(!$item->is_completed)
             <div class="opacity-0 group-hover:opacity-100 transition-opacity">
-                <span class="text-[10px] font-black uppercase text-indigo-600 tracking-widest">Pending Verification</span>
+                <span class="text-xs font-black uppercase text-indigo-600 tracking-widest">Pending Verification</span>
             </div>
             @endif
         </div>

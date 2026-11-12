@@ -4,14 +4,13 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
 class EnsureFirmLoginUsers extends Command
 {
     protected $signature = 'users:ensure-firm-logins';
 
-    protected $description = 'Create or update default firm login accounts (partner, associate, article)';
+    protected $description = 'Create any missing firm login accounts (never changes existing users or passwords)';
 
     public function handle(): int
     {
@@ -32,14 +31,7 @@ class EnsureFirmLoginUsers extends Command
                 ->all()
         );
 
-        $rajat = \App\Models\User::query()->whereRaw('LOWER(email) = ?', ['rajat@rlassociates.in'])->first();
-        if ($rajat && Hash::check('password', $rajat->password)) {
-            $this->info('Password check OK for rajat@rlassociates.in');
-        } else {
-            $this->warn('Password check FAILED — run: php artisan users:reset-password rajat@rlassociates.in');
-        }
-
-        $this->info('Firm login accounts ready. Sign in with email + password (default: password). Mobile is required for daily task reminders.');
+        $this->info('Firm login accounts checked. Existing accounts and passwords were left unchanged. Mobile is required for daily task reminders.');
 
         return self::SUCCESS;
     }

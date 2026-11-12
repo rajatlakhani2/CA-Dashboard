@@ -15,7 +15,7 @@
     <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left">
-                <thead class="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                <thead class="bg-slate-50 text-slate-400 text-xs font-black uppercase tracking-widest">
                     <tr>
                         <th class="px-10 py-6">Client & Subscription</th>
                         <th class="px-10 py-6">Amount</th>
@@ -30,7 +30,7 @@
                     <tr class="hover:bg-indigo-50/20 transition-colors group">
                         <td class="px-10 py-7">
                             <div class="text-sm font-black text-slate-900">{{ $sub->client->name }}</div>
-                            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{{ $sub->name }}</div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-tighter">{{ $sub->name }}</div>
                         </td>
                         <td class="px-10 py-7">
                             <span class="text-sm font-black text-slate-900">₹ {{ number_format($sub->amount) }}</span>
@@ -40,10 +40,10 @@
                         </td>
                         <td class="px-10 py-7">
                             <div class="text-xs font-black text-slate-900">{{ $sub->next_billing_date->format('d M Y') }}</div>
-                            <div class="text-[10px] font-bold text-slate-400">Day {{ $sub->billing_day }}</div>
+                            <div class="text-xs font-bold text-slate-400">Day {{ $sub->billing_day }}</div>
                         </td>
                         <td class="px-10 py-7">
-                            <span class="inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase border {{ $sub->status === 'active' ? 'bg-green-50 text-green-700 border-green-100' : 'bg-amber-50 text-amber-700 border-amber-100' }}">
+                            <span class="inline-flex px-3 py-1 rounded-full text-xs font-black uppercase border {{ $sub->status === 'active' ? 'bg-green-50 text-green-700 border-green-100' : 'bg-amber-50 text-amber-700 border-amber-100' }}">
                                 {{ $sub->status }}
                             </span>
                         </td>

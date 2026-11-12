@@ -99,7 +99,7 @@ class PersonalRenewalTest extends TestCase
         $response = $this->postJson(route('calendar.update'), [
             'type' => 'renewal',
             'id' => $renewal->id,
-            'new_date' => '2025-01-15',
+            'new_date' => now()->addDays(10)->toDateString(),
         ]);
 
         $response->assertOk()->assertJson(['success' => false]);
@@ -125,14 +125,14 @@ class PersonalRenewalTest extends TestCase
         $response = $this->postJson(route('calendar.update'), [
             'type' => 'renewal',
             'id' => $renewal->id,
-            'new_date' => '2025-01-15',
+            'new_date' => now()->addDays(10)->toDateString(),
         ]);
 
         $response->assertOk()->assertJson(['success' => true]);
 
         $this->assertDatabaseHas('personal_renewals', [
             'id' => $renewal->id,
-            'due_date' => '2025-01-15 00:00:00',
+            'due_date' => now()->addDays(10)->toDateString().' 00:00:00',
         ]);
     }
 

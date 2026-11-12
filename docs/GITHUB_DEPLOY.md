@@ -78,7 +78,7 @@ php artisan users:ensure-firm-logins
 php artisan config:cache
 ```
 
-Default logins: `rajat@rlassociates.in` / `password` — change after login.
+Default logins: `rajat@rlassociates.in` / your own password — change after login.
 
 ---
 

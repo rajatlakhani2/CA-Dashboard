@@ -62,7 +62,7 @@
                 <div class="flex min-w-0 items-center gap-4">
                     <span class="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-full {{ $scoreCls($h['score']) }}" title="Health score">
                         <span class="text-lg font-bold leading-none">{{ $h['score'] }}</span>
-                        <span class="text-[10px] font-semibold">{{ $h['label'] }}</span>
+                        <span class="text-xs font-semibold">{{ $h['label'] }}</span>
                     </span>
                     <div class="min-w-0">
                         <p class="text-sm text-slate-600">{{ collect([$c['code'], $c['branch'], $c['manager'] ? 'handled by '.$c['manager'] : null])->filter()->implode(' · ') }}</p>

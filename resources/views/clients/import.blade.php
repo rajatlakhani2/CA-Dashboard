@@ -31,7 +31,7 @@
                     </li>
                 </ul>
                 <div class="mt-8">
-                    <a href="{{ route('clients.template') }}" class="inline-flex items-center text-indigo-600 font-black uppercase text-[10px] tracking-widest hover:text-slate-900 transition-colors">
+                    <a href="{{ route('clients.template') }}" class="inline-flex items-center text-indigo-600 font-black uppercase text-xs tracking-widest hover:text-slate-900 transition-colors">
                         <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
@@ -51,12 +51,12 @@
                             </svg>
                         </div>
                         <p class="text-slate-900 font-black text-lg">Drop Data File Here</p>
-                        <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Accepts Excel or CSV files up to 10MB</p>
+                        <p class="text-slate-400 text-xs font-black uppercase tracking-widest mt-1">Accepts Excel or CSV files up to 10MB</p>
                     </div>
                 </div>
 
                 <div class="flex items-center justify-between pt-4">
-                    <a href="{{ route('clients.index') }}" class="text-slate-400 hover:text-slate-900 font-black uppercase tracking-widest text-[10px]">Cancel</a>
+                    <a href="{{ route('clients.index') }}" class="text-slate-400 hover:text-slate-900 font-black uppercase tracking-widest text-xs">Cancel</a>
                     <button type="submit" class="bg-slate-900 text-white px-12 py-5 rounded-[1.5rem] font-black uppercase text-sm tracking-[0.2em] shadow-2xl hover:bg-indigo-600 transition-all transform active:scale-95">
                         Start Processing
                     </button>

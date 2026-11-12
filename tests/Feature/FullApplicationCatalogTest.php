@@ -25,16 +25,20 @@ class FullApplicationCatalogTest extends TestCase
 
     public function test_login_page_and_authentication_flow(): void
     {
+        $org = \App\Models\Organization::create(['name' => 'Login Firm', 'slug' => 'loginfirm', 'plan' => 'professional', 'seat_limit' => 5, 'is_active' => true]);
         $user = User::factory()->create([
             'role' => 'manager',
             'email' => 'mgr@test.com',
             'password' => 'secret',
+            'organization_id' => $org->id,
         ]);
 
         $this->get(route('login'))->assertOk();
-        $this->post(route('login'), ['email' => 'wrong@test.com', 'password' => 'x'])
+        $this->post(route('login'), ['workspace' => 'loginfirm', 'email' => 'wrong@test.com', 'password' => 'x'])
             ->assertSessionHasErrors('email');
-        $this->post(route('login'), ['email' => $user->email, 'password' => 'secret'])
+        $this->post(route('login'), ['workspace' => 'nope', 'email' => $user->email, 'password' => 'secret'])
+            ->assertSessionHasErrors('workspace');
+        $this->post(route('login'), ['workspace' => 'loginfirm', 'email' => $user->email, 'password' => 'secret'])
             ->assertRedirect(route('dashboard'));
 
         $this->actingAs($user)
@@ -47,13 +51,15 @@ class FullApplicationCatalogTest extends TestCase
 
     public function test_article_login_redirects_to_tasks(): void
     {
+        $org = \App\Models\Organization::create(['name' => 'Article Firm', 'slug' => 'artfirm', 'plan' => 'professional', 'seat_limit' => 5, 'is_active' => true]);
         $article = User::factory()->create([
             'role' => 'article',
             'email' => 'art@test.com',
             'password' => 'pass',
+            'organization_id' => $org->id,
         ]);
 
-        $this->post(route('login'), ['email' => $article->email, 'password' => 'pass'])
+        $this->post(route('login'), ['workspace' => 'artfirm', 'email' => $article->email, 'password' => 'pass'])
             ->assertRedirect(route('tasks.index'));
     }
 
@@ -96,7 +102,6 @@ class FullApplicationCatalogTest extends TestCase
 
         $routes = [
             'dashboard',
-            'partner.dashboard',
             'clients.index',
             'clients.create',
             'clients.export',
@@ -147,8 +152,12 @@ class FullApplicationCatalogTest extends TestCase
             'whatsapp.index',
         ];
 
+        // The old partner dashboard now forwards to the main dashboard.
+        $this->actingAs($partner)->get(route('partner.dashboard'))->assertRedirect();
+
         foreach ($routes as $name) {
-            $this->actingAs($partner)->get(route($name))->assertSuccessful();
+            $r = $this->actingAs($partner)->get(route($name));
+            $this->assertTrue($r->isSuccessful(), $name.' returned '.$r->getStatusCode());
         }
 
         $paramRoutes = [

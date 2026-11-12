@@ -5,6 +5,9 @@
 }
 
 @theme {
+    /* Readable minimum: smallest text is 13px instead of 12px. */
+    --text-xs: 0.8125rem;
+    --text-xs--line-height: 1.25rem;
     --color-primary-50: var(--c-primary-50);
     --color-primary-100: var(--c-primary-100);
     --color-primary-500: var(--c-primary-500);

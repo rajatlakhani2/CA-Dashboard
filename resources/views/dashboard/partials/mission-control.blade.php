@@ -15,11 +15,11 @@
         <div class="min-w-0 flex-1">
             <p class="mission-control__eyebrow">Executive Summary</p>
             <h2 class="mission-control__heading text-xl sm:text-2xl">{{ $mc['greeting'] ?? 'Welcome' }}</h2>
-            <p class="text-[11px] text-[var(--premium-muted)]">{{ now()->format('l, d M Y') }} · {{ \App\Support\Branding::dashboardName() }}</p>
+            <p class="text-xs text-[var(--premium-muted)]">{{ now()->format('l, d M Y') }} · {{ \App\Support\Branding::dashboardName() }}</p>
         </div>
         <div class="flex flex-wrap items-center gap-3 shrink-0">
             @include('dashboard.partials.layout-switcher')
-            <p class="executive-summary__layout-hint text-[10px] text-gray-500 shrink-0 hidden sm:block">Drag · ▼ collapse · drag ⤡ corner to resize</p>
+            <p class="executive-summary__layout-hint text-xs text-gray-500 shrink-0 hidden sm:block">Drag · ▼ collapse · drag ⤡ corner to resize</p>
         </div>
     </div>
 

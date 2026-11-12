@@ -61,4 +61,4 @@ chmod -R 775 storage bootstrap/cache 2>/dev/null || true
 
 echo ""
 echo "DONE. Open https://app.kuhu.org.in/login"
-echo "Login: rajat@rlassociates.in / password (change in Settings -> Users)"
+echo "Login: rajat@rlassociates.in with your own password"

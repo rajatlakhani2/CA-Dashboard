@@ -52,7 +52,7 @@
         }
         label {
             display: block;
-            font-size: 0.75rem;
+            font-size: 0.8125rem;
             font-weight: 700;
             color: #475569;
             margin-bottom: 0.35rem;

@@ -103,7 +103,7 @@
                     class="flex min-h-12 flex-col items-center justify-center rounded-lg {{ $cls }} {{ $d['is_today'] ? 'outline outline-2 outline-dashed outline-slate-900' : '' }}"
                     aria-label="{{ $d['day'] }} {{ $calendar['label'] }}: {{ $n }} filings due">
                     <span class="text-[13px] font-semibold">{{ $d['day'] }}</span>
-                    @if($n)<span class="text-[11px]">{{ $n }}</span>@endif
+                    @if($n)<span class="text-xs">{{ $n }}</span>@endif
                 </button>
                 @endforeach
             </div>
