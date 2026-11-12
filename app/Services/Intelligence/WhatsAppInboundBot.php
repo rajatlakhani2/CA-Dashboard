@@ -39,7 +39,7 @@ class WhatsAppInboundBot
 
         $reply = $this->buildReply($client, $intent, $messageBody);
 
-        $send = $this->whatsapp->sendMessage($fromPhone, $reply);
+        $send = $this->whatsapp->sendMessage($fromPhone, $reply, deliberate: true);
 
         WhatsAppMessageLog::create([
             'client_id' => $client?->id,

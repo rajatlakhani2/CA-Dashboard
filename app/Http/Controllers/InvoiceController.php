@@ -429,7 +429,7 @@ class InvoiceController extends Controller
         $dueDate = $invoice->due_date ? \Carbon\Carbon::parse($invoice->due_date)->format('d M Y') : 'Immediately';
         $message = "🔔 *Payment Reminder*\n\nDear {$client->name},\nThis is a gentle reminder that your payment of ₹{$amount} for Invoice #{$invoice->invoice_number} is due on {$dueDate}.\n\nPlease pay at the earliest.";
 
-        $result = $whatsAppService->sendMessage($client->mobile_number, $message);
+        $result = $whatsAppService->sendMessage($client->mobile_number, $message, deliberate: true);
 
         if ($result['success']) {
             $audit->invoiceSent($invoice, 'whatsapp');

@@ -150,7 +150,7 @@ class StaffController extends Controller
             $message .= "\nPlease check your CA Dashboard to view all tasks and update their status.";
         }
 
-        $result = $whatsAppService->sendMessage($user->mobile, $message);
+        $result = $whatsAppService->sendMessage($user->mobile, $message, deliberate: true);
 
         if ($result['success']) {
             return back()->with('success', 'WhatsApp reminder sent successfully!');

@@ -361,6 +361,9 @@ class AutomationService
         try {
             if ($channel === 'whatsapp') {
                 $res = $this->whatsApp->sendMessage($to, $text);
+                if (! empty($res['skipped'])) {
+                    return 'skipped'; // limited to the firm's "WhatsApp only to" numbers; nothing is logged
+                }
                 $ok = (bool) ($res['success'] ?? false);
                 $detail = $res['message'] ?? null;
             } else {
