@@ -463,6 +463,13 @@
 
                 {{-- Notifications --}}
                 <div x-show="tab === 'notifications'" x-cloak class="space-y-6">
+                    <a href="{{ route('settings.automations') }}" class="flex items-center justify-between gap-3 rounded-xl border border-indigo-200 bg-indigo-50 p-4 hover:border-indigo-300">
+                        <span>
+                            <span class="block text-sm font-semibold text-indigo-900">Automations</span>
+                            <span class="block text-sm text-indigo-800">Morning WhatsApp briefs, client payment and document reminders, weekly partner summary.</span>
+                        </span>
+                        <span class="text-sm font-semibold text-indigo-700">Open →</span>
+                    </a>
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900">WhatsApp reminders</h3>
                         <p class="mt-1 text-sm text-gray-500">Daily task digests go to each team member&apos;s mobile at the times below. Partners also get a firm-wide summary.</p>

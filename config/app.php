@@ -67,6 +67,9 @@ return [
 
     'timezone' => 'UTC',
 
+    // Scheduled jobs (reminders, automations) run on India time.
+    'schedule_timezone' => env('SCHEDULE_TIMEZONE', 'Asia/Kolkata'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration

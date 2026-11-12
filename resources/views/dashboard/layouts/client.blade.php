@@ -82,6 +82,16 @@
                     @endcan
                     @endif
                     <a href="{{ route('tasks.create', ['client_id' => $c['id']]) }}" class="inline-flex min-h-11 items-center rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-800 hover:border-slate-400">Add task</a>
+                    @can('update', \App\Models\Client::find($c['id']))
+                    <form method="POST" action="{{ route('clients.auto-reminders', $c['id']) }}" class="contents">
+                        @csrf @method('PATCH')
+                        <input type="hidden" name="auto_reminders" value="{{ $c['auto_reminders'] ? 0 : 1 }}">
+                        <button type="submit" class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-800 hover:border-slate-400" title="Automatic payment reminders and document requests">
+                            <span class="h-2.5 w-2.5 rounded-full {{ $c['auto_reminders'] ? 'bg-green-600' : 'bg-slate-400' }}"></span>
+                            Auto reminders {{ $c['auto_reminders'] ? 'on' : 'off' }}
+                        </button>
+                    </form>
+                    @endcan
                 </div>
             </div>
 

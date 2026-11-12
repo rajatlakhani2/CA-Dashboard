@@ -74,6 +74,7 @@ final class TenantModels
             ClientServiceDocumentCheck::class,
             WhatsAppMessageLog::class,
             BankAccount::class,
+            \App\Models\AutomationLog::class,
         ];
     }
 }

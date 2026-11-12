@@ -57,6 +57,7 @@ class Client extends Model
         'billing_cycle',
         'payment_terms_days',
         'gst_applicable',
+        'auto_reminders',
         'currency',
         'invoice_email',
         'status',
@@ -68,6 +69,7 @@ class Client extends Model
     protected $casts = [
         'is_same_address' => 'boolean',
         'gst_applicable' => 'boolean',
+        'auto_reminders' => 'boolean',
         'tags' => 'array',
         'onboarding_date' => 'date',
         'approved_at' => 'datetime',
