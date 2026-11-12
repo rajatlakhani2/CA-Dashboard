@@ -28,19 +28,28 @@
     ])
 
     {{-- Headline numbers --}}
-    <section aria-label="Key numbers" class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+    @include('dashboard.layouts._customise', ['sections' => $sections, 'sectionOptions' => $sectionOptions])
+
+    <div class="grid grid-cols-1 gap-5 xl:grid-cols-3 [grid-auto-flow:row_dense]">
+    @foreach($sections as $section)
+        @switch($section)
+        @case('kpis')
+            <div class="xl:col-span-3 min-w-0" data-dash-section="kpis">
+    <section aria-label="Key numbers" class="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         @foreach($kpis as $k)
         <div class="rounded-2xl border border-slate-200 bg-white px-5 py-4">
             <p class="text-sm font-medium text-slate-600">{{ $k['label'] }}</p>
-            <p class="mt-1 text-3xl font-bold tracking-tight {{ $k['tone'] === 'red' ? 'text-red-700' : 'text-slate-900' }}">{{ $k['value'] }}</p>
+            <p class="mt-1 text-2xl font-bold tracking-tight sm:text-3xl {{ $k['tone'] === 'red' ? 'text-red-700' : 'text-slate-900' }}">{{ $k['value'] }}</p>
             <p class="text-sm text-slate-600">{{ $k['sub'] }}</p>
         </div>
         @endforeach
     </section>
-
-    <section class="flex flex-wrap items-start gap-5">
-        {{-- Inbox --}}
-        <div class="min-w-0 flex-[999_1_560px] rounded-2xl border border-slate-200 bg-white" x-data="{ tab: 'all' }">
+            </div>
+            @break
+        @case('inbox')
+            <div class="xl:col-span-2 min-w-0" data-dash-section="inbox">
+        <div class="h-full min-w-0 rounded-2xl border border-slate-200 bg-white" x-data="{ tab: 'all' }">
             <div class="flex flex-wrap items-baseline justify-between gap-2 px-5 pt-5">
                 <h2 class="text-lg font-bold text-slate-900">Today’s action inbox</h2>
                 <span class="text-sm text-slate-600">Overdue first, then by due date</span>
@@ -75,9 +84,11 @@
             </ul>
             @endif
         </div>
-
-        {{-- Compliance calendar --}}
-        <div class="min-w-0 flex-[1_1_340px] rounded-2xl border border-slate-200 bg-white p-5"
+            </div>
+            @break
+        @case('calendar')
+            <div class=" min-w-0" data-dash-section="calendar">
+        <div class="h-full min-w-0 rounded-2xl border border-slate-200 bg-white p-5"
              x-data="{ sel: {{ collect($calendar['days'])->firstWhere('is_today', true)['day'] ?? 1 }}, days: @js($calendar['days']) }">
             <div class="flex items-center justify-between gap-2">
                 <h2 class="text-lg font-bold text-slate-900">Compliance calendar</h2>
@@ -119,12 +130,12 @@
                 <a href="{{ $calendar['url'] }}" class="mt-3 inline-block text-sm font-medium text-indigo-700 underline">Open service dues</a>
             </div>
         </div>
-    </section>
-
-    @if($canSeeMoney && count($revenue))
-    <section class="flex flex-wrap items-stretch gap-5">
-        {{-- Billed vs collected --}}
-        <div class="min-w-0 flex-[999_1_560px] rounded-2xl border border-slate-200 bg-white p-5" x-data="{ sel: {{ count($revenue) - 1 }}, rev: @js($revenue) }">
+            </div>
+            @break
+        @case('revenue')
+            @if($canSeeMoney && count($revenue))
+            <div class="xl:col-span-2 min-w-0" data-dash-section="revenue">
+        <div class="h-full min-w-0 rounded-2xl border border-slate-200 bg-white p-5" x-data="{ sel: {{ count($revenue) - 1 }}, rev: @js($revenue) }">
             <div class="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 class="text-lg font-bold text-slate-900">Billed vs collected</h2>
                 <div class="flex gap-4 text-sm text-slate-600">
@@ -155,9 +166,13 @@
                 <a :href="r[sel].url" class="ml-auto font-medium text-indigo-700 underline">Open invoices</a>
             </div>
         </div>
-
-        {{-- Receivables ageing --}}
-        <div class="min-w-0 flex-[1_1_340px] rounded-2xl border border-slate-200 bg-white p-5" x-data="{ sel: {{ collect($ageing)->search(fn ($a) => $a['amount'] > 0) !== false ? collect($ageing)->search(fn ($a) => $a['amount'] > 0) : 0 }}, age: @js(collect($ageing)->map(fn ($a) => ['label' => $a['label'], 'clients' => collect($a['clients'])->map(fn ($c) => $c + ['fmt' => $svcMoney->money($c['amount'])])->all()])) }">
+            </div>
+            @endif
+            @break
+        @case('ageing')
+            @if($canSeeMoney && count($ageing))
+            <div class=" min-w-0" data-dash-section="ageing">
+        <div class="h-full min-w-0 rounded-2xl border border-slate-200 bg-white p-5" x-data="{ sel: {{ collect($ageing)->search(fn ($a) => $a['amount'] > 0) !== false ? collect($ageing)->search(fn ($a) => $a['amount'] > 0) : 0 }}, age: @js(collect($ageing)->map(fn ($a) => ['label' => $a['label'], 'clients' => collect($a['clients'])->map(fn ($c) => $c + ['fmt' => $svcMoney->money($c['amount'])])->all()])) }">
             <h2 class="text-lg font-bold text-slate-900">Receivables by age</h2>
             <p class="mb-4 mt-1 text-sm text-slate-600">{{ $svcMoney->money($ageTotal) }} outstanding. Click a group.</p>
             <div class="flex flex-col gap-2">
@@ -181,10 +196,11 @@
                 <a href="{{ route('collections.index') }}" class="mt-2 inline-block text-sm font-medium text-indigo-700 underline">Open collections</a>
             </div>
         </div>
-    </section>
-    @endif
-
-    <section class="grid grid-cols-1 gap-5 lg:grid-cols-2 2xl:grid-cols-3">
+            </div>
+            @endif
+            @break
+        @case('filing_status')
+            <div class=" min-w-0" data-dash-section="filing_status">
         <div class="rounded-2xl border border-slate-200 bg-white p-5">
             <h2 class="text-lg font-bold text-slate-900">Filing status this month</h2>
             <p class="mb-4 mt-1 text-sm text-slate-600">Filed out of total due in {{ now()->format('F') }}.</p>
@@ -197,8 +213,11 @@
             <p class="text-sm text-slate-600">No filings due this month.</p>
             @endforelse
         </div>
-
-        @if(count($workload))
+            </div>
+            @break
+        @case('workload')
+            @if(count($workload))
+            <div class=" min-w-0" data-dash-section="workload">
         <div class="rounded-2xl border border-slate-200 bg-white p-5">
             <h2 class="text-lg font-bold text-slate-900">Team workload</h2>
             <p class="mb-4 mt-1 text-sm text-slate-600">Open tasks plus filings due this week. Click a person to filter.</p>
@@ -215,9 +234,12 @@
                 @endforeach
             </div>
         </div>
-        @endif
-
-        @if($canSeeMoney || ($filters['can_see_firm'] ?? false))
+            </div>
+            @endif
+            @break
+        @case('attention')
+            @if($canSeeMoney || ($filters['can_see_firm'] ?? false))
+            <div class=" min-w-0" data-dash-section="attention">
         @php $attention = app(\App\Services\DashboardLayoutDataService::class)->clientList(auth()->user(), $filters, 'risk', null, 6)->filter(fn ($c) => $c['score'] < 100); @endphp
         <div class="rounded-2xl border border-slate-200 bg-white p-5">
             <h2 class="text-lg font-bold text-slate-900">Clients needing attention</h2>
@@ -234,9 +256,14 @@
             <p class="text-sm text-slate-600">Every client is on track.</p>
             @endforelse
         </div>
-        @endif
-    </section>
+            </div>
+            @endif
+            @break
+        @endswitch
+    @endforeach
+    </div>
 </div>
 
+@include('dashboard.layouts._payment-dialog')
 @include('dashboard.layouts._script')
 @endsection

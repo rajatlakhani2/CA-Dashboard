@@ -71,12 +71,19 @@ class PaymentController extends Controller
         // Check if payment amount exceeds balance
         $currentBalance = $invoice->total_amount - $invoice->payments()->sum('amount');
         if ($request->amount > $currentBalance + 0.01) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Amount is more than the balance due (₹'.number_format($currentBalance, 2).').',
+                    'errors' => ['amount' => ['Amount is more than the balance due (₹'.number_format($currentBalance, 2).').']],
+                ], 422);
+            }
+
             return back()->withErrors(['amount' => "Payment amount (₹{$request->amount}) exceeds outstanding balance (₹" . number_format($currentBalance, 2) . ")."]);
         }
 
         $payment = Payment::create([
             'invoice_id' => $request->invoice_id,
-            'receipt_number' => $request->receipt_number,
+            'receipt_number' => $request->filled('receipt_number') ? $request->receipt_number : Payment::nextReceiptNumber(),
             'amount' => $request->amount,
             'payment_date' => $request->payment_date,
             'payment_mode' => $request->payment_mode,
@@ -88,6 +95,15 @@ class PaymentController extends Controller
         $audit->paymentCreated($payment);
 
         $this->syncInvoiceStatus($invoice->fresh('payments'));
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Payment recorded. Receipt #{$payment->receipt_number}",
+                'receipt_number' => $payment->receipt_number,
+                'balance' => round(max(0, $invoice->total_amount - $invoice->payments()->sum('amount')), 2),
+            ]);
+        }
 
         return redirect()->route('payments.index')->with('success', "Payment recorded. Receipt #{$payment->receipt_number}");
     }

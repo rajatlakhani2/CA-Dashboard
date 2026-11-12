@@ -141,12 +141,51 @@ class DashboardController extends Controller
             ]);
         }
 
+        // Only offer sections this person can actually see.
+        $sectionOptions = array_filter(
+            DashboardLayout::INBOX_SECTIONS,
+            fn ($key) => match ($key) {
+                'revenue', 'ageing' => $common['canSeeMoney'],
+                'workload', 'attention' => $filters['can_see_firm'],
+                default => true,
+            },
+            ARRAY_FILTER_USE_KEY
+        );
+
         return view('dashboard.layouts.inbox', $data + [
+            'sections' => array_values(array_intersect(DashboardLayout::inboxSections($user), array_keys($sectionOptions))),
+            'sectionOptions' => $sectionOptions,
             'revenue' => $svc->revenueSeries($user, $filters),
             'ageing' => $svc->ageing($user, $filters),
             'calendar' => $svc->calendar($user, $filters, $request->query('month')),
             'filingStatus' => $svc->filingStatus($user, $filters),
         ]);
+    }
+
+    /** Save which Action inbox sections the user sees, and in what order. */
+    public function saveSections(Request $request)
+    {
+        $data = $request->validate([
+            'sections' => ['nullable', 'array'],
+            'sections.*' => ['string', \Illuminate\Validation\Rule::in(array_keys(DashboardLayout::INBOX_SECTIONS))],
+            'reset' => ['nullable', 'boolean'],
+        ]);
+
+        $user = $request->user();
+        $prefs = is_array($user->dashboard_preferences) ? $user->dashboard_preferences : [];
+
+        if ($request->boolean('reset') || empty($data['sections'])) {
+            unset($prefs['inbox_sections']);
+        } else {
+            $prefs['inbox_sections'] = array_values(array_unique($data['sections']));
+        }
+
+        $user->dashboard_preferences = $prefs ?: null;
+        $user->save();
+
+        return $request->expectsJson()
+            ? response()->json(['success' => true])
+            : redirect()->route('dashboard')->with('success', 'Dashboard sections saved.');
     }
 
     /** Hide an inbox item for 24 hours (per user). */

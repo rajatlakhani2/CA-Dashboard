@@ -40,6 +40,9 @@ Route::middleware([
     Route::get('/dashboard/finance-snapshot', [DashboardController::class, 'financeSnapshot'])
         ->middleware('module:dashboard')
         ->name('dashboard.finance-snapshot');
+    Route::post('/dashboard/inbox/sections', [DashboardController::class, 'saveSections'])
+        ->middleware('module:dashboard')
+        ->name('dashboard.inbox.sections');
     Route::post('/dashboard/inbox/snooze', [DashboardController::class, 'snoozeItem'])
         ->middleware('module:dashboard')
         ->name('dashboard.inbox.snooze');

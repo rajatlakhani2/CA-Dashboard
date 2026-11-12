@@ -8,6 +8,12 @@
         data-method="{{ $item['complete_method'] }}"
         data-payload='@json($item['complete_payload'])'
         data-label="{{ $item['title'] }}">{{ $item['complete_label'] }}</button>
+    @elseif(!empty($item['pay']))
+    <button type="button"
+        class="min-h-9 rounded-lg bg-slate-900 px-3 text-xs font-semibold text-white hover:bg-slate-700"
+        data-dash-action="pay"
+        data-pay='@json($item['pay'])'
+        data-label="{{ $item['title'] }}">Record payment</button>
     @elseif($item['link_url'])
     <a href="{{ $item['link_url'] }}" class="inline-flex min-h-9 items-center rounded-lg bg-slate-900 px-3 text-xs font-semibold text-white hover:bg-slate-700">{{ $item['complete_label'] }}</a>
     @endif

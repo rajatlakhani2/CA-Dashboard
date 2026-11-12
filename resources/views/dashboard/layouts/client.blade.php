@@ -27,13 +27,13 @@
                 @endforeach
                 <label for="client-search" class="sr-only">Search clients</label>
                 <input id="client-search" type="search" name="q" value="{{ $search }}" placeholder="Search name, PAN, GSTIN, code"
-                    class="min-h-11 w-full rounded-xl border-slate-300 text-sm">
+                    class="min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                 <div class="mt-2.5 flex flex-wrap gap-1.5">
                     <a href="{{ route('dashboard', $qs(['sort' => null, 'client' => null])) }}" class="rounded-lg px-3 py-1.5 text-xs font-semibold {{ $sort === 'risk' ? 'bg-indigo-600 text-white' : 'border border-slate-300 text-slate-700' }}">Needs attention first</a>
                     <a href="{{ route('dashboard', $qs(['sort' => 'az', 'client' => null])) }}" class="rounded-lg px-3 py-1.5 text-xs font-semibold {{ $sort === 'az' ? 'bg-indigo-600 text-white' : 'border border-slate-300 text-slate-700' }}">A–Z</a>
                 </div>
             </form>
-            <ul class="max-h-[720px] overflow-y-auto border-t border-slate-100">
+            <ul class="max-h-80 overflow-y-auto border-t border-slate-100 lg:max-h-[720px]">
                 @forelse($clients as $c)
                 <li>
                     <a href="{{ route('dashboard', $qs(['client' => $c['id']])) }}"
@@ -85,7 +85,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div class="grid grid-cols-2 gap-3 xl:grid-cols-4">
                 @foreach($selected['tiles'] as $t)
                 <div class="rounded-xl border border-slate-200 bg-white px-4 py-3.5">
                     <p class="text-xs font-medium text-slate-600">{{ $t['label'] }}</p>
