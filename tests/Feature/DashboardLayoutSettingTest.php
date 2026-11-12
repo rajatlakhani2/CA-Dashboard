@@ -42,13 +42,16 @@ class DashboardLayoutSettingTest extends TestCase
         $this->assertSame(DashboardLayout::CLASSIC, DashboardLayout::forUser($user));
     }
 
-    public function test_layouts_not_built_yet_fall_back_to_classic(): void
+    public function test_unknown_stored_layout_falls_back_to_firm_default(): void
     {
         $user = $this->member($this->org(), 'associate');
-        $user->forceFill(['dashboard_layout' => DashboardLayout::BOARD])->save();
+        $user->forceFill(['dashboard_layout' => 'retired-layout'])->save();
 
-        $this->assertSame(DashboardLayout::BOARD, DashboardLayout::userChoice($user->fresh()));
+        $this->assertNull(DashboardLayout::userChoice($user->fresh()));
         $this->assertSame(DashboardLayout::CLASSIC, DashboardLayout::forUser($user->fresh()));
+
+        $user->forceFill(['dashboard_layout' => DashboardLayout::BOARD])->save();
+        $this->assertSame(DashboardLayout::BOARD, DashboardLayout::forUser($user->fresh()));
     }
 
     public function test_user_can_switch_layout_from_dashboard(): void
@@ -70,7 +73,7 @@ class DashboardLayoutSettingTest extends TestCase
     {
         $user = $this->member($this->org(), 'partner');
 
-        foreach ([DashboardLayout::BOARD, 'nonsense'] as $bad) {
+        foreach (['retired-layout', 'nonsense'] as $bad) {
             $this->actingAs($user)
                 ->post(route('dashboard.layout'), ['dashboard_layout' => $bad])
                 ->assertSessionHasErrors('dashboard_layout');
