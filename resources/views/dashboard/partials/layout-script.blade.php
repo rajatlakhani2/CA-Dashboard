@@ -1,4 +1,4 @@
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script src="{{ asset('vendor/sortable-1.15.2.min.js') }}"></script>
 <script>
 (function () {
     var userId = @json(auth()->id());

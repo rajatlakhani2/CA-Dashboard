@@ -1,6 +1,6 @@
 @php($demoTour = $demoTour ?? ['show' => false, 'isDemo' => false, 'steps' => []])
 @if(!empty($demoTour['show']) || !empty($demoTour['isDemo']))
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css">
+<link rel="stylesheet" href="{{ asset('vendor/driver-1.3.1.css') }}">
 <style>
     .demo-welcome-card,
     .demo-tour-modal-card {

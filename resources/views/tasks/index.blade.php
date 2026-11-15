@@ -129,7 +129,7 @@
 @endsection
 
 @section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script src="{{ asset('vendor/sortable-1.15.2.min.js') }}"></script>
 <script>
     function updateTaskStatus(taskId, status, selectEl) {
         fetch(`/tasks/${taskId}/status`, {

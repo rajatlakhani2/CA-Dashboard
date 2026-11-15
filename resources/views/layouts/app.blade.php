@@ -19,7 +19,7 @@
 
     <!-- Scripts & Styles -->
     @include('partials.head-assets')
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
+    <script defer src="{{ asset('vendor/alpine-3.14.3.min.js') }}"></script>
     <style>
         /* Zen Mode */
         body.zen-mode #sidebar {
