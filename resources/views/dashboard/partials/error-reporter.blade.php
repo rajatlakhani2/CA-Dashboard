@@ -16,9 +16,16 @@
     </div>
 </div>
 
+<div id="dashboard-error-notice" class="hidden fixed bottom-4 right-4 z-[190] flex max-w-sm items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 shadow-lg" role="status">
+    <span class="min-w-0 flex-1">Part of this page didn’t load properly. You can keep working.</span>
+    <button type="button" id="der-details" class="shrink-0 font-semibold underline">Details</button>
+    <button type="button" id="der-notice-close" class="shrink-0 text-lg leading-none" aria-label="Dismiss">&times;</button>
+</div>
+
 <script>
 (function () {
     var modal = document.getElementById('dashboard-error-reporter');
+    var notice = document.getElementById('dashboard-error-notice');
     var bodyEl = document.getElementById('der-body');
     if (!modal || !bodyEl) {
         return;
@@ -58,8 +65,23 @@
     window.reportDashboardError = function (payload) {
         lastReport = formatReport(payload || {});
         bodyEl.textContent = lastReport;
-        modal.classList.remove('hidden');
+        // Show a small notice; the full report opens only when asked for.
+        if (notice) {
+            notice.classList.remove('hidden');
+        } else {
+            modal.classList.remove('hidden');
+        }
     };
+
+    if (notice) {
+        document.getElementById('der-details').addEventListener('click', function () {
+            notice.classList.add('hidden');
+            modal.classList.remove('hidden');
+        });
+        document.getElementById('der-notice-close').addEventListener('click', function () {
+            notice.classList.add('hidden');
+        });
+    }
 
     function closeModal() {
         modal.classList.add('hidden');

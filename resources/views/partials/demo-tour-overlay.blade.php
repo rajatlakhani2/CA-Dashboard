@@ -116,7 +116,7 @@ Open My Day: app.kuhu.org.in/my-day</div>
     @endif
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
+<script src="{{ asset('vendor/driver-1.3.1.iife.js') }}"></script>
 <script>
 function demoTourWelcome() {
     const steps = @json($demoTour['steps'] ?? []);

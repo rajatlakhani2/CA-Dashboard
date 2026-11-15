@@ -53,7 +53,7 @@ Firm Compliance 360°
 @endsection
 
 @section('scripts')
-<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+<script src='{{ asset('vendor/fullcalendar-6.1.10.min.js') }}'></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');

@@ -352,7 +352,7 @@
 
 @section('scripts')
 @include('tasks.partials.my-day-status-script')
-<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+<script src='{{ asset('vendor/fullcalendar-6.1.10.min.js') }}'></script>
 <script>
 function calendarFilterBar() {
     var initial = @json($calendarFilters->toQueryArray());
