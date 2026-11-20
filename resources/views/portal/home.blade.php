@@ -47,7 +47,7 @@
         <p class="text-xs text-slate-500 mb-3">Returns, notices, bank statements, etc. Our team will review and update your file.</p>
         <form method="POST" action="{{ route('portal.upload', $token) }}" enctype="multipart/form-data" class="space-y-3">
             @csrf
-            <input type="file" name="document" required accept=".pdf,.jpg,.jpeg,.png" class="block w-full text-sm">
+            <input type="file" name="document" required accept=".pdf,.jpg,.jpeg,.png" data-camera-scan class="block w-full text-sm">
             <textarea name="notes" rows="2" class="w-full rounded-md border-slate-300 text-sm" placeholder="Optional note for the firm"></textarea>
             <button type="submit" class="w-full py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700">Upload</button>
         </form>

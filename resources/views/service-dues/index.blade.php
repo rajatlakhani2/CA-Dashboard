@@ -51,7 +51,7 @@ Compliance Schedule
         </div>
 
         <form method="GET" action="{{ route('service-dues.index') }}" class="p-4">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
                 <div>
                     <label for="status" class="block text-xs font-semibold text-slate-600 mb-1">Status</label>
                     <select id="status" name="status" class="block w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500">

@@ -61,19 +61,19 @@
                 </div>
 
                 <!-- Vendor -->
-                <div class="col-span-2">
+                <div class="md:col-span-2">
                     <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Vendor / Paid To</label>
                     <input type="text" name="vendor" value="{{ old('vendor', $expense->vendor) }}" placeholder="e.g. Amazon Cloud, Office Landlord, DTDC" class="w-full bg-gray-50 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all py-3 px-4 font-bold text-gray-800">
                 </div>
 
                 <!-- Description -->
-                <div class="col-span-2">
+                <div class="md:col-span-2">
                     <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Description <span class="text-indigo-500">*</span></label>
                     <input type="text" name="description" value="{{ old('description', $expense->description) }}" required placeholder="Short description of this expense" class="w-full bg-gray-50 border-0 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all py-3 px-4 font-bold text-gray-800">
                 </div>
 
                 <!-- Receipt Upload -->
-                <div class="col-span-2">
+                <div class="md:col-span-2">
                     <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Attachment (Bill/Receipt)</label>
                     @if($expense->receipt_path)
                     <div class="mb-2 text-xs text-indigo-600 font-bold">
@@ -81,7 +81,7 @@
                     </div>
                     @endif
                     <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-100 border-dashed rounded-3xl bg-gray-50 hover:bg-white hover:border-indigo-300 transition-all cursor-pointer group relative">
-                        <input type="file" name="receipt" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                        <input type="file" name="receipt" data-camera-scan class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                         <div class="space-y-2 text-center">
                             <svg class="mx-auto h-12 w-12 text-gray-400 group-hover:text-indigo-500 transition-colors" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                                 <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />

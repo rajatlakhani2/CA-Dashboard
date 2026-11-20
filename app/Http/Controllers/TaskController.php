@@ -241,6 +241,11 @@ class TaskController extends Controller
             $message = 'Task completed. It will appear under Invoices → Unbilled Work.';
         }
 
+        // Plain forms (the phone task list's Done button) ask to come back to the page.
+        if ($request->boolean('return_back') && ! $request->expectsJson()) {
+            return back()->with('success', $message);
+        }
+
         return response()->json(['success' => true, 'message' => $message]);
     }
 

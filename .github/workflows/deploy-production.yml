@@ -80,6 +80,7 @@ jobs:
             --exclude='.env.*' \
             --exclude='node_modules' \
             --exclude='tests' \
+            --exclude='./mobile' \
             --exclude='.tools' \
             --exclude='*.zip' \
             . || test $? -eq 1

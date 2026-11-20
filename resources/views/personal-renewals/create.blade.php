@@ -61,7 +61,7 @@
 
         <div>
             <label for="document" class="block text-sm font-medium text-text-main">Document (optional)</label>
-            <input type="file" name="document" id="document" accept=".pdf,.jpg,.jpeg,.png" class="mt-1 block w-full text-sm text-text-secondary">
+            <input type="file" name="document" id="document" accept=".pdf,.jpg,.jpeg,.png" data-camera-scan class="mt-1 block w-full text-sm text-text-secondary">
         </div>
 
         <div class="flex justify-end">

@@ -46,6 +46,7 @@ class User extends Authenticatable
         'module_access',
         'organization_id',
         'demo_tour_completed_at',
+        'notification_preferences',
     ];
 
     /**
@@ -70,6 +71,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'module_access' => 'array',
             'dashboard_preferences' => 'array',
+            'notification_preferences' => 'array',
             'demo_tour_completed_at' => 'datetime',
         ];
     }
@@ -87,6 +89,22 @@ class User extends Authenticatable
     public function canAccessModule(string $module): bool
     {
         return \App\Support\ModuleGate::allowed($this, $module);
+    }
+
+    public function devices()
+    {
+        return $this->hasMany(UserDevice::class);
+    }
+
+    /** Phone notification types this user wants. Missing preference = all on. */
+    public function wantsPush(string $type): bool
+    {
+        $prefs = $this->notification_preferences;
+        if (! is_array($prefs) || ! array_key_exists('push', $prefs)) {
+            return true;
+        }
+
+        return in_array($type, (array) $prefs['push'], true);
     }
 
     public function tasks()

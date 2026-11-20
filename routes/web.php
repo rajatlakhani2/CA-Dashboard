@@ -17,6 +17,9 @@ Route::post('/password/reset', [\App\Http\Controllers\ForgotPasswordController::
 Route::get('/register', [\App\Http\Controllers\RegisterOrganizationController::class, 'show'])->name('register.organization');
 Route::post('/register', [\App\Http\Controllers\RegisterOrganizationController::class, 'store']);
 
+Route::view('/get-app', 'app-download')->name('app.download');
+Route::view('/privacy', 'privacy')->name('privacy');
+
 Route::get('/', function () {
     return redirect()->route('login');
 });
@@ -29,6 +32,10 @@ Route::middleware([
     \App\Http\Middleware\RestrictArticleAccess::class,
 ])->group(function () {
     Route::post('/logout', [\App\Http\Controllers\LoginController::class, 'logout'])->name('logout');
+
+    // Android app: push-notification token for this phone.
+    Route::post('/app/devices', [\App\Http\Controllers\AppDeviceController::class, 'store'])->name('app.devices.store');
+    Route::post('/app/devices/forget', [\App\Http\Controllers\AppDeviceController::class, 'destroy'])->name('app.devices.forget');
 
     // Dashboard routes in web.php so they register even if route cache / operations.php is stale
     Route::get('/dashboard/deploy-probe', [DashboardController::class, 'deployProbe'])
@@ -49,6 +56,19 @@ Route::middleware([
     Route::post('/dashboard/layout', [DashboardController::class, 'switchLayout'])
         ->middleware('module:dashboard')
         ->name('dashboard.layout');
+    // Start page for the phone app and home-screen icon: staff roles land on My Day,
+    // everyone else on their own dashboard layout.
+    Route::get('/home', function (\Illuminate\Http\Request $request) {
+        $user = $request->user();
+        if ($user->prefersMyDayHome() && $user->canAccessModule('tasks')) {
+            return redirect()->route('tasks.my-day');
+        }
+        if ($user->canAccessModule('dashboard') && ! $user->isArticle()) {
+            return redirect()->route('dashboard');
+        }
+
+        return redirect()->route($user->canAccessModule('tasks') ? 'tasks.index' : 'dashboard');
+    })->name('app.home');
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->middleware('module:dashboard')
         ->name('dashboard');

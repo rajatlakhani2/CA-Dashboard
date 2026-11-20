@@ -74,6 +74,15 @@ class SettingsController extends Controller
         $user->timezone = $profileData['timezone'] ?? null;
         $user->mobile = $profileData['mobile'];
 
+        // Phone app notifications (Settings → Notifications). Only saved when that section was on the form.
+        if ($request->boolean('push_prefs_present') && \Illuminate\Support\Facades\Schema::hasColumn('users', 'notification_preferences')) {
+            $allowed = array_keys(\App\Services\PushNotificationService::TYPES);
+            $chosen = array_values(array_intersect((array) $request->input('push_prefs', []), $allowed));
+            $prefs = is_array($user->notification_preferences) ? $user->notification_preferences : [];
+            $prefs['push'] = $chosen;
+            $user->notification_preferences = $prefs;
+        }
+
         if ($request->filled('new_password')) {
             $user->password = Hash::make($profileData['new_password']);
         }

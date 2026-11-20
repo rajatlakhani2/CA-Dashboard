@@ -1,0 +1,23 @@
+{
+  "name": "ca-dashboard-mobile",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Android app for CA Dashboard (app.kuhu.org.in). Loads the live site; native plugins add push, fingerprint lock and camera.",
+  "scripts": {
+    "sync": "cap sync android",
+    "assets": "capacitor-assets generate --android --iconBackgroundColor '#1e293b' --splashBackgroundColor '#1e293b'"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/core": "^8.6.2",
+    "@capacitor/push-notifications": "^8.1.3",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.4",
+    "@capgo/capacitor-native-biometric": "^8.9.3"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^4.0.0",
+    "@capacitor/cli": "^8.6.2"
+  }
+}

@@ -463,6 +463,44 @@
 
                 {{-- Notifications --}}
                 <div x-show="tab === 'notifications'" x-cloak class="space-y-6">
+                    @php
+                        $pushUser = auth()->user();
+                        $pushTypes = \App\Services\PushNotificationService::TYPES;
+                        if (! $pushUser->managesFirmModules()) {
+                            unset($pushTypes['payment_received']);
+                        }
+                    @endphp
+                    <div class="rounded-xl border border-slate-200 p-5 space-y-4" data-settings-push>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Phone app notifications</h3>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Alerts on phones where you use the CA Dashboard Android app.
+                                <a href="{{ route('app.download') }}" class="font-semibold text-indigo-600 underline">Get the app</a>
+                            </p>
+                        </div>
+                        <input type="hidden" name="push_prefs_present" value="1">
+                        <div class="space-y-3">
+                            @foreach($pushTypes as $key => $label)
+                            <label class="flex items-start gap-3">
+                                <input type="checkbox" name="push_prefs[]" value="{{ $key }}" class="mt-0.5 h-5 w-5 shrink-0 rounded border-gray-300 text-indigo-600"
+                                    {{ $pushUser->wantsPush($key) ? 'checked' : '' }}>
+                                <span class="text-sm text-gray-800">{{ $label }}</span>
+                            </label>
+                            @endforeach
+                        </div>
+                        @unless(app(\App\Services\PushNotificationService::class)->isConfigured())
+                        <p class="text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2">Push notifications switch on once Firebase is connected on the server.</p>
+                        @endunless
+                        <div class="native-app-only hidden border-t border-slate-100 pt-4" x-data="{ lock: (localStorage.getItem('app-lock') || 'on') === 'on' }">
+                            <label class="flex items-start gap-3">
+                                <input type="checkbox" x-model="lock" @change="localStorage.setItem('app-lock', lock ? 'on' : 'off')" class="mt-0.5 h-5 w-5 shrink-0 rounded border-gray-300 text-indigo-600">
+                                <span class="text-sm text-gray-800">
+                                    Lock this app with fingerprint or face unlock
+                                    <span class="block text-xs text-gray-500">Asked when you open the app and after it has been in the background for a minute. Applies to this phone only.</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
                     <a href="{{ route('settings.automations') }}" class="flex items-center justify-between gap-3 rounded-xl border border-indigo-200 bg-indigo-50 p-4 hover:border-indigo-300">
                         <span>
                             <span class="block text-sm font-semibold text-indigo-900">Automations</span>

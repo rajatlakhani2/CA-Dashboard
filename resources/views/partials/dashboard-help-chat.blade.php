@@ -12,6 +12,7 @@
         'brandName' => $brandName,
     ]) }})"
     x-cloak
+    x-on:open-help-chat.window="open || toggle()"
 >
     <button
         type="button"
@@ -275,6 +276,11 @@
     @media (max-width: 640px) {
         .dashboard-help-chat__panel { width: 100vw; }
         .dashboard-help-chat__tab { top: auto; bottom: 5.5rem; transform: none; border-radius: 14px 0 0 14px; }
+    }
+    /* Phones and tablets use the bottom bar: Help lives in the "+" menu there, so the edge tab
+       no longer covers page content. */
+    @media (max-width: 1023px) {
+        .dashboard-help-chat__tab { display: none; }
     }
 </style>
 

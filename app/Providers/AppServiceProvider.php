@@ -57,6 +57,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        \App\Models\Task::observe(\App\Observers\PushTaskObserver::class);
+        \App\Models\Payment::observe(\App\Observers\PushPaymentObserver::class);
+
         $appUrl = (string) config('app.url');
         if ($appUrl !== '') {
             URL::forceRootUrl($appUrl);

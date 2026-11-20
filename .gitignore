@@ -40,3 +40,14 @@ Thumbs.db
 /test_tab.cjs
 /project_structure.txt
 /verify_*.cjs
+
+# Android app (Capacitor)
+/mobile/node_modules
+/mobile/android/app/google-services.json
+*.jks
+*.keystore
+!/mobile/android/app/fallback-signing.jks
+
+# Android app builds live only on the server
+/public/downloads/*.apk
+/public/downloads/*.json
