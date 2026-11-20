@@ -17,60 +17,90 @@
         'task' => ['Task', 'bg-amber-50 text-amber-800'],
     ];
     $weekMax = max(1, collect($weekLoad)->max('count'));
+    $firstTab = collect($columns)->first(fn ($c) => $c['items']->isNotEmpty())['key'] ?? 'over';
+    $tabTone = ['over' => 'text-red-700', 'week' => 'text-orange-800', 'waiting' => 'text-slate-700', 'doing' => 'text-teal-800'];
+    // Phones: overdue cards grouped by age, oldest group folded away.
+    $overGroups = function ($items) {
+        $g = [
+            'recent' => ['Last 7 days', $items->filter(fn ($i) => ($i['days_over'] ?? 0) <= 7)],
+            'month' => ['8–30 days late', $items->filter(fn ($i) => ($i['days_over'] ?? 0) > 7 && ($i['days_over'] ?? 0) <= 30)],
+            'older' => ['Over a month late', $items->filter(fn ($i) => ($i['days_over'] ?? 0) > 30)],
+        ];
+        return collect($g)->filter(fn ($x) => $x[1]->isNotEmpty());
+    };
+    $canReassign = auth()->user()?->isPartner() || auth()->user()?->isManager();
+    $reassignStaff = ($canReassign && $filters['can_see_firm']) ? ($filterOptions['staff'] ?? []) : [];
 @endphp
 
 @section('content')
-<div class="mx-auto flex w-full max-w-[1500px] flex-col gap-5" data-dashboard-layout="board">
+<div class="mx-auto flex w-full max-w-[1500px] flex-col gap-4 md:gap-5" data-dashboard-layout="board" x-data="{ tab: '{{ $firstTab }}' }">
 
     @include('dashboard.layouts._toolbar', [
         'title' => 'Work board',
         'subtitle' => 'Everything open for the next 7 days, sorted by urgency. Move cards along as work gets done.',
     ])
 
-    <section aria-label="Summary" class="flex flex-wrap gap-2.5">
+    <section aria-label="Summary" class="hidden md:flex flex-wrap gap-2.5">
         @foreach($columns as $c)
         <span class="flex items-baseline gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm {{ $c['color'] }}"><strong class="text-lg">{{ $c['items']->count() }}</strong> {{ strtolower($c['title']) }}</span>
         @endforeach
     </section>
 
-    <div data-drop-col="done" class="flex min-h-16 items-center justify-center rounded-2xl border-2 border-dashed border-teal-300 bg-teal-50/60 px-4 text-sm font-medium text-teal-900 transition">
+    <nav aria-label="Board columns" class="md:hidden -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]" data-phone-tabs>
+        @foreach($columns as $c)
+        <button type="button" @click="tab = '{{ $c['key'] }}'; $el.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })"
+            :class="tab === '{{ $c['key'] }}' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-white {{ $tabTone[$c['key']] }}'"
+            class="flex shrink-0 items-baseline gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition" :aria-pressed="tab === '{{ $c['key'] }}'">
+            <strong class="text-base" data-tab-count="{{ $c['key'] }}">{{ $c['items']->count() }}</strong>{{ strtolower($c['title']) }}
+        </button>
+        @endforeach
+    </nav>
+
+    <div class="md:hidden" x-data="{ hint: (()=>{ try { return !localStorage.getItem('board-swipe-hint') } catch(e) { return true } })() }" x-show="hint" x-cloak>
+        <div class="flex items-start gap-3 rounded-2xl bg-indigo-50 px-4 py-3 text-sm text-indigo-900">
+            <span class="flex-1"><strong>Tip:</strong> swipe a card right to mark it done, left to move it to tomorrow. Tap a card for more. Pull down to refresh.</span>
+            <button type="button" class="font-semibold text-indigo-700" @click="hint = false; try { localStorage.setItem('board-swipe-hint', '1') } catch(e) {}">Got it</button>
+        </div>
+    </div>
+
+    <div data-drop-col="done" class="hidden md:flex min-h-16 items-center justify-center rounded-2xl border-2 border-dashed border-teal-300 bg-teal-50/60 px-4 text-sm font-medium text-teal-900 transition">
         Drag a card here to mark it done · drag tasks between columns to change their status
     </div>
 
     <section aria-label="Board" class="grid grid-cols-1 items-start gap-4 md:grid-cols-2 xl:grid-cols-4">
         @foreach($columns as $col)
-        <div class="rounded-2xl bg-slate-100 p-3">
-            <div class="flex items-center justify-between px-1 pb-3">
+        <div class="rounded-2xl bg-slate-100 p-3 max-md:bg-transparent max-md:p-0" :class="tab === '{{ $col['key'] }}' ? '' : 'max-md:hidden'">
+            <div class="flex items-center justify-between px-1 pb-3 max-md:hidden">
                 <h2 class="text-sm font-bold {{ $col['color'] }}">{{ $col['title'] }}</h2>
                 <span data-col-count class="rounded-full bg-white px-2.5 py-0.5 text-sm font-semibold text-slate-700">{{ $col['items']->count() }}</span>
             </div>
-            <div data-drop-col="{{ $col['key'] }}" class="flex min-h-24 max-h-[720px] flex-col gap-2 overflow-y-auto rounded-xl transition">
-                @forelse($col['items'] as $item)
-                <article data-dash-item draggable="true"
-                    data-type="{{ $item['type'] }}"
-                    data-label="{{ $item['title'] }}"
-                    @if($item['type'] === 'task') data-status-url="{{ $item['complete_url'] }}" @endif
-                    @if($item['complete_url']) data-complete-url="{{ $item['complete_url'] }}" data-complete-method="{{ $item['complete_method'] }}" data-complete-payload='@json($item['complete_payload'])' @endif
-                    @if(!empty($item['pay'])) data-pay='@json($item['pay'])' @endif
-                    class="cursor-grab rounded-xl border border-slate-200 bg-white p-3 active:cursor-grabbing">
-                    <div class="flex items-start justify-between gap-2">
-                        <span class="flex items-center gap-1.5">
-                            <span class="rounded-md px-2 py-0.5 text-xs font-bold {{ $tag[$item['kind']][1] }}">{{ $tag[$item['kind']][0] }}</span>
-                            @if($item['who'])
-                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-100 text-xs font-bold text-teal-900" title="{{ $item['who'] }}">{{ \Illuminate\Support\Str::of($item['who'])->explode(' ')->map(fn ($p) => mb_substr($p, 0, 1))->take(2)->implode('') }}</span>
-                            @endif
-                        </span>
-                        <span class="whitespace-nowrap text-xs {{ $item['urgency'] === 'over' ? 'font-semibold text-red-700' : 'text-slate-600' }}">{{ $item['due_text'] }}</span>
+            @if($col['key'] === 'over' && $canReassign && $col['items']->count() >= 5)
+            <a href="{{ route('dashboard.cleanup') }}" class="mb-2 flex items-center justify-between rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-sm font-semibold text-red-800 hover:bg-red-100 max-md:py-3">
+                <span>Old items piling up? Clean up overdue</span><span aria-hidden="true">→</span>
+            </a>
+            @endif
+            <div data-drop-col="{{ $col['key'] }}" class="flex min-h-24 md:max-h-[720px] flex-col gap-2 md:overflow-y-auto rounded-xl transition">
+                @if($col['key'] === 'over' && $col['items']->isNotEmpty())
+                    @php $groups = $overGroups($col['items']); @endphp
+                    @foreach($groups as $gKey => [$gLabel, $gItems])
+                    <div class="flex shrink-0 flex-col gap-2" x-data="{ open: {{ ($gKey !== 'older' || $groups->count() === 1) ? 'true' : 'false' }} }">
+                        <button type="button" @click="open = !open" class="md:hidden flex items-center justify-between px-1 pt-1 text-xs font-bold uppercase tracking-wide text-slate-500" :aria-expanded="open">
+                            <span>{{ $gLabel }} · <span data-group-count>{{ $gItems->count() }}</span></span>
+                            <svg class="h-4 w-4 transition" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div class="flex flex-col gap-2" :class="open ? '' : 'max-md:hidden'">
+                            @foreach($gItems as $item)
+                                @include('dashboard.layouts._board-card', ['item' => $item, 'tag' => $tag, 'reassignStaff' => $reassignStaff])
+                            @endforeach
+                        </div>
                     </div>
-                    <a href="{{ $item['open_url'] }}" class="mt-2 block text-sm font-semibold text-slate-900 hover:text-indigo-700">{{ $item['title'] }}</a>
-                    <p class="text-[13px] text-slate-600">{{ $item['client_name'] }}</p>
-                    <div class="mt-2.5 border-t border-slate-100 pt-2.5">
-                        @include('dashboard.layouts._actions', ['item' => $item, 'showStart' => true])
-                    </div>
-                </article>
-                @empty
-                <p data-empty class="px-1 py-2 text-sm text-slate-600">Nothing here.</p>
-                @endforelse
+                    @endforeach
+                @else
+                    @foreach($col['items'] as $item)
+                        @include('dashboard.layouts._board-card', ['item' => $item, 'tag' => $tag, 'reassignStaff' => $reassignStaff])
+                    @endforeach
+                @endif
+                <p data-empty class="px-1 py-2 text-sm text-slate-600 max-md:rounded-2xl max-md:bg-white max-md:py-8 max-md:text-center" @if($col['items']->isNotEmpty()) hidden @endif>Nothing here.</p>
             </div>
         </div>
         @endforeach
@@ -109,4 +139,5 @@
 
 @include('dashboard.layouts._payment-dialog')
 @include('dashboard.layouts._script')
+@include('dashboard.layouts._phone-board')
 @endsection

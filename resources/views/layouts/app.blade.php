@@ -158,6 +158,7 @@
             document.documentElement.style.fontSize = appScale + '%';
         }
     </script>
+    <link rel="stylesheet" href="/css/phone.css?v={{ @filemtime(public_path('css/phone.css')) ?: 1 }}">
 </head>
 
 <body class="h-full theme-{{ auth()->user()?->theme ?? 'modern' }} workspace-{{ $workspaceType ?? \App\Support\WorkspaceProfile::current() }}">
@@ -507,7 +508,7 @@
         <div class="main-shell flex flex-col min-h-screen min-w-0">
             <!-- Header -->
             <header class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
-                <div class="px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center gap-3">
+                <div class="px-3 sm:px-6 lg:px-8 py-2 md:py-4 flex justify-between items-center gap-2 md:gap-3">
                     <div class="flex items-center gap-3 min-w-0 flex-1">
                         <button type="button" onclick="openMobileSidebar()" class="lg:hidden flex-shrink-0 p-2 -ml-1 rounded-lg text-slate-600 hover:bg-slate-100 focus:outline-none" aria-label="Open menu">
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
@@ -516,13 +517,13 @@
                             @yield('header', 'Dashboard')
                         </h2>
                     </div>
-                    <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-1 md:space-x-4">
                         @can('viewAny', App\Models\ClientCredential::class)
                         @include('partials.government-portal-buttons')
                         @endcan
                         @include('partials.demo-tour')
                         <!-- Search Trigger -->
-                        <div class="hidden md:flex items-center mr-2" x-data @click="$dispatch('keydown.window.prevent.ctrl.k')">
+                        <div class="hidden md:flex items-center mr-2" x-data @click="$dispatch('open-search')">
                             <div class="relative cursor-text group" data-tour="quick-search">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <svg class="h-5 w-5 text-gray-400 group-hover:text-indigo-500 transition-colors" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -535,8 +536,13 @@
                             </div>
                         </div>
 
+                        <!-- Phone search -->
+                        <button type="button" x-data @click="$dispatch('open-search')" class="md:hidden p-2 text-gray-500 hover:text-indigo-600 focus:outline-none" aria-label="Search">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" /></svg>
+                        </button>
+
                         <!-- Zen Mode Toggle -->
-                        <button onclick="toggleZenMode()" class="p-2 text-gray-400 hover:text-indigo-600 focus:outline-none transition-colors" title="Toggle Zen Mode">
+                        <button onclick="toggleZenMode()" class="hidden md:block p-2 text-gray-400 hover:text-indigo-600 focus:outline-none transition-colors" title="Toggle Zen Mode">
                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                             </svg>
@@ -619,7 +625,7 @@
 
                         <div class="relative" x-data="{ profileOpen: false }">
                             <button type="button" @click="profileOpen = !profileOpen" class="flex items-center space-x-2 group rounded-lg px-2 py-1 hover:bg-gray-50 focus:outline-none">
-                                <span class="text-sm font-medium text-gray-700 group-hover:text-indigo-600 max-w-[140px] truncate">{{ $user?->name }}</span>
+                                <span class="hidden md:inline text-sm font-medium text-gray-700 group-hover:text-indigo-600 max-w-[140px] truncate">{{ $user?->name }}</span>
                                 <div class="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-bold group-hover:ring-2 ring-indigo-400">
                                     {{ strtoupper(substr($user?->name ?? 'U', 0, 1)) }}
                                 </div>

@@ -53,6 +53,12 @@ Route::middleware([
     Route::post('/dashboard/inbox/snooze', [DashboardController::class, 'snoozeItem'])
         ->middleware('module:dashboard')
         ->name('dashboard.inbox.snooze');
+    Route::get('/dashboard/cleanup', [\App\Http\Controllers\OverdueCleanupController::class, 'index'])
+        ->middleware(['module:dashboard', 'role:partner,manager'])
+        ->name('dashboard.cleanup');
+    Route::post('/dashboard/cleanup', [\App\Http\Controllers\OverdueCleanupController::class, 'apply'])
+        ->middleware(['module:dashboard', 'role:partner,manager'])
+        ->name('dashboard.cleanup.apply');
     Route::post('/dashboard/layout', [DashboardController::class, 'switchLayout'])
         ->middleware('module:dashboard')
         ->name('dashboard.layout');
