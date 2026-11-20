@@ -8,6 +8,7 @@
     <title>@yield('title') — {{ \App\Support\Branding::dashboardName() }}</title>
     @include('partials.workspace-theme')
     @include('partials.head-assets')
+    @include('partials.app-shell-head')
     <style>
         body { font-family: {!! $theme['font_stack'] !!}; }
         .login-shell { min-height: 100vh; display: grid; grid-template-columns: 1fr; }

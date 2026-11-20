@@ -145,7 +145,7 @@
             <p class="text-xs text-slate-500 mb-3">Queued for partner review (filename hints until OCR API is added).</p>
             <form action="{{ route('document-ingestions.store', $client) }}" method="POST" enctype="multipart/form-data" class="space-y-2">
                 @csrf
-                <input type="file" name="document" required class="block w-full text-xs">
+                <input type="file" name="document" required data-camera-scan class="block w-full text-xs">
                 <input type="text" name="document_type" placeholder="Type (e.g. GSTR notice)" class="w-full rounded-md border-slate-300 text-sm">
                 <button type="submit" class="w-full py-2 bg-slate-800 text-white text-xs font-semibold rounded-lg">Send to review queue</button>
             </form>

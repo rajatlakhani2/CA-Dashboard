@@ -17,6 +17,7 @@ Schedule::command('compliance:score-risk')->dailyAt('06:45');
 Schedule::command('services:generate-dues')->daily();
 Schedule::command('services:notify-dues')->dailyAt('09:00');
 Schedule::command('reminders:personal-renewals')->dailyAt('08:00');
+Schedule::command('push:due-tomorrow')->dailyAt('08:30')->withoutOverlapping();
 
 try {
     $time1 = \App\Models\Setting::get('reminder_time_1', '10:00');

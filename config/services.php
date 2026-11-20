@@ -35,6 +35,13 @@ return [
         ],
     ],
 
+    // Firebase Cloud Messaging (push notifications to the Android app).
+    // FIREBASE_CREDENTIALS = path to the service-account JSON file, or the JSON itself.
+    'fcm' => [
+        'credentials' => env('FIREBASE_CREDENTIALS'),
+        'project_id' => env('FIREBASE_PROJECT_ID'),
+    ],
+
     'whatsapp' => [
         'token' => env('WHATSAPP_TOKEN'),
         'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),

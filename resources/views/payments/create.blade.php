@@ -15,13 +15,13 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Receipt Number (Auto) -->
-                <div class="col-span-2">
+                <div class="md:col-span-2">
                     <label class="block text-sm font-bold text-gray-700 mb-2">Receipt Number</label>
                     <input type="text" name="receipt_number" value="{{ old('receipt_number', $nextReceiptNumber) }}" readonly class="w-full rounded-xl border-gray-200 bg-gray-100 text-gray-500 py-3 px-4 shadow-sm focus:outline-none">
                 </div>
 
                 <!-- Client/Invoice Selection -->
-                <div class="col-span-2">
+                <div class="md:col-span-2">
                     <label class="block text-sm font-bold text-gray-700 mb-2">Select Invoice <span class="text-red-500">*</span></label>
                     <select name="invoice_id" required class="w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all py-3 px-4 shadow-sm bg-gray-50/50">
                         <option value="">-- Choose an Invoice --</option>
@@ -68,7 +68,7 @@
                 </div>
 
                 <!-- Notes -->
-                <div class="col-span-2">
+                <div class="md:col-span-2">
                     <label class="block text-sm font-bold text-gray-700 mb-2">Internal Notes</label>
                     <textarea name="notes" rows="3" placeholder="Any internal notes or remarks..." class="w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all py-3 shadow-sm bg-gray-50/50">{{ old('notes') }}</textarea>
                 </div>

@@ -9,6 +9,7 @@
     <title>Sign in — {{ $dashboardBrandName ?? \App\Support\Branding::dashboardName() }}</title>
     @include('partials.workspace-theme')
     @include('partials.head-assets')
+    @include('partials.app-shell-head')
     <style>
         body { font-family: {!! $theme['font_stack'] !!}; }
         .login-shell { min-height: 100vh; display: grid; grid-template-columns: 1fr; }
@@ -138,6 +139,9 @@
 
                 <p class="mt-5 text-center text-xs text-slate-500">
                     New firm? <a href="{{ route('register.organization') }}" class="font-semibold login-link hover:opacity-80">Create a workspace</a>
+                </p>
+                <p class="mt-2 text-center text-xs text-slate-500 hide-in-native-app">
+                    On your phone? <a href="{{ route('app.download') }}" class="font-semibold login-link hover:opacity-80">Get the mobile app</a>
                 </p>
             </div>
         </div>

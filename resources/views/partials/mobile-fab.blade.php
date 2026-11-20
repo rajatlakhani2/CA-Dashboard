@@ -16,6 +16,11 @@
         @if($u?->managesFirmModules() && $u?->canAccessModule('payments'))
         <a href="{{ route('payments.create') }}" class="block rounded-xl px-3 py-3 text-sm font-semibold text-gray-900 hover:bg-indigo-50">+ Payment</a>
         @endif
+        @if(Route::has('dashboard.help-chat'))
+        <div class="border-t border-gray-100 mt-1 pt-1">
+            <button type="button" @click="fab = false; window.dispatchEvent(new CustomEvent('open-help-chat'))" class="block w-full text-left rounded-xl px-3 py-3 text-sm font-semibold text-gray-900 hover:bg-indigo-50">Help &amp; questions</button>
+        </div>
+        @endif
         <button type="button" @click="fab = false" class="w-full mt-1 py-2 text-xs font-semibold text-gray-500">Cancel</button>
     </div>
 </div>

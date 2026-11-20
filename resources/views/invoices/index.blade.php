@@ -23,18 +23,18 @@
 
     @if($canManageInvoices)
     <!-- Counters / Summary -->
-    <div class="grid grid-cols-3 gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
         <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
             <p class="text-xs font-semibold text-gray-400 uppercase">Unbilled Work</p>
-            <p class="text-2xl font-bold text-gray-800">{{ $unbilledTasks->count() }} <span class="text-sm font-normal text-gray-400">tasks</span></p>
+            <p class="text-lg sm:text-2xl font-bold text-gray-800 break-words">{{ $unbilledTasks->count() }} <span class="text-sm font-normal text-gray-400">tasks</span></p>
         </div>
         <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
             <p class="text-xs font-semibold text-gray-400 uppercase">Unpaid Amount</p>
-            <p class="text-2xl font-bold text-indigo-600">₹ {{ number_format(\App\Models\Invoice::where('status', '!=', 'Paid')->sum('total_amount'), 2) }}</p>
+            <p class="text-lg sm:text-2xl font-bold text-indigo-600 break-words">₹ {{ number_format(\App\Models\Invoice::where('status', '!=', 'Paid')->sum('total_amount'), 2) }}</p>
         </div>
-        <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+        <div class="col-span-2 sm:col-span-1 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
             <p class="text-xs font-semibold text-gray-400 uppercase">Collected (This Month)</p>
-            <p class="text-2xl font-bold text-emerald-600">₹ {{ number_format(\App\Models\Invoice::where('status', 'Paid')->whereMonth('date', now()->month)->sum('total_amount'), 2) }}</p>
+            <p class="text-lg sm:text-2xl font-bold text-emerald-600 break-words">₹ {{ number_format(\App\Models\Invoice::where('status', 'Paid')->whereMonth('date', now()->month)->sum('total_amount'), 2) }}</p>
         </div>
     </div>
     @endif

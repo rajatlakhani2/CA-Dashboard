@@ -167,7 +167,7 @@ Clients
         }
     </script>
 
-    <div x-data="{ view: localStorage.getItem('clients_view') || 'table' }" x-init="$watch('view', v => localStorage.setItem('clients_view', v))" class="space-y-4">
+    <div x-data="{ view: localStorage.getItem('clients_view') || (window.innerWidth < 768 ? 'cards' : 'table') }" x-init="$watch('view', v => localStorage.setItem('clients_view', v))" class="space-y-4">
     <div class="flex flex-wrap items-center justify-between gap-2">
         <p class="text-sm text-gray-600">{{ $clients->total() }} clients</p>
         <div class="inline-flex rounded-lg border border-gray-200 bg-white p-0.5 text-xs font-semibold">

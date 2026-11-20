@@ -19,7 +19,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
                 <!-- Client Selection -->
-                <div class="col-span-2">
+                <div class="md:col-span-2">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3">Associated Client <span class="text-indigo-600">*</span></label>
                     <select name="client_id" required class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all py-4 px-6 font-bold text-slate-800 shadow-sm">
                         <option value="">-- Select Client --</option>
@@ -30,7 +30,7 @@
                 </div>
 
                 <!-- Holder Name -->
-                <div class="col-span-2">
+                <div class="md:col-span-2">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3">Certificate Holder Name <span class="text-indigo-600">*</span></label>
                     <input type="text" name="holder_name" value="{{ old('holder_name', $dsc->holder_name) }}" required placeholder="Legal name on the certificate" class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all py-4 px-6 font-bold text-slate-800 shadow-sm">
                 </div>
@@ -63,7 +63,7 @@
                 </div>
 
                 <!-- Notes -->
-                <div class="col-span-2">
+                <div class="md:col-span-2">
                     <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3">Storage Notes / Pin Details</label>
                     <textarea name="notes" rows="2" placeholder="Where is the token kept? Any specific pin details? (Encrypted storage recommended)" class="w-full bg-slate-50 border-0 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all py-4 px-6 font-bold text-slate-800 shadow-sm">{{ old('notes', $dsc->notes) }}</textarea>
                 </div>

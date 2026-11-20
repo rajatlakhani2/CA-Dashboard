@@ -37,7 +37,46 @@
 @endpush
 
 <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden" data-demo-tour="tasks-list">
-    <div class="overflow-x-auto">
+    {{-- Phones: one card per task with a one-tap Done. Laptops keep the table below. --}}
+    <ul class="md:hidden divide-y divide-gray-100" data-mobile-task-cards>
+        @foreach($tasks as $task)
+        @php
+            $tone = TaskListDisplay::priorityTone($task->priority);
+            $dueContext = TaskListDisplay::dueContextLabel($task);
+            $assignee = TaskListDisplay::assigneeLabel($task);
+            $dueUrgent = $task->due_date && $task->due_date->isPast() || $dueContext === 'Due Today';
+            $isClosed = in_array($task->status, \App\Models\Task::TERMINAL_STATUSES, true);
+        @endphp
+        <li class="flex gap-3 px-4 py-3">
+            <span class="tasks-priority-bar {{ $tone['bar'] }}"></span>
+            <div class="min-w-0 flex-1">
+                <a href="{{ route('tasks.edit', $task) }}" class="block">
+                    <p class="text-sm font-bold text-gray-900 break-words">{{ $task->title }}</p>
+                    <p class="text-xs text-gray-500 mt-0.5 truncate">{{ $task->client?->name ?? 'Internal' }} · {{ $assignee }}</p>
+                </a>
+                <div class="mt-2 flex flex-wrap items-center gap-2">
+                    <span class="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-bold {{ $tone['badge'] }}">{{ $task->priority }}</span>
+                    <span class="text-xs font-semibold {{ $dueUrgent ? 'text-rose-600' : 'text-gray-600' }}">
+                        {{ $task->due_date ? $task->due_date->format('d M') : 'No due date' }}@if($dueContext) · {{ $dueContext }}@endif
+                    </span>
+                    <span class="text-xs text-gray-500">{{ $task->status }}</span>
+                </div>
+            </div>
+            @if(! $isClosed)
+            @can('updateStatus', $task)
+            <form action="{{ route('tasks.update-status', $task) }}" method="POST" class="shrink-0 self-center">
+                @csrf
+                @method('PATCH')
+                <input type="hidden" name="status" value="{{ \App\Models\Task::STATUS_COMPLETED }}">
+                <input type="hidden" name="return_back" value="1">
+                <button type="submit" class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white">Done</button>
+            </form>
+            @endcan
+            @endif
+        </li>
+        @endforeach
+    </ul>
+    <div class="hidden md:block overflow-x-auto">
         <table class="tasks-demo-table min-w-full w-full">
             <thead>
                 <tr>

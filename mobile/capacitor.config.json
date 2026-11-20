@@ -1,0 +1,37 @@
+{
+  "appId": "in.org.kuhu.cadashboard",
+  "appName": "CA Dashboard",
+  "webDir": "www",
+  "server": {
+    "url": "https://app.kuhu.org.in/home",
+    "androidScheme": "https",
+    "errorPath": "error.html",
+    "allowNavigation": [
+      "app.kuhu.org.in"
+    ]
+  },
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
+      "backgroundColor": "#1e293b",
+      "showSpinner": false,
+      "androidScaleType": "CENTER_CROP"
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#1e293b",
+      "overlaysWebView": false
+    },
+    "PushNotifications": {
+      "presentationOptions": [
+        "badge",
+        "sound",
+        "alert"
+      ]
+    }
+  }
+}
