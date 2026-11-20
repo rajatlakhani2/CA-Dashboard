@@ -12,6 +12,11 @@ class TaskListDisplay
             return '';
         }
 
+        // Finished work is never "overdue".
+        if (in_array($task->status, Task::TERMINAL_STATUSES, true)) {
+            return 'Done';
+        }
+
         $today = now()->startOfDay();
         $due = $task->due_date->copy()->startOfDay();
         $diff = (int) $today->diffInDays($due, false);

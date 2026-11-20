@@ -1,0 +1,31 @@
+# Measures the live site from outside (response time, compression, browser caching).
+# Run by hand: Actions → Speed check → Run workflow. Reads public pages only; changes nothing.
+name: Speed check
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['perf/**']
+    paths: ['.github/workflows/speed-check.yml']
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    if: github.repository == 'rajatlakhani2/CA-Dashboard'
+    steps:
+      - name: Measure
+        run: |
+          BASE=https://app.kuhu.org.in
+          echo "## Live site speed" >> "$GITHUB_STEP_SUMMARY"
+          for i in 1 2 3; do
+            curl -s -o /dev/null -w "login run $i: connect %{time_connect}s, TLS %{time_appconnect}s, first byte %{time_starttransfer}s, total %{time_total}s, %{size_download} bytes\n" -H 'Accept-Encoding: gzip, br' "$BASE/login"
+          done | tee -a "$GITHUB_STEP_SUMMARY"
+          curl -s -o /dev/null -w "health /up: first byte %{time_starttransfer}s\n" "$BASE/up" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "### Login page headers" >> "$GITHUB_STEP_SUMMARY"
+          curl -s -D - -o /dev/null -H 'Accept-Encoding: gzip, br' "$BASE/login" | grep -iE '^(content-encoding|cache-control|server|x-powered-by|content-length|x-litespeed)' | tee -a "$GITHUB_STEP_SUMMARY"
+          CSS=$(curl -s "$BASE/login" | grep -oE '/build/assets/[^"]+\.css' | head -1)
+          for asset in "$CSS" /vendor/alpine-3.14.3.min.js /js/native-app.js /app-icons/icon-192.png; do
+            [ -z "$asset" ] && continue
+            echo "### $asset" >> "$GITHUB_STEP_SUMMARY"
+            curl -s -D - -o /dev/null -H 'Accept-Encoding: gzip, br' "$BASE$asset" | grep -iE '^(HTTP|content-encoding|cache-control|expires|etag|last-modified|content-length)' | tee -a "$GITHUB_STEP_SUMMARY"
+          done

@@ -469,14 +469,17 @@ class DashboardMissionControlService
     {
         $health = app(ClientHealthScoreService::class);
 
-        return Client::query()
+        $clients = Client::query()
             ->visibleTo($user)
             ->where('status', Client::STATUS_ACTIVE)
             ->when($user?->isPartner(), fn ($q) => $q->where('approval_status', Client::APPROVAL_APPROVED))
             ->latest('updated_at')
             ->limit(40)
-            ->get()
-            ->map(fn (Client $c) => array_merge(['client' => $c], $health->forClient($c)))
+            ->get();
+        $scores = $health->forClients($clients);
+
+        return $clients
+            ->map(fn (Client $c) => array_merge(['client' => $c], $scores[$c->id] ?? []))
             ->filter(fn (array $row) => array_key_exists('score', $row) && $row['score'] !== null)
             ->sortBy('score')
             ->take($limit)

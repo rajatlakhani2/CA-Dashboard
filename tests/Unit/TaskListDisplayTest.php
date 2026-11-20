@@ -21,4 +21,11 @@ class TaskListDisplayTest extends TestCase
 
         $this->assertSame('Due Today', TaskListDisplay::dueContextLabel($task));
     }
+
+    public function test_completed_task_is_never_labelled_overdue(): void
+    {
+        $task = new Task(['due_date' => now()->subDays(30), 'status' => Task::STATUS_COMPLETED]);
+
+        $this->assertSame('Done', TaskListDisplay::dueContextLabel($task));
+    }
 }

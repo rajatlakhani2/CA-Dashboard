@@ -18,7 +18,7 @@ class DemoTourService
             return false;
         }
 
-        if (filter_var(env('QA_SKIP_TOUR', false), FILTER_VALIDATE_BOOLEAN)) {
+        if (config('app.qa_skip_tour')) {
             return false;
         }
 
