@@ -134,7 +134,7 @@ class DashboardLayoutDataService
         if ($user->canAccessModule('invoices') && ($user->isPartner() || $user->isManager())) {
             $canPay = $user->canAccessModule('payments');
             $invoices = Invoice::query()
-                ->with('client:id,name,manager_id', 'client.manager:id,name')
+                ->with('client:id,name,manager_id,primary_contact_phone', 'client.manager:id,name')
                 ->withSum('payments', 'amount')
                 ->whereIn('status', Invoice::OPEN_STATUSES)
                 ->whereIn('client_id', $clientIds)
@@ -179,7 +179,7 @@ class DashboardLayoutDataService
 
         if ($user->canAccessModule('dsc')) {
             $dscs = Dsc::query()
-                ->with('client:id,name,manager_id', 'client.manager:id,name')
+                ->with('client:id,name,manager_id,primary_contact_phone', 'client.manager:id,name')
                 ->whereIn('client_id', $clientIds)
                 ->whereNotNull('expiry_date')
                 ->whereDate('expiry_date', '<=', $this->today->copy()->addDays(30))
@@ -232,7 +232,7 @@ class DashboardLayoutDataService
 
         if ($user->canAccessModule('tasks')) {
             $tasks = Task::query()
-                ->with(['client:id,name,manager_id', 'assignee:id,name'])
+                ->with(['client:id,name,manager_id,primary_contact_phone', 'assignee:id,name'])
                 ->whereNotIn('status', Task::TERMINAL_STATUSES)
                 ->where(function ($q) use ($user, $f, $clientIds) {
                     if ($f['staff']) {
@@ -271,6 +271,8 @@ class DashboardLayoutDataService
                     'start_payload' => $stage === 'todo' ? ['status' => Task::STATUS_IN_PROGRESS] : null,
                     'remind_url' => null,
                     'open_url' => route('tasks.edit', $task),
+                    'note_url' => route('tasks.mobile-note', $task),
+                    'time_url' => route('tasks.mobile-time', $task),
                 ]));
             }
         }
@@ -306,7 +308,12 @@ class DashboardLayoutDataService
 
         return array_merge($data, [
             'key' => $type.':'.$id,
+            'id' => $id,
             'type' => $type,
+            'client_phone' => $client?->primary_contact_phone ?: null,
+            'days_over' => ($days !== null && $days < 0) ? -$days : 0,
+            'note_url' => $data['note_url'] ?? null,
+            'time_url' => $data['time_url'] ?? null,
             'client_name' => $client?->name ?? '—',
             'client_id' => $client?->id,
             'urgency' => $urgency,
@@ -329,7 +336,7 @@ class DashboardLayoutDataService
     {
         $services = ClientService::query()
             ->with([
-                'client:id,name,manager_id',
+                'client:id,name,manager_id,primary_contact_phone',
                 'client.manager:id,name',
                 'service:id,name',
                 'service.documentRequirements:id,service_id,name,sort_order',

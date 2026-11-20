@@ -3,6 +3,7 @@
     x-init="init()"
     @keydown.window.prevent.cmd.k="openModal()"
     @keydown.window.prevent.ctrl.k="openModal()"
+    @open-search.window="openModal()"
     @keydown.escape.window="closeModal()"
     class="relative z-[60]"
     style="display: none;"

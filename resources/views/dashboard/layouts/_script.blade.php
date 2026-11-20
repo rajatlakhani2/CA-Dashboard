@@ -1,6 +1,6 @@
 {{-- Shared behaviour for dashboard layouts: actions without reload, payment pop-up,
      Work board drag-and-drop, and quiet auto-refresh. --}}
-<div id="dash-toast" role="status" aria-live="polite" class="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4"></div>
+<div id="dash-toast" role="status" aria-live="polite" class="pointer-events-none fixed inset-x-0 bottom-24 z-[60] flex justify-center px-4 md:bottom-6 md:z-50"></div>
 <p id="dash-refreshed" class="mt-2 text-center text-xs text-slate-500" aria-live="off"></p>
 @php
     $dashTaskStatus = [
@@ -82,6 +82,15 @@
             if (head) head.textContent = n;
             const empty = col.querySelector('[data-empty]');
             if (empty) empty.hidden = n > 0;
+            const tab = document.querySelector('[data-tab-count="' + col.dataset.dropCol + '"]');
+            if (tab) tab.textContent = n;
+        });
+        // Phone age groups inside the Overdue column.
+        document.querySelectorAll('[data-group-count]').forEach(el => {
+            const group = el.closest('[x-data]');
+            const n = group ? group.querySelectorAll('[data-dash-item]').length : 0;
+            el.textContent = n;
+            if (group) group.hidden = n === 0;
         });
     }
 
@@ -233,6 +242,7 @@
         const modalOpen = document.querySelector('dialog[open]') || dragged;
         if (!force && (document.hidden || !idle || modalOpen)) return;
         busy = true;
+        loadingBar(true);
         try {
             const res = await fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' });
             if (!res.ok || res.redirected) return;
@@ -248,9 +258,26 @@
             // Network blip: try again next time.
         } finally {
             busy = false;
+            loadingBar(false);
         }
     }
+
+    // Thin bar at the top of the screen while the dashboard reloads its data.
+    function loadingBar(on) {
+        let bar = document.getElementById('dash-loading-bar');
+        if (!bar) {
+            bar = document.createElement('div');
+            bar.id = 'dash-loading-bar';
+            bar.setAttribute('aria-hidden', 'true');
+            bar.style.cssText = 'position:fixed;top:0;left:0;height:3px;width:0;z-index:80;background:#6366f1;transition:width .6s ease,opacity .3s;opacity:0';
+            document.body.appendChild(bar);
+        }
+        if (on) { bar.style.opacity = '1'; bar.style.width = '70%'; }
+        else { bar.style.width = '100%'; setTimeout(() => { bar.style.opacity = '0'; bar.style.width = '0'; }, 250); }
+    }
+
     window.dashRefresh = refresh;
+    window.dashApi = { send, removeItem, recount, toast, openPay, refresh, touched: () => { lastInteraction = Date.now(); } };
     setInterval(refresh, REFRESH_MS);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
 })();
