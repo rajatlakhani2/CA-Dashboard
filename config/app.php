@@ -15,6 +15,9 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    // QA scripts can skip the demo tour (read via config so it still works with cached config).
+    'qa_skip_tour' => (bool) env('QA_SKIP_TOUR', false),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

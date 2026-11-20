@@ -122,6 +122,9 @@ jobs:
             php artisan config:clear 2>/dev/null || true
             rm -rf storage/framework/views/* 2>/dev/null || true
             rm -f bootstrap/cache/routes-v7.php bootstrap/cache/config.php 2>/dev/null || true
+            # Rebuild Laravel's config/route/view/event caches so each page starts faster.
+            # If that ever fails the site keeps working, just without the caches.
+            php artisan optimize || { echo "optimize failed - running without caches"; php artisan optimize:clear; }
             STAMP="deploy-$(date -u +%Y%m%d-%H%M%S)"
             echo "$STAMP" > public/dashboard-build.txt
             printf '%s\n' "{\"build\":\"${STAMP}\",\"deploy_stamp\":\"$STAMP\",\"ok\":true}" > public/build-status.json

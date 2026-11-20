@@ -182,7 +182,53 @@
         });
     }
 
+
+    /* ---------- Instant feedback while the next page loads (all screens) ---------- */
+    function setupNavProgress() {
+        var bar = null, timer = null;
+        function start() {
+            if (!bar) {
+                bar = document.createElement('div');
+                bar.setAttribute('aria-hidden', 'true');
+                bar.style.cssText = 'position:fixed;top:0;left:0;height:3px;width:0;z-index:2147483001;background:#6366f1;box-shadow:0 0 6px rgba(99,102,241,.6);transition:width 8s cubic-bezier(.1,.7,.2,1),opacity .2s';
+                document.body.appendChild(bar);
+            }
+            bar.style.opacity = '1';
+            bar.style.transition = 'none';
+            bar.style.width = '0';
+            void bar.offsetWidth;
+            bar.style.transition = 'width 8s cubic-bezier(.1,.7,.2,1),opacity .2s';
+            bar.style.width = '92%';
+            clearTimeout(timer);
+            timer = setTimeout(stop, 15000);
+        }
+        function stop() {
+            if (!bar) return;
+            bar.style.transition = 'width .15s,opacity .3s';
+            bar.style.width = '100%';
+            setTimeout(function () { if (bar) { bar.style.opacity = '0'; bar.style.width = '0'; } }, 150);
+        }
+        document.addEventListener('click', function (e) {
+            if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+            var a = e.target.closest && e.target.closest('a[href]');
+            if (!a || a.target === '_blank' || a.hasAttribute('download')) return;
+            var href = a.getAttribute('href') || '';
+            if (href.charAt(0) === '#' || /^(javascript|mailto|tel|https?:\/\/wa\.me)/i.test(href)) return;
+            if (a.origin !== location.origin) return;
+            if (/\/(download|export|template|receipt|soa|backup|launch)(\/|\?|$)|\.pdf/i.test(a.pathname)) return;
+            if (a.pathname === location.pathname && a.search === location.search && a.hash) return;
+            // Let other click handlers (Alpine, panels) decide first.
+            setTimeout(function () { if (!e.defaultPrevented) start(); }, 0);
+        });
+        document.addEventListener('submit', function (e) {
+            var f = e.target;
+            if (!f || f.target === '_blank') return;
+            setTimeout(function () { if (!e.defaultPrevented) start(); }, 0);
+        });
+        window.addEventListener('pageshow', stop);   // also when coming back with the Back button
+    }
     function start() {
+        setupNavProgress();
         setupCameraScan();
         if (!isApp) return;
         setupLock();

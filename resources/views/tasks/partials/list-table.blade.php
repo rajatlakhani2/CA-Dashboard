@@ -44,7 +44,7 @@
             $tone = TaskListDisplay::priorityTone($task->priority);
             $dueContext = TaskListDisplay::dueContextLabel($task);
             $assignee = TaskListDisplay::assigneeLabel($task);
-            $dueUrgent = $task->due_date && $task->due_date->isPast() || $dueContext === 'Due Today';
+            $dueUrgent = in_array($dueContext, ['Overdue', 'Due Today'], true);
             $isClosed = in_array($task->status, \App\Models\Task::TERMINAL_STATUSES, true);
         @endphp
         <li class="flex gap-3 px-4 py-3">
@@ -57,7 +57,7 @@
                 <div class="mt-2 flex flex-wrap items-center gap-2">
                     <span class="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-bold {{ $tone['badge'] }}">{{ $task->priority }}</span>
                     <span class="text-xs font-semibold {{ $dueUrgent ? 'text-rose-600' : 'text-gray-600' }}">
-                        {{ $task->due_date ? $task->due_date->format('d M') : 'No due date' }}@if($dueContext) · {{ $dueContext }}@endif
+                        {{ $task->due_date ? $task->due_date->format('d M') : 'No due date' }}@if($dueContext && $dueContext !== 'Done') · {{ $dueContext }}@endif
                     </span>
                     <span class="text-xs text-gray-500">{{ $task->status }}</span>
                 </div>
@@ -96,7 +96,7 @@
                     $progress = TaskListDisplay::progressPercent($task);
                     $service = TaskListDisplay::clientServiceLabel($task);
                     $assignee = TaskListDisplay::assigneeLabel($task);
-                    $dueUrgent = $task->due_date && $task->due_date->isPast() || $dueContext === 'Due Today';
+                    $dueUrgent = in_array($dueContext, ['Overdue', 'Due Today'], true);
                 @endphp
                 <tr class="group">
                     <td class="priority-cell pl-4">

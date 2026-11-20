@@ -46,7 +46,7 @@ means people with the fallback build must uninstall it once and install the new 
    ```
    FIREBASE_CREDENTIALS=/home/kuhuorgi/firebase-ca-dashboard.json
    ```
-   then `php artisan config:clear`.
+   then `php artisan optimize` (the site caches its settings, so .env changes need this).
 
 Until both parts exist the site behaves exactly as before and the app simply doesn't ask for notification permission.
 

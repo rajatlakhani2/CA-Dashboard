@@ -64,9 +64,7 @@ class ClientController extends Controller
         $clients = $query->latest()->paginate(12);
         $managers = \App\Models\User::all();
         $healthService = app(\App\Services\ClientHealthScoreService::class);
-        $clientHealthMap = $clients->getCollection()->mapWithKeys(fn (Client $c) => [
-            $c->id => $healthService->forClient($c),
-        ]);
+        $clientHealthMap = collect($healthService->forClients($clients->getCollection()));
 
         $panLookupHint = null;
         if ($request->filled('search') && $clients->total() === 0) {
