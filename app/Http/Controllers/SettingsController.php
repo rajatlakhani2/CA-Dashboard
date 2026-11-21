@@ -281,7 +281,7 @@ class SettingsController extends Controller
             'company_logo_path' => '',
             'invoice_signatory_name' => '',
             'auto_backup_enabled' => '1',
-            'auto_logout_minutes' => '0',
+            'auto_logout_minutes' => (string) \App\Support\SessionIdle::DEFAULT_MINUTES,
         ];
 
         $out = [];
@@ -321,7 +321,7 @@ class SettingsController extends Controller
             'company_logo_path' => 'nullable|string|max:255',
             'invoice_signatory_name' => 'nullable|string|max:255',
             'auto_backup_enabled' => 'nullable|in:0,1',
-            'auto_logout_minutes' => 'nullable|integer|in:0,15,30,60,120,240,480',
+            'auto_logout_minutes' => 'nullable|integer|min:1|max:120',
         ];
     }
 

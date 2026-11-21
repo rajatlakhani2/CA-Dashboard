@@ -8,7 +8,7 @@
     <p>CA Dashboard is practice-management software used by chartered accountancy firms and their staff. This policy explains what the website and the mobile app collect, why, and what control you have.</p>
 
     <h2>1. Who can use it</h2>
-    <p>Only people who have been given an account by their firm can sign in. There is no public sign-up for individuals, and the service is not meant for children.</p>
+    <p>CA Dashboard is for chartered accountancy firms and their teams. A firm creates its workspace and adds its own people; the service is not meant for children.</p>
 
     <h2>2. What we collect</h2>
     <ul>

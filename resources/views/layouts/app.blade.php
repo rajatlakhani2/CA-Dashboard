@@ -211,6 +211,7 @@
                         <h2 class="cd-page-title truncate min-w-0">
                             @yield('header', 'Dashboard')
                         </h2>
+                        @stack('header_tools')
                     </div>
                     <div class="flex items-center space-x-1 md:space-x-4">
                         @can('viewAny', App\Models\ClientCredential::class)
@@ -321,7 +322,7 @@
                             <button type="button" @click="profileOpen = !profileOpen" class="flex items-center space-x-2 group rounded-lg px-2 py-1 hover:bg-gray-50 focus:outline-none">
                                 <span class="hidden md:inline text-sm font-medium text-gray-700 group-hover:text-indigo-600 max-w-[140px] truncate">{{ $user?->name }}</span>
                                 <div class="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-bold group-hover:ring-2 ring-indigo-400">
-                                    {{ strtoupper(substr($user?->name ?? 'U', 0, 1)) }}
+                                    {{ strtoupper(substr(preg_replace('/^CA\s+/i', '', trim($user?->name ?? 'U')) ?: 'U', 0, 1)) }}
                                 </div>
                             </button>
                             <div x-show="profileOpen" @click.away="profileOpen = false" style="display: none;"
@@ -407,6 +408,8 @@
             </main>
         </div>
     </div>
+    @include('partials.idle-logout')
+    @include('partials.card-motion')
     @stack('scripts')
     @yield('scripts')
 

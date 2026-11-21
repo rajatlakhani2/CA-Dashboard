@@ -8,7 +8,7 @@
     <p>CA Dashboard was built inside a working CA practice to solve an everyday problem: client work, statutory due dates, documents, billing and the team were spread across spreadsheets, diaries and chat groups. Things were remembered at the last minute, and partners had no single place to see where the firm stood.</p>
 
     <h2>What it is</h2>
-    <p>A private, secure workspace for a CA firm. Every client has one profile. Every due date becomes a task with an owner. Finished work flows into billing, and every payment is followed up. Partners see the whole firm; each team member sees what they are responsible for today.</p>
+    <p>A secure online workspace for each CA firm that uses it. Every client has one profile. Every due date becomes a task with an owner. Finished work flows into billing, and every payment is followed up. Partners see the whole firm; each team member sees what they are responsible for today.</p>
 
     <h2>Who it is for</h2>
     <ul>
@@ -16,7 +16,7 @@
         <li><strong>Managers</strong> who plan and assign the team’s work.</li>
         <li><strong>Staff and article assistants</strong> who need a simple daily list on the laptop or phone.</li>
     </ul>
-    <p>It is not a public product. Firms are set up individually, and people sign in only when their firm invites them.</p>
+    <p>Any CA firm can create its own workspace, from a sole practitioner to a multi-branch firm. The partner then adds the team and decides what each person can see.</p>
 
     <h2>What it is not</h2>
     <p>CA Dashboard does not file returns or replace accounting software. Returns are still filed on the government portals and books kept in your accounting package. CA Dashboard helps the firm remember, assign, follow up and bill.</p>

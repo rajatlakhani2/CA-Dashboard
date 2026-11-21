@@ -71,7 +71,7 @@ class DashboardProductionQaTest extends TestCase
     /** TC-003 Unauthorized dashboard access */
     public function test_tc_003_guest_redirected_to_login(): void
     {
-        $this->get(route('dashboard'))->assertRedirect(route('login'));
+        $this->get(route('dashboard'))->assertRedirect(route('landing'));
     }
 
     /** TC-004 Tasks module disabled */

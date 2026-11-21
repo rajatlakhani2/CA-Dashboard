@@ -18,7 +18,10 @@
             <p class="text-xs text-[var(--premium-muted)]">{{ now()->format('l, d M Y') }} · {{ \App\Support\Branding::dashboardName() }}</p>
         </div>
         <div class="flex flex-wrap items-center gap-3 shrink-0">
-            @include('dashboard.partials.layout-switcher')
+            @push('header_tools')
+            <div class="cd-header-tools">@include('dashboard.partials.layout-switcher', ['switchId' => 'dashboard-layout-switch-top', 'compact' => true])</div>
+            @endpush
+            <div class="md:hidden">@include('dashboard.partials.layout-switcher')</div>
             <p class="executive-summary__layout-hint text-xs text-gray-500 shrink-0 hidden sm:block">Drag · ▼ collapse · drag ⤡ corner to resize</p>
         </div>
     </div>

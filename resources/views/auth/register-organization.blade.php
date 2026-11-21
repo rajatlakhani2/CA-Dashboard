@@ -1,84 +1,73 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-50">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Register your firm — CA Dashboard</title>
-    @include('partials.head-assets')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Create your firm’s workspace — CA Dashboard</title>
+    @include('partials.app-shell-head')
+    @include('partials.public-auth-head')
 </head>
-<body class="h-full">
-    <div class="flex min-h-full flex-col justify-center py-10 sm:px-6 lg:px-8">
-        <div class="sm:mx-auto sm:w-full sm:max-w-lg text-center">
-            <p class="text-xs font-bold uppercase tracking-widest text-indigo-600">SaaS — new firm</p>
-            <h2 class="mt-2 text-3xl font-bold text-slate-900">Create your CA firm workspace</h2>
-            <p class="mt-2 text-sm text-slate-500">Your clients, tasks, and invoices stay private — other firms cannot see your data.</p>
-        </div>
-
-        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
-            <div class="bg-white py-8 px-6 shadow sm:rounded-xl sm:px-10">
-                <form class="space-y-5" method="POST" action="{{ route('register.organization') }}">
+<body class="pb">
+    <main class="pb-auth">
+        <div class="pb-auth__card" style="max-width:520px">
+            @include('partials.public-auth-brand', ['heading' => 'Create your firm’s workspace', 'sub' => 'Your clients, tasks and invoices stay separate from every other firm.'])
+                <form method="POST" action="{{ route('register.organization') }}">
                     @csrf
 
-                    <div>
-                        <label class="block text-sm font-medium text-slate-900">Firm / business name</label>
+                    <div class="pb-field">
+                        <label>Firm / business name</label>
                         <input name="firm_name" type="text" required value="{{ old('firm_name') }}"
-                            placeholder="Sharma & Associates"
-                            class="mt-1 block w-full rounded-md py-2 px-3 ring-1 ring-slate-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm">
+                            placeholder="Sharma & Associates">
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-slate-900">Workspace ID</label>
-                        <p class="text-xs text-slate-500">Lowercase, hyphens only — used at login (e.g. sharma-ca)</p>
+                    <div class="pb-field">
+                        <label>Workspace ID</label>
+                        <p class="pb-field__hint" style="margin:0 0 6px">Lowercase letters, numbers and hyphens. Your team uses it to sign in (e.g. sharma-ca).</p>
                         <input name="workspace" type="text" required value="{{ old('workspace') }}"
                             pattern="[a-z0-9]+(-[a-z0-9]+)*"
-                            placeholder="sharma-ca"
-                            class="mt-1 block w-full rounded-md py-2 px-3 ring-1 ring-slate-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm font-mono">
+                            placeholder="sharma-ca">
                     </div>
 
-                    <hr class="border-slate-200">
+                    <hr style="border:0;border-top:1px solid rgba(255,255,255,.14);margin:18px 0">
 
-                    <div>
-                        <label class="block text-sm font-medium text-slate-900">Your name (partner / owner)</label>
-                        <input name="admin_name" type="text" required value="{{ old('admin_name') }}"
-                            class="mt-1 block w-full rounded-md py-2 px-3 ring-1 ring-slate-300 sm:text-sm">
+                    <div class="pb-field">
+                        <label>Your name (partner / owner)</label>
+                        <input name="admin_name" type="text" required value="{{ old('admin_name') }}">
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-slate-900">Your email</label>
-                        <input name="admin_email" type="email" required value="{{ old('admin_email') }}"
-                            class="mt-1 block w-full rounded-md py-2 px-3 ring-1 ring-slate-300 sm:text-sm">
+                    <div class="pb-field">
+                        <label>Your email</label>
+                        <input name="admin_email" type="email" required value="{{ old('admin_email') }}">
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-slate-900">Password</label>
-                            <input name="admin_password" type="password" required
-                                class="mt-1 block w-full rounded-md py-2 px-3 ring-1 ring-slate-300 sm:text-sm">
+                    <div class="pb-grid pb-grid--2" style="gap:12px">
+                        <div class="pb-field">
+                            <label>Password</label>
+                            <input name="admin_password" type="password" required>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-900">Confirm</label>
-                            <input name="admin_password_confirmation" type="password" required
-                                class="mt-1 block w-full rounded-md py-2 px-3 ring-1 ring-slate-300 sm:text-sm">
+                        <div class="pb-field">
+                            <label>Confirm</label>
+                            <input name="admin_password_confirmation" type="password" required>
                         </div>
                     </div>
 
                     @if ($errors->any())
-                    <div class="rounded-md bg-red-50 p-4 text-sm text-red-700">
-                        <ul class="list-disc pl-5 space-y-1">@foreach ($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
-                    </div>
+                    <div class="pb-auth__errors" role="alert">@foreach ($errors->all() as $e)<div>{{ $e }}</div>@endforeach</div>
                     @endif
 
-                    <button type="submit" class="w-full rounded-md bg-indigo-600 py-2.5 text-sm font-bold text-white hover:bg-indigo-500">
+                    <button type="submit" class="pb-btn pb-btn--primary pb-btn--lg" style="margin-top:6px">
                         Create workspace
                     </button>
                 </form>
 
-                <p class="mt-6 text-center text-sm text-slate-600">
-                    Already have a workspace?
-                    <a href="{{ route('login') }}" class="font-semibold text-indigo-600">Sign in</a>
-                </p>
-            </div>
+            <p class="pb-auth__foot">Already have a workspace? <a href="{{ route('login') }}">Sign in</a></p>
+            <nav class="pb-auth__links" aria-label="More">
+                <a href="{{ route('landing') }}">Home</a>
+                <a href="{{ route('privacy') }}">Privacy</a>
+                <a href="{{ route('terms') }}">Terms</a>
+            </nav>
         </div>
-    </div>
+    </main>
 </body>
 </html>

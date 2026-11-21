@@ -244,7 +244,7 @@
         busy = true;
         loadingBar(true);
         try {
-            const res = await fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' });
+            const res = await fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-Background-Refresh': '1' }, credentials: 'same-origin' });
             if (!res.ok || res.redirected) return;
             const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
             const fresh = doc.querySelector('[data-dashboard-layout]');

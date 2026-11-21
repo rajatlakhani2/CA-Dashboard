@@ -62,7 +62,7 @@ class OrganizationWorkspaceService
 
     private function initials(string $name): string
     {
-        $parts = preg_split('/\s+/', trim($name)) ?: [];
+        $parts = preg_split('/\s+/', trim(preg_replace('/^CA\s+/i', '', trim($name)))) ?: [];
         $letters = collect($parts)->take(2)->map(fn ($p) => strtoupper(substr($p, 0, 1)))->implode('');
 
         return $letters ?: '?';

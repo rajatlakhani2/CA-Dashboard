@@ -91,6 +91,11 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
+        if ($request->input('reason') === 'idle') {
+            return redirect()->route('login')
+                ->with('status', 'You were signed out after a period of inactivity. Please sign in again.');
+        }
+
         return redirect()->route('login');
     }
 }

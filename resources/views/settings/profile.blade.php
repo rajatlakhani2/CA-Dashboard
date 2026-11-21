@@ -541,16 +541,16 @@
                 <div x-show="tab === 'security'" x-cloak class="space-y-6">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900">Security &amp; data</h3>
-                        <p class="mt-1 text-sm text-gray-500">Auto sign-out and nightly backups (requires server cron).</p>
+                        <p class="mt-1 text-sm text-gray-500">Auto-logout after inactivity and nightly backups (backups need the server cron).</p>
                     </div>
                     <div class="grid grid-cols-6 gap-6">
                         <div class="col-span-6 sm:col-span-3">
-                            <label for="auto_logout_minutes" class="block text-sm font-medium text-gray-700">Auto logout after inactivity</label>
-                            <select name="auto_logout_minutes" id="auto_logout_minutes" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                                @foreach(['0' => 'Disabled', '15' => '15 minutes', '30' => '30 minutes', '60' => '1 hour', '120' => '2 hours', '240' => '4 hours', '480' => '8 hours'] as $val => $label)
-                                <option value="{{ $val }}" {{ (string) old('auto_logout_minutes', $auto_logout_minutes ?? '0') === (string) $val ? 'selected' : '' }}>{{ $label }}</option>
-                                @endforeach
-                            </select>
+                            <label for="auto_logout_minutes" class="block text-sm font-medium text-gray-700">Auto-logout after inactivity (minutes)</label>
+                            <input type="number" name="auto_logout_minutes" id="auto_logout_minutes" min="1" max="120" step="1" required
+                                value="{{ old('auto_logout_minutes', ((int) ($auto_logout_minutes ?? 0)) > 0 ? (int) $auto_logout_minutes : \App\Support\SessionIdle::DEFAULT_MINUTES) }}"
+                                class="mt-1 block w-full max-w-[10rem] rounded-md border border-gray-300 px-3 py-2 shadow-sm sm:text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <p class="mt-2 text-xs text-gray-500">Anyone in the firm with no activity for this many minutes is signed out automatically, on screen and on the server. A warning with a countdown appears during the last minute. Between 1 and 120 minutes; default 5.</p>
+                            @error('auto_logout_minutes')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                         </div>
                         <div class="col-span-6 sm:col-span-3">
                             <label for="auto_backup_enabled" class="block text-sm font-medium text-gray-700">Automatic nightly backup</label>
