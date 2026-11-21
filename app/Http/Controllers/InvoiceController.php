@@ -67,9 +67,19 @@ class InvoiceController extends Controller
         $raisedCount = $raisedCountQuery->count();
         $receivedCount = $receivedCountQuery->count();
 
+        // Summary cards: same visibility as the list. Unpaid = open invoices minus what was
+        // received against them; collected = payments actually received this calendar month.
+        $openQuery = Invoice::whereIn('status', Invoice::OPEN_STATUSES)->withSum('payments', 'amount');
+        $this->scopeInvoicesToUser($openQuery);
+        $unpaidAmount = $openQuery->get()->sum(fn ($inv) => max(0, (float) $inv->total_amount - (float) $inv->payments_sum_amount));
+
+        $collectedThisMonth = (float) \App\Models\Payment::whereHas('invoice', fn ($q) => $this->scopeInvoicesToUser($q))
+            ->whereBetween('payment_date', [now()->startOfMonth()->toDateString(), now()->endOfMonth()->toDateString().' 23:59:59'])
+            ->sum('amount');
+
         $clients = $this->clientOptionsQuery()->orderBy('name')->get();
 
-        return view('invoices.index', compact('invoices', 'clients', 'unbilledTasks', 'tab', 'raisedCount', 'receivedCount'));
+        return view('invoices.index', compact('invoices', 'clients', 'unbilledTasks', 'tab', 'raisedCount', 'receivedCount', 'unpaidAmount', 'collectedThisMonth'));
     }
 
     public function downloadPdf(Invoice $invoice)

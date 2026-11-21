@@ -14,10 +14,13 @@ class LedgerController extends Controller
     {
         $startDate = $request->input('start_date', now()->startOfYear()->format('Y-m-d'));
         $endDate = $request->input('end_date', now()->format('Y-m-d'));
+        // dates are stored with a time, so include the whole of the first and last day
+        $from = \Illuminate\Support\Carbon::parse($startDate)->startOfDay();
+        $to = \Illuminate\Support\Carbon::parse($endDate)->endOfDay();
 
         // Get invoices (debits)
         $invoices = Invoice::where('client_id', $client->id)
-            ->whereBetween('date', [$startDate, $endDate])
+            ->whereBetween('date', [$from, $to])
             ->where('status', '!=', Invoice::STATUS_DRAFT)
             ->orderBy('date')
             ->get()
@@ -34,7 +37,7 @@ class LedgerController extends Controller
 
         // Get payments (credits)
         $payments = Payment::whereHas('invoice', fn($q) => $q->where('client_id', $client->id))
-            ->whereBetween('payment_date', [$startDate, $endDate])
+            ->whereBetween('payment_date', [$from, $to])
             ->orderBy('payment_date')
             ->get()
             ->map(function ($pay) {
@@ -44,7 +47,7 @@ class LedgerController extends Controller
                     'reference' => $pay->receipt_number,
                     'debit' => 0,
                     'credit' => $pay->amount,
-                    'description' => "Receipt #{$pay->receipt_number} ({$pay->payment_mode})",
+                    'description' => "Receipt #{$pay->receipt_number} (" . \Illuminate\Support\Str::headline((string) $pay->payment_mode) . ")",
                 ];
             });
 
@@ -69,25 +72,22 @@ class LedgerController extends Controller
             'balance' => $entry['balance'],
         ]);
 
-        // Aging
-        $totalOutstanding = Invoice::where('client_id', $client->id)
+        // Outstanding and aging use each open invoice's own unpaid balance (total minus payments
+        // received against that invoice), so part-payments and fully paid invoices are counted correctly.
+        $open = Invoice::where('client_id', $client->id)
             ->whereIn('status', Invoice::OPEN_STATUSES)
-            ->sum('total_amount')
-            - Payment::whereHas('invoice', fn($q) => $q->where('client_id', $client->id))->sum('amount');
+            ->withSum('payments', 'amount')
+            ->get()
+            ->map(fn ($inv) => ['due' => $inv->due_date ?? $inv->date, 'balance' => max(0, (float) $inv->total_amount - (float) $inv->payments_sum_amount)]);
 
+        $totalOutstanding = $open->sum('balance');
+
+        $daysOverdue = fn ($row) => $row['due'] ? (int) \Illuminate\Support\Carbon::parse($row['due'])->startOfDay()->diffInDays(now()->startOfDay(), false) : 0;
         $aging = [
-            '0-30' => Invoice::where('client_id', $client->id)
-                ->where('due_date', '>=', now()->subDays(30))
-                ->whereIn('status', Invoice::OPEN_STATUSES)->sum('total_amount'),
-            '31-60' => Invoice::where('client_id', $client->id)
-                ->whereBetween('due_date', [now()->subDays(60), now()->subDays(31)])
-                ->whereIn('status', Invoice::OPEN_STATUSES)->sum('total_amount'),
-            '61-90' => Invoice::where('client_id', $client->id)
-                ->whereBetween('due_date', [now()->subDays(90), now()->subDays(61)])
-                ->whereIn('status', Invoice::OPEN_STATUSES)->sum('total_amount'),
-            '90+' => Invoice::where('client_id', $client->id)
-                ->where('due_date', '<', now()->subDays(90))
-                ->whereIn('status', Invoice::OPEN_STATUSES)->sum('total_amount'),
+            '0-30' => $open->filter(fn ($r) => $daysOverdue($r) <= 30)->sum('balance'),
+            '31-60' => $open->filter(fn ($r) => $daysOverdue($r) >= 31 && $daysOverdue($r) <= 60)->sum('balance'),
+            '61-90' => $open->filter(fn ($r) => $daysOverdue($r) >= 61 && $daysOverdue($r) <= 90)->sum('balance'),
+            '90+' => $open->filter(fn ($r) => $daysOverdue($r) > 90)->sum('balance'),
         ];
 
         return view('ledger.show', compact('client', 'ledger', 'ledgerEntries', 'totalOutstanding', 'aging', 'startDate', 'endDate'));

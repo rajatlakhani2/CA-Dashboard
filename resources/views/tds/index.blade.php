@@ -35,8 +35,8 @@
         </div>
 
         <div class="bg-slate-950 rounded-3xl shadow-xl p-8 flex flex-col justify-center">
-            <h4 class="text-indigo-400 text-xs font-black uppercase tracking-[0.3em]">Quick Entry</h4>
-            <p class="text-white text-lg font-bold leading-tight mt-1">Manual TDS Sync</p>
+            <h4 class="text-indigo-400 text-xs font-black uppercase tracking-[0.3em]">TDS deducted by a client</h4>
+            <p class="text-white text-lg font-bold leading-tight mt-1">Add a TDS entry</p>
             <button @click="$dispatch('open-tds-modal')" class="mt-4 bg-white text-slate-900 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-500 hover:text-white transition-all">Add Record</button>
         </div>
     </div>
@@ -117,7 +117,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
                                 </div>
-                                <h4 class="text-slate-900 font-black">Archive is Empty</h4>
+                                <h4 class="text-slate-900 font-black">No TDS entries yet</h4>
                                 <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">No TDS entries found</p>
                             </div>
                         </td>

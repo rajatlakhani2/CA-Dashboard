@@ -22,8 +22,8 @@
 
         <div class="md:col-span-2 bg-slate-900 rounded-3xl shadow-xl p-8 flex items-center justify-between text-white relative overflow-hidden group">
             <div class="relative z-10 transition-transform duration-500 group-hover:scale-105">
-                <h4 class="text-indigo-400 text-xs font-black uppercase tracking-[0.3em] mb-2">Registry Control</h4>
-                <p class="text-2xl font-black leading-tight">Define Your Practice <br><span class="text-indigo-300">Service Catalog</span></p>
+                <h4 class="text-indigo-400 text-xs font-black uppercase tracking-[0.3em] mb-2">Service master</h4>
+                <p class="text-2xl font-black leading-tight">Services your firm offers</p>
             </div>
             <button onclick="openModal('create')" class="relative z-10 bg-white text-slate-900 px-8 py-3.5 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-indigo-500 hover:text-white transition-all transform active:scale-95 shadow-xl">
                 Add Service

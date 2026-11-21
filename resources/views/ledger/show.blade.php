@@ -12,8 +12,8 @@
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
             <div>
                 <div class="flex items-center space-x-3 mb-4">
-                    <span class="bg-indigo-500/20 text-indigo-400 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest border border-indigo-500/30">Financial Record</span>
-                    <span class="text-slate-500 text-xs font-black uppercase tracking-tighter">ID: {{ $client->client_id }}</span>
+                    <span class="bg-indigo-500/20 text-indigo-400 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest border border-indigo-500/30">Client ledger</span>
+                    @if($client->client_code)<span class="text-slate-400 text-xs font-semibold">Code: {{ $client->client_code }}</span>@endif
                 </div>
                 <h2 class="text-3xl font-black text-white leading-none">{{ $client->name }}</h2>
                 <p class="text-slate-400 text-sm mt-3 font-medium tracking-wide">Detailed statement of accounts and aging analysis</p>
@@ -58,7 +58,7 @@
             </div>
 
             <div class="mt-10 p-4 bg-slate-50 rounded-2xl border border-slate-100 italic">
-                <p class="text-xs text-slate-500 leading-relaxed font-medium">Aging is calculated based on invoice date relative to today's date.</p>
+                <p class="text-xs text-slate-500 leading-relaxed font-medium">Aging is based on each open invoice's unpaid balance and how many days past its due date it is.</p>
             </div>
         </div>
 
@@ -66,7 +66,7 @@
         <div class="lg:col-span-2 bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
             <div class="px-8 py-6 border-b border-gray-50 flex items-center justify-between bg-gray-50/20">
                 <h3 class="font-black text-slate-900 uppercase tracking-widest text-xs">Transaction Ledger</h3>
-                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Live Statements</span>
+                
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left">

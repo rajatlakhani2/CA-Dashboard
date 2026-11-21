@@ -7,7 +7,7 @@
     $initialTab = $errors->any() ? 'create' : 'directory';
     $roleOptions = $workspaceRoles ?? [];
 @endphp
-<div class="space-y-8" x-data="{ tab: '{{ $initialTab }}', role: '{{ old('role', array_key_first($roleOptions)) }}', hints: @json($workspaceRoleHints ?? []) }">
+<div class="space-y-8" x-data="{ tab: {{ \Illuminate\Support\Js::from($initialTab) }}, role: {{ \Illuminate\Support\Js::from(old('role', array_key_first($roleOptions))) }}, hints: {{ \Illuminate\Support\Js::from($workspaceRoleHints ?? []) }} }">
     @if(session('success'))
     <div class="rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">{{ session('success') }}</div>
     @endif

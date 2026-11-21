@@ -53,6 +53,10 @@ class TimeEntryController extends Controller
 
     public function destroy(TimeEntry $timeEntry)
     {
+        $user = auth()->user();
+        // People delete their own time logs; partners and managers can delete anyone's.
+        abort_unless((int) $timeEntry->user_id === (int) $user->id || $user->hasRole('partner', 'manager'), 403);
+
         $timeEntry->delete();
         return back()->with('success', 'Time entry deleted.');
     }

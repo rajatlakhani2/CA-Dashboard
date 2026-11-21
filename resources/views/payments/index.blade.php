@@ -18,14 +18,6 @@
                     </svg>
                 </div>
             </div>
-            <div class="mt-4 flex items-center text-sm">
-                <span class="text-green-600 font-bold flex items-center">
-                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                    </svg>
-                    Healthy Cashflow
-                </span>
-            </div>
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
@@ -96,7 +88,7 @@
                         </td>
                         <td class="px-6 py-4">
                             <div class="text-sm font-bold text-gray-900">{{ $payment->invoice?->client?->name ?? 'N/A' }}</div>
-                            <div class="text-xs text-gray-500">Inv: #{{ $payment->invoice->invoice_number }}</div>
+                            <div class="text-xs text-gray-500">Inv: #{{ $payment->invoice?->invoice_number ?? '—' }}</div>
                         </td>
                         <td class="px-6 py-4 font-bold text-gray-900">
                             ₹{{ number_format($payment->amount, 2) }}
@@ -109,7 +101,8 @@
                                 {{ $payment->payment_mode }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-right">
+                        <td class="px-6 py-4 text-right whitespace-nowrap">
+                            <a href="{{ route('payments.show', $payment) }}" class="mr-2 text-xs font-bold text-slate-600 hover:text-slate-900">View</a>
                             <a href="{{ route('payments.receipt', $payment) }}" class="inline-flex items-center px-3 py-1 bg-white border border-indigo-200 text-indigo-600 rounded-md text-xs font-bold hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
                                 <svg class="w-3.5 h-3.5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />

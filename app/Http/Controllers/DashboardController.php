@@ -258,7 +258,6 @@ class DashboardController extends Controller
         return response()->json([
             'build' => $this->dashboardBuildId(),
             'deploy_stamp' => $buildStamp,
-            'view_path' => $path,
             'view_mtime' => is_readable($path) ? date('c', filemtime($path)) : null,
             'tabs_v2_marker' => str_contains($content, 'dashboard-tabs-v2'),
             'workspace_header_in_view' => str_contains($content, 'workspace-header'),
