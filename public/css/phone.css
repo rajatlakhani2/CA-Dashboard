@@ -1,4 +1,4 @@
-/* CA Dashboard – phone styles: bottom-sheet panels and dark mode.
+/* CA Dashboard – phone styles: bottom-sheet panels (dark mode lives in cadash-ui.css).
    Plain CSS (not Tailwind) so it overrides utility classes; everything here is limited to
    phone widths, so the laptop layout is unaffected. */
 
@@ -20,70 +20,3 @@
     width: 40px; height: 40px; border-radius: 999px; background: #fff; box-shadow: 0 4px 14px rgba(15,23,42,.18); display: flex; align-items: center; justify-content: center; }
 #dash-pull.spin svg { animation: dash-spin .7s linear infinite; }
 @keyframes dash-spin { to { transform: rotate(360deg); } }
-
-/* ---------- Dark mode: follows the phone's setting, phones only ---------- */
-@media (prefers-color-scheme: dark) and (max-width: 767px) {
-    :root {
-        color-scheme: dark;
-        --premium-surface: #111827; --premium-bg: #0b1120; --premium-text: #e5e7eb; --premium-muted: #9ca3af; --premium-border: #1f2937;
-        --c-bg-body: #0b1120; --c-bg-card: #111827; --c-text-main: #e5e7eb; --c-text-secondary: #9ca3af; --c-line: #1f2937;
-    }
-    html, body, .bg-slate-50, .bg-gray-50, .bg-bg-body { background-color: #0b1120 !important; }
-    body { color: #e5e7eb; }
-
-    /* Surfaces */
-    .bg-white, .bg-bg-card, .bg-white\/80, .bg-white\/50, .bg-gray-50\/50, .bg-slate-50\/50 { background-color: #111827; }
-    .bg-slate-100, .bg-gray-100, .bg-slate-200\/70, .bg-slate-200 { background-color: #1f2937; }
-    .hover\:bg-gray-50:hover, .hover\:bg-slate-50:hover, .hover\:bg-slate-100:hover, .hover\:bg-gray-100:hover { background-color: #1f2937; }
-    .shadow-sm, .shadow, .shadow-md, .shadow-lg { box-shadow: 0 1px 2px rgba(0,0,0,.5); }
-
-    /* Text */
-    .text-gray-900, .text-slate-900, .text-gray-800, .text-slate-800, .text-text-main { color: #f3f4f6; }
-    .text-gray-700, .text-slate-700 { color: #d1d5db; }
-    .text-gray-600, .text-slate-600, .text-gray-500, .text-slate-500, .text-text-secondary { color: #9ca3af; }
-    .text-gray-400, .text-slate-400 { color: #6b7280; }
-    .text-indigo-600, .text-indigo-700, .text-indigo-800 { color: #a5b4fc; }
-    .text-indigo-900 { color: #c7d2fe; }
-    .text-red-600, .text-red-700, .text-red-800 { color: #fca5a5; }
-    .text-orange-700, .text-orange-800 { color: #fdba74; }
-    .text-amber-700, .text-amber-800, .text-amber-900 { color: #fcd34d; }
-    .text-green-700, .text-green-800, .text-emerald-700, .text-emerald-800, .text-emerald-900 { color: #6ee7b7; }
-    .text-teal-800, .text-teal-900 { color: #5eead4; }
-    .text-purple-800 { color: #d8b4fe; }
-
-    /* Lines */
-    .border-gray-100, .border-gray-200, .border-slate-100, .border-slate-200, .border-gray-50, .border-slate-50,
-    .divide-gray-100 > * + *, .divide-gray-200 > * + *, .divide-slate-100 > * + *, .divide-slate-50 > * + * { border-color: #1f2937; }
-    .border-gray-300, .border-slate-300 { border-color: #374151; }
-
-    /* Tinted chips and notices */
-    .bg-indigo-50, .bg-indigo-100, .bg-indigo-50\/60, .bg-blue-50 { background-color: rgba(99,102,241,.16); }
-    .bg-red-50, .bg-red-100, .bg-rose-50 { background-color: rgba(239,68,68,.15); }
-    .bg-amber-50, .bg-yellow-50, .bg-orange-50 { background-color: rgba(245,158,11,.14); }
-    .bg-green-50, .bg-emerald-50, .bg-emerald-50\/80, .bg-teal-50, .bg-teal-50\/60, .bg-teal-100 { background-color: rgba(16,185,129,.14); }
-    .bg-purple-50 { background-color: rgba(168,85,247,.16); }
-    .border-red-100, .border-red-200 { border-color: rgba(239,68,68,.35); }
-    .border-amber-200, .border-emerald-200, .border-indigo-200, .border-indigo-100 { border-color: #374151; }
-
-    /* Dark buttons stay readable */
-    .bg-slate-900 { background-color: #e5e7eb; color: #0b1120; }
-    .bg-slate-900.text-white, .bg-slate-900 .text-white { color: #0b1120; }
-    .dash-sheet .btn-primary { background: #e5e7eb; border-color: #e5e7eb; color: #0b1120; }
-    #dash-toast > div { background: #e5e7eb; color: #0b1120; }
-    #dash-toast button { color: #4338ca; }
-
-    /* Form fields */
-    input:not([type=checkbox]):not([type=radio]):not([type=hidden]), select, textarea { background-color: #1f2937; color: #f3f4f6; border-color: #374151; }
-    ::placeholder { color: #6b7280; }
-
-    /* Bottom-sheet panels, pull indicator, bottom menu */
-    .dash-sheet { background: #111827; color: #e5e7eb; }
-    .dash-sheet .btn { background: #1f2937; border-color: #374151; color: #e5e7eb; }
-    .dash-sheet .btn-green { background: #059669; border-color: #059669; color: #fff; }
-    .dash-sheet .bg-slate-100 { background: #1f2937; }
-    #dash-pull { background: #1f2937; }
-    .mobile-bottom-nav { background-color: #111827 !important; border-color: #1f2937 !important; }
-
-    /* Gradient page titles become plain light text */
-    header h2.bg-clip-text { background-image: none; color: #c7d2fe; -webkit-text-fill-color: #c7d2fe; }
-}

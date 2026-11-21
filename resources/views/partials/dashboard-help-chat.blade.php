@@ -1,7 +1,7 @@
 @php
     $help = $dashboardHelp ?? [];
     $prompts = $help['quickPrompts'] ?? [];
-    $brandName = $help['brandName'] ?? 'Vouchex';
+    $brandName = $help['brandName'] ?? \App\Support\Branding::dashboardName();
 @endphp
 <div
     id="dashboard-help-chat"
