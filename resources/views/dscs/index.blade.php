@@ -45,7 +45,7 @@
     <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="px-8 py-6 border-b border-gray-50 flex items-center justify-between bg-gray-50/30">
             <div>
-                <h3 class="font-black text-gray-800 text-lg">Certificate Inventory</h3>
+                <h3 class="font-black text-gray-800 text-lg">All DSCs</h3>
                 <p class="text-xs text-gray-500 uppercase font-bold tracking-widest mt-1">Tracking {{ $dscs->total() }} digital signatures</p>
             </div>
             <form action="{{ route('dscs.index') }}" method="GET" class="flex gap-2">

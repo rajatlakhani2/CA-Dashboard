@@ -7,7 +7,7 @@
     <div class="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden animate-enter">
         <div class="bg-slate-900 px-8 py-8 flex items-center justify-between">
             <div>
-                <h3 class="text-xl font-bold text-white">Record Outflow</h3>
+                <h3 class="text-xl font-bold text-white">Add expense</h3>
                 <p class="text-slate-400 text-xs mt-1 uppercase tracking-widest font-bold">New Expense Entry</p>
             </div>
             <div class="h-12 w-12 bg-indigo-500/20 rounded-2xl flex items-center justify-center border border-indigo-500/30">

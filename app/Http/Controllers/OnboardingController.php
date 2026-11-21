@@ -34,6 +34,8 @@ class OnboardingController extends Controller
 
     public function toggle(Request $request, OnboardingChecklist $item)
     {
+        $this->authorize('view', $item->client()->firstOrFail());
+
         $item->update([
             'is_completed' => !$item->is_completed,
             'completed_at' => !$item->is_completed ? now() : null,
@@ -48,6 +50,8 @@ class OnboardingController extends Controller
 
     public function addItem(Request $request, Client $client)
     {
+        $this->authorize('view', $client);
+
         $request->validate(['item' => 'required|string|max:255']);
 
         OnboardingChecklist::create([

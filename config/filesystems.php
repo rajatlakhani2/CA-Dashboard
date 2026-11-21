@@ -33,7 +33,8 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            // Private files (backups, client documents) are only served through controllers that check access.
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],

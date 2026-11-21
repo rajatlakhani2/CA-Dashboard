@@ -80,17 +80,26 @@
             });
     }
 
+    // Names come from the firm's own data (clients, tasks): always escape before putting them in HTML.
+    function escHtml(v) {
+        return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    function safeUrl(u) {
+        u = String(u || '');
+        return /^(https?:\/\/|\/)/i.test(u) && !/^\/\//.test(u) ? u : '#';
+    }
+
     function renderPaletteItem(item) {
-        const subtitle = item.subtitle ? `<p class="text-sm text-gray-500 group-hover:text-indigo-700">${item.subtitle}</p>` : '';
+        const subtitle = item.subtitle ? `<p class="text-sm text-gray-500 group-hover:text-indigo-700">${escHtml(item.subtitle)}</p>` : '';
         return `
-            <li class="group flex cursor-pointer select-none rounded-xl p-3 hover:bg-indigo-50" onclick="window.location.href='${item.url}'">
+            <li class="group flex cursor-pointer select-none rounded-xl p-3 hover:bg-indigo-50" data-href="${escHtml(safeUrl(item.url))}" onclick="window.location.href=this.dataset.href">
                 <div class="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-indigo-100 group-hover:bg-indigo-600 transition-colors">
                     <svg class="h-6 w-6 text-indigo-600 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         ${getIconPath(item.icon)}
                     </svg>
                 </div>
                 <div class="ml-4 flex-auto">
-                    <p class="text-sm font-medium text-gray-700 group-hover:text-indigo-900">${item.title}</p>
+                    <p class="text-sm font-medium text-gray-700 group-hover:text-indigo-900">${escHtml(item.title)}</p>
                     ${subtitle}
                 </div>
             </li>`;
@@ -100,7 +109,7 @@
         let html = '';
         sections.forEach(section => {
             if (!section.items || section.items.length === 0) return;
-            html += `<li class="px-2 py-1 text-xs font-bold uppercase tracking-wider text-gray-400">${section.label}</li>`;
+            html += `<li class="px-2 py-1 text-xs font-bold uppercase tracking-wider text-gray-400">${escHtml(section.label)}</li>`;
             section.items.forEach(item => { html += renderPaletteItem(item); });
         });
         paletteResults.innerHTML = html || '';

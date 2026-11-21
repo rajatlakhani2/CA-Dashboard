@@ -30,11 +30,11 @@
         </div>
         <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
             <p class="text-xs font-semibold text-gray-400 uppercase">Unpaid Amount</p>
-            <p class="text-lg sm:text-2xl font-bold text-indigo-600 break-words">₹ {{ number_format(\App\Models\Invoice::where('status', '!=', 'Paid')->sum('total_amount'), 2) }}</p>
+            <p class="text-lg sm:text-2xl font-bold text-indigo-600 break-words">₹ {{ number_format($unpaidAmount ?? 0, 2) }}</p>
         </div>
         <div class="col-span-2 sm:col-span-1 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
             <p class="text-xs font-semibold text-gray-400 uppercase">Collected (This Month)</p>
-            <p class="text-lg sm:text-2xl font-bold text-emerald-600 break-words">₹ {{ number_format(\App\Models\Invoice::where('status', 'Paid')->whereMonth('date', now()->month)->sum('total_amount'), 2) }}</p>
+            <p class="text-lg sm:text-2xl font-bold text-emerald-600 break-words">₹ {{ number_format($collectedThisMonth ?? 0, 2) }}</p>
         </div>
     </div>
     @endif

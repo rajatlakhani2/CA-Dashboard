@@ -88,13 +88,21 @@ class PersonalRenewalController extends Controller
             ->with('success', 'Renewal added successfully.');
     }
 
+    /** Personal renewals are private to the person who added them. */
+    private function ensureOwner(PersonalRenewal $personalRenewal): void
+    {
+        abort_unless((int) $personalRenewal->user_id === (int) auth()->id(), 404);
+    }
+
     public function edit(PersonalRenewal $personalRenewal)
     {
+        $this->ensureOwner($personalRenewal);
         return view('personal-renewals.edit', compact('personalRenewal'));
     }
 
     public function update(Request $request, PersonalRenewal $personalRenewal)
     {
+        $this->ensureOwner($personalRenewal);
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'category' => 'required|in:LIC,Loan,Medical,Other',
@@ -162,6 +170,7 @@ class PersonalRenewalController extends Controller
 
     public function destroy(PersonalRenewal $personalRenewal)
     {
+        $this->ensureOwner($personalRenewal);
         if ($personalRenewal->document_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($personalRenewal->document_path)) {
             \Illuminate\Support\Facades\Storage::disk('public')->delete($personalRenewal->document_path);
         }
@@ -175,6 +184,7 @@ class PersonalRenewalController extends Controller
 
     public function sendWhatsApp(PersonalRenewal $personalRenewal, \App\Services\WhatsAppService $whatsapp)
     {
+        $this->ensureOwner($personalRenewal);
         // Use the new template
         $template = $whatsapp->getTemplates()['personal_renewal'];
 

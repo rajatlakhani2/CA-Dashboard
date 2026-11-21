@@ -8,8 +8,8 @@
         <div class="bg-slate-900 p-12 text-white relative overflow-hidden">
             <div class="absolute right-0 top-0 -mr-20 -mt-20 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl"></div>
             <div class="relative z-10">
-                <h3 class="text-3xl font-black italic tracking-tighter">Automate Revenue</h3>
-                <p class="text-slate-400 text-xs font-bold uppercase tracking-[0.3em] mt-3">Setup Recurring Billing Cycle</p>
+                <h3 class="text-2xl font-bold tracking-tight">New recurring billing</h3>
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-[0.3em] mt-3">Bill a client automatically every month, quarter or year</p>
             </div>
         </div>
 
@@ -68,7 +68,7 @@
 
             <div class="pt-6 flex justify-end space-x-4">
                 <a href="{{ route('subscriptions.index') }}" class="px-8 py-5 text-slate-400 font-black uppercase text-xs tracking-widest hover:text-slate-900 transition-colors">Cancel</a>
-                <button type="submit" class="bg-indigo-600 text-white px-12 py-5 rounded-2xl font-black uppercase text-sm tracking-[0.2em] shadow-xl shadow-indigo-100 hover:bg-slate-900 transition-all">Activate Retainer</button>
+                <button type="submit" class="bg-indigo-600 text-white px-12 py-5 rounded-2xl font-black uppercase text-sm tracking-[0.2em] shadow-xl shadow-indigo-100 hover:bg-slate-900 transition-all">Save recurring billing</button>
             </div>
         </form>
     </div>

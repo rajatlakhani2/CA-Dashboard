@@ -26,16 +26,17 @@
                     </svg>
                 </div>
                 <div>
-                    <h4 class="font-black text-white italic">Activity Stream</h4>
-                    <p class="text-indigo-200 text-xs font-bold uppercase tracking-tighter">Logging productivity across {{ $tasks->count() }} active tasks</p>
+                    <h4 class="font-bold text-white">Log your time</h4>
+                    <p class="text-indigo-100 text-sm">Record hours against any of your firm’s open tasks.</p>
                 </div>
             </div>
             <button @click="$dispatch('open-time-modal')" class="bg-white text-indigo-600 px-6 py-2.5 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-slate-900 hover:text-white transition-all transform active:scale-95">Log Time</button>
         </div>
 
         <div class="bg-slate-900 rounded-3xl shadow-xl p-6 flex flex-col justify-center items-center">
-            <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Retention Rate</p>
-            <p class="text-2xl font-black text-white">98%</p>
+            <p class="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Billable share</p>
+            <p class="text-2xl font-bold text-white">{{ $totalHours > 0 ? round($billableHours / $totalHours * 100) . '%' : '—' }}</p>
+            <p class="text-xs text-slate-300 mt-1">{{ number_format((float) $billableHours, 1) }} of {{ number_format((float) $totalHours, 1) }} hours</p>
         </div>
     </div>
 
@@ -43,10 +44,8 @@
         <!-- Time Log -->
         <div class="lg:col-span-2 bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
             <div class="px-8 py-6 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
-                <h3 class="font-black text-slate-800">Productivity Log</h3>
-                <div class="flex items-center space-x-2">
-                    <span class="inline-flex items-center px-2 py-1 rounded bg-green-50 text-green-700 text-xs font-bold">LIVE SYNC</span>
-                </div>
+                <h3 class="font-bold text-slate-800">Time log</h3>
+
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
@@ -76,14 +75,16 @@
                                 @endif
                             </td>
                             <td class="px-8 py-6 text-right">
-                                <form action="{{ route('time-entries.destroy', $entry) }}" method="POST">
+                                @if((int) $entry->user_id === (int) auth()->id() || auth()->user()->hasRole('partner', 'manager'))
+                                <form action="{{ route('time-entries.destroy', $entry) }}" method="POST" onsubmit="return confirm('Delete this time entry?')">
                                     @csrf @method('DELETE')
-                                    <button class="text-slate-300 hover:text-red-500 transition-colors">
+                                    <button type="submit" class="text-slate-400 hover:text-red-600 transition-colors" aria-label="Delete time entry" title="Delete">
                                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                         </svg>
                                     </button>
                                 </form>
+                                @endif
                             </td>
                         </tr>
                         @empty

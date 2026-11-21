@@ -50,7 +50,7 @@ class GovernmentPortals
             self::PORTAL_TRACES => [
                 'id' => self::PORTAL_TRACES,
                 'label' => 'TRACES',
-                'logo' => '/images/gov-portals/traces.svg',
+                'logo' => '/images/gov-portals/traces.png',
                 'login_url' => 'https://www.tdscpc.gov.in/app/login.xhtml',
                 'launch_mode' => 'auto_submit',
                 'form_action' => 'https://www.tdscpc.gov.in/app/login.xhtml',

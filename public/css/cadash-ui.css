@@ -437,3 +437,40 @@ html[data-theme="dark"] { background-color: var(--cd-bg) !important; }
 .cd-portal-btn:hover { border-color: var(--cd-primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
 .cd-portal-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.35); }
 [data-theme="dark"] .cd-portal-btn { background: #fff; border-color: #34405c; }
+
+/* ---------- Readability fixes from the contrast audit ---------- */
+/* Light mode: very light grey labels (Tailwind 400 shades, ~2.5:1) are darkened to slate-500 (~4.7:1).
+   Text that sits on a dark panel inside the page keeps its light colour. */
+:root:not([data-theme="dark"]) main :is(.text-gray-400, .text-slate-400):not(:where(.bg-slate-900 *, .bg-slate-800 *, .bg-gray-900 *, .bg-gray-800 *, .bg-slate-950 *, .bg-indigo-900 *, .bg-indigo-950 *, [class*="from-slate-9"] *, [class*="from-indigo-9"] *, [class*="from-gray-9"] *, [class*="bg-gradient"] *, svg, svg *)) { color: #64748b; }
+:root:not([data-theme="dark"]) main thead :is(th, td):not(:where(.bg-slate-900 *, .bg-gray-900 *, [class*="from-slate-9"] *)) { color: #475569; }
+/* Dark mode */
+[data-theme="dark"] .text-money-negative { color: #f87171 !important; }
+[data-theme="dark"] .text-money-positive { color: #4ade80 !important; }
+[data-theme="dark"] .text-money-warning { color: #fbbf24 !important; }
+[data-theme="dark"] .client-tab { color: var(--cd-text-2); }
+[data-theme="dark"] .client-tab.active { color: #79b8ff; border-bottom-color: #58a6ff; }
+[data-theme="dark"] .fc a.fc-daygrid-day-number, [data-theme="dark"] .fc .fc-daygrid-day-number { color: var(--cd-text) !important; }
+[data-theme="dark"] .fc .fc-day-other .fc-daygrid-day-number { color: var(--cd-muted) !important; }
+[data-theme="dark"] :is(.text-slate-950, .text-gray-950) { color: var(--cd-text) !important; }
+
+/* ---------- Typography and buttons, one consistent style (VouchEx rules) ---------- */
+main :is(h1, h2, h3, h4, p, span).italic { font-style: normal; }
+main .font-black { font-weight: 700; }
+main .uppercase:is(.tracking-widest, [class*="tracking-[0.2em]"], [class*="tracking-[0.3em]"], [class*="tracking-[0.25em]"]) { letter-spacing: 0.06em; }
+main .uppercase.tracking-tighter { letter-spacing: 0.02em; }
+/* one professional button colour: green / black action buttons become the primary blue (red stays for delete) */
+main :is(button, a, input[type="submit"]):is(.bg-emerald-600, .bg-green-600, .bg-emerald-500, .bg-green-500, .bg-slate-900, .bg-gray-900, .bg-slate-800, .bg-black):is(.text-white) {
+    background-color: var(--cd-primary) !important; background-image: none !important; border-color: var(--cd-primary) !important; color: #fff !important;
+}
+main :is(button, a, input[type="submit"]):is(.bg-emerald-600, .bg-green-600, .bg-emerald-500, .bg-green-500, .bg-slate-900, .bg-gray-900, .bg-slate-800, .bg-black):is(.text-white):hover {
+    background-color: var(--cd-primary-hover) !important; border-color: var(--cd-primary-hover) !important;
+}
+/* buttons never jump or grow on hover/press */
+main :is(button, a)[class*="active:scale"]:active, main :is(button, a)[class*="hover:scale"]:hover, main :is(button, a)[class*="hover:-translate-y"]:hover { transform: none !important; }
+html[data-theme="dark"] body :is(#dashboardCalendar, #calendar, .fc) .fc-daygrid-day-number { color: var(--cd-text) !important; }
+html[data-theme="dark"] body :is(#dashboardCalendar, #calendar, .fc) .fc-day-other .fc-daygrid-day-number { color: var(--cd-muted) !important; }
+html[data-theme="dark"] body :is(#dashboardCalendar, #calendar) .fc-daygrid-body { background: var(--cd-surface) !important; }
+html[data-theme="dark"] .text-indigo-400 { color: #8ab4ff; }
+/* half-transparent light backgrounds (bg-slate-50/30 etc.) were left light in dark mode */
+[data-theme="dark"] main :is([class*="bg-slate-50/"], [class*="bg-gray-50/"], [class*="bg-slate-100/"], [class*="bg-gray-100/"], [class*="bg-indigo-50/"], [class*="bg-blue-50/"]) { background-color: var(--cd-surface-2) !important; }
+[data-theme="dark"] main :is([class*="border-slate-50"], [class*="border-gray-50"]) { border-color: var(--cd-border) !important; }
