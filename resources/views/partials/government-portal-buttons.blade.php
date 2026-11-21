@@ -7,14 +7,14 @@
     <button
         type="button"
         @click="openPortal(@js($portal['id']), @js($portal['label']))"
-        class="p-1 rounded-lg border border-transparent hover:border-slate-200 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-200 transition"
-        title="{{ $portal['label'] }}"
+        class="cd-portal-btn"
+        title="Open {{ $portal['label'] }} portal for a client"
         aria-label="{{ $portal['label'] }} portal"
     >
         <img
             src="{{ $portal['logo'] }}"
             alt="{{ $portal['label'] }}"
-            class="h-7 w-7 object-contain"
+            class="h-8 w-8 object-contain"
             loading="lazy"
         >
     </button>

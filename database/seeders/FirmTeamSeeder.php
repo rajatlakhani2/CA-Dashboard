@@ -19,7 +19,7 @@ class FirmTeamSeeder extends Seeder
 
         $accounts = [
             [
-                'name' => 'Rajat Lakhani',
+                'name' => 'CA Rajat Lakhani',
                 'email' => 'rajat@rlassociates.in',
                 'role' => 'partner',
                 'mobile' => '919999000001',
@@ -128,7 +128,7 @@ class FirmTeamSeeder extends Seeder
                 ->delete();
 
             $canonical->forceFill([
-                'name' => 'Rajat Lakhani',
+                'name' => 'CA Rajat Lakhani',
                 'role' => 'partner',
             ])->save();
 
@@ -163,7 +163,7 @@ class FirmTeamSeeder extends Seeder
         }
 
         $legacy->forceFill([
-            'name' => 'Rajat Lakhani',
+            'name' => 'CA Rajat Lakhani',
             'email' => $canonicalEmail,
             'role' => 'partner',
             'organization_id' => $organizationId,

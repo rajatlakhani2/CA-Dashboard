@@ -39,6 +39,8 @@ Route::middleware([
     \App\Http\Middleware\RestrictArticleAccess::class,
 ])->group(function () {
     Route::post('/logout', [\App\Http\Controllers\LoginController::class, 'logout'])->name('logout');
+    // Keep-alive from the inactivity timer while someone is working on one page.
+    Route::post('/session/ping', fn () => response()->noContent())->name('session.ping');
 
     // Android app: push-notification token for this phone.
     Route::post('/app/devices', [\App\Http\Controllers\AppDeviceController::class, 'store'])->name('app.devices.store');

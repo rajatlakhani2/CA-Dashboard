@@ -11,7 +11,7 @@
 
     <h2>2. Accounts and access</h2>
     <ul>
-        <li>Access is by invitation only. A firm’s partner or administrator creates accounts for the firm’s people and decides their role and module access.</li>
+        <li>A firm creates its own workspace. The person who creates it is responsible for it, and the firm’s partner or administrator adds the firm’s people and decides their role and module access.</li>
         <li>You must keep your password private and must not share your account. Tell your firm’s administrator straight away if you think someone else has used it.</li>
         <li>The firm is responsible for everything done under accounts it creates, and for removing access when someone leaves.</li>
     </ul>

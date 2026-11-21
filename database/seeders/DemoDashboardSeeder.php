@@ -40,7 +40,7 @@ class DemoDashboardSeeder extends Seeder
                 'organization_id' => $organization->id,
             ],
             [
-                'name' => 'Rajat Lakhani',
+                'name' => 'CA Rajat Lakhani',
                 'role' => 'partner',
                 'password' => DemoWorkspace::PASSWORD,
                 'mobile' => '919999000099',

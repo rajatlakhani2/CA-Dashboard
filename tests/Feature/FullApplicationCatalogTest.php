@@ -20,7 +20,7 @@ class FullApplicationCatalogTest extends TestCase
 
     public function test_guest_is_redirected_from_dashboard(): void
     {
-        $this->get(route('dashboard'))->assertRedirect(route('login'));
+        $this->get(route('dashboard'))->assertRedirect(route('landing'));
     }
 
     public function test_login_page_and_authentication_flow(): void

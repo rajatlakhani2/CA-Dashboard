@@ -9,27 +9,42 @@
     ], $extra), fn ($v) => $v !== null && $v !== '');
     $hasFilter = $f['branch'] || ($f['scope'] === 'firm' && $f['staff']);
 @endphp
-<section class="hidden md:flex flex-wrap items-end justify-between gap-4">
-    <div class="min-w-0">
-        <p class="text-sm text-slate-600">{{ now()->format('l, j F Y') }}</p>
-        <h1 class="text-2xl font-bold tracking-tight text-slate-900">{{ $title }}</h1>
-        @isset($subtitle)<p class="mt-1 text-sm text-slate-600">{{ $subtitle }}</p>@endisset
-    </div>
-    <div class="flex flex-wrap items-center gap-3">
-        @if($f['can_see_firm'])
-        <div role="group" aria-label="Whose work" class="flex rounded-xl bg-slate-200/70 p-1">
-            <a href="{{ route('dashboard', $keep(['scope' => 'firm'])) }}" class="rounded-lg px-3 py-2 text-sm font-semibold {{ $f['scope'] === 'firm' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900' }}">Whole firm</a>
-            <a href="{{ route('dashboard', $keep(['scope' => 'mine', 'staff' => null])) }}" class="rounded-lg px-3 py-2 text-sm font-semibold {{ $f['scope'] === 'mine' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900' }}">My work</a>
-        </div>
-        @endif
-        @include('dashboard.partials.layout-switcher')
-    </div>
+<section class="hidden md:block">
+    <p class="text-sm text-slate-600">{{ now()->format('l, j F Y') }}</p>
+    <h1 class="text-2xl font-bold tracking-tight text-slate-900">{{ $title }}</h1>
+    @isset($subtitle)<p class="mt-1 text-sm text-slate-600">{{ $subtitle }}</p>@endisset
 </section>
 
-@if($f['can_see_firm'] && $f['scope'] === 'firm')
+{{-- Laptop: whose work, staff and layout live in the top bar. --}}
+@push('header_tools')
+<div class="cd-header-tools">
+    @if($f['can_see_firm'])
+    <div role="group" aria-label="Whose work" class="cd-seg">
+        <a href="{{ route('dashboard', $keep(['scope' => 'firm'])) }}" class="cd-seg__btn {{ $f['scope'] === 'firm' ? 'is-on' : '' }}" @if($f['scope'] === 'firm') aria-current="true" @endif>Whole firm</a>
+        <a href="{{ route('dashboard', $keep(['scope' => 'mine', 'staff' => null])) }}" class="cd-seg__btn {{ $f['scope'] === 'mine' ? 'is-on' : '' }}" @if($f['scope'] === 'mine') aria-current="true" @endif>My work</a>
+    </div>
+    @if($f['scope'] === 'firm')
+    <form method="GET" action="{{ route('dashboard') }}" class="cd-header-field">
+        @foreach($keep(['staff' => null]) as $k => $v)<input type="hidden" name="{{ $k }}" value="{{ $v }}">@endforeach
+        <label for="dash-staff-top" class="cd-header-field__label">Staff</label>
+        <select id="dash-staff-top" name="staff" onchange="this.form.submit()" class="cd-header-select" aria-label="Staff member">
+            <option value="">All staff</option>
+            @foreach($filterOptions['staff'] as $s)
+            <option value="{{ $s['id'] }}" @selected($f['staff'] == $s['id'])>{{ $s['name'] }}</option>
+            @endforeach
+        </select>
+    </form>
+    @endif
+    @endif
+    @include('dashboard.partials.layout-switcher', ['switchId' => 'dashboard-layout-switch-top', 'compact' => true])
+</div>
+@endpush
+
+@if($f['can_see_firm'] && $f['scope'] === 'firm' && (!empty($filterOptions['branches']) || ($showPeriod ?? false) || $hasFilter))
 <form method="GET" action="{{ route('dashboard') }}" class="hidden md:flex flex-wrap items-center gap-x-5 gap-y-3 rounded-2xl border border-slate-200 bg-white px-4 py-3" aria-label="Filters">
     <input type="hidden" name="scope" value="firm">
     @if(($showPeriod ?? false))<input type="hidden" name="period" value="{{ $f['period'] }}">@endif
+    @if($f['staff'])<input type="hidden" name="staff" value="{{ $f['staff'] }}">@endif
     @if(!empty($filterOptions['branches']))
     <label class="flex items-center gap-2 text-sm text-slate-600">Branch
         <select name="branch" onchange="this.form.submit()" class="min-h-10 rounded-lg border border-slate-300 bg-white px-2 text-sm text-slate-900">
@@ -40,14 +55,6 @@
         </select>
     </label>
     @endif
-    <label class="flex items-center gap-2 text-sm text-slate-600">Staff
-        <select name="staff" onchange="this.form.submit()" class="min-h-10 rounded-lg border border-slate-300 bg-white px-2 text-sm text-slate-900">
-            <option value="">Everyone</option>
-            @foreach($filterOptions['staff'] as $s)
-            <option value="{{ $s['id'] }}" @selected($f['staff'] == $s['id'])>{{ $s['name'] }}</option>
-            @endforeach
-        </select>
-    </label>
     @if($showPeriod ?? false)
     <div role="group" aria-label="Chart period" class="flex items-center gap-1 text-sm text-slate-600">
         <span class="mr-1">Period</span>

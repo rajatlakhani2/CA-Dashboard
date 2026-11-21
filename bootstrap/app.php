@@ -25,6 +25,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
 
+        // Visitors who are not signed in and open the main dashboard link see the front page
+        // first; deep links (and /home, used by the phone app) still go straight to sign-in.
+        $middleware->redirectGuestsTo(fn (Request $request) => $request->is('dashboard')
+            ? route('landing')
+            : route('login'));
+
         $middleware->web(append: [
             \App\Http\Middleware\EnforceSessionIdle::class,
         ]);

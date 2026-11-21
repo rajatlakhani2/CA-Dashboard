@@ -1,6 +1,6 @@
 @extends('public.layout')
 
-@section('title', 'Practice management for CA firms')
+@section('title', 'Practice management software for CA firms')
 
 @php
     $check = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
@@ -33,41 +33,40 @@
 {{-- Hero --}}
 <section class="pb-hero">
     <div class="pb-wrap">
-        <p class="pb-eyebrow">Private workspace for CA firms</p>
+        <p class="pb-eyebrow">Practice management for CA firms</p>
         <h1>Run your whole CA practice from <span>one secure dashboard</span></h1>
-        <p class="pb-hero__sub">Clients, statutory due dates, daily tasks, billing and your team in one place, for partners, managers, staff and articles. Everyone sees exactly the work they are responsible for, on the laptop or on the phone.</p>
+        <p class="pb-hero__sub">Clients, statutory due dates, daily tasks, billing and your team in one place. Built for Indian chartered accountancy firms of every size, from a sole practitioner to a multi-branch firm, on the laptop and on the phone.</p>
         <div class="pb-hero__actions">
-            <a href="{{ route('login') }}" class="pb-btn pb-btn--primary pb-btn--lg">Sign in to your firm</a>
-            <a href="#features" class="pb-btn pb-btn--outline pb-btn--lg">See what it does</a>
+            <a href="{{ route('register.organization') }}" class="pb-btn pb-btn--primary pb-btn--lg">Create your firm’s workspace</a>
+            <a href="{{ route('login') }}" class="pb-btn pb-btn--outline pb-btn--lg">Sign in</a>
         </div>
         <ul class="pb-trust">
-            <li>{!! $check !!} Role-based access for every team member</li>
-            <li>{!! $check !!} Each firm’s data kept separate</li>
+            <li>{!! $check !!} Set up in a few minutes</li>
+            <li>{!! $check !!} Your firm’s data kept separate from every other firm</li>
             <li>{!! $check !!} Works on laptop and phone</li>
         </ul>
-        <p class="pb-note">CA Dashboard is a private workspace, not a public app. Team members are added by their firm’s partner or administrator, who also gives them the workspace ID.</p>
     </div>
 </section>
 
 {{-- Who it is for --}}
 <section class="pb-section pb-section--tint" id="roles">
     <div class="pb-wrap">
-        <h2 class="pb-title">One workspace, the right view for each role</h2>
-        <p class="pb-lead">The same firm data, shown differently depending on who signs in.</p>
+        <h2 class="pb-title">The right view for everyone in the firm</h2>
+        <p class="pb-lead">One shared workspace for the whole firm, shown differently depending on who signs in.</p>
         <div class="pb-grid pb-grid--4">
-            <article class="pb-card pb-role">
+            <article data-reveal style="--d: 0" class="pb-card pb-role">
                 <span class="pb-icon">{!! $icon['partner'] !!}</span>
                 <div><h3>Partners</h3><p>See the whole firm at a glance: overdue filings, unpaid invoices, team workload and client health. Approve new clients and control who can open which module.</p></div>
             </article>
-            <article class="pb-card pb-role">
+            <article data-reveal style="--d: 1" class="pb-card pb-role">
                 <span class="pb-icon">{!! $icon['manager'] !!}</span>
                 <div><h3>Managers</h3><p>Plan and assign work across the team, balance workload, follow up on documents and keep the clients you manage on schedule.</p></div>
             </article>
-            <article class="pb-card pb-role">
+            <article data-reveal style="--d: 2" class="pb-card pb-role">
                 <span class="pb-icon">{!! $icon['staff'] !!}</span>
                 <div><h3>Staff and articles</h3><p>Start the day with “My Day”: what is due today and overdue, one tap to start or finish, add notes and log time from the phone.</p></div>
             </article>
-            <article class="pb-card pb-role">
+            <article data-reveal style="--d: 3" class="pb-card pb-role">
                 <span class="pb-icon">{!! $icon['client-portal'] !!}</span>
                 <div><h3>Clients</h3><p>Clients do not get an account. When documents are needed, the firm sends a secure, time-limited link where the client can upload them.</p></div>
             </article>
@@ -81,7 +80,7 @@
         <h2 class="pb-title">Everything a practice runs on</h2>
         <p class="pb-lead">Built around the daily work of an Indian CA firm, from the first client document to the final receipt.</p>
         <div class="pb-grid pb-grid--4">
-            <article class="pb-card">
+            <article data-reveal style="--d: 0" class="pb-card">
                 <span class="pb-icon">{!! $icon['clients'] !!}</span>
                 <h3>Clients and onboarding</h3>
                 <p>One profile per client with everything in one view.</p>
@@ -92,7 +91,7 @@
                     <li>Import client lists from Excel</li>
                 </ul>
             </article>
-            <article class="pb-card">
+            <article data-reveal style="--d: 1" class="pb-card">
                 <span class="pb-icon">{!! $icon['due'] !!}</span>
                 <h3>Compliance and due dates</h3>
                 <p>Statutory deadlines worked out for you, client by client.</p>
@@ -103,7 +102,7 @@
                     <li>DSC expiry and personal renewal tracking</li>
                 </ul>
             </article>
-            <article class="pb-card">
+            <article data-reveal style="--d: 2" class="pb-card">
                 <span class="pb-icon">{!! $icon['tasks'] !!}</span>
                 <h3>Tasks and the work board</h3>
                 <p>Every piece of work has an owner, a due date and a status.</p>
@@ -114,7 +113,7 @@
                     <li>Bulk clean-up of old overdue items</li>
                 </ul>
             </article>
-            <article class="pb-card">
+            <article data-reveal style="--d: 3" class="pb-card">
                 <span class="pb-icon">{!! $icon['team'] !!}</span>
                 <h3>Team and workload</h3>
                 <p>Know who is doing what before deadlines slip.</p>
@@ -125,7 +124,7 @@
                     <li>Module access set per person</li>
                 </ul>
             </article>
-            <article class="pb-card">
+            <article data-reveal style="--d: 0" class="pb-card">
                 <span class="pb-icon">{!! $icon['billing'] !!}</span>
                 <h3>Billing and collections</h3>
                 <p>Finished work flows straight into billing.</p>
@@ -136,7 +135,7 @@
                     <li>Client ledger, expenses and subscriptions</li>
                 </ul>
             </article>
-            <article class="pb-card">
+            <article data-reveal style="--d: 1" class="pb-card">
                 <span class="pb-icon">{!! $icon['key'] !!}</span>
                 <h3>Passwords and portals</h3>
                 <p>Client portal logins kept safely, opened in one click.</p>
@@ -147,7 +146,7 @@
                     <li>Smart archive for client documents</li>
                 </ul>
             </article>
-            <article class="pb-card">
+            <article data-reveal style="--d: 2" class="pb-card">
                 <span class="pb-icon">{!! $icon['reports'] !!}</span>
                 <h3>Reports and insights</h3>
                 <p>Numbers partners actually use.</p>
@@ -158,7 +157,7 @@
                     <li>Activity log of everything that changed</li>
                 </ul>
             </article>
-            <article class="pb-card">
+            <article data-reveal style="--d: 3" class="pb-card">
                 <span class="pb-icon">{!! $icon['bell'] !!}</span>
                 <h3>Reminders and automation</h3>
                 <p>The right nudge at the right time, without chasing.</p>
@@ -179,19 +178,19 @@
         <h2 class="pb-title">How work moves through the firm</h2>
         <p class="pb-lead">From setting up a client to collecting the fee, every step is in one place.</p>
         <div class="pb-grid pb-grid--4 pb-steps">
-            <article class="pb-card pb-step">
+            <article data-reveal style="--d: 0" class="pb-card pb-step">
                 <h3>Set up clients and services</h3>
                 <p>Add or import clients and tick the services you handle for them. Their due dates are created automatically.</p>
             </article>
-            <article class="pb-card pb-step">
+            <article data-reveal style="--d: 1" class="pb-card pb-step">
                 <h3>Assign the work</h3>
                 <p>Turn due dates into tasks for the right person. Everyone sees their own list in My Day.</p>
             </article>
-            <article class="pb-card pb-step">
+            <article data-reveal style="--d: 2" class="pb-card pb-step">
                 <h3>Collect documents and finish</h3>
                 <p>Request documents through a secure client link, track the checklist, and mark the filing done.</p>
             </article>
-            <article class="pb-card pb-step">
+            <article data-reveal style="--d: 3" class="pb-card pb-step">
                 <h3>Bill and get paid</h3>
                 <p>Completed work lands in the billing queue. Raise the invoice, record the payment, follow up on dues.</p>
             </article>
@@ -205,14 +204,14 @@
         <h2 class="pb-title">Built for confidential client data</h2>
         <p class="pb-lead">A CA firm holds its clients’ most sensitive information. CA Dashboard is designed around that.</p>
         <div class="pb-grid pb-grid--4">
-            <article class="pb-card"><span class="pb-icon">{!! $icon['building'] !!}</span><h3>Separate firm workspaces</h3><p>Each firm signs in to its own workspace. One firm can never see another firm’s clients or work.</p></article>
-            <article class="pb-card"><span class="pb-icon">{!! $icon['eye'] !!}</span><h3>Role and module access</h3><p>People only see the clients and modules their role allows. Partners decide who can open finance, passwords or reports.</p></article>
-            <article class="pb-card"><span class="pb-icon">{!! $icon['lock'] !!}</span><h3>Encrypted passwords</h3><p>Saved portal logins are encrypted, and every time someone reveals one it is written to the audit log.</p></article>
-            <article class="pb-card"><span class="pb-icon">{!! $icon['clock'] !!}</span><h3>Automatic sign-out</h3><p>Idle sessions end on their own, and the phone app can be locked with fingerprint or face unlock.</p></article>
-            <article class="pb-card"><span class="pb-icon">{!! $icon['history'] !!}</span><h3>Full activity history</h3><p>Changes to clients, tasks, invoices and payments are logged, with who made them and when.</p></article>
-            <article class="pb-card"><span class="pb-icon">{!! $icon['db'] !!}</span><h3>Daily backups</h3><p>The database is backed up every day, and deleted records go to a recycle bin before they are gone for good.</p></article>
-            <article class="pb-card"><span class="pb-icon">{!! $icon['globe'] !!}</span><h3>Secure connection</h3><p>All traffic between your device and the server is encrypted over HTTPS.</p></article>
-            <article class="pb-card"><span class="pb-icon">{!! $icon['partner'] !!}</span><h3>Client approvals</h3><p>Clients added by staff or articles wait for a partner’s approval before they become active.</p></article>
+            <article data-reveal style="--d: 0" class="pb-card"><span class="pb-icon">{!! $icon['building'] !!}</span><h3>Separate firm workspaces</h3><p>Each firm signs in to its own workspace. One firm can never see another firm’s clients or work.</p></article>
+            <article data-reveal style="--d: 1" class="pb-card"><span class="pb-icon">{!! $icon['eye'] !!}</span><h3>Role and module access</h3><p>People only see the clients and modules their role allows. Partners decide who can open finance, passwords or reports.</p></article>
+            <article data-reveal style="--d: 2" class="pb-card"><span class="pb-icon">{!! $icon['lock'] !!}</span><h3>Encrypted passwords</h3><p>Saved portal logins are encrypted, and every time someone reveals one it is written to the audit log.</p></article>
+            <article data-reveal style="--d: 3" class="pb-card"><span class="pb-icon">{!! $icon['clock'] !!}</span><h3>Automatic sign-out</h3><p>Idle sessions end on their own, and the phone app can be locked with fingerprint or face unlock.</p></article>
+            <article data-reveal style="--d: 0" class="pb-card"><span class="pb-icon">{!! $icon['history'] !!}</span><h3>Full activity history</h3><p>Changes to clients, tasks, invoices and payments are logged, with who made them and when.</p></article>
+            <article data-reveal style="--d: 1" class="pb-card"><span class="pb-icon">{!! $icon['db'] !!}</span><h3>Daily backups</h3><p>The database is backed up every day, and deleted records go to a recycle bin before they are gone for good.</p></article>
+            <article data-reveal style="--d: 2" class="pb-card"><span class="pb-icon">{!! $icon['globe'] !!}</span><h3>Secure connection</h3><p>All traffic between your device and the server is encrypted over HTTPS.</p></article>
+            <article data-reveal style="--d: 3" class="pb-card"><span class="pb-icon">{!! $icon['partner'] !!}</span><h3>Client approvals</h3><p>Clients added by staff or articles wait for a partner’s approval before they become active.</p></article>
         </div>
     </div>
 </section>
@@ -227,7 +226,7 @@
                 <p style="color: #cbd5e1; margin: 0 0 20px;">The Android app and the iPhone home-screen app open the same live workspace, so everything you do on the phone is instantly on the laptop too.</p>
                 <a href="{{ route('app.download') }}" class="pb-btn pb-btn--primary">Get the mobile app</a>
             </div>
-            <article class="pb-card">
+            <article data-reveal style="--d: 0" class="pb-card">
                 <span class="pb-icon">{!! $icon['phone'] !!}</span>
                 <h3>Made for the day out of office</h3>
                 <ul>
@@ -249,35 +248,39 @@
         <h2 class="pb-title">Common questions</h2>
         <p class="pb-lead">For partners setting up the firm and for team members signing in for the first time.</p>
         <div class="pb-faq">
-            <details>
-                <summary>Who can sign in to CA Dashboard?</summary>
-                <p>Only people your firm has added: partners, managers, associates, staff and article assistants. Team members cannot sign themselves up. If you work at a firm that uses CA Dashboard, ask your partner or administrator for an account.</p>
+            <details data-reveal>
+                <summary>Who can use CA Dashboard?</summary>
+                <p>Any chartered accountancy firm, from a sole practitioner to a firm with several partners and branches. Firms handling GST, income tax, TDS, ROC and audit work for their clients get the most out of it.</p>
             </details>
-            <details>
-                <summary>What do I need to sign in?</summary>
-                <p>Three things: your firm’s workspace ID, the email address your firm registered for you, and your password. Your firm gives you the workspace ID when your account is created.</p>
+            <details data-reveal>
+                <summary>How do we get started?</summary>
+                <p>A partner clicks “Create your firm’s workspace”, enters the firm’s name and chooses a workspace ID. Then add your clients (one by one or from Excel), tick the services you handle for each, and add your team. Due dates and tasks start appearing straight away.</p>
             </details>
-            <details>
+            <details data-reveal>
+                <summary>How does my team sign in?</summary>
+                <p>The partner adds each team member with their email and role. They sign in with the firm’s workspace ID, their email and their password, on the website or in the mobile app.</p>
+            </details>
+            <details data-reveal>
                 <summary>I forgot my password or workspace ID. What should I do?</summary>
-                <p>Use “Forgot password?” on the sign-in page to reset your password by email. If you do not know your workspace ID, ask your firm’s partner or administrator.</p>
+                <p>Use “Forgot password?” on the sign-in page to reset your password by email. Your firm’s partner can tell you the workspace ID, or write to us at the address below.</p>
             </details>
-            <details>
+            <details data-reveal>
                 <summary>Can our clients sign in?</summary>
                 <p>No. Clients never get an account. When you need documents, the firm sends the client a secure, time-limited link where they can upload files without seeing anything else.</p>
             </details>
-            <details>
+            <details data-reveal>
                 <summary>Will every staff member see all clients?</summary>
                 <p>No. What each person sees depends on their role and the modules a partner allows. Staff and articles see the work assigned to them; partners decide who can open finance, passwords, reports and administration.</p>
             </details>
-            <details>
+            <details data-reveal>
                 <summary>Does CA Dashboard file returns or replace accounting software?</summary>
                 <p>No. It is a practice-management tool: it tracks clients, due dates, work, billing and the team. Returns are still filed on the government portals and books kept in your accounting software. CA Dashboard helps you remember, assign, follow up and bill.</p>
             </details>
-            <details>
+            <details data-reveal>
                 <summary>Does it work on the phone?</summary>
                 <p>Yes. Every page works in the phone’s browser, and there is an Android app plus an iPhone home-screen app with phone features such as alerts, fingerprint lock and camera scanning.</p>
             </details>
-            <details>
+            <details data-reveal>
                 <summary>How is our data protected?</summary>
                 <p>Each firm has its own separate workspace, access follows roles and module permissions, portal passwords are encrypted, every change is logged, sessions sign out when idle, and the database is backed up daily. See the <a href="{{ route('privacy') }}">Privacy Policy</a> for details.</p>
             </details>
@@ -288,10 +291,13 @@
 {{-- Final call to action --}}
 <section class="pb-section" style="padding-top: 8px;">
     <div class="pb-wrap pb-wrap--narrow">
-        <div class="pb-cta">
-            <h2>Already part of a firm on CA Dashboard?</h2>
-            <p>Sign in with your workspace ID, email and password to pick up where you left off.</p>
-            <a href="{{ route('login') }}" class="pb-btn pb-btn--primary pb-btn--lg">Sign in</a>
+        <div class="pb-cta" data-reveal>
+            <h2>Bring your whole practice into one place</h2>
+            <p>Create your firm’s workspace in a few minutes, or sign in if your firm already uses CA Dashboard.</p>
+            <div class="pb-hero__actions" style="margin-bottom:0">
+                <a href="{{ route('register.organization') }}" class="pb-btn pb-btn--primary pb-btn--lg">Create your firm’s workspace</a>
+                <a href="{{ route('login') }}" class="pb-btn pb-btn--outline pb-btn--lg">Sign in</a>
+            </div>
         </div>
     </div>
 </section>

@@ -32,7 +32,7 @@ class GovernmentPortals
             self::PORTAL_INCOME_TAX => [
                 'id' => self::PORTAL_INCOME_TAX,
                 'label' => 'Income Tax',
-                'logo' => '/images/gov-portals/income-tax.svg',
+                'logo' => '/images/gov-portals/income-tax.png',
                 'login_url' => 'https://eportal.incometax.gov.in/iec/foservices/#/login',
                 'launch_mode' => 'auto_submit',
                 'form_action' => 'https://eportal.incometax.gov.in/iec/loginapi/login',
