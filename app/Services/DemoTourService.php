@@ -178,7 +178,7 @@ class DemoTourService
                 'emoji' => '📧',
                 'title' => 'Send invoice by email & WhatsApp',
                 'tagline' => 'Collect faster — one click to the client',
-                'description' => 'Email the PDF invoice directly from Vouchex, or send a WhatsApp payment reminder with amount and due date — no copy-paste.',
+                'description' => 'Email the PDF invoice directly from CA Dashboard, or send a WhatsApp payment reminder with amount and due date — no copy-paste.',
                 'side' => 'bottom',
                 'module' => 'invoices',
             ],

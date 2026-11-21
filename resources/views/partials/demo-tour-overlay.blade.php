@@ -21,7 +21,7 @@
             <div class="demo-welcome-card demo-tour-modal-card pointer-events-auto rounded-2xl shadow-2xl p-6 sm:p-7 relative overflow-hidden" @click.stop>
                 <div class="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-white/10"></div>
                 <p class="demo-welcome-emoji">{{ $welcome['emoji'] ?? '✨' }}</p>
-                <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-200 mt-2">Welcome to Vouchex</p>
+                <p class="text-xs font-bold uppercase tracking-[0.2em] text-indigo-200 mt-2">Welcome to CA Dashboard</p>
                 @if(!empty($welcome['tagline']))
                 <p class="demo-welcome-tagline mt-2">{{ $welcome['tagline'] }}</p>
                 @endif

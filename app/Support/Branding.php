@@ -6,7 +6,7 @@ use App\Models\Setting;
 
 class Branding
 {
-    public const DEFAULT_NAME = 'Vouchex';
+    public const DEFAULT_NAME = 'CA Dashboard';
 
     public static function dashboardName(): string
     {
@@ -19,7 +19,7 @@ class Branding
     {
         $tagline = trim((string) Setting::get('dashboard_tagline', ''));
 
-        return $tagline !== '' ? $tagline : 'Multi-firm workspace';
+        return $tagline !== '' ? $tagline : 'Practice management for CA firms';
     }
 
     public static function pageTitle(?string $suffix = null): string

@@ -17,13 +17,13 @@
     "SplashScreen": {
       "launchShowDuration": 1200,
       "launchAutoHide": true,
-      "backgroundColor": "#1e293b",
+      "backgroundColor": "#0c1f4a",
       "showSpinner": false,
       "androidScaleType": "CENTER_CROP"
     },
     "StatusBar": {
       "style": "DARK",
-      "backgroundColor": "#1e293b",
+      "backgroundColor": "#0c1f4a",
       "overlaysWebView": false
     },
     "PushNotifications": {

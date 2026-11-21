@@ -1,12 +1,13 @@
 @extends('layouts.app')
 
 @section('header')
-<div class="flex justify-between items-center w-full">
-    <div class="flex items-center space-x-4">
-        <h1 class="text-2xl font-bold text-gray-900">{{ $client->name }}</h1>
-        <span class="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
+<div class="flex items-center w-full min-w-0">
+    <div class="flex items-center gap-3 min-w-0">
+        <span class="truncate min-w-0">{{ $client->name }}</span>
+        <span class="hidden sm:inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
             {{ $client->client_code }}
         </span>
+<span class="hidden sm:inline-flex shrink-0">
         @include('partials.status-badge', [
             'status' => $client->status,
             'type' => match ($client->status) {
@@ -15,8 +16,19 @@
                 default => 'neutral',
             },
         ])
+        </span>
     </div>
-    <div class="flex flex-wrap items-center gap-3">
+</div>
+@endsection
+
+@section('content')
+@php
+    $canManageFirm = auth()->user()?->managesFirmModules();
+    $canViewClientFinance = $canManageFirm || auth()->user()?->isAssociate();
+@endphp
+<div class="space-y-6" x-data="{ tab: '{{ request('tab', 'work') }}' }" data-demo-tour="client-360">
+    {{-- Client actions (were squeezed into the page title bar) --}}
+    <div class="flex flex-wrap items-center gap-2 sm:gap-3">
         @include('clients.partials.whatsapp-quick-actions', ['client' => $client])
         <div class="flex rounded-md shadow-sm">
             @if(auth()->user()?->hasRole('partner', 'manager'))
@@ -48,15 +60,7 @@
         </form>
         @endif
     </div>
-</div>
-@endsection
 
-@section('content')
-@php
-    $canManageFirm = auth()->user()?->managesFirmModules();
-    $canViewClientFinance = $canManageFirm || auth()->user()?->isAssociate();
-@endphp
-<div class="space-y-6" x-data="{ tab: '{{ request('tab', 'work') }}' }" data-demo-tour="client-360">
     @if(session('portal_url'))
     <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm">
         <p class="font-semibold text-emerald-900">Client portal link (copy now — shown once)</p>

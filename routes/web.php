@@ -19,10 +19,17 @@ Route::post('/register', [\App\Http\Controllers\RegisterOrganizationController::
 
 Route::view('/get-app', 'app-download')->name('app.download');
 Route::view('/privacy', 'privacy')->name('privacy');
+Route::view('/terms', 'public.terms')->name('terms');
+Route::view('/about', 'public.about')->name('about');
+Route::view('/delete-account', 'public.delete-account')->name('account.delete-info');
 
 Route::get('/', function () {
-    return redirect()->route('login');
-});
+    if (auth()->check()) {
+        return redirect()->route('app.home');
+    }
+
+    return response()->view('public.landing');
+})->name('landing');
 
 require __DIR__ . '/portal.php';
 
