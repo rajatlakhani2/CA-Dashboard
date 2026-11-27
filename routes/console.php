@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::command('backup:run')
     ->daily()
     ->when(fn () => \App\Models\Setting::get('auto_backup_enabled', '1') === '1');
+Schedule::call(fn () => \App\Models\Task::refreshAutoPriorities())->name('tasks:refresh-priorities')->dailyAt('00:05')->withoutOverlapping();
 Schedule::command('anomaly:scan')->dailyAt('06:30');
 Schedule::command('compliance:score-risk')->dailyAt('06:45');
 Schedule::command('services:generate-dues')->daily();

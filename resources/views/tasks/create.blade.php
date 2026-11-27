@@ -249,6 +249,7 @@
                                         </button>
                                     </template>
                                 </div>
+                                <p class="mt-2 text-xs text-gray-600" x-text="priorityHint()"></p>
                             </td>
                         </tr>
                     </tbody>
@@ -283,7 +284,7 @@
                 </div>
                 <div class="flex flex-wrap gap-2">
                     <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold"
-                        :class="priorityBadgeClass()" x-text="priority"></span>
+                        :class="priorityBadgeClass()" x-text="effectivePriority() + ' priority'"></span>
                     <span class="inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium text-white"
                         x-text="clientLabel || 'Internal task'"></span>
                 </div>
@@ -344,7 +345,7 @@ function taskCreateForm() {
         titleError: false,
         assignToMe: oldAssignToMe,
         assignmentMode: oldAssignToMe ? 'me' : (oldAssigneeId ? 'team' : 'unassigned'),
-        priority: @json(old('priority', 'Normal')),
+        priority: @json(old('priority', 'Auto')),
         dueDate: @json(old('due_date', $prefillDueDate)),
         duePresets: [
             { label: 'Today', days: 0 },
@@ -353,9 +354,9 @@ function taskCreateForm() {
             { label: 'In 30 days', days: 30 },
         ],
         priorities: [
+            { value: 'Auto', label: 'Auto', icon: '⚡', activeClass: 'ring-2 ring-blue-400 border-blue-300 bg-blue-50 text-blue-800' },
             { value: 'High', label: 'High', icon: '🔴', activeClass: 'ring-2 ring-red-400 border-red-300 bg-red-50 text-red-800' },
             { value: 'Medium', label: 'Medium', icon: '🟠', activeClass: 'ring-2 ring-amber-400 border-amber-300 bg-amber-50 text-amber-800' },
-            { value: 'Normal', label: 'Normal', icon: '🔵', activeClass: 'ring-2 ring-indigo-400 border-indigo-300 bg-indigo-50 text-indigo-800' },
             { value: 'Low', label: 'Low', icon: '⚪', activeClass: 'ring-2 ring-gray-400 border-gray-300 bg-gray-50 text-gray-700' },
         ],
         clientOptions: [emptyClient, ...clientOptions],
@@ -430,10 +431,23 @@ function taskCreateForm() {
             const map = {
                 High: 'bg-red-500/30 text-red-100',
                 Medium: 'bg-amber-500/30 text-amber-100',
-                Normal: 'bg-indigo-400/30 text-indigo-100',
                 Low: 'bg-white/20 text-indigo-100',
             };
-            return map[this.priority] || map.Normal;
+            return map[this.effectivePriority()] || map.Low;
+        },
+        // Same rule as the server (Task::priorityForDueDate): within 3 days High, within 6 Medium, else Low.
+        autoPriority() {
+            if (!this.dueDate) return 'Low';
+            const t = new Date(); t.setHours(0, 0, 0, 0);
+            const d = new Date(this.dueDate + 'T00:00:00');
+            const days = Math.round((d - t) / 86400000);
+            return days <= 3 ? 'High' : (days <= 6 ? 'Medium' : 'Low');
+        },
+        effectivePriority() { return this.priority === 'Auto' ? this.autoPriority() : this.priority; },
+        priorityHint() {
+            if (this.priority !== 'Auto') return 'Fixed at ' + this.priority + '. It will not change with the due date.';
+            if (!this.dueDate) return 'Auto: Low for now. Add a due date, or pick High / Medium / Low yourself.';
+            return 'Auto: ' + this.autoPriority() + ' now. Becomes Medium 6 days before and High 3 days before the due date.';
         },
         onSubmit(e) {
             if (!this.canSubmit()) {

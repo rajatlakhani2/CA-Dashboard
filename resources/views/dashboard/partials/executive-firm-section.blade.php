@@ -12,7 +12,7 @@
 
     @if($hasFirmTab && ($firmOverview ?? null))
 
-    @include('dashboard.partials.firm-overview', ['firmOverview' => $firmOverview])
+    @include('dashboard.partials.firm-overview', ['firmOverview' => array_merge((array) $firmOverview, ['hasFinance' => \App\Services\DashboardLayoutDataService::HOME_SHOWS_MONEY && ($firmOverview['hasFinance'] ?? false)])])
 
     @else
 

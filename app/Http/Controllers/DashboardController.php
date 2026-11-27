@@ -32,6 +32,7 @@ class DashboardController extends Controller
         NotificationSummaryService $notificationSummary,
         WorkspaceOnboardingService $onboarding,
     ) {
+        \App\Models\Task::refreshAutoPrioritiesOncePerDay();
         $user = $request->user();
 
         $layout = DashboardLayout::forUser($user);

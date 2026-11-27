@@ -69,7 +69,7 @@ class TaskListDisplay
         return match ($priority) {
             'High' => ['bar' => 'bg-rose-500', 'badge' => 'bg-rose-50 text-rose-700 border-rose-200', 'ring' => 'ring-rose-100'],
             'Medium' => ['bar' => 'bg-amber-500', 'badge' => 'bg-amber-50 text-amber-800 border-amber-200', 'ring' => 'ring-amber-100'],
-            'Low' => ['bar' => 'bg-slate-400', 'badge' => 'bg-slate-50 text-slate-600 border-slate-200', 'ring' => 'ring-slate-100'],
+            'Low', 'Normal' => ['bar' => 'bg-slate-400', 'badge' => 'bg-slate-50 text-slate-600 border-slate-200', 'ring' => 'ring-slate-100'],
             default => ['bar' => 'bg-indigo-500', 'badge' => 'bg-indigo-50 text-indigo-700 border-indigo-200', 'ring' => 'ring-indigo-100'],
         };
     }

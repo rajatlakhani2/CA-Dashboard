@@ -272,7 +272,7 @@
             <ul class="mt-3 text-sm space-y-1">
                 @foreach($service->taskTemplates as $tpl)
                 <li class="flex justify-between items-center py-1 border-b border-slate-50">
-                    <span>{{ $tpl->title }} — due +{{ $tpl->due_days_offset }}d · {{ $tpl->priority }}</span>
+                    <span>{{ $tpl->title }} — due +{{ $tpl->due_days_offset }}d · {{ $tpl->priority === 'Auto' ? 'Auto priority' : $tpl->priority }}</span>
                     <form action="{{ route('task-templates.destroy', $tpl) }}" method="POST" onsubmit="return confirm('Remove?')">@csrf @method('DELETE')
                         <button class="text-red-500 text-xs font-bold">Remove</button>
                     </form>
@@ -284,7 +284,7 @@
                 @csrf
                 <input type="text" name="title" required placeholder="Task title" class="rounded-lg border-slate-200">
                 <input type="number" name="due_days_offset" value="7" min="0" class="rounded-lg border-slate-200" title="Days from today">
-                <select name="priority" class="rounded-lg border-slate-200"><option>High</option><option selected>Medium</option><option>Normal</option><option>Low</option></select>
+                <select name="priority" class="rounded-lg border-slate-200" title="Priority of the task this step creates"><option value="Auto" selected>Auto (by due date)</option><option>High</option><option>Medium</option><option>Low</option></select>
                 <button type="submit" class="bg-indigo-600 text-white rounded-lg font-bold text-xs uppercase tracking-wider py-2">Add step</button>
             </form>
         </div>

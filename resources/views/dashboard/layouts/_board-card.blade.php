@@ -6,6 +6,7 @@
         'type' => $item['type'],
         'id' => $item['id'] ?? null,
         'kind' => $tag[$item['kind']][0],
+        'priority' => $item['type'] === 'task' ? ($item['priority'] ?? null) : null,
         'title' => $item['title'],
         'client' => $item['client_name'],
         'phone' => $item['client_phone'] ?? null,
@@ -46,6 +47,10 @@
         <div class="flex items-start justify-between gap-2">
             <span class="flex items-center gap-1.5">
                 <span class="rounded-md px-2 py-0.5 text-xs font-bold {{ $tag[$item['kind']][1] }}">{{ $tag[$item['kind']][0] }}</span>
+                @if($item['type'] === 'task' && !empty($item['priority']))
+                @php $pc = ['High' => 'border-red-200 bg-red-50 text-red-700', 'Medium' => 'border-amber-200 bg-amber-50 text-amber-800', 'Low' => 'border-slate-200 bg-slate-50 text-slate-600'][$item['priority']] ?? 'border-slate-200 bg-slate-50 text-slate-600'; @endphp
+                <span class="cd-prio rounded-md border px-1.5 py-0.5 text-[11px] font-bold {{ $pc }}" title="{{ $item['priority'] }} priority{{ !empty($item['priority_auto']) ? ' (automatic from due date)' : ' (set by hand)' }}">{{ $item['priority'] }}</span>
+                @endif
                 @if($item['who'])
                 <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-100 text-xs font-bold text-teal-900" title="{{ $item['who'] }}">{{ \Illuminate\Support\Str::of($item['who'])->explode(' ')->map(fn ($p) => mb_substr($p, 0, 1))->take(2)->implode('') }}</span>
                 @endif

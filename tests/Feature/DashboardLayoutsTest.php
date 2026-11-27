@@ -116,13 +116,13 @@ class DashboardLayoutsTest extends TestCase
             ->assertSee('Today’s action inbox')
             ->assertSee('GSTR-3B')
             ->assertSee('Partner Only Traders')
-            ->assertSee('INV-T-1')
-            ->assertSee('₹40,000')           // balance after part payment
+            ->assertDontSee('INV-T-1')       // home shows work only: no invoices or payments
+            ->assertDontSee('₹40,000')
             ->assertSee('DSC expiry – H. Holder')
             ->assertSee('Sales register')    // awaited document
             ->assertSee('Prepare GST working')
-            ->assertSee('Billed vs collected')
-            ->assertSee('Receivables by age')
+            ->assertDontSee('Billed vs collected')
+            ->assertDontSee('Receivables by age')
             ->assertSee('Compliance calendar')
             ->assertSee('Team workload')
             ->assertSee('Clients needing attention');
@@ -204,7 +204,7 @@ class DashboardLayoutsTest extends TestCase
 
         $this->actingAs($this->partner)->get(route('dashboard', ['scope' => 'mine']))
             ->assertOk()
-            ->assertSee('INV-T-1')
+            ->assertDontSee('INV-T-1')
             ->assertDontSee('Prepare GST working');
     }
 
@@ -213,7 +213,7 @@ class DashboardLayoutsTest extends TestCase
         $this->useLayout($this->partner, DashboardLayout::INBOX);
 
         foreach (['q', 'fy'] as $p) {
-            $this->actingAs($this->partner)->get(route('dashboard', ['period' => $p]))->assertOk()->assertSee('Billed vs collected');
+            $this->actingAs($this->partner)->get(route('dashboard', ['period' => $p]))->assertOk()->assertDontSee('Billed vs collected');
         }
         $this->actingAs($this->partner)->get(route('dashboard', ['month' => now()->addMonth()->format('Y-m')]))
             ->assertOk()
@@ -223,13 +223,15 @@ class DashboardLayoutsTest extends TestCase
     public function test_snooze_hides_item_and_undo_restores_it(): void
     {
         $this->useLayout($this->partner, DashboardLayout::INBOX);
-        $key = 'invoice:'.$this->invoice->id;
+        $task = \App\Models\Task::where('title', 'Prepare GST working')->firstOrFail();
+        $key = 'task:'.$task->id;
+        $this->actingAs($this->partner)->get(route('dashboard'))->assertSee('Prepare GST working');
 
         $this->actingAs($this->partner)->postJson(route('dashboard.inbox.snooze'), ['key' => $key])->assertOk();
-        $this->actingAs($this->partner)->get(route('dashboard'))->assertDontSee('INV-T-1');
+        $this->actingAs($this->partner)->get(route('dashboard'))->assertDontSee('Prepare GST working');
 
         $this->actingAs($this->partner)->postJson(route('dashboard.inbox.snooze'), ['key' => $key, 'undo' => 1])->assertOk();
-        $this->actingAs($this->partner)->get(route('dashboard'))->assertSee('INV-T-1');
+        $this->actingAs($this->partner)->get(route('dashboard'))->assertSee('Prepare GST working');
 
         $this->actingAs($this->partner)->postJson(route('dashboard.inbox.snooze'), ['key' => 'bogus'])->assertStatus(422);
     }
@@ -260,8 +262,7 @@ class DashboardLayoutsTest extends TestCase
 
         $this->actingAs($this->partner)->get(route('dashboard'))
             ->assertOk()
-            ->assertSee('data-dash-action="pay"', false)
-            ->assertSee('id="dash-pay-dialog"', false);
+            ->assertDontSee('data-dash-action="pay"', false);
 
         $this->actingAs($this->partner)->postJson(route('payments.store'), [
             'invoice_id' => $this->invoice->id,

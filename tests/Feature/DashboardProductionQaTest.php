@@ -156,7 +156,7 @@ class DashboardProductionQaTest extends TestCase
             ->getContent();
 
         $this->assertStringContainsString('data-dashboard-widget="exec-firm"', $html);
-        $this->assertStringContainsString('data-dashboard-widget="exec-finance"', $html);
+        $this->assertStringNotContainsString('data-dashboard-widget="exec-finance"', $html); // no money on home
     }
 
     /** TC-008 Regular user — no firm overview in DOM */
@@ -429,9 +429,9 @@ class DashboardProductionQaTest extends TestCase
 
         $html = $this->actingAs($partner)->get(route('dashboard'))->getContent();
 
-        $this->assertStringContainsString('>xxx<', $html);
-        $this->assertStringContainsString('x-cloak', $html);
-        $this->assertStringContainsString('Tap a card to reveal', $html);
+        // Finance cards are no longer on the home dashboard at all.
+        $this->assertStringNotContainsString('Tap a card to reveal', $html);
+        $this->assertStringNotContainsString('data-finance-snapshot-url', $html);
     }
 
     /** TC-050 JS disabled — no blade-echoed finance figures in static HTML */
@@ -445,7 +445,7 @@ class DashboardProductionQaTest extends TestCase
             '/exec-finance-card__value[^>]*>\s*₹\s*[\d,]+/u',
             $html
         );
-        $this->assertStringContainsString('data-finance-snapshot-url', $html);
+        $this->assertStringNotContainsString('data-finance-snapshot-url', $html);
         $this->assertStringNotContainsString('x-text="revealed ?', $html);
 
         $snapshot = $this->actingAs($partner)->getJson(route('dashboard.finance-snapshot'))->json();

@@ -18,7 +18,7 @@ class UpdateTaskRequest extends FormRequest
             'title' => 'required|string|max:255',
             'client_id' => 'nullable|exists:clients,id',
             'assigned_to' => 'nullable|exists:users,id',
-            'priority' => 'required|in:High,Medium,Normal,Low',
+            'priority' => 'required|in:Auto,High,Medium,Low,Normal',
             'status' => 'required|in:' . implode(',', Task::STATUSES),
             'due_date' => 'nullable|date',
             'description' => 'nullable|string',

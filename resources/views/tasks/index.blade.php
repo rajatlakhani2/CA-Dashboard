@@ -71,7 +71,7 @@
                 <label for="priority" class="block text-xs font-semibold text-gray-600 mb-1">Priority</label>
                 <select name="priority" id="priority" class="block w-full rounded-lg border-gray-200 text-sm" onchange="this.form.submit()">
                     <option value="">All</option>
-                    @foreach(['High', 'Medium', 'Normal', 'Low'] as $priority)
+                    @foreach(\App\Models\Task::PRIORITIES as $priority)
                     <option value="{{ $priority }}" @selected(request('priority') == $priority)>{{ $priority }}</option>
                     @endforeach
                 </select>

@@ -135,7 +135,7 @@
         body.innerHTML =
             '<div class="px-5 pb-8 pt-3">'
             + '<div class="mx-auto mb-4 h-1.5 w-10 rounded-full bg-slate-300"></div>'
-            + '<div class="flex items-center justify-between gap-2 text-xs"><span class="rounded-md bg-slate-100 px-2 py-0.5 font-bold text-slate-700">' + esc(d.kind) + '</span>'
+            + '<div class="flex items-center justify-between gap-2 text-xs"><span class="flex items-center gap-1.5"><span class="rounded-md bg-slate-100 px-2 py-0.5 font-bold text-slate-700">' + esc(d.kind) + '</span>' + (d.priority ? '<span class="cd-prio rounded-md border px-1.5 py-0.5 font-bold ' + ({High: 'border-red-200 bg-red-50 text-red-700', Medium: 'border-amber-200 bg-amber-50 text-amber-800'}[d.priority] || 'border-slate-200 bg-slate-50 text-slate-600') + '">' + esc(d.priority) + ' priority</span>' : '') + '</span>'
             + '<span class="' + (d.over ? 'font-semibold text-red-600' : 'text-slate-500') + '">' + esc(d.due) + '</span></div>'
             + '<h2 class="mt-2 text-lg font-bold leading-snug">' + esc(d.title) + '</h2>'
             + '<p class="text-sm text-slate-500">' + esc(d.client) + (d.who ? ' · ' + esc(d.who) : '') + '</p>'
