@@ -52,7 +52,7 @@ class DashboardNavigationTest extends TestCase
         $response->assertOk();
         $response->assertSee(route('invoices.index'), false);
         $response->assertSee(route('credentials.index'), false);
-        $response->assertSee('data-dashboard-widget="exec-finance"', false);
+        $response->assertDontSee('data-dashboard-widget="exec-finance"', false); // no money on home
     }
 
     public function test_associate_client_show_shows_finance_summary_read_only(): void

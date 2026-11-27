@@ -49,7 +49,7 @@ class NewFeaturesBatchTest extends TestCase
         $this->actingAs($partner)
             ->get(route('dashboard', ['tab' => 'firm']))
             ->assertOk()
-            ->assertSee('MTD Invoiced', false);
+            ->assertDontSee('MTD Invoiced', false); // no money on home
     }
 
     public function test_create_draft_invoice_from_billing_queue(): void

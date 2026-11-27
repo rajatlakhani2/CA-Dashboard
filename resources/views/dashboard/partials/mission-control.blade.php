@@ -77,7 +77,7 @@
             @include('dashboard.partials.executive-pulse-panels', ['mc' => $mc])
         </x-executive-widget>
 
-        @if(\App\Support\ModuleGate::hasFinanceModule(auth()->user()))
+        @if(\App\Services\DashboardLayoutDataService::HOME_SHOWS_MONEY && \App\Support\ModuleGate::hasFinanceModule(auth()->user()))
         <x-executive-widget id="exec-finance" title="Finance" subtitle="Tap a card to reveal figures">
             @include('dashboard.partials.executive-finance', ['hideHeader' => true])
         </x-executive-widget>

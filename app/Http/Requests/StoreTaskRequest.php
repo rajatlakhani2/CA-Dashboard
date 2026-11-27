@@ -17,7 +17,7 @@ class StoreTaskRequest extends FormRequest
             'title' => 'required|string|max:255',
             'client_id' => 'nullable|exists:clients,id',
             'assigned_to' => 'nullable|exists:users,id',
-            'priority' => 'nullable|in:High,Medium,Normal,Low',
+            'priority' => 'nullable|in:Auto,High,Medium,Low,Normal',
             'due_date' => 'nullable|date',
             'description' => 'nullable|string',
         ];

@@ -50,11 +50,14 @@
             <!-- Priority -->
             <div>
                 <label for="priority" class="block text-sm font-medium text-gray-700">Priority</label>
+                @php $prioChoice = old('priority', $task->priorityChoice()); @endphp
                 <select name="priority" id="priority" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                    @foreach(['High', 'Medium', 'Normal', 'Low'] as $p)
-                    <option value="{{ $p }}" {{ $task->priority == $p ? 'selected' : '' }}>{{ $p }}</option>
+                    <option value="Auto" @selected($prioChoice === 'Auto')>Auto, from due date (now {{ \App\Models\Task::priorityForDueDate($task->due_date) }})</option>
+                    @foreach(\App\Models\Task::PRIORITIES as $p)
+                    <option value="{{ $p }}" @selected($prioChoice === $p)>{{ $p }}</option>
                     @endforeach
                 </select>
+                <p class="mt-1 text-xs text-gray-500">Auto: due within 3 days = High, within 6 days = Medium, later = Low. It updates by itself every day. Pick High, Medium or Low to fix it yourself.</p>
             </div>
 
             <!-- Status -->

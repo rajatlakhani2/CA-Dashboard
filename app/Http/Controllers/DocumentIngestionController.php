@@ -96,7 +96,7 @@ class DocumentIngestionController extends Controller
                 'client_id' => $documentIngestion->client_id,
                 'title' => $title,
                 'status' => Task::STATUS_PENDING,
-                'priority' => 'Medium',
+                'priority' => \App\Models\Task::PRIORITY_AUTO,
                 'due_date' => $validated['due_date'] ?? now()->addDays(7),
                 'assigned_to' => auth()->id(),
                 'created_by' => auth()->id(),

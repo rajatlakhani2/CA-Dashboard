@@ -15,6 +15,7 @@ class TaskController extends Controller
     public function myDay(Request $request)
     {
         $this->authorize('viewAny', Task::class);
+        Task::refreshAutoPrioritiesOncePerDay();
 
         $user = $request->user();
         $query = Task::with(['client'])->whereNotIn('status', Task::TERMINAL_STATUSES);
@@ -31,6 +32,7 @@ class TaskController extends Controller
     public function index(Request $request)
     {
         $this->authorize('viewAny', Task::class);
+        Task::refreshAutoPrioritiesOncePerDay();
 
         $query = Task::with(['client', 'assignee']);
         $this->scopeVisibleTasks($query, $request->user());

@@ -131,7 +131,7 @@ class DashboardLayoutDataService
             }
         }
 
-        if ($user->canAccessModule('invoices') && ($user->isPartner() || $user->isManager())) {
+        if ($this->canSeeMoney($user)) {
             $canPay = $user->canAccessModule('payments');
             $invoices = Invoice::query()
                 ->with('client:id,name,manager_id,primary_contact_phone', 'client.manager:id,name')
@@ -257,6 +257,8 @@ class DashboardLayoutDataService
                 };
                 $items->push($this->item('task', $task->id, [
                     'kind' => 'task',
+                    'priority' => $task->priority === 'Normal' ? Task::PRIORITY_LOW : $task->priority,
+                    'priority_auto' => (bool) $task->priority_auto,
                     'title' => $task->title,
                     'client' => $task->client,
                     'who' => $task->assignee?->name,
@@ -279,7 +281,7 @@ class DashboardLayoutDataService
 
         return $items
             ->reject(fn ($i) => in_array($i['key'], $snoozed, true))
-            ->sortBy(fn ($i) => [$i['urgency_rank'], $i['sort_date']])
+            ->sortBy(fn ($i) => [$i['urgency_rank'] === 0 ? 0 : 1, $i['priority_rank'], $i['sort_date']])
             ->values();
     }
 
@@ -318,6 +320,8 @@ class DashboardLayoutDataService
             'client_id' => $client?->id,
             'urgency' => $urgency,
             'urgency_rank' => ['over' => 0, 'soon' => 1, 'ok' => 2][$urgency],
+            'priority' => $data['priority'] ?? Task::priorityForDueDate($date),
+            'priority_rank' => ['High' => 0, 'Medium' => 1, 'Low' => 2][$data['priority'] ?? Task::priorityForDueDate($date)] ?? 2,
             'sort_date' => $date?->format('Y-m-d') ?? '9999-12-31',
             'due_text' => $dueText,
             'complete_method' => $data['complete_method'] ?? 'POST',
@@ -468,9 +472,16 @@ class DashboardLayoutDataService
         return $items->groupBy('kind')->map(fn ($g, $k) => $g->count().' '.($labels[$k] ?? $k))->implode(' · ');
     }
 
+    /**
+     * The home dashboard shows work only: no invoices, payments, receivables or revenue
+     * (firm decision, Nov 2026). Billing figures stay on the Billing pages and reports.
+     */
+    public const HOME_SHOWS_MONEY = false;
+
     public function canSeeMoney(User $user): bool
     {
-        return ($user->isPartner() || $user->isManager()) && $user->canAccessModule('invoices');
+        return self::HOME_SHOWS_MONEY
+            && ($user->isPartner() || $user->isManager()) && $user->canAccessModule('invoices');
     }
 
     /** @return Collection<int, array{id:int, client_id:int, client:string, balance:float, age:int}> */
