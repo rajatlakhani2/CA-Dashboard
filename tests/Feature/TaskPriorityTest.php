@@ -96,7 +96,22 @@ class TaskPriorityTest extends TestCase
         $this->assertFalse($manual->priority_auto);
         $this->assertSame('Medium', $manual->priority);
 
-        $this->actingAs($this->partner)->get(route('tasks.edit', $manual))->assertOk()->assertSee('Auto, from due date', false);
+        $this->actingAs($this->partner)->get(route('tasks.edit', $manual))->assertOk()->assertSee('name="priority" value="Auto"', false)->assertSee('Save changes');
         $this->actingAs($this->partner)->get(route('tasks.create'))->assertOk()->assertSee("value: 'Auto'", false);
+    }
+
+    public function test_edit_page_keeps_action_forms_outside_the_main_form(): void
+    {
+        $t = $this->task(['due_date' => '2026-12-01']);
+        $html = $this->actingAs($this->partner)->get(route('tasks.edit', $t))->assertOk()->getContent();
+        $start = strpos($html, 'id="task-edit-form"');
+        $end = strpos($html, '</form>', $start);
+        $this->assertStringNotContainsString(route('tasks.destroy', $t), substr($html, $start, $end - $start));
+
+        $this->actingAs($this->partner)->put(route('tasks.update', $t), [
+            'title' => 'GST return', 'status' => Task::STATUS_IN_PROGRESS, 'priority' => 'Low', 'due_date' => '2026-11-29',
+        ])->assertRedirect();
+        $this->assertSame('Low', $t->fresh()->priority);
+        $this->assertFalse($t->fresh()->priority_auto);
     }
 }
