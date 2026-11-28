@@ -65,7 +65,7 @@
     @endif
 
     {{-- Summary --}}
-    <div class="te-summary mb-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+    <div class="te-summary max-sm:hidden mb-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
         <div class="flex flex-wrap items-center gap-2 text-xs font-semibold">
             <span class="te-chip rounded-md border px-2 py-0.5"
                 :class="{ 'border-red-200 bg-red-50 text-red-700': effective()==='High', 'border-amber-200 bg-amber-50 text-amber-800': effective()==='Medium', 'border-slate-200 bg-slate-50 text-slate-600': effective()==='Low' }"
@@ -81,24 +81,24 @@
         <p class="text-sm text-slate-600">{{ $task->client?->name ?? 'Internal task' }}@if($task->creator) · added by {{ $task->creator->name }}@endif</p>
     </div>
 
-    <div class="space-y-4">
+    <div class="te-stack space-y-4">
         {{-- What --}}
         <section class="te-card rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
             <label for="title" class="te-label">Task title <span class="text-red-600">*</span></label>
             <input type="text" name="title" id="title" x-model="title" value="{{ old('title', $task->title) }}" required maxlength="255" class="te-input" autocomplete="off">
 
             <label for="description" class="te-label mt-4">Notes</label>
-            <textarea name="description" id="description" rows="3" class="te-input te-textarea" placeholder="Scope, documents needed, checklist…">{{ old('description', $task->description) }}</textarea>
+            <textarea name="description" id="description" rows="3" class="te-input te-textarea" @focus="$el.classList.add('is-open')" placeholder="Scope, documents needed, checklist…">{{ old('description', $task->description) }}</textarea>
         </section>
 
         {{-- Status --}}
         <section class="te-card rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
             <p class="te-label" id="status-label">Status</p>
-            <div class="grid grid-cols-2 gap-2 sm:grid-cols-4" role="radiogroup" aria-labelledby="status-label">
+            <div class="grid grid-cols-4 gap-2" role="radiogroup" aria-labelledby="status-label">
                 @foreach($statuses as $value => [$label, $icon, $on])
-                <label class="te-option" :class="status === @js($value) ? '{{ $on }} is-on' : ''">
+                <label class="te-option te-option--status" :class="status === @js($value) ? '{{ $on }} is-on' : ''">
                     <input type="radio" name="status" value="{{ $value }}" x-model="status" class="sr-only" @checked($statusChoice === $value)>
-                    <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ $icon }}"/></svg>
+                    <svg class="te-ico h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ $icon }}"/></svg>
                     <span>{{ $label }}</span>
                 </label>
                 @endforeach
@@ -111,16 +111,16 @@
                 <label for="due_date" class="te-label mb-0">Due date</label>
                 <span class="text-sm font-semibold" :class="days() !== null && days() < 0 ? 'text-red-700' : 'text-slate-600'" x-text="dueText()"></span>
             </div>
-            <div class="mt-2 flex flex-wrap gap-2">
+            <div class="te-pills mt-2 flex flex-wrap gap-2">
                 <button type="button" class="te-pill" @click="setDue(0)">Today</button>
                 <button type="button" class="te-pill" @click="setDue(1)">Tomorrow</button>
                 <button type="button" class="te-pill" @click="setDue(7)">In 7 days</button>
                 <button type="button" class="te-pill" @click="setDue(30)">In 30 days</button>
                 <button type="button" class="te-pill" x-show="due" @click="due = ''; dirty = true">No date</button>
             </div>
-            <input type="date" name="due_date" id="due_date" x-model="due" value="{{ $dueValue }}" class="te-input mt-3 sm:max-w-xs">
+            <input type="date" name="due_date" id="due_date" x-model="due" value="{{ $dueValue }}" class="te-input te-date mt-3 sm:max-w-xs">
 
-            <p class="te-label mt-5" id="priority-label">Priority</p>
+            <div class="te-prio-head mt-5 flex items-center justify-between gap-2"><p class="te-label mb-0" id="priority-label">Priority</p><span class="sm:hidden text-xs font-bold" :class="{ 'text-red-700': effective()==='High', 'text-amber-700': effective()==='Medium', 'text-slate-600': effective()==='Low' }" x-text="'Now: ' + effective()"></span></div>
             <div class="grid grid-cols-4 gap-2" role="radiogroup" aria-labelledby="priority-label">
                 @foreach($priorities as $value => [$label, $on])
                 <label class="te-option justify-center" :class="priority === @js($value) ? '{{ $on }} is-on' : ''">
@@ -130,12 +130,12 @@
                 </label>
                 @endforeach
             </div>
-            <p class="mt-2 text-sm text-slate-600" x-text="hint()"></p>
+            <p class="te-hint mt-2 text-sm text-slate-600" x-text="hint()"></p>
         </section>
 
         {{-- Who --}}
         <section class="te-card rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div class="grid grid-cols-2 gap-3 sm:gap-4">
                 <div>
                     <label for="client_id" class="te-label">Client</label>
                     <select name="client_id" id="client_id" class="te-input">
@@ -152,7 +152,7 @@
                     <div class="flex items-center justify-between">
                         <label for="assigned_to" class="te-label">Assigned to</label>
                         @if($meAssignable)
-                        <button type="button" class="text-sm font-semibold text-blue-700 hover:underline" x-show="assignee !== @js((string) $me->id)" @click="assignee = @js((string) $me->id); dirty = true">Assign to me</button>
+                        <button type="button" class="te-me text-sm font-semibold text-blue-700 hover:underline" x-show="assignee !== @js((string) $me->id)" @click="assignee = @js((string) $me->id); dirty = true">Assign to me</button>
                         @endif
                     </div>
                     <select name="assigned_to" id="assigned_to" x-model="assignee" class="te-input">
@@ -219,6 +219,29 @@
     .te-btn--primary:hover { background: var(--cd-primary-hover, #1d4ed8); }
     .te-btn--ghost { background: var(--cd-surface, #fff); border-color: var(--cd-border-strong, #cbd5e1); color: var(--cd-text, #0f172a); }
     .te-btn--ghost:hover { background: var(--cd-surface-2, #f1f5f9); }
+    /* Phones: the whole form fits in one screen (no scrolling) */
+    @media (max-width: 639px) {
+        .te-stack { margin: 0; border: 1px solid var(--cd-border, #e2e8f0); border-radius: 16px; background: var(--cd-surface, #fff); overflow: hidden; }
+        .te-stack > :not([hidden]) ~ :not([hidden]) { margin-top: 0 !important; }
+        .te-stack > .te-card { border: 0; border-radius: 0; padding: 10px 12px; background: transparent; }
+        .te-stack > .te-card + .te-card { border-top: 1px solid var(--cd-border, #e2e8f0); }
+        .te-label { margin-bottom: 4px; font-size: 12px; }
+        .te-card .te-label.mt-4 { margin-top: 8px; }
+        .te-input { min-height: 42px; padding: 8px 12px; border-radius: 10px; font-size: 16px; }
+        .te-textarea { min-height: 42px; height: 42px; resize: none; }
+        .te-textarea.is-open { height: 96px; }
+        .te-option { min-height: 40px; padding: 0 6px; gap: 4px; border-radius: 10px; font-size: 13px; justify-content: center; }
+        .te-option--status .te-ico { display: none; }
+        .te-option--status { font-size: 12.5px; white-space: nowrap; letter-spacing: -0.01em; }
+        .te-pills { flex-wrap: nowrap; overflow-x: auto; gap: 6px; margin-top: 6px; scrollbar-width: none; }
+        .te-pills::-webkit-scrollbar { display: none; }
+        .te-pill { min-height: 32px; padding: 0 11px; font-size: 12.5px; white-space: nowrap; flex-shrink: 0; }
+        .te-date { margin-top: 8px; }
+        .te-prio-head { margin-top: 10px; }
+        .te-hint { margin-top: 4px; font-size: 12px; line-height: 1.35; }
+        .te-me { font-size: 12px; }
+        .te { padding-bottom: 74px; }
+    }
     @media (max-width: 1023px) {
         /* fixed just above the bottom menu (the page's outer box doesn't scroll, so sticky can't be used) */
         .te { padding-bottom: 84px; }
